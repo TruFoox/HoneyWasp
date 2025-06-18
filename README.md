@@ -53,9 +53,8 @@ Follow ALL the directions listed below in order for the bot to function correctl
 
 4. Press the blue "Debug" button. After the new webpage loads, scroll down to the bottom and press "Extend Access Token"
 
-5. It will give you a different access token, which will last much longer than an ordinary access token. Place the result inside this section of config.json:
+5. It will give you a different access token, which will last much longer than an ordinary access token. Place the result inside ```api_key``` under ```[Instagram_Settings]``` of config.json:
 ```json
-[Instagram_Settings]
 api_key = PUT_API_KEY_HERE,
 ```
 
