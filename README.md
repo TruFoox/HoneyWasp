@@ -23,8 +23,7 @@
 
 * [About the Project](#about-the-project)
 * [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
+  * [Instagram](#instagram)
 * [Usage](#usage)
 * [Built With](#built-with)
 * [Help](#help)
@@ -44,23 +43,7 @@ A few of our currently available features:
 
 Follow ALL the directions listed below in order for the bot to function correctly. See "Config Help.txt" for more information regarding the config.
 
-### Prerequisites
-
-Before anything, you need to have Python 3 downloaded and installed. [You can download the latest version of Python here](https://www.python.org/downloads/)
-
-This program uses a few libraries that might require you to download them if you haven't used them before
-
-* requests
-* colorama
-* pillow
-* numpy
-
-Use this command in the command prompt to download all of the requirements:
-```sh
-pip install requests colorama pillow numpy
-```
-
-### Installation
+### Instagram
 
 1. Go to [this URL](https://developers.facebook.com/tools/explorer/)
   
@@ -72,9 +55,10 @@ pip install requests colorama pillow numpy
 
 5. It will give you a different access token, which will last much longer than an ordinary access token. Place the result inside this section of config.json:
 ```json
-"API_Key": "API KEY HERE",
+[Instagram_Settings]
+api_key = PUT_API_KEY_HERE,
 ```
-Further instruction for how to get your UserID will be added at a later date
+
 
 ## Help
 
@@ -82,13 +66,13 @@ Please DM me on my [bot's Instagram page](https://www.instagram.com/dank.ai.meme
 
 ## Usage
 
-This bot generally requires zero input from the user while it is running, but YOU MUST MAKE SURE TO MONITOR WHAT THE BOT POSTS!
+This bot generally requires zero input from the user while it is running, but when you have ```post_mode = auto``` in the config, you should keep an eye on the bot - it is still technically possible for it to post soemething against TOS
 
-If you fail to do so, the bot could post something against Instagram's TOS. This can be minimized, however, by keeping NSFW disabled in the config and only choosing from subreddits with infrequent unmarked NSFW.
+If you fail to do so, the bot could post something against the service's TOS. This can be minimized, however, by keeping NSFW disabled in the config and only choosing from subreddits with infrequent unmarked NSFW. (this is not a concern when the config is set to ```manual```.
 
 ## Built With
 
-Programmed entirely in Python3 using the Requests, Colorama, Pillow, and Numpy libraries
+Programmed entirely in C++ using Libcurl (for API calls), D++ (for Discord integration), nlohmann/json (config parsing) & MemeAPI (for automatic image finding)
 
 ## Contributing
 
@@ -112,7 +96,7 @@ Contributions are what make the open source community such an amazing place to b
 
 ## Acknowledgements
 
-* **[Brainboxdotcc](https://github.com/brainboxdotcc)** by [D++](https://dpp.dev/) - D++ is used in this program to communicate with discord
+* **[D++](https://dpp.dev/)** by [Brainboxdotcc](https://github.com/brainboxdotcc) - D++ is used in this program to communicate with discord
 * **[Libcurl](https://curl.se/libcurl/)** - Allows HTTP API calls in C++
 * **[nlohmann/json](https://github.com/nlohmann/json)** by [Nlohmann](https://github.com/nlohmann) - Parses json from API calls
 * **[MemeAPI](https://github.com/D3vd)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesnt choose a source
