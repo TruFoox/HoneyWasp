@@ -100,7 +100,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/wd4251 /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\lande\Documents\Libcurl_For_InstagramBot\builds\libcurl-vc17-x64-debug-static-ipv6-sspi-schannel\include;C:\Users\lande\Desktop\HoneyWasp;C:\Users\lande\Downloads\include;C:\Users\lande\Downloads\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lande\Desktop\HoneyWasp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/wd4251 /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\lande\Documents\Libcurl_For_InstagramBot\builds\libcurl-vc17-x64-debug-static-ipv6-sspi-schannel\include;C:\Users\lande\Desktop\HoneyWasp;C:\Users\lande\Downloads\include;C:\Users\lande\Downloads\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lande\Desktop\HoneyWasp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,7 +152,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/wd4251 /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\lande\Documents\Libcurl_For_InstagramBot\builds\libcurl-vc17-x64-debug-static-ipv6-sspi-schannel\include;C:\Users\lande\Desktop\HoneyWasp;C:\Users\lande\Downloads\include;C:\Users\lande\Downloads\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lande\Desktop\HoneyWasp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -178,7 +178,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/wd4251 /utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\lande\Documents\Libcurl_For_InstagramBot\builds\libcurl-vc17-x64-debug-static-ipv6-sspi-schannel\include;C:\Users\lande\Desktop\HoneyWasp;C:\Users\lande\Downloads\include;C:\Users\lande\Downloads\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lande\Desktop\HoneyWasp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
