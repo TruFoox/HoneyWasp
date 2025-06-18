@@ -16,8 +16,11 @@
 # Mono auto generated files
 mono_crash.*
 
-# Ignore config
+# Ignore
 Config.ini
+used_urls.json
+Media.json
+README.md
 
 # Build results
 [Dd]ebug/
@@ -78,6 +81,7 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 *.meta
+*.ini
 *.obj
 *.iobj
 *.pch
