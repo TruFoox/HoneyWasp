@@ -41,7 +41,9 @@ A few of our currently available features:
 
 ## Getting Started
 
-Follow ALL the directions listed below in order for the bot to function correctly. See "Config Help.txt" for more information regarding the config.
+Please [download the latest release](https://github.com/TruFoox/HoneyWasp/releases/latest) and edit the config.ini options listed below, depending on the service you want to use.
+
+** THE BOT WILL NOT WORK IF YOU DO NOT PROVIDE THE APPROPRIATE CONFIG OPTIONS **
 
 ### Instagram
 
@@ -53,15 +55,14 @@ Follow ALL the directions listed below in order for the bot to function correctl
 
 4. Press the blue "Debug" button. After the new webpage loads, scroll down to the bottom and press "Extend Access Token"
 
-5. It will give you a different access token, which will last much longer than an ordinary access token. Place the result inside ```api_key``` under ```[Instagram_Settings]``` of config.json:
-```json
-api_key = PUT_API_KEY_HERE,
-```
+5. It will give you a different access token, which will last much longer than an ordinary access token. Place the result inside ```api_key``` under ```[Instagram_Settings]``` of config.ini:
+```api_key = PUT_API_KEY_HERE```
 
+ASSITANCE ON ADDING USERID TO BE ADDED AT A LATER DATE
 
 ## Help
 
-Please DM me on my [bot's Instagram page](https://www.instagram.com/dank.ai.memer/) or DM me on Discord (@TruFoox) for questions. I will both assist you there and, if the question is common enough, I will answer it here!
+Please DM me on Discord (@TruFoox) for questions. I will assist you there and, if the question is common enough, I will answer it here as an FAQ!
 
 ## Usage
 
