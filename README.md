@@ -43,7 +43,7 @@ A few of our currently available features:
 
 Please [download the latest release](https://github.com/TruFoox/HoneyWasp/releases/latest) and edit the config.ini options listed below, depending on the service you want to use.
 
-** THE BOT WILL NOT WORK IF YOU DO NOT PROVIDE THE APPROPRIATE CONFIG OPTIONS **
+**THE BOT WILL NOT WORK IF YOU DO NOT PROVIDE THE APPROPRIATE CONFIG OPTIONS**
 
 ### Instagram
 
