@@ -1,0 +1,13 @@
+Remote config changing
+Webhook to output cout
+add remaining error handling from OG
+Missing config item handling
+
+
+Figure out how to make error handing messages table (for below errors & similar)
+
+
+
+HTTP POST error code: 400
+
+        Error details: {"error":{"message":"The requested resource does not exist","type":"OAuthException","code":24,"error_subcode":2207006,"is_transient":false,"error_user_title":"Media Not Found","error_user_msg":"The media with 18,101,069,044,553,781 cannot be found.","fbtrace_id":"AT5sPWX8pSg5Sa3WRY9UWuY"}}
