@@ -41,7 +41,7 @@ std::vector<int> SUBREDDIT_WEIGHTS;
 /* Starts sending API calls to post to instagram*/
 int instagram() {
     try {
-        /* Load config data */
+        /* Load config data */ 
         INIReader reader("../Config.ini");
         std::string TOKEN = reader.Get("Instagram_Settings", "api_key", "");
         std::string INSTAPOSTMODE = reader.Get("Instagram_Settings", "post_mode", "auto");
