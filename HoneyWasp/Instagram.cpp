@@ -445,7 +445,7 @@ json HTTP_Get(const std::string& base_url, long& http_code) { // HTTP GET reques
 }
 
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params) { // HTTP POST request
-    CURL* curl;
+    CURL* curl; 
     CURLcode res;
     std::string instaresponse;
     std::string post_fields;
