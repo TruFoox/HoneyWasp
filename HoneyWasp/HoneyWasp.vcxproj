@@ -200,6 +200,7 @@
     <ClCompile Include="..\ini.c" />
     <ClCompile Include="Instagram.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Youtube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Downloads\stb_image.h" />
@@ -302,6 +303,7 @@
     <ClInclude Include="Instagram.h" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="youtube.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

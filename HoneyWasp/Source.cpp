@@ -5,6 +5,7 @@
 #include <boost/algorithm/string.hpp>
 #include "Source.h"
 #include "instagram.h"
+#include "youtube.h"
 #include <ctime>
 #include <iostream>
 #include <windows.h>
@@ -12,6 +13,7 @@
 /* Function Prototypes*/
 void crash();
 void send_webhook(std::string& message);
+void color(int n);
 
 /* Global Variables */
 std::string BOT_TOKEN, AUTOSTART, WEBHOOK;
@@ -42,7 +44,7 @@ int main() {
                 @@     @@      @@   @@  @@  @@  @@@  @@  @@     @@ @@  @@   @   @@  @@@   @@@     @@  @@
                 @@     @@      @@@@@@@ @@    @@ @@@@ @@  @@@@    @@@    @@ @@@ @@  @@ @@   @@@@   @@@@@
                       @@@@     @@   @@  @@  @@  @@ @@@@  @@      @@      @@@@@@@  @@@@@@     @@@  @@
-                      @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v0.06
+                      @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v1.07
                        @@
 
 
@@ -61,7 +63,7 @@ int main() {
     bool DEBUG_MODE = reader.GetBoolean("General_Settings", "debug_mode", false);
 
 
-    if (reader.ParseError() < 0 || BOT_TOKEN == "0") { // If on default value/error, abort
+    if (reader.ParseError() < 0) { // If on default value/error, abort
         std::cout << "Config.ini failed to load. Aborting...";
         return 1;
     }
@@ -100,8 +102,27 @@ int main() {
                 /* Reply to the command with embed.*/
                 dpp::embed embed = dpp::embed()
                     .set_color(0xFFA500)
-                    .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://bit.ly/44SZP1F")
+                    .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
                     .set_thumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
+                    .add_field("Stopping " + service, "");
+
+                /* Create a message with the content as our new embed. */
+                dpp::message msg(event.command.channel_id, embed);
+
+                /* Reply to the user with the message, containing our embed. */
+                event.reply(msg);
+                instagramStop();
+            }
+            if (service == "youtube") {
+                std::time_t t = std::time(nullptr); // Get timestamp
+                std::tm tm_obj;
+                localtime_s(&tm_obj, &t);
+                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping Youtube";
+                /* Reply to the command with embed.*/
+                dpp::embed embed = dpp::embed()
+                    .set_color(0xFFA500)
+                    .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                    .set_thumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                     .add_field("Stopping " + service, "");
 
                 /* Create a message with the content as our new embed. */
@@ -142,7 +163,7 @@ int main() {
                 dpp::embed embed = dpp::embed()
                     .set_color(0xFFA500)
                     .set_title("")
-                    .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://bit.ly/44SZP1F")
+                    .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
                     .set_thumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                     .add_field(
                         "Starting bot on " + service,
@@ -162,11 +183,25 @@ int main() {
             }
 
             if (service == "youtube") {
-                std::time_t t = std::time(nullptr); // Get timestamp
+                dpp::embed embed = dpp::embed()
+                    .set_color(0xFFA500)
+                    .set_title("")
+                    .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                    .set_thumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
+                    .add_field(
+                        "Starting bot on " + service,
+                        "Use /stop to stop"
+                    );
+                /* Create a message with the content as our new embed. */
+                dpp::message msg(event.command.channel_id, embed);
+
+                /* Reply to the user with the message, containing our embed. */
+                event.reply(msg);
+                std::time_t t = std::time(nullptr); // Get timestampb
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting Youtube";
-                // ...
+				youtube();
             }
         }
         });
@@ -211,6 +246,7 @@ int main() {
             }
             else if (AUTOSTART == "youtube") {
                 std::cout << "\n\n\tAutostarting YouTube\n";
+                youtube();
             }
         }
         });
@@ -241,4 +277,8 @@ void send_webhook(std::string& message) { // Send webhook
         bot.execute_webhook(created_webhook, webhook_message, true);
         });
 
+}
+
+void color(int n) { // Set cout color
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), n);
 }

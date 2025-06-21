@@ -6,5 +6,6 @@
 void crash();
 extern bool webhookActive;
 void send_webhook(std::string& message);
+void color(int n);
 
 #endif

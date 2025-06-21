@@ -18,9 +18,10 @@ mono_crash.*
 
 # Ignore
 Config.ini
-used_urls.json
-Media.json
+instagram_used_urls.json
+Media_URLs.json
 README.md
+Videos/
 
 # Build results
 [Dd]ebug/
