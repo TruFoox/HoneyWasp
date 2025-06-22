@@ -18,8 +18,8 @@ void color(int n);
 /* Global Variables */
 std::string BOT_TOKEN, AUTOSTART, WEBHOOK;
 int CHANNEL_ID;
-bool DEBUG_MODE;
 dpp::cluster bot;
+bool DEBUGMODE = false; // Default to prevent unresolved external error
 
 /* Start bot */
 int main() {
@@ -60,7 +60,7 @@ int main() {
     boost::to_lower(AUTOSTART);
     std::string WEBHOOK = reader.Get("General_Settings", "webhook_url", "Missing");
     int CHANNEL_ID = std::stoi(reader.Get("General_Settings", "webhook_channel_id", "0"));
-    bool DEBUG_MODE = reader.GetBoolean("General_Settings", "debug_mode", false);
+    bool DEBUGMODE = reader.GetBoolean("General_Settings", "DEBUGMODE", false);
 
 
     if (reader.ParseError() < 0) { // If on default value/error, abort
@@ -76,8 +76,8 @@ int main() {
     dpp::cluster bot(BOT_TOKEN);
     std::cout << "\n\t" << "Discord token accepted! Discord client logs:";
 
-    bot.on_log([&DEBUG_MODE](const dpp::log_t& event) { // Discord client info output
-        if (((dpp::utility::loglevel(event.severity) == "INFO") && event.message.find("Reconnecting Shard") == std::string::npos) || (dpp::utility::loglevel(event.severity) == "ERROR") || (DEBUG_MODE == true)) { // Only show discord client INFO logs to prevent flooding
+    bot.on_log([&DEBUGMODE](const dpp::log_t& event) { // Discord client info output
+        if (((dpp::utility::loglevel(event.severity) == "INFO") && event.message.find("Reconnecting Shard") == std::string::npos) || (dpp::utility::loglevel(event.severity) == "ERROR") || (DEBUGMODE == true)) { // Only show discord client INFO logs to prevent flooding
             color(6);
             std::time_t t = std::time(nullptr); // Get timestamp
             std::tm tm_obj;
@@ -201,7 +201,7 @@ int main() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting Youtube";
-				youtube();
+                youtube();
             }
         }
         });

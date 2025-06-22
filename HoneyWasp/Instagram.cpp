@@ -33,7 +33,7 @@ void clear();
 int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
 long long USER_ID;
 long http_code;
-bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, DEBUGMODE, instakeeploop, tempDisableCaption, imageValid;
+bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, instakeeploop, tempDisableCaption, imageValid;
 std::string TOKEN, SUBREDDITS_RAW, SUBREDDIT_WEIGHTS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, INSTAPOSTMODE, imageURL;
 std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, manualMedia;
 std::vector<int> SUBREDDIT_WEIGHTS;
@@ -165,14 +165,18 @@ int instagram() {
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
+                    color(4); // Set color to red
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
+					imageValid == false; // Set imageValid to false to skip current post attempt
                 }
                 else { // Other error handling
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
+                    color(4); // Set color to red
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HTTP GET ERROR " << http_code << ": \n\t" << data << std::endl;
+                    return 1;
                 }
 
             }
@@ -223,15 +227,15 @@ int instagram() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
 
-                        color(2);
+						color(2); // Set color to green
 
                         std::string message;
 
                         if (INSTAPOSTMODE == "auto") {
-                            message = (imageURL + " from r/" + chosenSubreddit + " SUCCESSFULLY uploaded - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
+                            message = (imageURL + " from r/" + chosenSubreddit + " SUCCESSFULLY uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
                         else {
-                            message = (imageURL + " SUCCESSFULLY uploaded - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
+                            message = (imageURL + " SUCCESSFULLY uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
 
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
@@ -269,6 +273,7 @@ int instagram() {
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
+                    color(4); // Set color to red
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " -  HTTP POST ERROR " << http_code << ": \n\t" << uploadJson << std::endl;
                 }
             }

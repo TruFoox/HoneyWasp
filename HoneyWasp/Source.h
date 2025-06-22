@@ -8,4 +8,7 @@ extern bool webhookActive;
 void send_webhook(std::string& message);
 void color(int n);
 
+// Global variables
+extern bool DEBUGMODE;
+
 #endif
