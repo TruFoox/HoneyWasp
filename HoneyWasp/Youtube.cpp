@@ -46,7 +46,7 @@ int youtube() {
         if (REFRESHTOKEN == "") { // If refresh token is not set, fetch it
             std::string oauthURL = "https://accounts.google.com/o/oauth2/auth?client_id=" + ID + "&redirect_uri=http://localhost&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&prompt=consent";
             std::cout << "\n\n\tBEFORE YOU CAN POST, YOU MUST RETRIEVE YOUR ACCESS TOKEN. ATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (" << oauthURL << ")\n";
-            
+
             std::string command = "start \"\" \"" + oauthURL + "\""; // convert to string cmd for Windows
             system(command.c_str()); // Launch OAuth URL in default browser
 
@@ -151,7 +151,7 @@ int youtube() {
             /* Initiate post */
             if (YTPOSTMODE == "manual") {
                 for (const auto& entry : std::filesystem::directory_iterator("../Videos")) { // Log all files in image/video directory
-                    media.push_back(entry.path().string()); 
+                    media.push_back(entry.path().string());
                 }
 
                 if (media.empty()) {
@@ -216,7 +216,7 @@ int youtube() {
 
                 size_t pos = video_file.rfind('.');
                 if (pos == std::string::npos) {
-					std::cout << "\n\tNo file extension found for: " << video_file << "\n"; // If no extension found
+                    std::cout << "\n\tNo file extension found for: " << video_file << "\n"; // If no extension found
                     return 0;  // No extension found
                 }
 
@@ -225,7 +225,7 @@ int youtube() {
                     "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
                     metadata_str + "\r\n" +
                     "--foo_bar_baz\r\n"
-					"Content-Type: video/" + video_file.substr(pos + 1) + "\r\n\r\n" +  // Use file extension for content type
+                    "Content-Type: video/" + video_file.substr(pos + 1) + "\r\n\r\n" +  // Use file extension for content type
                     video_data + "\r\n" +
                     "--foo_bar_baz--\r\n"; // End boundary
 
@@ -256,7 +256,7 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(2); // Set color to green
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " SUCCESSFULLY uploaded to YouTube " << json["id"] << "\n"; // Print video ID
+                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " SUCCESSFULLY uploaded to YouTube"; // Print video ID
                     if (DEBUGMODE == true) {
                         std::cout << json.dump(4) << "\n";
                     }
@@ -267,7 +267,7 @@ int youtube() {
                     localtime_s(&tm_obj, &t);
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Could not parse response:\n" << response << "\n"; // Fallback if parsing fails
                 }
-            std::this_thread::sleep_for(std::chrono::seconds(YT_TIME_BETWEEN_POSTS * 60)); // Sleep
+                std::this_thread::sleep_for(std::chrono::seconds(YT_TIME_BETWEEN_POSTS * 60)); // Sleep
             }
         }
         return 0;
