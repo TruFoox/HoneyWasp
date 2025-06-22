@@ -269,7 +269,7 @@ int youtube() {
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(YT_TIME_BETWEEN_POSTS * 60)); // Sleep
             }
-        }
+        } 
         return 0;
     }
     catch (const std::exception& e) { // Error handling

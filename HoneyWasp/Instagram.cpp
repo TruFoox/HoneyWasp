@@ -17,7 +17,7 @@
 #include "instagram.h"
 
 using json = nlohmann::json; // redefines json as one from nlohmann
-
+ 
 
 /* Prototypes */
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);

@@ -9,6 +9,6 @@ void send_webhook(std::string& message);
 void color(int n);
 
 // Global variables
-extern bool DEBUGMODE;
+extern bool DEBUGMODE; 
 
 #endif

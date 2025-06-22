@@ -9,7 +9,7 @@
 #include <ctime>
 #include <iostream>
 #include <windows.h>
-
+ 
 /* Function Prototypes*/
 void crash();
 void send_webhook(std::string& message);
