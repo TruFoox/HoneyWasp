@@ -37,7 +37,7 @@ int main() {
     }
     do {
         try {
-            color(6);
+            color(6); 
             std::cout << R"(
           @@@@@                        @@@@@@
               @@@                  @@@
