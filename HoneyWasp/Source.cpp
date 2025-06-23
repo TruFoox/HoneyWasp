@@ -10,6 +10,7 @@
 #include <iostream>
 #include <windows.h>
 #include <vector>
+#include <thread>
 #include <string>
  
 /* Function Prototypes*/
@@ -21,6 +22,7 @@ void color(int n);
 std::string BOT_TOKEN, WEBHOOK;
 int CHANNEL_ID;
 dpp::cluster bot;
+std::vector<std::thread> threads;
 bool DEBUGMODE = false; // Default to prevent unresolved external error
 bool RESTART;
 
@@ -39,7 +41,7 @@ int main() {
         try {
             color(6); 
             std::cout << R"(
-          @@@@@                        @@@@@@
+          @@@@@                      @@@@@@
               @@@                  @@@
                  @@              @@
                    @@@@@@@@@@@@@@
@@ -69,10 +71,8 @@ int main() {
             INIReader reader("../Config.ini");
             BOT_TOKEN = reader.Get("General_Settings", "discord_bot_token", "");
             std::string AUTOSTART_RAW = reader.Get("General_Settings", "autostart", "none");
+            boost::to_lower(AUTOSTART_RAW);
             std::vector<std::string> AUTOSTART = split(AUTOSTART_RAW, ','); // Convert into list
-            for (std::string& service : AUTOSTART) {
-                boost::to_lower(service);
-            }
             std::string WEBHOOK = reader.Get("General_Settings", "webhook_url", "Missing");
             bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
 
@@ -257,14 +257,18 @@ int main() {
                     localtime_s(&tm_obj, &t);
                     for (const std::string& entry : AUTOSTART) {
                         if (entry == "instagram") {
-                            std::cout << "\n\n\tAutostarting Instagram\n";
-                            instagram();
+                            std::cout << "\n\n\tAutostarting Instagram";
+                            threads.emplace_back(instagram); // Run instagram() on new thread
                         }
                         else if (entry == "youtube") {
-                            std::cout << "\n\n\tAutostarting YouTube\n";
-                            youtube();
+                            std::cout << "\n\n\tAutostarting YouTube";
+                            threads.emplace_back(youtube); // Run youtube() on new thread
                         }
-                        // Add more cases here as needed
+                    }
+
+                    // Join all threads to ensure they complete before program exits
+                    for (std::thread& t : threads) {
+                        if (t.joinable()) t.join();
                     }
                 }
                 });
@@ -275,12 +279,16 @@ int main() {
         }
         catch (const std::exception& e) { // Error handling
             std::cerr << "\n\tBot crashed: " << e.what() << '\n';
-            system("pause");
+            if (!RESTART) {
+                system("pause");
+            }
             return 1;
         }
         catch (...) {
             std::cerr << "\n\tBot crashed with unknown error.\n";
-            system("pause");
+            if (!RESTART) {
+                system("pause");
+            }
             return 1;
         }
     } while (RESTART);
