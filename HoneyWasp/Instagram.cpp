@@ -21,8 +21,6 @@ using json = nlohmann::json; // redefines json as one from nlohmann
 
 /* Prototypes */
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
-std::vector<std::string> split(const std::string& str, char delimiter);
-std::vector<int> splitInts(const std::string& str, char delimiter);
 json HTTP_Get(const std::string& base_url, long& http_code);
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params = {});
 void instagramStop();
@@ -70,6 +68,14 @@ int instagram() {
         int countattempt = 0;
         instakeeploop = true; // Ensures keeploop isnt false if restarted after /stop
 
+
+        /* Abort if any required value is default */
+        if (TOKEN.empty()|| USER_ID == 0 || (INSTAPOSTMODE == "auto" && (SUBREDDITS_RAW.empty() || SUBREDDIT_WEIGHTS_RAW.empty()))) {
+            std::cout << "Config.ini is missing required Instagram settings. Aborting...\n";
+            system("pause");
+            return 1;
+        }
+
         for (int i = 0; i < SUBREDDIT_WEIGHTS.size(); i++) { // Scales subreddit list by the weights in Subreddit_Weights
             for (int o = 0; o < SUBREDDIT_WEIGHTS[i]; ++o) {
                 SUBREDDITS.push_back(SUBREDDITS[i]);
@@ -78,7 +84,7 @@ int instagram() {
 
         if (INSTAPOSTMODE == "auto") {
             /* Open and read used_urls.json */
-            std::ifstream inFile("instagram_used_urls.json.json");
+            std::ifstream inFile("instagram_used_urls.json");
             json j;
 
             if (inFile) {
@@ -91,7 +97,7 @@ int instagram() {
             }
             inFile.close();
 
-            std::filesystem::path filePath = "instagram_used_urls.json.json"; // Gets used_urls.json size on disk to approximate length
+            std::filesystem::path filePath = "instagram_used_urls.json"; // Gets used_urls.json size on disk to approximate length
             if (std::filesystem::file_size(filePath) > 100000) {
                 std::cout << "\n\tused_urls.json is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
             }
@@ -145,6 +151,7 @@ int instagram() {
                 data = HTTP_Get(apilink, http_code);
 
                 if (DEBUGMODE) {
+                    color(6); // Reset cout color to yellow (default)
                     std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data;
                 }
                 /* Read JSON data and attempt post*/
@@ -155,6 +162,7 @@ int instagram() {
                     bool tempDisableCaption = false;
 
                     if (DEBUGMODE) {
+                        color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tGET success";
                     }
 
@@ -168,7 +176,7 @@ int instagram() {
                     color(4); // Set color to red
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
-					imageValid == false; // Set imageValid to false to skip current post attempt
+					imageValid = false; // Set imageValid to false to skip current post attempt
                 }
                 else { // Other error handling
                     std::time_t t = std::time(nullptr); // Get timestamp for output
@@ -204,9 +212,10 @@ int instagram() {
                 }
                 std::string uploadURL = "https://graph.facebook.com/v19.0/" + std::to_string(USER_ID) + "/media"; // Generates URL for uploading image
                 json uploadJson = HTTP_Post(uploadURL, http_code, uploadData);
-                if (http_code == 200) { // Ensure POST success
 
+                if (http_code == 200) { // Ensure POST success
                     if (DEBUGMODE) {
+                        color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tPOST 1 success";
                     }
 
@@ -215,11 +224,13 @@ int instagram() {
                         {"creation_id", id},
                         {"access_token", TOKEN}
                     };
+
                     uploadURL = "https://graph.facebook.com/v19.0/" + std::to_string(USER_ID) + "/media_publish"; // Generates URL for publishing image
                     uploadJson = HTTP_Post(uploadURL, http_code, uploadData); // Send POST publish request
 
                     if (http_code == 200) { // Ensure POST success
                         if (DEBUGMODE) {
+                            color(6); // Reset cout color to yellow (default)
                             std::cout << "\n\tPOST 2 success\n";
                         }
 
@@ -232,16 +243,16 @@ int instagram() {
                         std::string message;
 
                         if (INSTAPOSTMODE == "auto") {
-                            message = (imageURL + " from r/" + chosenSubreddit + " SUCCESSFULLY uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
+                            message = (imageURL + " from r/" + chosenSubreddit + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
                         else {
-                            message = (imageURL + " SUCCESSFULLY uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
+                            message = (imageURL + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
 
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
                         send_webhook(message);
                         /* Begin export of URL to file */
-                        std::ifstream inFile("instagram_used_urls.json.json");
+                        std::ifstream inFile("instagram_used_urls.json");
                         json j;
 
                         if (inFile) {
@@ -260,7 +271,7 @@ int instagram() {
 
                         j.push_back(imageURL); // Append element to JSON
                         usedUrls.push_back(imageURL); // Append element to memory
-                        std::ofstream outFile("instagram_used_urls.json.json");
+                        std::ofstream outFile("instagram_used_urls.json");
                         outFile << j.dump(4);
                         outFile.close();
 
@@ -376,29 +387,6 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { /
     std::string* instaresponse = static_cast<std::string*>(userp);
     instaresponse->append(static_cast<char*>(contents), totalSize);
     return totalSize;
-}
-
-std::vector<std::string> split(const std::string& str, char delimiter) { // Splits confi11111111111111g string into string array
-    std::vector<std::string> result;
-    std::stringstream ss(str);
-    std::string item;
-    while (std::getline(ss, item, delimiter)) {
-        if (!item.empty()) result.push_back(item);
-    }
-    return result;
-}
-
-std::vector<int> splitInts(const std::string& str, char delimiter) { // Splits config ints into int array
-    std::vector<int> result;
-    std::stringstream ss(str);
-    std::string item;
-    while (std::getline(ss, item, delimiter)) {
-        try {
-            result.push_back(std::stoi(item));
-        }
-        catch (...) {} // skip invalid numbers
-    }
-    return result;
 }
 
 json HTTP_Get(const std::string& base_url, long& http_code) { // HTTP GET request.
