@@ -8,7 +8,7 @@
   <h3 align="center">HoneyWasp</h3>
 
   <p align="center">
-    A bot to automatically post to various social media services
+    A bot to automatically post to various social media services - THIS README IS CURRENTLY USELESS. WILL BE IMPROVED SOON
     <br/>
     <br/>
     <a href="https://github.com/TruFoox/HoneyWasp/issues">Report Bug</a>
