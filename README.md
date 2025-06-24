@@ -15,10 +15,9 @@
     .
     <a href="https://github.com/TruFoox/HoneyWasp/issues">Request Feature</a>
   </p>
+
+  ![Downloads](https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total) ![Stargazers](https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social) ![Issues](https://img.shields.io/github/issues/TruFoox/HoneyWasp) 
 </p>
-
-![Downloads](https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total) ![Stargazers](https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social) ![Issues](https://img.shields.io/github/issues/TruFoox/HoneyWasp) 
-
 ## Table Of Contents
 
 * [About the Project](#about-the-project)
