@@ -1,23 +1,27 @@
-<br/>
-<p align="center">
-  <a href="https://github.com/TruFoox/HoneyWasp">
-    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="Logo" width="200" height="200">
+<div align="center">
 
+  <a href="https://github.com/TruFoox/HoneyWasp">
+    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="Logo" width="200" height="200" />
   </a>
 
-  <h3 align="center">HoneyWasp</h3>
+  <h3>HoneyWasp</h3>
 
-  <p align="center">
+  <p>
     A bot to automatically post to various social media services - THIS README IS CURRENTLY USELESS. WILL BE IMPROVED SOON
-    <br/>
-    <br/>
-    <a href="https://github.com/TruFoox/HoneyWasp/issues">Report Bug</a>
-    .
+    <br/><br/>
+    <a href="https://github.com/TruFoox/HoneyWasp/issues">Report Bug</a> ·
     <a href="https://github.com/TruFoox/HoneyWasp/issues">Request Feature</a>
   </p>
 
-  ![Downloads](https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total) ![Stargazers](https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social) ![Issues](https://img.shields.io/github/issues/TruFoox/HoneyWasp) 
-</p>
+  <p>
+    <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
+    <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
+    <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
+  </p>
+
+</div>
+
+
 ## Table Of Contents
 
 * [About the Project](#about-the-project)
