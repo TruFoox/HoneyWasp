@@ -14,7 +14,8 @@
 #include <string>
  
 /* Function Prototypes*/
-void crash();
+void instagramcrash();
+void youtubecrash();
 void send_webhook(std::string& message);
 void color(int n);
 
@@ -37,9 +38,9 @@ int main() {
         system("pause");
         return 1;
     }
-    do {
+	do { // Main loop for restarting bot on crash
         try {
-            color(6); 
+			color(6); // Set color to default (yellow)
             std::cout << R"(
           @@@@@                      @@@@@@
               @@@                  @@@
@@ -60,7 +61,7 @@ int main() {
                      @@     @@      @@   @@  @@  @@  @@@  @@  @@     @@ @@  @@   @   @@  @@@   @@@     @@  @@
                      @@     @@      @@@@@@@ @@    @@ @@@@ @@  @@@@    @@@    @@ @@@ @@  @@ @@   @@@@   @@@@@
                            @@@@     @@   @@  @@  @@  @@ @@@@  @@      @@      @@@@@@@  @@@@@@     @@@  @@
-                           @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v1.11
+                           @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v1.12
                             @@
 
 
@@ -74,6 +75,7 @@ int main() {
             BOT_TOKEN = reader.Get("General_Settings", "discord_bot_token", "");
             std::string AUTOSTART_RAW = reader.Get("General_Settings", "autostart", "none");
             boost::to_lower(AUTOSTART_RAW);
+            boost::erase_all(AUTOSTART_RAW, " ");
             std::vector<std::string> AUTOSTART = split(AUTOSTART_RAW, ','); // Convert into list
             std::string WEBHOOK = reader.Get("General_Settings", "webhook_url", "Missing");
             bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
@@ -88,8 +90,8 @@ int main() {
             std::time_t t = std::time(nullptr); // Get timestamp
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
-            std::cout << "\n\t" << std::put_time(&tm_obj, "%Y-%m-%d @ %H:%M:%S") << " - Config loaded";
-            std::cout << "\n\t" << std::put_time(&tm_obj, "%Y-%m-%d @ %H:%M:%S") << " - Loading discord";
+            std::cout << "\n\t" << std::put_time(&tm_obj, "%d-%m-%Y @ %H:%M:%S") << " - Config loaded";
+            std::cout << "\n\t" << std::put_time(&tm_obj, "%d-%m-%Y @ %H:%M:%S") << " - Loading discord";
             dpp::cluster bot(BOT_TOKEN);
             std::cout << "\n\t" << "Discord token accepted! Discord client logs:";
 
@@ -110,7 +112,7 @@ int main() {
                 /* Check which command they ran */
                 if (event.command.get_command_name() == "stop") { // Stop service
                     std::string service = std::get<std::string>(event.get_parameter("service"));
-
+                    color(6);
                     if (service == "instagram") {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
@@ -147,11 +149,12 @@ int main() {
 
                         /* Reply to the user with the message, containing our embed. */
                         event.reply(msg);
-                        instagramStop();
+                        youtubeStop();
                     }
                 }
 
                 if (event.command.get_command_name() == "clear") { // Clear cache
+                    color(6);
                     std::string service = std::get<std::string>(event.get_parameter("service"));
 
                     if (service == "instagram") {
@@ -173,6 +176,7 @@ int main() {
                     }
                 }
                 if (event.command.get_command_name() == "start") { // Start service
+                    color(6);
                     std::string service = std::get<std::string>(event.get_parameter("service")); // Fetch inputs from commands
 
                     if (service == "instagram") {
@@ -257,17 +261,18 @@ int main() {
                     std::time_t t = std::time(nullptr); // Get timestamp
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
+                    std::cout << std::endl;
                     for (const std::string& entry : AUTOSTART) {
                         if (entry == "instagram") {
-                            std::cout << "\n\n\tAutostarting Instagram";
+                            std::cout << "\n\tAutostarting Instagram";
                             threads.emplace_back(instagram); // Run instagram() on new thread
                         }
                         else if (entry == "youtube") {
-                            std::cout << "\n\n\tAutostarting YouTube";
+                            std::cout << "\n\tAutostarting YouTube";
                             threads.emplace_back(youtube); // Run youtube() on new thread
                         }
                     }
-
+                    std::cout << std::endl;
                     // Join all threads to ensure they complete before program exits
                     for (std::thread& t : threads) {
                         if (t.joinable()) t.join();
@@ -283,21 +288,29 @@ int main() {
             std::cerr << "\n\tBot crashed: " << e.what() << '\n';
             if (!RESTART) {
                 system("pause");
+                return 1;
             }
-            return 1;
         }
         catch (...) {
             std::cerr << "\n\tBot crashed with unknown error.\n";
             if (!RESTART) {
                 system("pause");
+                return 1;
             }
-            return 1;
         }
     } while (RESTART);
 }
 
-void crash() { // TBA apon crash do...
-    // ...
+void youtubecrash() { //On crash restart if enabled
+    if (RESTART) {
+        youtube(); // Restart youtube
+    }
+}
+
+void instagramcrash() { // On crash restart if enabled
+    if (RESTART) {
+		instagram(); // Restart instagram
+    }
 }
 
 void send_webhook(std::string& message) { // Send webhook
