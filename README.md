@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/TruFoox/HoneyWasp">
-    <img src="https://media.discordapp.net/attachments/1006651353529073746/1377426576333078588/IMG_1599.PNG?ex=6852a137&is=68514fb7&hm=980afd1604aaf024a122814c986109e0c194d7c6a84b25d73414dda36ce6d15e&=&format=webp&quality=lossless&width=958&height=958" alt="Logo" width="200" height="200">
+    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="Logo" width="200" height="200">
 
   </a>
 
