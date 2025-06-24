@@ -9,8 +9,8 @@
   <p>
     A bot to automatically post to various social media services - THIS README IS CURRENTLY USELESS. WILL BE IMPROVED SOON
     <br/><br/>
-    <a href="https://github.com/TruFoox/HoneyWasp/issues">Report Bug</a> ·
-    <a href="https://github.com/TruFoox/HoneyWasp/issues">Request Feature</a>
+    <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> ·
+    <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
   </p>
 
   <p>
