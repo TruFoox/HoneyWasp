@@ -61,7 +61,8 @@ Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyW
 2. Click **"New Application"**
 3. Name it, then click **Create**
 4. Click your new bot to open its settings
-5. Finally, in the **Bot** tab in the left panel, → click **Reset Token**, follow the instructions, and copy the new token it gives you into ```discord_bot_token``` in Config.ini
+5. In the **Bot** tab in the left panel, → click **Reset Token**, follow the instructions to get your bot's API token
+6. Finally, copy the new token it gives you into ```discord_bot_token``` in Config.ini
 
 ### Step 2: Set OAuth2 Permissions
 
