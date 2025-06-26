@@ -36,7 +36,7 @@
 
 # About The Project
 
-This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot rip a post off reddit using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot take an image off reddit using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
 A few of our currently available features:
 * Manual or Automatic media selection 
