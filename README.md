@@ -22,20 +22,19 @@
 </div>
 
 
-## Table Of Contents
+# Table Of Contents
 
 * [About the Project](#about-the-project)
 * [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
+  * [Discord Bot Setup](#discord-bot-setup)
 * [Usage](#usage)
 * [Built With](#built-with)
 * [Help](#help)
 * [Contributing](#contributing)
-* [Authors](#authors)
+* [Author](#author)
 * [Acknowledgements](#acknowledgements)
 
-## About The Project
+# About The Project
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot rip a post off reddit using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
@@ -43,47 +42,49 @@ A few of our currently available features:
 * Manual or Automatic media selection 
 * Highly customizable config
 
-## Getting Started
+# Getting Started
 
-Follow ALL the directions listed below in order for the bot to function correctly. See "Config Help.txt" for more information regarding the config.
+Download the latest version of HoneyWasp from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
+
+**However, first you must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot**
+
+## Discord Bot Setup
 
 ### Prerequisites
 
-Before anything, you need to have Python 3 downloaded and installed. [You can download the latest version of Python here](https://www.python.org/downloads/)
+- A Discord account
+- A Discord server (with permission to add bots)
+- [Discord Developer Portal](https://discord.com/developers/applications)
 
-This program uses a few libraries that might require you to download them if you haven't used them before
+### Step 1: Create Your Application
 
-* requests
-* colorama
-* pillow
-* numpy
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Click **"New Application"**
+3. Name it, then click **Create**
+4. Go to the **Bot** tab → click **Add Bot**
+5. Finally, in the **Bot** tab, → click **Reset Token**, follow the instructions, and copy the token it gives you into ```discord_bot_token``` in Config.ini
 
-Use this command in the command prompt to download all of the requirements:
-```sh
-pip install requests colorama pillow numpy
-```
+### Step 2: Set OAuth2 Scopes & Permissions
 
-### Installation
+Go to **OAuth2 → URL Generator**:
 
-1. Go to [this URL](https://developers.facebook.com/tools/explorer/)
-  
-2. Press the blue "Generate Access Token" button. It will ask you to log in to your Facebook account, which is required. Make sure you log into whichever Facebook account owns the Instagram account you intend to use.
+**Scopes** (ADD BOTH OF THESE):
 
-3. Go to [this URL](https://developers.facebook.com/tools/debug/accesstoken) and input the access token you just generated
+- `bot`  
+- `applications.commands`
 
-4. Press the blue "Debug" button. After the new webpage loads, scroll down to the bottom and press "Extend Access Token"
+**Bot Permissions** (ADD BOTH OF THESE):
 
-5. It will give you a different access token, which will last much longer than an ordinary access token. Place the result inside this section of config.json:
-```json
-"API_Key": "API KEY HERE",
-```
-Further instruction for how to get your UserID will be added at a later date
+- `Use Slash Commands`
+- `Send Messages`
 
-## Help
+Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form. To use it with Instagram or YouTube, you must follow the instructions below
+
+# Help
 
 Please DM me on my [bot's Instagram page](https://www.instagram.com/dank.ai.memer/) or DM me on Discord (@TruFoox) for questions. I will both assist you there and, if the question is common enough, I will answer it here!
 
-## Usage
+# Usage
 
 This bot generally requires zero input from the user while it is running, but YOU MUST MAKE SURE TO MONITOR WHAT THE BOT POSTS!
 
