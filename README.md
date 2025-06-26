@@ -43,7 +43,7 @@ A few of our currently available features:
 
 # Getting Started
 
-Download the latest version of HoneyWasp from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
+Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
 
 **However, first you must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot**
 
