@@ -21,7 +21,6 @@
 
 </div>
 
-
 # Table Of Contents
 
 * [About the Project](#about-the-project)
@@ -42,13 +41,11 @@ A few of our currently available features:
 * Manual or Automatic media selection 
 * Highly customizable config
 
-
 # Getting Started
 
 Download the latest version of HoneyWasp from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
 
 **However, first you must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot**
-
 
 ## Discord Bot Setup
 
@@ -58,17 +55,14 @@ Download the latest version of HoneyWasp from [here](https://github.com/TruFoox/
 - A Discord server (with permission to add bots)
 - [Discord Developer Portal](https://discord.com/developers/applications)
 
-
 ### Step 1: Create Your Application
 
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
 2. Click **"New Application"**
 3. Name it, then click **Create**
-4. Go to the **Bot** tab → click **Add Bot**
-5. Finally, in the **Bot** tab, → click **Reset Token**, follow the instructions, and copy the token it gives you into ```discord_bot_token``` in Config.ini
+5. Finally, in the **Bot** tab in the laft panel in your new bot's settings, → click **Reset Token**, follow the instructions, and copy the new token it gives you into ```discord_bot_token``` in Config.ini
 
-
-### Step 2: Set OAuth2 Scopes & Permissions
+### Step 2: Set OAuth2 Permissions
 
 Go to **OAuth2 → URL Generator**:
 
@@ -84,11 +78,9 @@ Go to **OAuth2 → URL Generator**:
 
 Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form. To use it with Instagram or YouTube, you must follow the instructions below
 
-
 # Help
 
 Please DM me on my [bot's Instagram page](https://www.instagram.com/dank.ai.memer/) or DM me on Discord (@TruFoox) for questions. I will both assist you there and, if the question is common enough, I will answer it here!
-
 
 # Usage
 
@@ -96,11 +88,9 @@ This bot generally requires zero input from the user while it is running, but YO
 
 If you fail to do so, the bot could post something against Instagram's TOS. This can be minimized, however, by keeping NSFW disabled in the config and only choosing from subreddits with infrequent unmarked NSFW.
 
-
 ## Built With
 
 Programmed entirely in Python3 using the Requests, Colorama, Pillow, and Numpy libraries
-
 
 ## Contributing
 
@@ -110,7 +100,6 @@ Contributions are what make the open source community such an amazing place to b
 * Create individual PR for each suggestion.
 * Please be a decent human being with your edits
 
-
 ### Creating A Pull Request
 
 1. Fork the Project
@@ -119,10 +108,19 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
 ## Author
 
 * [TruFoox](https://github.com/TruFoox/)
+
+
+
+
+
+
+
+
+
+
 
 
 ## Acknowledgements
