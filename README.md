@@ -117,9 +117,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 3. Under **Permissions**, add:
    - `instagram_basic`
    - `pages_show_list`
-   - `instagram_basic`
    - `publish_video`
-   - `pages_read_engagement`
    - `instagram_content_publish`
 4. Click **Generate Access Token** and log in to your account
 5. Copy the access token it gives you
