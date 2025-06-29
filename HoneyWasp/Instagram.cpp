@@ -48,11 +48,14 @@ int instagram() {
         const int TIME_BETWEEN_POSTS = std::stoi(reader.Get("Instagram_Settings", "time_between_posts", "60"));
         const int ATTEMPTS_BEFORE_TIMEOUT = std::stoi(reader.Get("Instagram_Settings", "attempts_before_timeout", "50"));
         std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "memes,meme,comedyheaven");
+        boost::erase_all(SUBREDDITS_RAW, " ");
         std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ','); // Convert into list
         boost::to_lower(SUBREDDITS_RAW);
-        const std::string SUBREDDIT_WEIGHTS_RAW = reader.Get("Instagram_Settings", "subreddit_weights", "5,4,2");
+        std::string SUBREDDIT_WEIGHTS_RAW = reader.Get("Instagram_Settings", "subreddit_weights", "5,4,2");
+        boost::erase_all(SUBREDDIT_WEIGHTS_RAW, " ");
         std::vector<int> SUBREDDIT_WEIGHTS = splitInts(SUBREDDIT_WEIGHTS_RAW, ',');
         std::string BLACKLIST_RAW = reader.Get("Instagram_Settings", "blacklist", "hitler,nazi,politic,democrat,republican,liberal,conservative,trump,biden,nsfw,sex,dick,pussy,selfie,18+,butt,anal,squirt,fag,nigg");
+        boost::erase_all(BLACKLIST_RAW, " ");
         boost::to_lower(BLACKLIST_RAW);
         std::vector<std::string> BLACKLIST = split(BLACKLIST_RAW, ','); // Convert into list
         const bool DUPLICATES_ALLOWED = reader.GetBoolean("Instagram_Settings", "duplicates_allowed", false);
@@ -60,6 +63,7 @@ int instagram() {
         const bool USE_REDDIT_CAPTION = reader.GetBoolean("Instagram_Settings", "use_reddit_caption", false);
         std::string CAPTION_BLACKLIST_RAW = reader.Get("Instagram_Settings", "caption_blacklist", "Fuck,Shit,Ass,Bitch,retard,republican,democrat");
         boost::to_lower(CAPTION_BLACKLIST_RAW);
+        boost::erase_all(CAPTION_BLACKLIST_RAW, " ");
         std::vector<std::string> CAPTION_BLACKLIST = split(CAPTION_BLACKLIST_RAW, ',');
         std::string FALLBACK_CAPTION = reader.Get("Instagram_Settings", "default_caption", "");
         std::string HASHTAGS = reader.Get("Instagram_Settings", "hashtags", "");
@@ -72,7 +76,6 @@ int instagram() {
         /* Abort if any required value is default */
         if (TOKEN.empty()|| USER_ID == 0 || (INSTAPOSTMODE == "auto" && (SUBREDDITS_RAW.empty() || SUBREDDIT_WEIGHTS_RAW.empty()))) {
             std::cout << "Config.ini is missing required Instagram settings. Aborting...\n";
-            system("pause");
             return 1;
         }
 
@@ -148,8 +151,60 @@ int instagram() {
 
                 std::string apilink = "https://meme-api.com/gimme/" + chosenSubreddit; // Generate subreddit GET request URL
 
-                data = HTTP_Get(apilink, http_code);
+                /* Get post from meme-api*/
+                CURL* curl;
+                CURLcode res;
+                std::string instaresponse;
+                curl_global_init(CURL_GLOBAL_DEFAULT);
+                curl = curl_easy_init();
+                if (curl) {
+                    curl_easy_setopt(curl, CURLOPT_URL, apilink.c_str()); // Get data from meme-api
+                    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &instaresponse);
+                    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Follow redirect to new sites (fix for meme-api deprication)
 
+                    res = curl_easy_perform(curl);
+
+                    if (res != CURLE_OK) {
+                        color(4);
+                        std::time_t t = std::time(nullptr); // Get timestamp for output
+                        std::tm tm_obj;
+                        localtime_s(&tm_obj, &t);
+                        color(4); // Set color to red
+                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res) << std::endl;
+                        std::cerr << "\n\tError details: " << instaresponse << std::endl;
+                        color(6);
+                        curl_easy_cleanup(curl);
+                        curl_global_cleanup();
+                        instagramcrash(); // Call crash function to handle the error
+                        return 1;
+                    }
+
+                    http_code = 0;
+                    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code); // Get HTTP status code
+
+                    curl_easy_cleanup(curl);
+                    curl_global_cleanup();
+                    try {
+                        data = json::parse(instaresponse);
+                    }
+                    catch (const std::exception& e) {
+                        color(4);
+                        std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << instaresponse << std::endl;
+                        color(6);
+                        instagramcrash(); // Optional: handle gracefully
+                        return 1;
+                    }
+                }
+                else {
+                    curl_global_cleanup();
+                    std::time_t t = std::time(nullptr); // Get timestamp for output
+                    std::tm tm_obj;
+                    localtime_s(&tm_obj, &t);
+                    color(4); // Set color to red
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed to initialize CURL";
+                    return 1;
+                }
                 if (DEBUGMODE) {
                     color(6); // Reset cout color to yellow (default)
                     std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data;
@@ -174,7 +229,7 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
 					imageValid = false; // Set imageValid to false to skip current post attempt
                 }
@@ -183,10 +238,8 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HTTP GET ERROR " << http_code << ": \n\t" << data << std::endl;
-                    return 1;
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP GET ERROR " << http_code << ": \n\t" << data << std::endl;
                 }
-
             }
             else { // If manual, choose random item from manual list
                 int randIndex = std::rand() % manualMedia.size(); // Generate random index of subreddit
@@ -279,13 +332,31 @@ int instagram() {
 
                         countattempt = 0; // Reset number of attempts to post this cycle
                     }
+                    else {
+                        std::time_t t = std::time(nullptr); // Get timestamp for output
+                        std::tm tm_obj;
+                        localtime_s(&tm_obj, &t);
+                        color(4); // Set color to red
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 2 ERROR " << http_code << ": \n\t" << uploadJson << std::endl;
+                        imageValid = false; // Set imageValid to false to skip current post attempt
+                    }
                 }
                 else {
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " -  HTTP POST ERROR " << http_code << ": \n\t" << uploadJson << std::endl;
+                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 1 ERROR " << http_code << ":\n\t";
+
+                    if (DEBUGMODE) { // Print error details
+                        std::cout << uploadJson << std::endl;
+                    }
+                    else {
+                        std::string detailsStr = uploadJson["details"].get<std::string>();
+                        nlohmann::json detailsJson = nlohmann::json::parse(detailsStr);
+                        std::cout << detailsJson["error"]["message"] << std::endl;
+                    }
+					imageValid = false; // Set imageValid to false to skip current post attempt
                 }
             }
             std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep to prevent spam
@@ -293,13 +364,23 @@ int instagram() {
         return 0;
     }
     catch (const std::exception& e) { // Error handling
-        std::cerr << "\n\tInstagram crashed: " << e.what() << '\n';
-        crash();
+        std::time_t t = std::time(nullptr); // Get timestamp for output
+        std::tm tm_obj;
+        localtime_s(&tm_obj, &t);
+        color(4); // Set color to red
+        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed: " << e.what() << '\n';
+
+		instagramcrash(); // Call crash function to handle the error
         return 1;
     }
     catch (...) {
-        std::cerr << "\n\tInstagram crashed with unknown error.\n";
-        crash();
+        std::time_t t = std::time(nullptr); // Get timestamp for output
+        std::tm tm_obj;
+        localtime_s(&tm_obj, &t);
+        color(4); // Set color to red
+        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed with unknown error.\n";
+
+        instagramcrash();  // Call crash function to handle the error
         return 1;
     }
 
@@ -389,54 +470,6 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { /
     return totalSize;
 }
 
-json HTTP_Get(const std::string& base_url, long& http_code) { // HTTP GET request.
-    CURL* curl;
-    CURLcode res;
-    std::string instaresponse;
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-    curl = curl_easy_init();
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, base_url.c_str()); // Get data from meme-api
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &instaresponse);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Follow redirect to new sites (fix for memeapi deprication)
-
-        res = curl_easy_perform(curl);
-
-        if (res != CURLE_OK) {
-            color(4);
-            std::cerr << "CURL GET error: " << curl_easy_strerror(res) << std::endl;
-            std::cerr << "Error details: " << instaresponse << std::endl;
-            color(6);
-            curl_easy_cleanup(curl);
-            curl_global_cleanup();
-            return json::object({ {"error", curl_easy_strerror(res)}, {"details", instaresponse} });
-        }
-
-        // Get HTTP status code
-        http_code = 0;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-
-        if (http_code == 200) {
-            return json::parse(instaresponse);
-        }
-        else {
-            color(4);
-            std::cerr << "\n\tHTTP GET error code: " << http_code << std::endl;
-            std::cerr << "\n\tError details: " << instaresponse << std::endl;
-            color(6);
-            return json::object({ {"error", "HTTP instaresponse code " + std::to_string(http_code)}, {"details", instaresponse} });
-        }
-    }
-    else {
-        curl_global_cleanup();
-        return json::object({ {"error", "Failed to initialize CURL"} });
-    }
-}
-
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params) { // HTTP POST request
     CURL* curl; 
     CURLcode res;
@@ -489,10 +522,6 @@ json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std:
             return json::parse(instaresponse);
         }
         else {
-            color(4);
-            std::cerr << "\n\tHTTP POST error code: " << http_code << std::endl;
-            std::cerr << "\n\tError details: " << instaresponse << std::endl;
-            color(6);
             return json::object({ {"error", "HTTP instaresponse code " + std::to_string(http_code)}, {"details", instaresponse} });
         }
     }

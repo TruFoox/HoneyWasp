@@ -3,7 +3,8 @@
 #include <dpp/dpp.h>
 
 // Function prototypes
-void crash();
+void instagramcrash();
+void youtubecrash();
 extern bool webhookActive;
 void send_webhook(std::string& message);
 void color(int n);
