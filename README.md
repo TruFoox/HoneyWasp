@@ -7,7 +7,7 @@
   <h3>HoneyWasp</h3>
 
   <p>
-    A bot to automatically post to various social media services - THIS README IS CURRENTLY UNFINISHED. WILL BE IMPROVED SOON
+    A bot to automatically post to various social media services
     <br/><br/>
     <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> ·
     <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
@@ -37,17 +37,13 @@
 
 # About The Project
 
-This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot take an image off reddit using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
-
-A few of our currently available features:
-* Manual or Automatic media selection 
-* Highly customizable config
+This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
 # Getting Started
 
 Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
 
-**However, first you must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot**
+**You must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot in any capacity**
 
 ## Discord Bot Setup
 
@@ -145,13 +141,13 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 3. Name it and click **Create**
 4. After it's created, click the project dropdown again → select your new project
 
-### Step 2: Enable YouTube Data API v3
+### Step 2: Enable YouTube Data API
 
 1. In the left sidebar, go to **APIs & Services → Library**
-2. Search for **YouTube Data API v3**
+2. Search for **YouTube Data API**
 3. Click on it, then press **Enable**
 
-### Step 3: Set Up OAuth 2.0 Credentials
+### Step 3: Set Up OAuth Credentials
 
 1. Go to **APIs & Services → Credentials**
 2. Click **Create Credentials → OAuth client ID**
@@ -175,17 +171,18 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 # Help
 
-Please DM me on my [bot's Instagram page](https://www.instagram.com/dank.ai.memer/) or DM me on Discord (@TruFoox) for questions. I will both assist you there and, if the question is common enough, I will answer it here!
+Please DM me on Discord (@TruFoox) for questions
 
 # Usage
 
-This bot generally requires zero input from the user while it is running, but YOU MUST MAKE SURE TO MONITOR WHAT THE BOT POSTS!
-
-If you fail to do so, the bot could post something against Instagram's TOS. This can be minimized, however, by keeping NSFW disabled in the config and only choosing from subreddits with infrequent unmarked NSFW.
+You can interact with the bot using Discord /slash commands. A list of commands can be found below:
+- ``/start [SERVICE/ALL]`` - Start the bot on the specified service
+- ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
+- ``/stop[ [SERVICE/ALL]`` - Stop the bot on the specified service
 
 ## Built With
 
-Programmed entirely in Python3 using the Requests, Colorama, Pillow, and Numpy libraries
+Programmed in Visual Studio 2022, see [Acknowledgements](#acknowledgements)
 
 ## Contributing
 
