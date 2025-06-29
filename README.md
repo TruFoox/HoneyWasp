@@ -7,7 +7,7 @@
   <h3>HoneyWasp</h3>
 
   <p>
-    A bot to automatically post to various social media services - THIS README IS CURRENTLY USELESS. WILL BE IMPROVED SOON
+    A bot to automatically post to various social media services - THIS README IS CURRENTLY UNFINISHED. WILL BE IMPROVED SOON
     <br/><br/>
     <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> ·
     <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
@@ -122,8 +122,6 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 4. Click **Generate Access Token** and log in to your account
 5. Copy the access token it gives you
 
-Once you have this short-lived token, you are almost done. Now you must convert it into a long-lived token
-
 ### Step 4: Get Long Lived Access Token
 
 1. Go to https://developers.facebook.com/tools/debug/accesstoken
@@ -131,6 +129,49 @@ Once you have this short-lived token, you are almost done. Now you must convert 
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
 5. Place the result inside the ``api_key`` under ``[Instagram_Settings]`` of Config.ini
+
+## YouTube Setup
+
+### Prerequisites
+
+- A **Google Account**
+- Access to the **Google Cloud Console**: https://console.cloud.google.com/
+- A **YouTube Channel** linked to your Google Account
+
+### Step 1: Create a Project in Google Cloud
+
+1. Go to the Google Cloud Console: https://console.cloud.google.com/
+2. Click the project dropdown at the top → **New Project**
+3. Name it and click **Create**
+4. After it's created, click the project dropdown again → select your new project
+
+### Step 2: Enable YouTube Data API v3
+
+1. In the left sidebar, go to **APIs & Services → Library**
+2. Search for **YouTube Data API v3**
+3. Click on it, then press **Enable**
+
+### Step 3: Set Up OAuth 2.0 Credentials
+
+1. Go to **APIs & Services → Credentials**
+2. Click **Create Credentials → OAuth client ID**
+3. If prompted, set up the OAuth consent screen:
+   - Choose **External**, then press **Create**
+   - Fill in required fields (app name, support email. These do not matter), then click **Save and Continue** until you can hit **Back to Dashboard**
+4. Under **Create OAuth client ID**, choose **Desktop App**
+5. Name it anything → click **Create**
+6. Copy the **Client ID** and **Client Secret**
+7. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.ini
+
+### Step 4: Generate a Refresh Token (One-Time)
+1. Open **Launch.exe** in HoneyWasp
+2. In the Discord Server where you have the bot, use ``/start youtube``
+3. Assuming ``refresh_token`` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
+4. In this page, first select your Google account, then when prompted about the app being unverified → **Show Advanced** → **Go to [YOUR APP'S NAME] (unsafe)**
+5. When prompted to allow access to your YouTube account, press **Continue**
+6. It will then take you to a URL without any content. Your access token is in the URL, so select everything between "http://localhost/?code=" and "&scope=https://www.googleapis.com/auth/youtube.upload"
+7. Your access token should look something like this: ``4/0AJIL1DDF16...``. Paste it into the console
+8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.ini
 
 # Help
 
