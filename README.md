@@ -29,8 +29,9 @@
   * [Instagram Setup](#instagram-setup)
   * [YouTube Setup](#youtube-setup)
 * [Usage](#usage)
-* [Built With](#built-with)
 * [Help](#help)
+  * [Config Help](#here-is-some-information-regarding-the-most-confusing-aspects-of-configini)
+* [Built With](#built-with)
 * [Contributing](#contributing)
 * [Author](#author)
 * [Acknowledgements](#acknowledgements)
@@ -169,6 +170,15 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 7. Your access token should look something like this: ``4/0AJIL1DDF16...``. Paste it into the console
 8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.ini
 
+# Usage
+
+To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
+
+You can interact with the bot using Discord /slash commands. A list of commands can be found below:
+- ``/start [SERVICE/ALL]`` - Start the bot on the specified service
+- ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
+- ``/stop [SERVICE/ALL]`` - Stop the bot on the specified service
+
 # Help
 
 Please DM me on Discord (@TruFoox) for questions
@@ -193,15 +203,6 @@ Please DM me on Discord (@TruFoox) for questions
 - List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
   - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
   - If you want to launch multiple, separate them with commas (``caption_blacklist = thing1,thing2``)
-
-# Usage
-
-To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
-
-You can interact with the bot using Discord /slash commands. A list of commands can be found below:
-- ``/start [SERVICE/ALL]`` - Start the bot on the specified service
-- ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
-- ``/stop [SERVICE/ALL]`` - Stop the bot on the specified service
 
 ## Built With
 
