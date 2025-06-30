@@ -48,7 +48,6 @@ int instagram() {
         boost::to_lower(INSTAPOSTMODE);
         std::string userIdStr = reader.Get("Instagram_Settings", "user_id", "");
 		const long long USER_ID = userIdStr.empty() ? 0 : std::stoll(userIdStr); // If user_id is not set, default to 0
-        std::cout << USER_ID;
         std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
         const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
         std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
