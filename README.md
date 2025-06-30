@@ -2,26 +2,19 @@
   <a href="https://github.com/TruFoox/HoneyWasp">
     <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="HoneyWasp Logo" width="200" height="200" />
   </a>
-</p>
-
-<p align="center">
+  <br /><br />
   <strong>HoneyWasp</strong>
-</p>
-
-<p align="center">
+  <br /><br />
   A bot to automatically post to various social media services.
-</p>
-
-<p align="center">
+  <br /><br />
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
-</p>
-
-<p align="center">
+  <br /><br />
   <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
   <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
   <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
 </p>
+
 
 
 
