@@ -93,7 +93,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 1. Go to the Facebook Developer Portal: https://developers.facebook.com/apps/
 2. Click **“Create App”**
-3. Choose an app name (this doesnt matter) → click **Next**
+3. Choose an app name (this doesn't matter) → click **Next**
 4. For your **Use Case**, choose **Other**
 5. When asked for the app type, choose **Business**
 6. Press **Create app**
@@ -102,7 +102,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 ### Step 2: Link Accounts Properly
 
 1. Make sure your **Instagram account is a Business or Creator account**
-2. Link your Instagram account to a **Facebook Page** if it isnt already
+2. Link your Instagram account to a **Facebook Page** if it isn't already
    - IG App → Settings → Account → Switch to Professional
    - Facebook Page → Settings → Link Instagram Account
 
@@ -115,7 +115,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
    - `pages_show_list`
    - `publish_video`
    - `instagram_content_publish`
-4. Click **Generate Access Token** and log in to your account
+4. Click Generate Access Token, then log in with your Facebook account and authorize access
 5. Copy the access token it gives you
 
 ### Step 4: Get Long Lived Access Token
@@ -163,7 +163,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 1. Open **Launch.exe** in HoneyWasp
 2. In the Discord Server where you have the bot, use ``/start youtube``
 3. Assuming ``refresh_token`` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
-4. In this page, first select your Google account, then when prompted about the app being unverified → **Show Advanced** → **Go to [YOUR APP'S NAME] (unsafe)**
+4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 5. When prompted to allow access to your YouTube account, press **Continue**
 6. It will then take you to a URL without any content. Your access token is in the URL, so select everything between "http://localhost/?code=" and "&scope=https://www.googleapis.com/auth/youtube.upload"
 7. Your access token should look something like this: ``4/0AJIL1DDF16...``. Paste it into the console
@@ -173,12 +173,35 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 Please DM me on Discord (@TruFoox) for questions
 
+## Here is some information regarding the most confusing aspects of ``Config.ini``:
+**For one, DO NOT (and I mean do NOT) use True/False (with a capital T/F) in the config. Instead, use true/false**
+
+**BOOLEAN VALUES (true or false) NEED TO BE LOWERCASE**
+
+### Autostart:
+- If you want the bot to automatically launch any service (or multiple), input the service you'd like to launch (``autostart = instagram``)
+  - If you want to launch multiple, separate them with commas (``autostart = instagram, youtube``)
+### Restart:
+- If you want to bot to automatically restart **anytime** it crashes for **any** reason, set this to **true**. This is highly experimental
+### Subreddits (Auto post mode only):
+- List subreddits you want to automatically retrieve images from. Do **not** include r/
+  - If you want to launch multiple, separate them with commas (``subreddits = memes,meme``)
+### Blacklist (Auto post mode only):
+- List words that, if found in the reddit post's caption, will cause the post to be discarded
+  - If you want to launch multiple, separate them with commas (``subreddits = memes,meme``)
+### Caption Blacklist (Auto post mode only):
+- List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
+  - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
+  - If you want to launch multiple, separate them with commas (``caption_blacklist = thing1,thing2``)
+
 # Usage
+
+To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
 
 You can interact with the bot using Discord /slash commands. A list of commands can be found below:
 - ``/start [SERVICE/ALL]`` - Start the bot on the specified service
 - ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
-- ``/stop[ [SERVICE/ALL]`` - Stop the bot on the specified service
+- ``/stop [SERVICE/ALL]`` - Stop the bot on the specified service
 
 ## Built With
 
@@ -186,7 +209,7 @@ Programmed in Visual Studio 2022, see [Acknowledgements](#acknowledgements)
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 * If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
 * Please make sure you check your spelling and grammar.
 * Create individual PR for each suggestion.
@@ -210,4 +233,6 @@ Contributions are what make the open source community such an amazing place to b
 * **[Libcurl](https://curl.se/libcurl/)** - Allows HTTP API calls in C++
 * **[Inih](https://github.com/benhoyt/inih)** by [Ben Hoyt](https://github.com/benhoyt) - Simplified reading .ini config
 * **[nlohmann/json](https://github.com/nlohmann/json)** by [Nlohmann](https://github.com/nlohmann) - Parses json from API calls
-* **[MemeAPI](https://github.com/D3vd)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesnt choose a source
+* **[MemeAPI](https://github.com/D3vd)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesn't choose a source
+
+
