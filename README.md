@@ -1,25 +1,29 @@
-<div align="center">
-
+<p align="center">
   <a href="https://github.com/TruFoox/HoneyWasp">
-    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="Logo" width="200" height="200" />
+    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="HoneyWasp Logo" width="200" height="200" />
   </a>
+</p>
 
-  <h3>HoneyWasp</h3>
+<p align="center">
+  <strong>HoneyWasp</strong>
+</p>
 
-  <p>
-    A bot to automatically post to various social media services
-    <br/><br/>
-    <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> ·
-    <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
-  </p>
+<p align="center">
+  A bot to automatically post to various social media services.
+</p>
 
-  <p>
-    <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
-    <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
-    <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
-  </p>
+<p align="center">
+  <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
+  <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
+</p>
 
-</div>
+<p align="center">
+  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
+  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
+  <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
+</p>
+
+
 
 # Table Of Contents
 
