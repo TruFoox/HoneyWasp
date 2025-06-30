@@ -41,32 +41,46 @@ int instagram() {
     try {
         /* Load config data */
         INIReader reader("../Config.ini");
+
         std::string TOKEN = reader.Get("Instagram_Settings", "api_key", "");
-        std::string INSTAPOSTMODE = reader.Get("Instagram_Settings", "post_mode", "auto");
+        std::string INSTAPOSTMODE = reader.Get("Instagram_Settings", "post_mode", "");
+		if (INSTAPOSTMODE.empty()) INSTAPOSTMODE = "auto"; // Default to auto if not set
         boost::to_lower(INSTAPOSTMODE);
-        const long long USER_ID = std::stoll(reader.Get("Instagram_Settings", "user_id", "0"));
-        const int TIME_BETWEEN_POSTS = std::stoi(reader.Get("Instagram_Settings", "time_between_posts", "60"));
-        const int ATTEMPTS_BEFORE_TIMEOUT = std::stoi(reader.Get("Instagram_Settings", "attempts_before_timeout", "50"));
-        std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "memes,meme,comedyheaven");
+        std::string userIdStr = reader.Get("Instagram_Settings", "user_id", "");
+		const long long USER_ID = userIdStr.empty() ? 0 : std::stoll(userIdStr); // If user_id is not set, default to 0
+        std::cout << USER_ID;
+        std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
+        const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
+        std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
+        const int ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
+        std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "");
+		if (SUBREDDITS_RAW.empty()) SUBREDDITS_RAW = "memes,meme,comedyheaven"; // Default subreddits if not set
         boost::erase_all(SUBREDDITS_RAW, " ");
-        std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ','); // Convert into list
+        std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ',');
         boost::to_lower(SUBREDDITS_RAW);
-        std::string SUBREDDIT_WEIGHTS_RAW = reader.Get("Instagram_Settings", "subreddit_weights", "5,4,2");
+        std::string SUBREDDIT_WEIGHTS_RAW = reader.Get("Instagram_Settings", "subreddit_weights", "");
+		if (SUBREDDIT_WEIGHTS_RAW.empty()) SUBREDDIT_WEIGHTS_RAW = "5,4,2"; // Default weights if not set
         boost::erase_all(SUBREDDIT_WEIGHTS_RAW, " ");
         std::vector<int> SUBREDDIT_WEIGHTS = splitInts(SUBREDDIT_WEIGHTS_RAW, ',');
-        std::string BLACKLIST_RAW = reader.Get("Instagram_Settings", "blacklist", "hitler,nazi,politic,democrat,republican,liberal,conservative,trump,biden,nsfw,sex,dick,pussy,selfie,18+,butt,anal,squirt,fag,nigg");
+        std::string BLACKLIST_RAW = reader.Get("Instagram_Settings", "blacklist", "");
+        if (BLACKLIST_RAW.empty()) BLACKLIST_RAW = "hitler,nazi,politic,democrat,republican,liberal,conservative,trump,biden,nsfw,sex,dick,pussy,selfie,18+,butt,anal,squirt,fag,nigg"; // Default if empty
         boost::erase_all(BLACKLIST_RAW, " ");
         boost::to_lower(BLACKLIST_RAW);
-        std::vector<std::string> BLACKLIST = split(BLACKLIST_RAW, ','); // Convert into list
-        const bool DUPLICATES_ALLOWED = reader.GetBoolean("Instagram_Settings", "duplicates_allowed", false);
-        const bool NSFW_ALLOWED = reader.GetBoolean("Instagram_Settings", "nsfw_allowed", false);
-        const bool USE_REDDIT_CAPTION = reader.GetBoolean("Instagram_Settings", "use_reddit_caption", false);
-        std::string CAPTION_BLACKLIST_RAW = reader.Get("Instagram_Settings", "caption_blacklist", "Fuck,Shit,Ass,Bitch,retard,republican,democrat");
+        std::vector<std::string> BLACKLIST = split(BLACKLIST_RAW, ',');
+        std::string duplicatesStr = reader.Get("Instagram_Settings", "duplicates_allowed", "");
+        const bool DUPLICATES_ALLOWED = duplicatesStr.empty() ? false : reader.GetBoolean("Instagram_Settings", "duplicates_allowed", false);
+        std::string nsfwStr = reader.Get("Instagram_Settings", "nsfw_allowed", "");
+        const bool NSFW_ALLOWED = nsfwStr.empty() ? false : reader.GetBoolean("Instagram_Settings", "nsfw_allowed", false);
+        std::string captionStr = reader.Get("Instagram_Settings", "use_reddit_caption", "");
+        const bool USE_REDDIT_CAPTION = captionStr.empty() ? false : reader.GetBoolean("Instagram_Settings", "use_reddit_caption", false);
+        std::string CAPTION_BLACKLIST_RAW = reader.Get("Instagram_Settings", "caption_blacklist", "");
+        if (CAPTION_BLACKLIST_RAW.empty()) CAPTION_BLACKLIST_RAW = "Fuck,Shit,Ass,Bitch,retard,republican,democrat"; // Default if empty
         boost::to_lower(CAPTION_BLACKLIST_RAW);
         boost::erase_all(CAPTION_BLACKLIST_RAW, " ");
         std::vector<std::string> CAPTION_BLACKLIST = split(CAPTION_BLACKLIST_RAW, ',');
         std::string FALLBACK_CAPTION = reader.Get("Instagram_Settings", "caption", "");
         std::string HASHTAGS = reader.Get("Instagram_Settings", "hashtags", "");
+
 
         const bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
         int countattempt = 0;
