@@ -31,6 +31,7 @@
 * [Usage](#usage)
 * [Built With](#built-with)
 * [Help](#help)
+  * [Config Help](#here-is-some-information-regarding-the-most-confusing-aspects-of-configini)
 * [Contributing](#contributing)
 * [Author](#author)
 * [Acknowledgements](#acknowledgements)
