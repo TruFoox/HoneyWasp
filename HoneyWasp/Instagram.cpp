@@ -65,7 +65,7 @@ int instagram() {
         boost::to_lower(CAPTION_BLACKLIST_RAW);
         boost::erase_all(CAPTION_BLACKLIST_RAW, " ");
         std::vector<std::string> CAPTION_BLACKLIST = split(CAPTION_BLACKLIST_RAW, ',');
-        std::string FALLBACK_CAPTION = reader.Get("Instagram_Settings", "default_caption", "");
+        std::string FALLBACK_CAPTION = reader.Get("Instagram_Settings", "caption", "");
         std::string HASHTAGS = reader.Get("Instagram_Settings", "hashtags", "");
 
         const bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
@@ -249,7 +249,7 @@ int instagram() {
 
             if (INSTAPOSTMODE == "manual" || imageValid == true) {
                 json uploadData;
-                if (INSTAPOSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either fallback or post caption
+                if (INSTAPOSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
                     uploadData = {
                         {"image_url", imageURL},
                         {"caption", FALLBACK_CAPTION + "\n\n.\n\n" + HASHTAGS},
@@ -406,7 +406,7 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { //
     }
 
     for (int i = 0; i < CAPTION_BLACKLIST.size(); i++) {
-        if (caption.find(CAPTION_BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Use fallback caption if it does ( DOES NOT FLAG AS INVALID)
+        if (caption.find(CAPTION_BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Use defined caption if it does ( DOES NOT FLAG AS INVALID )
             tempDisableCaption = true;
             clear();
             std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)";
@@ -421,7 +421,7 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { //
         }
     }
 
-    for (int i = 0; i < usedUrls.size(); i++) { // Test if reddit title contains blackslisted string. Block if it does
+    for (int i = 0; i < usedUrls.size(); i++) { // Test if URL is duplicate
         if (imageURL == usedUrls[i]) {
             clear();
             std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
