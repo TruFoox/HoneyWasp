@@ -200,6 +200,8 @@ Please DM me on Discord (@TruFoox) for questions
 - List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
   - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
   - If you want to launch multiple, separate them with commas (``caption_blacklist = thing1,thing2``)
+### Attempts Before Timeout (Auto post mode only):
+- The number you set here will determine the amount of times the bot will attempt to post before giving up. The bot usually fails to post due to the post being a duplicate.
 
 ## Built With
 
