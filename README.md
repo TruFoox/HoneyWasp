@@ -188,7 +188,7 @@ Please DM me on Discord (@TruFoox) for questions
   - If you want to launch multiple, separate them with commas (``subreddits = memes,meme``)
 ### Blacklist (Auto post mode only):
 - List words that, if found in the reddit post's caption, will cause the post to be discarded
-  - If you want to launch multiple, separate them with commas (``subreddits = memes,meme``)
+  - If you want to launch multiple, separate them with commas (``subreddits = thing1,thing2``)
 ### Caption Blacklist (Auto post mode only):
 - List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
   - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
