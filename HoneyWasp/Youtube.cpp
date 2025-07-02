@@ -286,7 +286,7 @@ int youtube() {
                             std::tm tm_obj;
                             localtime_s(&tm_obj, &t);
                             color(4); // Set color to red
-                            std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: RATELIMITED BY YOUTUBE (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)\n";
+                            std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: RATELIMITED BY YOUTUBE (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
                         }
                         else { // General error
                             std::time_t t = std::time(nullptr); // Get timestamp for output
@@ -314,7 +314,7 @@ int youtube() {
                         std::cout << json.dump(4) << "\n";
                     }
                     color(2); // Set color to green
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " uploaded to YouTube\n"; // Print video ID
+                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " uploaded to YouTube"; // Print video ID
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(YT_TIME_BETWEEN_POSTS * 60)); // Sleep
             }
