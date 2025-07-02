@@ -1,25 +1,22 @@
-<div align="center">
-
+<p align="center">
   <a href="https://github.com/TruFoox/HoneyWasp">
-    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="Logo" width="200" height="200" />
+    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="HoneyWasp Logo" width="200" height="200" />
   </a>
+  <br /><br />
+  <strong>HoneyWasp</strong>
+  <br /><br />
+  A bot to automatically post to various social media services.
+  <br /><br />
+  <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
+  <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
+  <br /><br />
+  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
+  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
+  <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
+</p>
 
-  <h3>HoneyWasp</h3>
 
-  <p>
-    A bot to automatically post to various social media services
-    <br/><br/>
-    <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> ·
-    <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
-  </p>
 
-  <p>
-    <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
-    <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
-    <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
-  </p>
-
-</div>
 
 # Table Of Contents
 
@@ -203,6 +200,8 @@ Please DM me on Discord (@TruFoox) for questions
 - List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
   - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
   - If you want to launch multiple, separate them with commas (``caption_blacklist = thing1,thing2``)
+### Attempts Before Timeout (Auto post mode only):
+- The number you set here will determine the amount of times the bot will attempt to post before giving up. The bot usually fails to post due to the post being a duplicate.
 
 ## Built With
 
