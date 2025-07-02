@@ -23,8 +23,9 @@ void color(int n);
 std::string BOT_TOKEN, WEBHOOK;
 int CHANNEL_ID;
 dpp::cluster bot;
-bool DEBUGMODE = false; // Default to prevent unresolved external error
+bool DEBUGMODE; // Default to prevent unresolved external error
 bool RESTART;
+bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
 
 /* Start bot */
 int main() {
@@ -60,7 +61,7 @@ int main() {
                      @@     @@      @@   @@  @@  @@  @@@  @@  @@     @@ @@  @@   @   @@  @@@   @@@     @@  @@
                      @@     @@      @@@@@@@ @@    @@ @@@@ @@  @@@@    @@@    @@ @@@ @@  @@ @@   @@@@   @@@@@
                            @@@@     @@   @@  @@  @@  @@ @@@@  @@      @@      @@@@@@@  @@@@@@     @@@  @@
-                           @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v1.13
+                           @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v1.14
                             @@
 
 

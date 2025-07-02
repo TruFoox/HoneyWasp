@@ -21,10 +21,9 @@ using json = nlohmann::json; // redefines json as one from nlohmann
 
 /* Prototypes */
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
-json HTTP_Get(const std::string& base_url, long& http_code);
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params = {});
 void instagramStop();
-bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt);
+bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool& lastCoutWasReturn);
 void clear();
 
 /* Global variables */
@@ -133,11 +132,10 @@ int instagram() {
             }
             inFile.close();
         }
-
+        lastCoutWasReturn = false;
         /* Start instagram bot */
         while (instakeeploop) { // Loops as long as /stop isnt used
             color(6); // Reset cout color to yellow (default)
-
             std::time_t t = std::time(nullptr); // Get timestamp for output
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
@@ -148,12 +146,11 @@ int instagram() {
 
             if (countattempt >= ATTEMPTS_BEFORE_TIMEOUT) { // Check if stuck in loop
                 color(4);
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING\n";
+                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
                 color(6);
                 std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 180));
             }
             countattempt++; // Iterate attempts to post during this cycle
-
             /* Change behavior based on chosen post mode */
             json data;
             std::string chosenSubreddit;
@@ -184,7 +181,7 @@ int instagram() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res) << std::endl;
+                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res);
                         std::cerr << "\n\tError details: " << instaresponse << std::endl;
                         color(6);
                         curl_easy_cleanup(curl);
@@ -203,7 +200,7 @@ int instagram() {
                     }
                     catch (const std::exception& e) {
                         color(4);
-                        std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << instaresponse << std::endl;
+                        std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << instaresponse;
                         color(6);
                         instagramcrash(); // Optional: handle gracefully
                         return 1;
@@ -233,8 +230,7 @@ int instagram() {
                         color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tGET success";
                     }
-
-                    imageValid = imageValidCheck(data, tempDisableCaption, countattempt); // Test if image is valid for posting
+                    imageValid = imageValidCheck(data, tempDisableCaption, countattempt, lastCoutWasReturn); // Test if image is valid for posting
 
                 }
                 else if (http_code == 530) { // If cloudfare error, give notice
@@ -251,7 +247,7 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP GET ERROR " << http_code << ": \n\t" << data << std::endl;
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP GET ERROR " << http_code << ": \n\t" << data;
                 }
             }
             else { // If manual, choose random item from manual list
@@ -278,7 +274,6 @@ int instagram() {
                 }
                 std::string uploadURL = "https://graph.facebook.com/v19.0/" + std::to_string(USER_ID) + "/media"; // Generates URL for uploading image
                 json uploadJson = HTTP_Post(uploadURL, http_code, uploadData);
-
                 if (http_code == 200) { // Ensure POST success
                     if (DEBUGMODE) {
                         color(6); // Reset cout color to yellow (default)
@@ -290,14 +285,13 @@ int instagram() {
                         {"creation_id", id},
                         {"access_token", TOKEN}
                     };
-
                     uploadURL = "https://graph.facebook.com/v19.0/" + std::to_string(USER_ID) + "/media_publish"; // Generates URL for publishing image
                     uploadJson = HTTP_Post(uploadURL, http_code, uploadData); // Send POST publish request
 
                     if (http_code == 200) { // Ensure POST success
                         if (DEBUGMODE) {
                             color(6); // Reset cout color to yellow (default)
-                            std::cout << "\n\tPOST 2 success\n";
+                            std::cout << "\n\tPOST 2 success";
                         }
 
                         std::time_t t = std::time(nullptr); // Get timestamp for output
@@ -307,14 +301,15 @@ int instagram() {
 						color(2); // Set color to green
 
                         std::string message;
-
                         if (INSTAPOSTMODE == "auto") {
                             message = (imageURL + " from r/" + chosenSubreddit + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
                         else {
                             message = (imageURL + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
-
+                        if (!lastCoutWasReturn) {
+                            std::cout << "\n"; // If last cout was not a return, print newline
+                        }
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
                         send_webhook(message);
                         /* Begin export of URL to file */
@@ -342,7 +337,7 @@ int instagram() {
                         outFile.close();
 
                         std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
-
+                        lastCoutWasReturn = false;
                         countattempt = 0; // Reset number of attempts to post this cycle
                     }
                     else {
@@ -350,7 +345,21 @@ int instagram() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 2 ERROR " << http_code << ": \n\t" << uploadJson << std::endl;
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 2 ERROR " << http_code << ":\n\t";
+
+                        if (DEBUGMODE) { // Print error details
+                            std::cout << uploadJson;
+                        }
+                        else {
+                            std::string detailsStr = uploadJson["details"].get<std::string>();
+                            nlohmann::json detailsJson = nlohmann::json::parse(detailsStr);
+                            try {
+                                std::cout << detailsJson["error"]["message"];
+                            }
+                            catch (...) {
+                                std::cout << uploadJson;
+                            }
+                        }
                         imageValid = false; // Set imageValid to false to skip current post attempt
                     }
                 }
@@ -362,12 +371,17 @@ int instagram() {
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 1 ERROR " << http_code << ":\n\t";
 
                     if (DEBUGMODE) { // Print error details
-                        std::cout << uploadJson << std::endl;
+                        std::cout << uploadJson;
                     }
                     else {
                         std::string detailsStr = uploadJson["details"].get<std::string>();
                         nlohmann::json detailsJson = nlohmann::json::parse(detailsStr);
-                        std::cout << detailsJson["error"]["message"] << std::endl;
+                        try {
+                            std::cout << detailsJson["error"]["message"];
+                        }
+                        catch (...) {
+                            std::cout << uploadJson;
+                        }
                     }
 					imageValid = false; // Set imageValid to false to skip current post attempt
                 }
@@ -381,7 +395,7 @@ int instagram() {
         std::tm tm_obj;
         localtime_s(&tm_obj, &t);
         color(4); // Set color to red
-        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed: " << e.what() << '\n';
+        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed: " << e.what() << '\n';
 
 		instagramcrash(); // Call crash function to handle the error
         return 1;
@@ -391,7 +405,7 @@ int instagram() {
         std::tm tm_obj;
         localtime_s(&tm_obj, &t);
         color(4); // Set color to red
-        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed with unknown error.\n";
+        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed with unknown error.\n";
 
         instagramcrash();  // Call crash function to handle the error
         return 1;
@@ -399,7 +413,7 @@ int instagram() {
 
 }
 
-bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { // Ensure image is valid for instagram
+bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool& wasreturn) { // Ensure image is valid for instagram
     color(4); // Set color to red
 
     std::string imageURL = data["url"];
@@ -407,14 +421,14 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { //
     boost::to_lower(imageURL);
     boost::to_lower(caption);
     bool nsfw = data["nsfw"];
-
     std::time_t t = std::time(nullptr); // Get timestamp for output
     std::tm tm_obj;
     localtime_s(&tm_obj, &t);
 
     if (imageURL.find(".gif") != std::string::npos) { // If file is gif, skip
         clear();
-        std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
+        wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
 
@@ -422,14 +436,16 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { //
         if (caption.find(CAPTION_BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Use defined caption if it does ( DOES NOT FLAG AS INVALID )
             tempDisableCaption = true;
             clear();
-            std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)\r";
+            wasreturn = true; // Set true so next cout knows to not print on newline
         }
     }
 
     for (int i = 0; i < BLACKLIST.size(); i++) {
         if (caption.find(BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Block if it does
             clear();
-            std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
+            wasreturn = true; // Set true so next cout knows to not print on newline
             return false;
         }
     }
@@ -437,19 +453,22 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { //
     for (int i = 0; i < usedUrls.size(); i++) { // Test if URL is duplicate
         if (imageURL == usedUrls[i]) {
             clear();
-            std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
+            wasreturn = true; // Set true so next cout knows to not print on newline
             return false;
         }
     }
     if (NSFW_ALLOWED == false && nsfw == true) { // If NSFW is disabled & post is marked as NSFW, return false
         clear();
-        std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
+        wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
 
     if (!(imageRatio(imageURL))) { // Test image aspect ratio (Whether or not it can fit in instagram)
         clear();
-        std::cout << "\r\t" << std::put_time(&tm_obj, "%H:%M") << " - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
+        wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
 
@@ -460,16 +479,16 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt) { //
 
 void instagramClearCache() { // Upon /clear, clear used_images.json
     instakeeploop = false;
-    std::ofstream outFile("instagram_used_urls.json.json", std::ios::trunc); // Clears contents of cache
+    std::ofstream outFile("instagram_used_urls.json", std::ios::trunc); // Clears contents of cache
     if (outFile) {
         outFile << "[]";
         outFile.close();
     }
-
 }
 
+
 void clear() { // Clear current line
-    std::cout << "\r                                                                                   \r";
+    std::cout << "\r                                                                                                          \r";
 }
 
 void instagramStop() { // Upon /stop, activate flag to stop loop
