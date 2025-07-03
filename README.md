@@ -181,9 +181,9 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 Please DM me on Discord (@TruFoox) for questions
 
 ## Here is some information regarding the most confusing aspects of ``Config.ini``:
-**For one, DO NOT (and I mean do NOT) use True/False (with a capital T/F) in the config. Instead, use true/false**
-
-**BOOLEAN VALUES (true or false) NEED TO BE LOWERCASE**
+- Boolean values (true or false) need to be lowercase
+- Do not surround values with quotations, they are parsed automatically
+- Do not put ANYTHING in ``refresh_token`` under ``[YouTube_Settings]`` until prompted to do so by the bot
 
 ### Autostart:
 - If you want the bot to automatically launch any service (or multiple), input the service you'd like to launch (``autostart = instagram``)
