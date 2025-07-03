@@ -358,12 +358,14 @@ int main() {
 
 void youtubecrash() { //On crash restart if enabled
     if (RESTART) {
+        std::this_thread::sleep_for(std::chrono::seconds(5)); // Sleep
         youtube(); // Restart youtube
     }
 }
 
 void instagramcrash() { // On crash restart if enabled
     if (RESTART) {
+        std::this_thread::sleep_for(std::chrono::seconds(5)); // Sleep
 		instagram(); // Restart instagram
     }
 }
