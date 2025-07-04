@@ -370,3 +370,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Config.ini
+/Config.ini
+/README.md
