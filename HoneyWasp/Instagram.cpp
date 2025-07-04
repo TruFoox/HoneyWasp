@@ -142,6 +142,7 @@ int instagram() {
 
             if (countattempt == 0) { // Only output if on first post attempt
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new post\r";
+                lastCoutWasReturn = true;
             }
 
             if (countattempt >= ATTEMPTS_BEFORE_TIMEOUT) { // Check if stuck in loop
@@ -217,7 +218,7 @@ int instagram() {
                 }
                 if (DEBUGMODE) {
                     color(6); // Reset cout color to yellow (default)
-                    std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data;
+                    std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data.dump(1, '\t');
                 }
                 /* Read JSON data and attempt post*/
                 if (http_code == 200) { // Ensure GET success
@@ -248,6 +249,8 @@ int instagram() {
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP GET ERROR " << http_code << ": \n\t" << data;
+                    std::this_thread::sleep_for(std::chrono::seconds(60)); // Sleep to prevent spam
+                    imageValid = false; // Set imageValid to false to skip current post attempt
                 }
             }
             else { // If manual, choose random item from manual list
@@ -292,6 +295,7 @@ int instagram() {
                         if (DEBUGMODE) {
                             color(6); // Reset cout color to yellow (default)
                             std::cout << "\n\tPOST 2 success";
+                            lastCoutWasReturn = false;
                         }
 
                         std::time_t t = std::time(nullptr); // Get timestamp for output

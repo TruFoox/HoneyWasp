@@ -113,6 +113,7 @@ int main() {
                 if (event.command.get_command_name() == "stop") { // Stop service
                     std::string service = std::get<std::string>(event.get_parameter("service"));
                     color(6);
+                    lastCoutWasReturn = false;
                     if (service == "all") {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
@@ -138,6 +139,7 @@ int main() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping Instagram";
+                        lastCoutWasReturn = true;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
                             .set_color(0xFFA500)
@@ -175,6 +177,7 @@ int main() {
 
                 if (event.command.get_command_name() == "clear") { // Clear cache
                     color(6);
+                    lastCoutWasReturn = false;
                     std::string service = std::get<std::string>(event.get_parameter("service"));
 
                     if (service == "instagram") {
@@ -182,6 +185,7 @@ int main() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing cache";
+                        lastCoutWasReturn = false;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
                             .set_color(0xFFA500)
@@ -198,6 +202,7 @@ int main() {
                 }
                 if (event.command.get_command_name() == "start") { // Start service
                     color(6);
+                    lastCoutWasReturn = false;
                     std::string service = std::get<std::string>(event.get_parameter("service")); // Fetch inputs from commands
                     if (service == "all") {
                         /* Reply to the command with embed.*/
@@ -280,6 +285,7 @@ int main() {
 
             /* Start/stop service command definitions */
             bot.on_ready([&bot, AUTOSTART](const dpp::ready_t& event) {
+                lastCoutWasReturn = false;
                 if (dpp::run_once<struct register_bot_commands>()) {
                     /* Create a new global command on ready event */
                     dpp::slashcommand start_cmd("start", "Start running HoneyWasp", bot.me.id);
