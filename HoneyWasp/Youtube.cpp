@@ -327,11 +327,15 @@ int youtube() {
     }
     catch (const std::exception& e) { // Error handling
         std::cerr << "\n\tYoutube crashed: " << e.what() << '\n';
+
+        lastCoutWasReturn = false;
         youtubecrash();
         return 1;
     }
     catch (...) {
         std::cerr << "\n\tYoutube crashed with unknown error.\n";
+
+        lastCoutWasReturn = false;
         youtubecrash();
         return 1;
     }

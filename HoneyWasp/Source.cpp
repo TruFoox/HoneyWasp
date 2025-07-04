@@ -68,7 +68,10 @@ int main() {
          -------------------------------------------------------------------------------------------------------------
 
             )"; // Version incremented by 0.1 every day of work
-            std::cout << "\n\t" << "Loading Honeywasp";
+            std::time_t t = std::time(nullptr); // Get timestamp
+            std::tm tm_obj;
+            localtime_s(&tm_obj, &t);
+            std::cout << "\n\t" << std::put_time(&tm_obj, "%m-%d-%Y @ %H:%M:%S") << " - Loading Honeywasp";
 
             /* Load config data */
             INIReader reader("../Config.ini");
@@ -87,13 +90,11 @@ int main() {
                 return 1;
             }
 
-            std::time_t t = std::time(nullptr); // Get timestamp
-            std::tm tm_obj;
+            t = std::time(nullptr); // Get timestamp
             localtime_s(&tm_obj, &t);
-            std::cout << "\n\t" << std::put_time(&tm_obj, "%m-%d-%Y @ %H:%M:%S") << " - Config loaded";
-            std::cout << "\n\t" << std::put_time(&tm_obj, "%m-%d-%Y @ %H:%M:%S") << " - Loading discord";
+            std::cout << "\n\tConfig loaded";
+            std::cout << "\n\tLoading discord - Discord client logs:";
             dpp::cluster bot(BOT_TOKEN);
-            std::cout << "\n\t" << "Discord token accepted! Discord client logs:";
 
             bot.on_log([&DEBUGMODE](const dpp::log_t& event) { // Discord client info output
                 if (((dpp::utility::loglevel(event.severity) == "INFO") && event.message.find("Reconnecting shard") == std::string::npos) || (dpp::utility::loglevel(event.severity) == "ERROR") || (DEBUGMODE == true)) { // Only show discord client INFO logs to prevent flooding

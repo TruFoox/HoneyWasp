@@ -88,6 +88,7 @@ int instagram() {
         /* Abort if any required value is default */
         if (TOKEN.empty()|| USER_ID == 0 || (INSTAPOSTMODE == "auto" && (SUBREDDITS_RAW.empty() || SUBREDDIT_WEIGHTS_RAW.empty()))) {
             std::cout << "Config.ini is missing required Instagram settings. Aborting...\n";
+            lastCoutWasReturn = false;
             return 1;
         }
 
@@ -115,6 +116,7 @@ int instagram() {
             std::filesystem::path filePath = "instagram_used_urls.json"; // Gets used_urls.json size on disk to approximate length
             if (std::filesystem::file_size(filePath) > 100000) {
                 std::cout << "\n\tused_urls.json is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
+                lastCoutWasReturn = false;
             }
         }
         else {
@@ -149,6 +151,7 @@ int instagram() {
                 color(4);
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
                 color(6);
+                lastCoutWasReturn = false;
                 std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 180));
             }
             countattempt++; // Iterate attempts to post during this cycle
@@ -184,6 +187,7 @@ int instagram() {
                         color(4); // Set color to red
                         std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res);
                         std::cerr << "\n\tError details: " << instaresponse << std::endl;
+                        lastCoutWasReturn = false;
                         color(6);
                         curl_easy_cleanup(curl);
                         curl_global_cleanup();
@@ -202,6 +206,7 @@ int instagram() {
                     catch (const std::exception& e) {
                         color(4);
                         std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << instaresponse;
+                        lastCoutWasReturn = false;
                         color(6);
                         instagramcrash(); // Optional: handle gracefully
                         return 1;
@@ -214,11 +219,13 @@ int instagram() {
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed to initialize CURL";
+                    lastCoutWasReturn = false;
                     return 1;
                 }
                 if (DEBUGMODE) {
                     color(6); // Reset cout color to yellow (default)
                     std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data.dump(1, '\t');
+                    lastCoutWasReturn = false;
                 }
                 /* Read JSON data and attempt post*/
                 if (http_code == 200) { // Ensure GET success
@@ -230,6 +237,7 @@ int instagram() {
                     if (DEBUGMODE) {
                         color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tGET success";
+                        lastCoutWasReturn = false;
                     }
                     imageValid = imageValidCheck(data, tempDisableCaption, countattempt, lastCoutWasReturn); // Test if image is valid for posting
 
@@ -240,6 +248,7 @@ int instagram() {
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
+                    lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
 					imageValid = false; // Set imageValid to false to skip current post attempt
                 }
@@ -249,6 +258,7 @@ int instagram() {
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP GET ERROR " << http_code << ": \n\t" << data;
+                    lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(60)); // Sleep to prevent spam
                     imageValid = false; // Set imageValid to false to skip current post attempt
                 }
@@ -281,6 +291,7 @@ int instagram() {
                     if (DEBUGMODE) {
                         color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tPOST 1 success";
+                        lastCoutWasReturn = false;
                     }
 
                     std::string id = uploadJson["id"]; // Get ID from /media POST request
@@ -340,8 +351,8 @@ int instagram() {
                         outFile << j.dump(4);
                         outFile.close();
 
+                        
                         std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
-                        lastCoutWasReturn = false;
                         countattempt = 0; // Reset number of attempts to post this cycle
                     }
                     else {
@@ -350,7 +361,7 @@ int instagram() {
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
                         std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 2 ERROR " << http_code << ":\n\t";
-
+                        lastCoutWasReturn = false;
                         if (DEBUGMODE) { // Print error details
                             std::cout << uploadJson;
                         }
@@ -373,6 +384,7 @@ int instagram() {
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 1 ERROR " << http_code << ":\n\t";
+                    lastCoutWasReturn = false;
 
                     if (DEBUGMODE) { // Print error details
                         std::cout << uploadJson;
@@ -401,6 +413,7 @@ int instagram() {
         color(4); // Set color to red
         std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed: " << e.what() << '\n';
 
+        lastCoutWasReturn = false;
 		instagramcrash(); // Call crash function to handle the error
         return 1;
     }
@@ -411,6 +424,7 @@ int instagram() {
         color(4); // Set color to red
         std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed with unknown error.\n";
 
+        lastCoutWasReturn = false;
         instagramcrash();  // Call crash function to handle the error
         return 1;
     }
