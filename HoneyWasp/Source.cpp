@@ -71,7 +71,7 @@ int main() {
             std::time_t t = std::time(nullptr); // Get timestamp
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
-            std::cout << "\n\t" << std::put_time(&tm_obj, "%m-%d-%Y @ %H:%M:%S") << " - Loading Honeywasp";
+            std::cout << "\n\t" << std::put_time(&tm_obj, "%m/%d/%Y @ %H:%M:%S") << " - Loading Honeywasp";
 
             /* Load config data */
             INIReader reader("../Config.ini");
@@ -103,6 +103,7 @@ int main() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [" << "DISCORD " << dpp::utility::loglevel(event.severity) << "] " << event.message;
+                    lastCoutWasReturn = false;
                 }
                 });
 

@@ -326,6 +326,7 @@ int instagram() {
                             std::cout << "\n"; // If last cout was not a return, print newline
                         }
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
+                        lastCoutWasReturn == false;
                         send_webhook(message);
                         /* Begin export of URL to file */
                         std::ifstream inFile("instagram_used_urls.json");
