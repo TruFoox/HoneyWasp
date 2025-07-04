@@ -67,7 +67,7 @@ int main() {
 
          -------------------------------------------------------------------------------------------------------------
 
-            )"; // Version incremented by 0.1 every day of work
+            )"; // Version incremented by 0.1 every day of (a decent amount of) work
             std::time_t t = std::time(nullptr); // Get timestamp
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);

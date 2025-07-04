@@ -326,7 +326,7 @@ int instagram() {
                             std::cout << "\n"; // If last cout was not a return, print newline
                         }
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
-                        lastCoutWasReturn == false;
+                        lastCoutWasReturn = false;
                         send_webhook(message);
                         /* Begin export of URL to file */
                         std::ifstream inFile("instagram_used_urls.json");
@@ -443,7 +443,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     std::time_t t = std::time(nullptr); // Get timestamp for output
     std::tm tm_obj;
     localtime_s(&tm_obj, &t);
-
+    if (!lastCoutWasReturn) {
+        std::cout << "\n"; // If last cout was not a return, print newline
+    }
     if (imageURL.find(".gif") != std::string::npos) { // If file is gif, skip
         clear();
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
