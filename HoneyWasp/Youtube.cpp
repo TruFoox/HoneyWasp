@@ -314,7 +314,10 @@ int youtube() {
                         std::cout << json.dump(4) << "\n";
                     }
                     color(2); // Set color to green
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " uploaded to YouTube"; // Print video ID
+                    if (!lastCoutWasReturn) {
+                        std::cout << "\n"; // If last cout was not a return, print newline
+                    }
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " uploaded to YouTube"; // Print video ID
                 }
                 lastCoutWasReturn = false;
                 std::this_thread::sleep_for(std::chrono::seconds(YT_TIME_BETWEEN_POSTS * 60)); // Sleep
