@@ -443,11 +443,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     std::time_t t = std::time(nullptr); // Get timestamp for output
     std::tm tm_obj;
     localtime_s(&tm_obj, &t);
-    if (!lastCoutWasReturn) {
-        std::cout << "\n"; // If last cout was not a return, print newline
-    }
     if (imageURL.find(".gif") != std::string::npos) { // If file is gif, skip
         clear();
+        if (!lastCoutWasReturn) {
+            std::cout << "\n";
+        }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
@@ -457,6 +457,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
         if (caption.find(CAPTION_BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Use defined caption if it does ( DOES NOT FLAG AS INVALID )
             tempDisableCaption = true;
             clear();
+            if (!lastCoutWasReturn) {
+                std::cout << "\n";
+            }
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
         }
@@ -465,6 +468,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     for (int i = 0; i < BLACKLIST.size(); i++) {
         if (caption.find(BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Block if it does
             clear();
+            if (!lastCoutWasReturn) {
+                std::cout << "\n";
+            }
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
             return false;
@@ -474,20 +480,29 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     for (int i = 0; i < usedUrls.size(); i++) { // Test if URL is duplicate
         if (imageURL == usedUrls[i]) {
             clear();
+            if (!lastCoutWasReturn) {
+                std::cout << "\n";
+            }
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
-            wasreturn = true; // Set true so next cout knows to not print on newline
+            wasreturn = true;
             return false;
         }
     }
     if (NSFW_ALLOWED == false && nsfw == true) { // If NSFW is disabled & post is marked as NSFW, return false
         clear();
+        if (!lastCoutWasReturn) {
+            std::cout << "\n";
+        }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
-        wasreturn = true; // Set true so next cout knows to not print on newline
+        wasreturn = true;
         return false;
     }
 
     if (!(imageRatio(imageURL))) { // Test image aspect ratio (Whether or not it can fit in instagram)
         clear();
+        if (!lastCoutWasReturn) {
+            std::cout << "\n";
+        }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
@@ -499,12 +514,17 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 }
 
 void instagramClearCache() { // Upon /clear, clear used_images.json
-    instakeeploop = false;
-    std::ofstream outFile("instagram_used_urls.json", std::ios::trunc); // Clears contents of cache
-    if (outFile) {
-        outFile << "[]";
-        outFile.close();
+    try {
+        instakeeploop = false;
+        std::ofstream outFile("instagram_used_urls.json", std::ios::trunc); // Clears contents of cache
+        if (outFile) {
+            outFile << "[]";
+            outFile.close();
+        }
     }
+    catch (...) {
+        std::cerr << "\n\tFailed to clear instagram cache. Please check file permissions or if the file is open in another program.\n";
+	}
 }
 
 
@@ -517,70 +537,87 @@ void instagramStop() { // Upon /stop, activate flag to stop loop
 }
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { // Writes the instaresponse into string
-    size_t totalSize = size * nmemb;
-    std::string* instaresponse = static_cast<std::string*>(userp);
-    instaresponse->append(static_cast<char*>(contents), totalSize);
-    return totalSize;
+    try {
+        size_t totalSize = size * nmemb;
+        std::string* instaresponse = static_cast<std::string*>(userp);
+        instaresponse->append(static_cast<char*>(contents), totalSize);
+        return totalSize;
+    }
+    catch (...) {
+        std::cerr << "\n\tError in WriteCallback: Failed to write data to string.\n";
+	}
 }
 
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params) { // HTTP POST request
-    CURL* curl; 
-    CURLcode res;
-    std::string instaresponse;
-    std::string post_fields;
+    try {
+        CURL* curl;
+        CURLcode res;
+        std::string instaresponse;
+        std::string post_fields;
 
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-    curl = curl_easy_init();
-    if (curl) {
-        for (auto it = params.begin(); it != params.end(); ++it) {
-            char* key = curl_easy_escape(curl, it->first.c_str(), 0);
-            char* val = curl_easy_escape(curl, it->second.c_str(), 0);
-            post_fields += key;
-            post_fields += "=";
-            post_fields += val;
-            if (std::next(it) != params.end()) {
-                post_fields += "&";
+        curl_global_init(CURL_GLOBAL_DEFAULT);
+        curl = curl_easy_init();
+        if (curl) {
+            for (auto it = params.begin(); it != params.end(); ++it) {
+                char* key = curl_easy_escape(curl, it->first.c_str(), 0);
+                char* val = curl_easy_escape(curl, it->second.c_str(), 0);
+                post_fields += key;
+                post_fields += "=";
+                post_fields += val;
+                if (std::next(it) != params.end()) {
+                    post_fields += "&";
+                }
+                curl_free(key);
+                curl_free(val);
             }
-            curl_free(key);
-            curl_free(val);
-        }
 
-        curl_easy_setopt(curl, CURLOPT_URL, base_url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_fields.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &instaresponse);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_URL, base_url.c_str());
+            curl_easy_setopt(curl, CURLOPT_POST, 1L);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_fields.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &instaresponse);
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-        res = curl_easy_perform(curl);
+            res = curl_easy_perform(curl);
 
-        if (res != CURLE_OK) {
-            color(4);
-            std::cerr << "\n\tCURL POST error: " << curl_easy_strerror(res) << std::endl;
-            std::cerr << "\n\tError details: " << instaresponse << std::endl;
-            color(6);
+            if (res != CURLE_OK) {
+                color(4);
+                std::cerr << "\n\tCURL POST error: " << curl_easy_strerror(res) << std::endl;
+                std::cerr << "\n\tError details: " << instaresponse << std::endl;
+                color(6);
+                curl_easy_cleanup(curl);
+                curl_global_cleanup();
+                return json::object({ {"error", curl_easy_strerror(res)}, {"details", instaresponse} });
+            }
+
+            // Get HTTP status code
+            http_code = 0;
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+
             curl_easy_cleanup(curl);
             curl_global_cleanup();
-            return json::object({ {"error", curl_easy_strerror(res)}, {"details", instaresponse} });
-        }
 
-        // Get HTTP status code
-        http_code = 0;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-
-        if (http_code == 200) {
-            return json::parse(instaresponse);
+            if (http_code == 200) {
+                return json::parse(instaresponse);
+            }
+            else {
+                return json::object({ {"error", "HTTP instaresponse code " + std::to_string(http_code)}, {"details", instaresponse} });
+            }
         }
         else {
-            return json::object({ {"error", "HTTP instaresponse code " + std::to_string(http_code)}, {"details", instaresponse} });
+            curl_global_cleanup();
+            color(4);
+            return json::object({ {"error", "Failed to initialize CURL"} });
         }
     }
-    else {
-        curl_global_cleanup();
+    catch (const std::exception& e) {
         color(4);
-        return json::object({ {"error", "Failed to initialize CURL"} });
+        std::cerr << "\n\tHTTP POST error: " << e.what() << std::endl;
+        return json::object({ {"error", e.what()} });
     }
+    catch (...) {
+        color(4);
+        std::cerr << "\n\tHTTP POST error: Unknown error occurred." << std::endl;
+        return json::object({ {"error", "Unknown error occurred"} });
+	}
 }

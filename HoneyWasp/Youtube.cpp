@@ -102,6 +102,9 @@ int youtube() {
         }
         while (ytkeeploop) {
             color(6); // Reset cout color to yellow (default)
+            if (!lastCoutWasReturn) {
+                std::cout << "\n"; // If last cout was not a return, print newline
+            }
             ytresponse.clear();
 
             /* Generate access token */
@@ -314,9 +317,6 @@ int youtube() {
                         std::cout << json.dump(4) << "\n";
                     }
                     color(2); // Set color to green
-                    if (!lastCoutWasReturn) {
-                        std::cout << "\n"; // If last cout was not a return, print newline
-                    }
                     std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " uploaded to YouTube"; // Print video ID
                 }
                 lastCoutWasReturn = false;
