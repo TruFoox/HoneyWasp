@@ -16,7 +16,7 @@
 #include "ImageUtils.h"
 #include "instagram.h"
 
-using json = nlohmann::json; // redefines json as one from nlohmann
+using json = nlohmann::json; // Redefines json as one from nlohmann
  
 
 /* Prototypes */
@@ -504,9 +504,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     std::tm tm_obj;
     localtime_s(&tm_obj, &t);
     if (imageURL.find(".gif") != std::string::npos) { // If file is gif, skip
-        clear();
         if (!lastCoutWasReturn) {
             std::cout << "\n";
+        }
+        else {
+            clear();
         }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline
@@ -516,9 +518,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     for (int i = 0; i < CAPTION_BLACKLIST.size(); i++) {
         if (caption.find(CAPTION_BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Use defined caption if it does ( DOES NOT FLAG AS INVALID )
             tempDisableCaption = true;
-            clear();
             if (!lastCoutWasReturn) {
                 std::cout << "\n";
+            }
+            else {
+                clear();
             }
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
@@ -527,9 +531,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 
     for (int i = 0; i < BLACKLIST.size(); i++) {
         if (caption.find(BLACKLIST[i]) != std::string::npos) { // Test if reddit title contains blackslisted string. Block if it does
-            clear();
             if (!lastCoutWasReturn) {
                 std::cout << "\n";
+            }
+            else {
+                clear();
             }
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
@@ -539,9 +545,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 
     for (int i = 0; i < usedUrls.size(); i++) { // Test if URL is duplicate
         if (imageURL == usedUrls[i]) {
-            clear();
             if (!lastCoutWasReturn) {
                 std::cout << "\n";
+            }
+            else {
+                clear();
             }
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
             wasreturn = true;
@@ -549,9 +557,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
         }
     }
     if (NSFW_ALLOWED == false && nsfw == true) { // If NSFW is disabled & post is marked as NSFW, return false
-        clear();
         if (!lastCoutWasReturn) {
             std::cout << "\n";
+        }
+        else {
+            clear();
         }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
         wasreturn = true;
@@ -559,9 +569,11 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     }
 
     if (!(imageRatio(imageURL))) { // Test image aspect ratio (Whether or not it can fit in instagram)
-        clear();
         if (!lastCoutWasReturn) {
             std::cout << "\n";
+        }
+        else {
+            clear();
         }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline

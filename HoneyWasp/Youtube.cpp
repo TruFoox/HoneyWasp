@@ -15,7 +15,7 @@
 #include "source.h"
 #include "instagram.h"
 
-using json = nlohmann::json; // redefines json as one from nlohmann
+using json = nlohmann::json; // Redefines json as one from nlohmann
 
 /* Prototypes */
 void youtubeStop();

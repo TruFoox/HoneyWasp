@@ -1,18 +1,23 @@
 #include <dpp/dpp.h>
 #include "INIReader.h"
+#include <curl/curl.h>
 #include <dpp/unicode_emoji.h>
 #include <ctype.h>
 #include <boost/algorithm/string.hpp>
+#include <nlohmann/json.hpp>
 #include "Source.h"
 #include "instagram.h"
 #include "youtube.h"
 #include <ctime>
 #include <iostream>
+#include <format>
 #include <windows.h>
 #include <vector>
 #include <thread>
 #include <string>
  
+using json = nlohmann::json; // Redefines json as one from nlohmann
+
 /* Function Prototypes*/
 void instagramcrash();
 void youtubecrash();
@@ -23,9 +28,9 @@ void color(int n);
 std::string BOT_TOKEN, WEBHOOK;
 int CHANNEL_ID;
 dpp::cluster bot;
-bool DEBUGMODE; // Default to prevent unresolved external error
-bool RESTART;
+bool DEBUGMODE, RESTART;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
+std::string CURRENTVERSION = "1.15"; // Current version of the bot. For major updates, change the first number. For EVERY UPDATE, increase the second number (this is used to compare version numbers)
 
 /* Start bot */
 int main() {
@@ -41,33 +46,77 @@ int main() {
 	do { // Main loop for restarting bot on crash
         try {
 			color(6); // Set color to default (yellow)
-            std::cout << R"(
-          @@@@@                      @@@@@@
-              @@@                  @@@
-                 @@              @@
-                   @@@@@@@@@@@@@@
-                 @@ @@        @@ @@
-                @    @@      @@    @
-               @ @@@            @@@ @
-               @ @@@@          @@@@ @
-               @ @@@@@        @@@@@ @
-               @  @@@@@      @@@@@  @
-                @   @@        @@   @
-                 @@              @@
-                  @@@          @@@
-                  @@@@        @@@@
-                  @@ @@@    @@@ @@
-                     @@ @@@@@@  @@  @@   @@   @@@@   @@   @@  @@@@@ @@   @@ @@       @@  @@@    @@@@@  @@@@@
-                     @@     @@      @@   @@  @@  @@  @@@  @@  @@     @@ @@  @@   @   @@  @@@   @@@     @@  @@
-                     @@     @@      @@@@@@@ @@    @@ @@@@ @@  @@@@    @@@    @@ @@@ @@  @@ @@   @@@@   @@@@@
-                           @@@@     @@   @@  @@  @@  @@ @@@@  @@      @@      @@@@@@@  @@@@@@     @@@  @@
-                           @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v1.14
-                            @@
+            std::cout << std::format(R"(
+      @@@@@                      @@@@@@
+          @@@                  @@@
+             @@              @@
+               @@@@@@@@@@@@@@
+             @@ @@        @@ @@
+            @    @@      @@    @
+           @ @@@            @@@ @
+           @ @@@@          @@@@ @
+           @ @@@@@        @@@@@ @
+           @  @@@@@      @@@@@  @
+            @   @@        @@   @
+             @@              @@
+              @@@          @@@
+              @@@@        @@@@
+              @@ @@@    @@@ @@
+                 @@ @@@@@@  @@  @@   @@   @@@@   @@   @@  @@@@@ @@   @@ @@       @@  @@@    @@@@@  @@@@@
+                 @@     @@      @@   @@  @@  @@  @@@  @@  @@     @@ @@  @@   @   @@  @@@   @@@     @@  @@
+                 @@     @@      @@@@@@@ @@    @@ @@@@ @@  @@@@    @@@    @@ @@@ @@  @@ @@   @@@@   @@@@@
+                       @@@@     @@   @@  @@  @@  @@ @@@@  @@      @@      @@@@@@@  @@@@@@     @@@  @@
+                       @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v{}
+                        @@
+
+    -------------------------------------------------------------------------------------------------------------
+
+            )", CURRENTVERSION);
 
 
-         -------------------------------------------------------------------------------------------------------------
+            /* Check for new version */
+            CURL* curl = curl_easy_init();
+            if (!curl) return 1;
 
-            )"; // Version incremented by 0.1 every day of (a decent amount of) work
+            std::string response;
+            struct curl_slist* headers = NULL;
+            headers = curl_slist_append(headers, "User-Agent: MyBot/1.0");
+
+            curl_easy_setopt(curl, CURLOPT_URL, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+            CURLcode res = curl_easy_perform(curl);
+            curl_slist_free_all(headers);
+
+            if (res != CURLE_OK) {
+                std::cerr << "\n\tFAILED TO CHECK FOR NEW VERSION: " << curl_easy_strerror(res) << std::endl;
+                curl_easy_cleanup(curl);
+            }
+            else {
+                std::string version;
+                try {
+                    auto jsonResp = json::parse(response);
+                    version = jsonResp["tag_name"].get<std::string>();
+
+					size_t pos = version.rfind('.'); // Find the period in the version string to retrieve iteration number
+                    int shortVersion = std::stoi(version.substr(pos + 1));
+
+                    pos = CURRENTVERSION.rfind('.'); // Find the period in the version string to retrieve iteration number
+                    int shortCurrentVersion = std::stoi(CURRENTVERSION.substr(pos + 1));
+
+                    if (shortVersion > shortCurrentVersion) { // Compare version numbers
+                        std::cout << "\n\tA NEW VERSION IS AVAILABLE: " << version << " (Current: v" << CURRENTVERSION << ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest\n";
+                    }
+                }
+                catch (...) {
+                    std::cerr << "\n\tFAILED TO CHECK FOR NEW VERSION: " << curl_easy_strerror(res) << std::endl;
+                }
+            }
+            curl_easy_cleanup(curl);
+
+
             std::time_t t = std::time(nullptr); // Get timestamp
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
