@@ -178,7 +178,7 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 
 # Help
 
-Please DM me on Discord (@TruFoox) for questions
+Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
 
 ## Here is some information regarding the most confusing aspects of ``Config.ini``:
 - Boolean values (true or false) need to be lowercase
