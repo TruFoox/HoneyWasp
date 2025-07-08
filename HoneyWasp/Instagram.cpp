@@ -36,7 +36,7 @@ std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, man
 std::vector<int> SUBREDDIT_WEIGHTS;
 
 /* Starts sending API calls to post to instagram*/
-int instagram() {
+int instagram() {       
     try {
         /* Load config data */
         INIReader reader("../Config.ini");
@@ -45,8 +45,6 @@ int instagram() {
         std::string INSTAPOSTMODE = reader.Get("Instagram_Settings", "post_mode", "");
 		if (INSTAPOSTMODE.empty()) INSTAPOSTMODE = "auto"; // Default to auto if not set
         boost::to_lower(INSTAPOSTMODE);
-        std::string userIdStr = reader.Get("Instagram_Settings", "user_id", "");
-		const long long USER_ID = userIdStr.empty() ? 0 : std::stoll(userIdStr); // If user_id is not set, default to 0
         std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
         const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
         std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
@@ -86,10 +84,69 @@ int instagram() {
 
 
         /* Abort if any required value is default */
-        if (TOKEN.empty()|| USER_ID == 0 || (INSTAPOSTMODE == "auto" && (SUBREDDITS_RAW.empty() || SUBREDDIT_WEIGHTS_RAW.empty()))) {
-            std::cout << "Config.ini is missing required Instagram settings. Aborting...\n";
+        if (TOKEN.empty() || (INSTAPOSTMODE == "auto" && (SUBREDDITS_RAW.empty() || SUBREDDIT_WEIGHTS_RAW.empty()))) {
+            color(4);
+            std::cout << "\n\tConfig.ini is missing required Instagram settings. Aborting...\n";
             lastCoutWasReturn = false;
             return 1;
+        }
+
+        /* Get User ID */
+        CURL* curl;
+        CURLcode res;
+        std::string response;
+
+        std::string apilink = "https://graph.facebook.com/v19.0/me/accounts?access_token=" + TOKEN; // Get facebook page id
+
+        curl = curl_easy_init();
+        if (curl) {
+            curl_easy_setopt(curl, CURLOPT_URL, apilink.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+            res = curl_easy_perform(curl);
+
+            if (res != CURLE_OK) {
+                std::cerr << "\n\tRequest failed: " << curl_easy_strerror(res) << std::endl;
+                curl_easy_cleanup(curl);
+                return 1;
+            }
+
+            std::string pageID;
+            try {
+                auto jsonResp = json::parse(response);
+                pageID = jsonResp["data"][0]["id"].get<std::string>();
+            }
+            catch (...) {
+                std::cerr << "\n\tFailed to parse page ID from response.\n";
+                std::cout << response;
+                curl_easy_cleanup(curl);
+                return 1;
+            }
+            response.clear();
+
+			apilink = "https://graph.facebook.com/v19.0/" + pageID + "?fields=instagram_business_account&access_token=" + TOKEN; // Get instagram ID using facebook page ID
+            curl_easy_setopt(curl, CURLOPT_URL, apilink.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+            res = curl_easy_perform(curl);
+
+            if (res != CURLE_OK)
+                std::cerr << "\n\tRequest failed: " << curl_easy_strerror(res) << std::endl;
+            else {
+                try {
+                    auto jsonResp = json::parse(response);
+                    pageID = jsonResp["instagram_business_account"]["id"].get<std::string>();
+                    USER_ID = std::stoll(pageID);
+                }
+                catch (...) {
+                    std::cerr << "\n\tFailed to parse instagram ID from response.\n";
+                    std::cout << response;
+                    curl_easy_cleanup(curl);
+                    return 1;
+                }
+            }
+            curl_easy_cleanup(curl);
         }
 
         for (int i = 0; i < SUBREDDIT_WEIGHTS.size(); i++) { // Scales subreddit list by the weights in Subreddit_Weights
@@ -163,7 +220,7 @@ int instagram() {
                 int randIndex = std::rand() % SUBREDDITS.size(); // Generate random index of subreddit
                 chosenSubreddit = SUBREDDITS[randIndex];
 
-                std::string apilink = "https://meme-api.com/gimme/" + chosenSubreddit; // Generate subreddit GET request URL
+                apilink = "https://meme-api.com/gimme/" + chosenSubreddit; // Generate subreddit GET request URL
 
                 /* Get post from meme-api*/
                 CURL* curl;

@@ -46,7 +46,8 @@ int youtube() {
 
         /* Abort if any required value is default */
         if (SECRET.empty() || ID.empty()) {
-            std::cout << "Config.ini is missing required Youtube settings. Aborting...\n";
+            color(4);
+            std::cout << "\n\tConfig.ini is missing required Youtube settings. Aborting...\n";
             return 1;
         }
 
