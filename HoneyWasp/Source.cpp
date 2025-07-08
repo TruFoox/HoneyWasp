@@ -379,22 +379,29 @@ void instagramcrash() { // On crash restart if enabled
 }
 
 void send_webhook(std::string& message) { // Send webhook
-    dpp::webhook webhook;
-    webhook.channel_id = CHANNEL_ID;
-    webhook.name = "HoneyWasp";
+    try {
+        dpp::webhook webhook;
+        webhook.channel_id = CHANNEL_ID;
+        webhook.name = "HoneyWasp";
 
-    bot.create_webhook(webhook, [](const dpp::confirmation_callback_t& callback) {
-        if (callback.is_error()) {
-            std::cerr << "Failed to create webhook: " << callback.get_error().message << std::endl;
-            return;
-        }
+        bot.create_webhook(webhook, [](const dpp::confirmation_callback_t& callback) {
+            if (callback.is_error()) {
+                std::cerr << "Failed to create webhook: " << callback.get_error().message << std::endl;
+                return;
+            }
 
-        const dpp::webhook& created_webhook = std::get<dpp::webhook>(callback.value);
+            const dpp::webhook& created_webhook = std::get<dpp::webhook>(callback.value);
 
-        dpp::message webhook_message("Hello from the webhook!");
-        bot.execute_webhook(created_webhook, webhook_message, true);
-        });
-
+            dpp::message webhook_message("Hello from the webhook!");
+            bot.execute_webhook(created_webhook, webhook_message, true);
+            });
+    }
+    catch (const std::exception& e) { // Error handling
+        std::cerr << "\n\tWebhook error: " << e.what() << '\n';
+    }
+    catch (...) {
+        std::cerr << "\n\tWebhook error with unknown error.\n";
+	}
 
 }
 

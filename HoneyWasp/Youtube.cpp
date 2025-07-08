@@ -97,13 +97,16 @@ int youtube() {
             json jsonResponse = json::parse(ytresponse); // Parse the JSON response
             std::string refreshToken = jsonResponse["refresh_token"].get<std::string>(); // Janky fix to remove quotes from JSON string
             ytresponse.clear();
-            std::cout << "\n\tPLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [Youtube_Settings] IN CONFIG.INI AND RE-RUN:\n" << refreshToken;
+            std::cout << "\n\tPLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN CONFIG.INI AND RE-RUN:\n" << refreshToken;
             return 0;
         }
         while (ytkeeploop) {
             color(6); // Reset cout color to yellow (default)
             if (!lastCoutWasReturn) {
                 std::cout << "\n"; // If last cout was not a return, print newline
+            }
+            else {
+                clear();
             }
             ytresponse.clear();
 
@@ -114,7 +117,7 @@ int youtube() {
                 std::tm tm_obj;
                 color(4); // Set color to red
                 localtime_s(&tm_obj, &t);
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL INIT FAILED\n";
+                std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL INIT FAILED\n";
                 youtubecrash();
                 return 1;
             }
@@ -140,7 +143,7 @@ int youtube() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 color(4); // Set color to red
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - FAILED TO GET ACCESS TOKEN: " << curl_easy_strerror(res) << "\n";
+                std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - FAILED TO GET ACCESS TOKEN: " << curl_easy_strerror(res) << "\n";
                 curl_slist_free_all(token_headers);
                 curl_easy_cleanup(curl);
                 youtubecrash();
@@ -160,7 +163,7 @@ int youtube() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 color(4); // Set color to red
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - NO ACCESS TOKEN FOUND IN RESPONSE:\n" << json.dump(2) << "\n";
+                std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - NO ACCESS TOKEN FOUND IN RESPONSE:\n" << json.dump(2) << "\n";
                 youtubecrash();
                 return 1;
             }
@@ -176,7 +179,7 @@ int youtube() {
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - NO VIDEO FILES FOUND IN /Videos\n";
+                    std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - NO VIDEO FILES FOUND IN /Videos\n";
                     youtubecrash();
                     return 1;
                 }
@@ -196,7 +199,7 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - VIDEO FILE NOT FOUND: " << video_file << "\n";
+                    std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - VIDEO FILE NOT FOUND: " << video_file << "\n";
                     youtubecrash();
                     return 1;
                 }
@@ -219,7 +222,7 @@ int youtube() {
                 curl = curl_easy_init(); // Init curl
                 if (!curl) {
                     color(4); // Set color to red
-                    std::cerr << "Curl init failed\n";
+                    std::cerr << "\tCurl init failed\n";
                     youtubecrash();
                     return 1;
                 }
@@ -240,7 +243,7 @@ int youtube() {
                 size_t pos = video_file.rfind('.');
                 if (pos == std::string::npos) {
                     color(4); // Set color to red
-                    std::cout << "\n\tNO FILE EXTENSION FOUND FOR: " << video_file << "\n"; // If no extension found
+                    std::cout << "\tNO FILE EXTENSION FOUND FOR: " << video_file << "\n"; // If no extension found
                     youtubecrash();
                     return 1;  // No extension found
                 }
@@ -267,7 +270,7 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                    std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
                     curl_easy_cleanup(curl);
                     curl_slist_free_all(headers);
                     youtubecrash();
@@ -289,14 +292,14 @@ int youtube() {
                             std::tm tm_obj;
                             localtime_s(&tm_obj, &t);
                             color(4); // Set color to red
-                            std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: RATELIMITED BY YOUTUBE (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
+                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: RATELIMITED BY YOUTUBE (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
                         }
                         else { // General error
                             std::time_t t = std::time(nullptr); // Get timestamp for output
                             std::tm tm_obj;
                             localtime_s(&tm_obj, &t);
                             color(4); // Set color to red
-                            std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << message << "\n";
+                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << message << "\n";
                         }
                     }
                     else { // if error structure is not valid print full response (last resort)
@@ -304,7 +307,7 @@ int youtube() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                        std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
                         curl_easy_cleanup(curl);
                         curl_slist_free_all(headers);
                     }

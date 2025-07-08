@@ -24,7 +24,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params = {});
 void instagramStop();
 bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool& lastCoutWasReturn);
-void clear();
+
 
 /* Global variables */
 int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
@@ -269,9 +269,12 @@ int instagram() {
 
             }
 
-            if (INSTAPOSTMODE == "manual" || imageValid == true) {
+			if (INSTAPOSTMODE == "manual" || imageValid == true) { // If post mode is manual (or if automatic & image is valid)
                 json uploadData;
                 if (INSTAPOSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
+                    if (!lastCoutWasReturn) {
+                        std::cout << "\n"; // If last cout was not a return, print newline
+                    }
                     uploadData = {
                         {"image_url", imageURL},
                         {"caption", FALLBACK_CAPTION + "\n\n.\n\n" + HASHTAGS},
@@ -530,6 +533,7 @@ void instagramClearCache() { // Upon /clear, clear used_images.json
 
 void clear() { // Clear current line
     std::cout << "\r                                                                                                          \r";
+	lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
 }
 
 void instagramStop() { // Upon /stop, activate flag to stop loop
