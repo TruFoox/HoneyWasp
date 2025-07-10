@@ -141,7 +141,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 ### Step 2: Enable YouTube Data API
 
-1. Search for **YouTube Data API**
+1. Search for **YouTube Data API** or go [here](https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com?q=search&referrer=search&inv=1&invt=Ab2WDA&project=agile-falcon-356204)
 2. Click on it, then press **Enable**
 
 ### Step 3: Set Up OAuth Credentials
@@ -149,11 +149,11 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 1. Go to **APIs & Services → Credentials**
 2. Click **Create Credentials → OAuth client ID**
 3. If prompted, set up the OAuth consent screen:
+   - Go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
    - Go to **APIs & Services → OAuth consent screen**
    - Fill in required fields (app name, support email. These do not matter)
    - Choose **External**, then press **Create**
    - Click **Save and Continue** until you can hit **Back to Dashboard**
-   - Finally, go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
 5. Under **Create OAuth client ID**, choose **Desktop App**
 6. Name it anything → click **Create**
 7. Copy the **Client ID** and **Client Secret**
