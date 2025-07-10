@@ -153,7 +153,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
    - Fill in required fields (app name, support email. These do not matter)
    - Choose **External**, then press **Create**
    - Click **Save and Continue** until you can hit **Back to Dashboard**
-   - Finally, go to (this link)[https://console.cloud.google.com/auth/audience], and under **Publishing statu**, press **Publish App**
+   - Finally, go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
 5. Under **Create OAuth client ID**, choose **Desktop App**
 6. Name it anything → click **Create**
 7. Copy the **Client ID** and **Client Secret**
