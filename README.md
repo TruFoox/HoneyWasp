@@ -141,21 +141,23 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 ### Step 2: Enable YouTube Data API
 
-1. In the left sidebar, go to **APIs & Services → Library**
-2. Search for **YouTube Data API**
-3. Click on it, then press **Enable**
+1. Search for **YouTube Data API** or go [here](https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com?q=search&referrer=search&inv=1&invt=Ab2WDA&project=agile-falcon-356204)
+2. Click on it, then press **Enable**
 
 ### Step 3: Set Up OAuth Credentials
 
 1. Go to **APIs & Services → Credentials**
 2. Click **Create Credentials → OAuth client ID**
 3. If prompted, set up the OAuth consent screen:
+   - Go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
+   - Go to **APIs & Services → OAuth consent screen**
+   - Fill in required fields (app name, support email. These do not matter)
    - Choose **External**, then press **Create**
-   - Fill in required fields (app name, support email. These do not matter), then click **Save and Continue** until you can hit **Back to Dashboard**
-4. Under **Create OAuth client ID**, choose **Desktop App**
-5. Name it anything → click **Create**
-6. Copy the **Client ID** and **Client Secret**
-7. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.ini
+   - Click **Save and Continue** until you can hit **Back to Dashboard**
+5. Under **Create OAuth client ID**, choose **Desktop App**
+6. Name it anything → click **Create**
+7. Copy the **Client ID** and **Client Secret**
+8. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.ini
 
 ### Step 4: Generate a Refresh Token (One-Time)
 1. Open **Launch.exe** in HoneyWasp
@@ -163,7 +165,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 3. Assuming ``refresh_token`` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
 4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 5. When prompted to allow access to your YouTube account, press **Continue**
-6. It will then take you to a URL without any content. Your access token is in the URL, so select everything between "http://localhost/?code=" and "&scope=https://www.googleapis.com/auth/youtube.upload"
+6. It will then give you the access token to copy.
 7. Your access token should look something like this: ``4/0AJIL1DDF16...``. Paste it into the console
 8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.ini
 
@@ -178,7 +180,7 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 
 # Help
 
-Please DM me on Discord (@TruFoox) for questions
+Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
 
 ## Here is some information regarding the most confusing aspects of ``Config.ini``:
 - Boolean values (true or false) need to be lowercase
@@ -195,7 +197,7 @@ Please DM me on Discord (@TruFoox) for questions
   - If you want to launch multiple, separate them with commas (``subreddits = memes,meme``)
 ### Blacklist (Auto post mode only):
 - List words that, if found in the reddit post's caption, will cause the post to be discarded
-  - If you want to launch multiple, separate them with commas (``subreddits = thing1,thing2``)
+  - If you want to launch multiple, separate them with commas (``blacklist = thing1,thing2``)
 ### Caption Blacklist (Auto post mode only):
 - List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
   - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
