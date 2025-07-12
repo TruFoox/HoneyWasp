@@ -348,4 +348,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="dependencies\opencv\build\x64\vc16\bin\opencv_world4120.dll" />
+  </ItemGroup>
 </Project>

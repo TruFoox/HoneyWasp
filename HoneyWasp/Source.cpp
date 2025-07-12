@@ -8,6 +8,7 @@
 #include "Source.h"
 #include "instagram.h"
 #include "youtube.h"
+#include "ImageUtils.h"
 #include <ctime>
 #include <iostream>
 #include <format>
@@ -15,7 +16,9 @@
 #include <vector>
 #include <thread>
 #include <string>
- 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 using json = nlohmann::json; // Redefines json as one from nlohmann
 
 /* Function Prototypes*/
@@ -30,7 +33,7 @@ int CHANNEL_ID;
 dpp::cluster bot;
 bool DEBUGMODE, RESTART;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
-std::string CURRENTVERSION = "1.15"; // Current version of the bot. For major updates, change the first number. For EVERY UPDATE, increase the second number (this is used to compare version numbers)
+float CURRENTVERSION = 1.16; // Current version of the bot. For major updates, change the first number. For minor updates, change the second number. 
 
 /* Start bot */
 int main() {
@@ -45,77 +48,78 @@ int main() {
     }
 	do { // Main loop for restarting bot on crash
         try {
+            if (!DEBUGMODE) {
+                cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_SILENT);
+            }
 			color(6); // Set color to default (yellow)
             std::cout << std::format(R"(
-      @@@@@                      @@@@@@
-          @@@                  @@@
-             @@              @@
-               @@@@@@@@@@@@@@
-             @@ @@        @@ @@
-            @    @@      @@    @
-           @ @@@            @@@ @
-           @ @@@@          @@@@ @
-           @ @@@@@        @@@@@ @
-           @  @@@@@      @@@@@  @
-            @   @@        @@   @
-             @@              @@
-              @@@          @@@
-              @@@@        @@@@
-              @@ @@@    @@@ @@
-                 @@ @@@@@@  @@  @@   @@   @@@@   @@   @@  @@@@@ @@   @@ @@       @@  @@@    @@@@@  @@@@@
-                 @@     @@      @@   @@  @@  @@  @@@  @@  @@     @@ @@  @@   @   @@  @@@   @@@     @@  @@
-                 @@     @@      @@@@@@@ @@    @@ @@@@ @@  @@@@    @@@    @@ @@@ @@  @@ @@   @@@@   @@@@@
-                       @@@@     @@   @@  @@  @@  @@ @@@@  @@      @@      @@@@@@@  @@@@@@     @@@  @@
-                       @@@@     @@   @@   @@@@   @@   @@  @@@@@  @@        @@ @@   @@   @@ @@@@@   @@  v{}
-                        @@
-
-    -------------------------------------------------------------------------------------------------------------
+       @@@@@                      @@@@@@
+           @@@                  @@@
+              @@              @@
+                @@@@@@@@@@@@@@
+              @@ @@        @@ @@
+             @    @@      @@    @
+            @ @@@            @@@ @
+            @ @@@@          @@@@ @
+            @ @@@@@        @@@@@ @
+            @  @@@@@      @@@@@  @
+             @   @@        @@   @
+              @@              @@
+               @@@          @@@
+               @@@@        @@@@
+               @@ @@@    @@@ @@
+                  @@ @@@@@@  @@  @@   @@   @@@@   @@   @@ @@@@@ @@   @@ @@       @@   @     @@@@@ @@@@@
+                  @@     @@      @@   @@  @@  @@  @@@  @@ @@     @@ @@  @@   @   @@  @@@   @@@    @@  @@
+                  @@     @@      @@@@@@@ @@    @@ @@@@ @@ @@@@    @@@    @@ @@@ @@  @@ @@   @@@@  @@@@@
+                        @@@@     @@   @@  @@  @@  @@ @@@@ @@      @@      @@@@@@@  @@@@@@@    @@@ @@
+                        @@@@     @@   @@   @@@@   @@   @@ @@@@@  @@        @@ @@   @@   @@ @@@@@  @@  v{}
+                         @@
+ 
+     -------------------------------------------------------------------------------------------------------------
 
             )", CURRENTVERSION);
 
 
             /* Check for new version */
             CURL* curl = curl_easy_init();
-            if (!curl) return 1;
+            if (curl) {
 
-            std::string response;
-            struct curl_slist* headers = NULL;
-            headers = curl_slist_append(headers, "User-Agent: MyBot/1.0");
+                std::string response;
+                struct curl_slist* headers = NULL;
+                headers = curl_slist_append(headers, "User-Agent: HoneyWasp/1.0");
 
-            curl_easy_setopt(curl, CURLOPT_URL, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+                curl_easy_setopt(curl, CURLOPT_URL, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
-            CURLcode res = curl_easy_perform(curl);
-            curl_slist_free_all(headers);
+                CURLcode res = curl_easy_perform(curl);
+                curl_slist_free_all(headers);
 
-            if (res != CURLE_OK) {
-                std::cerr << "\n\tFAILED TO CHECK FOR NEW VERSION: " << curl_easy_strerror(res) << std::endl;
-                curl_easy_cleanup(curl);
-            }
-            else {
-                std::string version;
-                try {
-                    auto jsonResp = json::parse(response);
-                    version = jsonResp["tag_name"].get<std::string>();
+                if (res != CURLE_OK) {
+                    std::cerr << "\n\tFAILED TO CHECK FOR NEW VERSION: " << curl_easy_strerror(res) << std::endl;
+                    curl_easy_cleanup(curl);
+                }
+                else {
+                    try {
+                        auto jsonResp = json::parse(response);
+                        std::string version = jsonResp["tag_name"].get<std::string>();
 
-					size_t pos = version.rfind('.'); // Find the period in the version string to retrieve iteration number
-                    int shortVersion = std::stoi(version.substr(pos + 1));
+                        size_t pos = version.find('v'); // Clean github version string for comparison
+                        version.erase(pos, 1);
 
-                    pos = CURRENTVERSION.rfind('.'); // Find the period in the version string to retrieve iteration number
-                    int shortCurrentVersion = std::stoi(CURRENTVERSION.substr(pos + 1));
-
-                    if (shortVersion > shortCurrentVersion) { // Compare version numbers
-                        std::cout << "\n\tA NEW VERSION IS AVAILABLE: " << version << " (Current: v" << CURRENTVERSION << ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest\n";
+                        if (std::stoi(version) > CURRENTVERSION) { // Compare version numbers
+                            color(10); // Set color to neon green (To distinguish from success message)
+                            std::cout << "\n\tA NEW VERSION IS AVAILABLE: " << jsonResp["tag_name"].get<std::string>() << "\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest\n";
+                            color(6);
+                        }
+                    }
+                    catch (...) {
+                        std::cerr << "\n\tFAILED TO CHECK FOR NEW VERSION: " << curl_easy_strerror(res) << std::endl;
                     }
                 }
-                catch (...) {
-                    std::cerr << "\n\tFAILED TO CHECK FOR NEW VERSION: " << curl_easy_strerror(res) << std::endl;
-                }
+                curl_easy_cleanup(curl);
             }
-            curl_easy_cleanup(curl);
-
 
             std::time_t t = std::time(nullptr); // Get timestamp
             std::tm tm_obj;
@@ -411,6 +415,10 @@ int main() {
             }
         }
     } while (RESTART);
+	color(6); // Reset color to default (yellow) output
+    std::cout << "\n\tBot stopped (somehow). Exiting...\n";
+    system("pause");
+	return 0; // Exit code
 }
 
 void youtubecrash() { //On crash restart if enabled

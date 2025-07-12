@@ -17,7 +17,7 @@
 #include "instagram.h"
 
 using json = nlohmann::json; // Redefines json as one from nlohmann
- 
+
 
 /* Prototypes */
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
@@ -27,39 +27,34 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 
 
 /* Global variables */
-int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
-long long USER_ID;
-long http_code;
-bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, instakeeploop, tempDisableCaption, imageValid;
-std::string TOKEN, SUBREDDITS_RAW, SUBREDDIT_WEIGHTS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, INSTAPOSTMODE, imageURL;
-std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, manualMedia;
-std::vector<int> SUBREDDIT_WEIGHTS;
+static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
+static long long USER_ID;
+static long http_code;
+static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, instakeeploop, tempDisableCaption, imageValid;
+static std::string TOKEN, SUBREDDITS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, INSTAPOSTMODE, imageURL;
+static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, manualMedia;
 
 /* Starts sending API calls to post to instagram*/
-int instagram() {       
+int instagram() {
     try {
         /* Load config data */
         INIReader reader("../Config.ini");
 
         std::string TOKEN = reader.Get("Instagram_Settings", "api_key", "");
         std::string INSTAPOSTMODE = reader.Get("Instagram_Settings", "post_mode", "");
-		if (INSTAPOSTMODE.empty()) INSTAPOSTMODE = "auto"; // Default to auto if not set
+        if (INSTAPOSTMODE.empty()) INSTAPOSTMODE = "auto"; // Default to auto if not set
         boost::to_lower(INSTAPOSTMODE);
         std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
         const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
         std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
         const int ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
         std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "");
-		if (SUBREDDITS_RAW.empty()) SUBREDDITS_RAW = "memes,meme,comedyheaven"; // Default subreddits if not set
+        if (SUBREDDITS_RAW.empty()) SUBREDDITS_RAW = "memes,meme,comedyheaven"; // Default subreddits if not set
         boost::erase_all(SUBREDDITS_RAW, " ");
         std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ',');
         boost::to_lower(SUBREDDITS_RAW);
-        std::string SUBREDDIT_WEIGHTS_RAW = reader.Get("Instagram_Settings", "subreddit_weights", "");
-		if (SUBREDDIT_WEIGHTS_RAW.empty()) SUBREDDIT_WEIGHTS_RAW = "5,4,2"; // Default weights if not set
-        boost::erase_all(SUBREDDIT_WEIGHTS_RAW, " ");
-        std::vector<int> SUBREDDIT_WEIGHTS = splitInts(SUBREDDIT_WEIGHTS_RAW, ',');
         std::string BLACKLIST_RAW = reader.Get("Instagram_Settings", "blacklist", "");
-        if (BLACKLIST_RAW.empty()) BLACKLIST_RAW = "hitler,nazi,politic,democrat,republican,liberal,conservative,trump,biden,nsfw,sex,dick,pussy,selfie,18+,butt,anal,squirt,fag,nigg"; // Default if empty
+        if (BLACKLIST_RAW.empty()) BLACKLIST_RAW = "Fuck,Shit,Ass,Bitch,retard,republican,democrat"; // Default if empty
         boost::erase_all(BLACKLIST_RAW, " ");
         boost::to_lower(BLACKLIST_RAW);
         std::vector<std::string> BLACKLIST = split(BLACKLIST_RAW, ',');
@@ -84,7 +79,7 @@ int instagram() {
 
 
         /* Abort if any required value is default */
-        if (TOKEN.empty() || (INSTAPOSTMODE == "auto" && (SUBREDDITS_RAW.empty() || SUBREDDIT_WEIGHTS_RAW.empty()))) {
+        if (TOKEN.empty() || (INSTAPOSTMODE == "auto" && SUBREDDITS_RAW.empty())) {
             color(4);
             std::cout << "\n\tConfig.ini is missing required Instagram settings. Aborting...\n";
             lastCoutWasReturn = false;
@@ -125,7 +120,7 @@ int instagram() {
             }
             response.clear();
 
-			apilink = "https://graph.facebook.com/v19.0/" + pageID + "?fields=instagram_business_account&access_token=" + TOKEN; // Get instagram ID using facebook page ID
+            apilink = "https://graph.facebook.com/v19.0/" + pageID + "?fields=instagram_business_account&access_token=" + TOKEN; // Get instagram ID using facebook page ID
             curl_easy_setopt(curl, CURLOPT_URL, apilink.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
@@ -149,15 +144,9 @@ int instagram() {
             curl_easy_cleanup(curl);
         }
 
-        for (int i = 0; i < SUBREDDIT_WEIGHTS.size(); i++) { // Scales subreddit list by the weights in Subreddit_Weights
-            for (int o = 0; o < SUBREDDIT_WEIGHTS[i]; ++o) {
-                SUBREDDITS.push_back(SUBREDDITS[i]);
-            }
-        }
-
         if (INSTAPOSTMODE == "auto") {
             /* Open and read used_urls.json */
-            std::ifstream inFile("instagram_used_urls.json");
+            std::ifstream inFile("../Cache/INST/instagram_used_urls.json");
             json j;
 
             if (inFile) {
@@ -170,9 +159,9 @@ int instagram() {
             }
             inFile.close();
 
-            std::filesystem::path filePath = "instagram_used_urls.json"; // Gets used_urls.json size on disk to approximate length
+            std::filesystem::path filePath = "../Cache/INST/instagram_used_urls.json"; // Gets used_urls.json size on disk to approximate length
             if (std::filesystem::file_size(filePath) > 100000) {
-                std::cout << "\n\tused_urls.json is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
+                std::cout << "\n\tInstagram cache is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
                 lastCoutWasReturn = false;
             }
         }
@@ -307,7 +296,7 @@ int instagram() {
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
-					imageValid = false; // Set imageValid to false to skip current post attempt
+                    imageValid = false; // Set imageValid to false to skip current post attempt
                 }
                 else { // Other error handling
                     std::time_t t = std::time(nullptr); // Get timestamp for output
@@ -326,7 +315,7 @@ int instagram() {
 
             }
 
-			if (INSTAPOSTMODE == "manual" || imageValid == true) { // If post mode is manual (or if automatic & image is valid)
+            if (INSTAPOSTMODE == "manual" || imageValid == true) { // If post mode is manual (or if automatic & image is valid)
                 json uploadData;
                 if (INSTAPOSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
                     if (!lastCoutWasReturn) {
@@ -373,7 +362,7 @@ int instagram() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
 
-						color(2); // Set color to green
+                        color(2); // Set color to green
 
                         std::string message;
                         if (INSTAPOSTMODE == "auto") {
@@ -389,7 +378,7 @@ int instagram() {
                         lastCoutWasReturn = false;
                         send_webhook(message);
                         /* Begin export of URL to file */
-                        std::ifstream inFile("instagram_used_urls.json");
+                        std::ifstream inFile("../Cache/INST/instagram_used_urls.json");
                         json j;
 
                         if (inFile) {
@@ -408,11 +397,11 @@ int instagram() {
 
                         j.push_back(imageURL); // Append element to JSON
                         usedUrls.push_back(imageURL); // Append element to memory
-                        std::ofstream outFile("instagram_used_urls.json");
+                        std::ofstream outFile("../Cache/INST/instagram_used_urls.json");
                         outFile << j.dump(4);
                         outFile.close();
 
-                        
+
                         std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
                         countattempt = 0; // Reset number of attempts to post this cycle
                     }
@@ -460,7 +449,7 @@ int instagram() {
                             std::cout << uploadJson;
                         }
                     }
-					imageValid = false; // Set imageValid to false to skip current post attempt
+                    imageValid = false; // Set imageValid to false to skip current post attempt
                 }
             }
             std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep to prevent spam
@@ -475,7 +464,7 @@ int instagram() {
         std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed: " << e.what() << '\n';
 
         lastCoutWasReturn = false;
-		instagramcrash(); // Call crash function to handle the error
+        instagramcrash(); // Call crash function to handle the error
         return 1;
     }
     catch (...) {
@@ -588,7 +577,7 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 void instagramClearCache() { // Upon /clear, clear used_images.json
     try {
         instakeeploop = false;
-        std::ofstream outFile("instagram_used_urls.json", std::ios::trunc); // Clears contents of cache
+        std::ofstream outFile("../Cache/INST/instagram_used_urls.json", std::ios::trunc); // Clears contents of cache
         if (outFile) {
             outFile << "[]";
             outFile.close();
@@ -596,13 +585,13 @@ void instagramClearCache() { // Upon /clear, clear used_images.json
     }
     catch (...) {
         std::cerr << "\n\tFailed to clear instagram cache. Please check file permissions or if the file is open in another program.\n";
-	}
+    }
 }
 
 
 void clear() { // Clear current line
     std::cout << "\r                                                                                                          \r";
-	lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
+    lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
 }
 
 void instagramStop() { // Upon /stop, activate flag to stop loop
@@ -618,7 +607,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { /
     }
     catch (...) {
         std::cerr << "\n\tError in WriteCallback: Failed to write data to string.\n";
-	}
+    }
 }
 
 json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params) { // HTTP POST request
@@ -692,5 +681,5 @@ json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std:
         color(4);
         std::cerr << "\n\tHTTP POST error: Unknown error occurred." << std::endl;
         return json::object({ {"error", "Unknown error occurred"} });
-	}
+    }
 }
