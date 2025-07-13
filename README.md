@@ -235,6 +235,5 @@ Contributions are what make the open source community such an amazing place to l
 * **[Libcurl](https://curl.se/libcurl/)** - Allows HTTP API calls in C++
 * **[Inih](https://github.com/benhoyt/inih)** by [Ben Hoyt](https://github.com/benhoyt) - Simplified reading .ini config
 * **[nlohmann/json](https://github.com/nlohmann/json)** by [Nlohmann](https://github.com/nlohmann) - Parses json from API calls
-* **[MemeAPI](https://github.com/D3vd)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesn't choose a source
-
-
+* **[MemeAPI](https://github.com/D3vd/Meme_Api)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesn't choose a source
+* **[OpenCV](https://opencv.org/)** - Used to convert photos from meme-api to video
