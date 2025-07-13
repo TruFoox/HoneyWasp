@@ -43,7 +43,7 @@ inline bool imageRatio(const std::string& imageUrl) {
 }
 
 inline bool image_to_video(const std::string& imageUrl) {
-    try {
+    try { 
         std::vector<unsigned char> imageData;
 
         CURL* curl = curl_easy_init();

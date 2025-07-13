@@ -150,8 +150,15 @@ int youtube() {
             localtime_s(&tm_obj, &t);
             ytresponse.clear();
 
+            if (!lastCoutWasReturn) {
+                std::cout << "\n"; // If last cout was not a return, print newline
+            }
+            else {
+                clear();
+            }
+
             if (countattempt == 0) { // Only output if on first post attempt
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new post\r";
+                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new YouTube post\r";
                 lastCoutWasReturn = true;
             }
 
@@ -205,6 +212,13 @@ int youtube() {
             }
             curl_easy_cleanup(curl); // Cleanup curl session after success
             curl_slist_free_all(token_headers); // Free the headers list
+
+            if (!lastCoutWasReturn) {
+                std::cout << "\n"; // If last cout was not a return, print newline
+            }
+            else {
+                clear();
+            }
 
             auto data = nlohmann::json::parse(ytresponse); // Parse response string into JSON object
 
@@ -341,8 +355,14 @@ int youtube() {
                     }
                     imageValid = imageValidCheck(data, tempDisableCaption, countattempt, lastCoutWasReturn); // Test if image is valid for posting
                     if (imageValid) { // If image is not valid, skip to next iteration
-						if (!image_to_video(imageURL)) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
-                            imageValid = false;
+						std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Converting image to video...\r"; // Print status
+						lastCoutWasReturn = true;
+                        if (image_to_video(imageURL)) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
+                            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Successfully converted image to video\r"; // Print status
+                            lastCoutWasReturn = true;
+                        }
+                        else {
+                            imageValid = true;
                         }
 					}
                 }
@@ -376,6 +396,10 @@ int youtube() {
                 if (!lastCoutWasReturn) {
                     std::cout << "\n"; // If last cout was not a return, print newline
                 }
+                else {
+                    clear();
+                }
+
 
                 /* Post to youtube */
                 std::ifstream infile(video_file); // Check if file exists
@@ -594,10 +618,11 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
     localtime_s(&tm_obj, &t);
     if (imageURL.find(".gif") != std::string::npos) { // If file is gif, skip
         if (!lastCoutWasReturn) {
-            std::cout << "\n";
+            std::cout << "\n"; // If last cout was not a return, print newline
         }
         else {
             clear();
+
         }
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline

@@ -28,7 +28,7 @@ void send_webhook(std::string& message);
 void color(int n);
 
 /* Global Variables */
-std::string BOT_TOKEN, WEBHOOK;
+std::string BOT_TOKEN, WEBHOOK; 
 int CHANNEL_ID;
 dpp::cluster bot;
 bool DEBUGMODE, RESTART;

@@ -189,7 +189,7 @@ int instagram() {
             localtime_s(&tm_obj, &t);
 
             if (countattempt == 0) { // Only output if on first post attempt
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new post\r";
+                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new Instagram post\r";
                 lastCoutWasReturn = true;
             }
 
@@ -321,6 +321,10 @@ int instagram() {
                     if (!lastCoutWasReturn) {
                         std::cout << "\n"; // If last cout was not a return, print newline
                     }
+                    else {
+                        clear();
+                    }
+
                     uploadData = {
                         {"image_url", imageURL},
                         {"caption", FALLBACK_CAPTION + "\n\n.\n\n" + HASHTAGS},
@@ -374,6 +378,10 @@ int instagram() {
                         if (!lastCoutWasReturn) {
                             std::cout << "\n"; // If last cout was not a return, print newline
                         }
+                        else {
+                            clear();
+                        }
+
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
                         lastCoutWasReturn = false;
                         send_webhook(message);
