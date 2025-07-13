@@ -33,7 +33,7 @@ int CHANNEL_ID;
 dpp::cluster bot;
 bool DEBUGMODE, RESTART;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
-float CURRENTVERSION = 1.16; // Current version of the bot. For major updates, change the first number. For minor updates, change the second number. 
+float CURRENTVERSION = 1.16; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
 
 /* Start bot */
 int main() {
@@ -86,7 +86,8 @@ int main() {
 
                 std::string response;
                 struct curl_slist* headers = NULL;
-                headers = curl_slist_append(headers, "User-Agent: HoneyWasp/1.0");
+				std::string temp = "User-Agent: HoneyWasp/" + std::to_string(CURRENTVERSION);
+                headers = curl_slist_append(headers, temp.c_str());
 
                 curl_easy_setopt(curl, CURLOPT_URL, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -178,7 +179,6 @@ int main() {
                         dpp::embed embed = dpp::embed()
                             .set_color(0xFFA500)
                             .set_author("Honeywasp", "https://github.com/TruFoox/HoneyWasp", "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
-                            .set_thumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                             .add_field("Stopping all services", "");
 
                         /* Create a message with the content as our new embed. */
@@ -213,7 +213,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping Youtube";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping YouTube";
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
                             .set_color(0xFFA500)
@@ -234,12 +234,30 @@ int main() {
                     color(6);
                     lastCoutWasReturn = false;
                     std::string service = std::get<std::string>(event.get_parameter("service"));
-
-                    if (service == "instagram") {
+                    if (service == "all") {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing cache";
+                        lastCoutWasReturn = false;
+                        /* Reply to the command with embed.*/
+                        dpp::embed embed = dpp::embed()
+                            .set_color(0xFFA500)
+                            .add_field("Cache cleared", "");
+
+                        /* Create a message with the content as our new embed. */
+                        dpp::message msg(event.command.channel_id, embed);
+
+                        /* Reply to the user with the message, containing our embed. */
+                        event.reply(msg);
+                        instagramClearCache();
+                        youtubeClearCache();
+                    }
+                    if (service == "instagram") {
+                        std::time_t t = std::time(nullptr); // Get timestamp
+                        std::tm tm_obj;
+                        localtime_s(&tm_obj, &t);
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing Instagram cache";
                         lastCoutWasReturn = false;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
@@ -252,6 +270,24 @@ int main() {
                         /* Reply to the user with the message, containing our embed. */
                         event.reply(msg);
                         instagramClearCache();
+                    }
+                    if (service == "youtube") {
+                        std::time_t t = std::time(nullptr); // Get timestamp
+                        std::tm tm_obj;
+                        localtime_s(&tm_obj, &t);
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing YouTube cache";
+                        lastCoutWasReturn = false;
+                        /* Reply to the command with embed.*/
+                        dpp::embed embed = dpp::embed()
+                            .set_color(0xFFA500)
+                            .add_field("YouTube cache cleared", "");
+
+                        /* Create a message with the content as our new embed. */
+                        dpp::message msg(event.command.channel_id, embed);
+
+                        /* Reply to the user with the message, containing our embed. */
+                        event.reply(msg);
+                        youtubeClearCache();
                     }
 
                 }
@@ -332,7 +368,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestampb
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting Youtube";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting YouTube";
                         youtube();
                     }
                 }

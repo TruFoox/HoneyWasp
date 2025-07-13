@@ -4,5 +4,6 @@
 // Function prototypes
 int youtube();
 void youtubeStop();
+void youtubeClearCache();
 
 #endif

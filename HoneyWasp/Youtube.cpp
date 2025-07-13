@@ -24,30 +24,29 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
 
 
 /* Global Variables */
-static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt, YT_TIME_BETWEEN_POSTS;
-static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, tempDisableCaption, imageValid, ytkeeploop;
+static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
+static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, tempDisableCaption, imageValid, keeploop;
 static long long USER_ID;
 static long http_code;
 static std::string TOKEN, SUBREDDITS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, HASHTAGS, imageURL;
 static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, media;
-static std::string SECRET, ID, YTPOSTMODE, OAUTHTOKEN, REFRESHTOKEN, ytresponse;
+static std::string SECRET, ID, POSTMODE, OAUTHTOKEN, REFRESHTOKEN, response;
 
 int youtube() {
     try {
         color(6); // Reset cout color to yellow (default)
-        ytkeeploop = true;
+        keeploop = true;
         /* Load config data */
         INIReader reader("../Config.ini");
         std::string SECRET = reader.Get("Youtube_Settings", "client_secret", "");
         std::string ID = reader.Get("Youtube_Settings", "client_id", "");
-        std::string YTPOSTMODE = reader.Get("Youtube_Settings", "post_mode", "manual");
+        std::string POSTMODE = reader.Get("Youtube_Settings", "post_mode", "manual");
         std::string REFRESHTOKEN = reader.Get("Youtube_Settings", "refresh_token", "");
         std::string CAPTION = reader.Get("Youtube_Settings", "caption", "I didnt set a caption like an idiot :p");
         std::string DESCRIPTION = reader.Get("Youtube_Settings", "description", "I didnt set a description like an idiot :p");
-        int YT_TIME_BETWEEN_POSTS = std::stoi(reader.Get("Youtube_Settings", "time_between_posts", "60"));
         const bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
-        boost::to_lower(YTPOSTMODE);
-        if (YTPOSTMODE.empty()) YTPOSTMODE = "auto"; // Default to auto if not set
+        boost::to_lower(POSTMODE);
+        if (POSTMODE.empty()) POSTMODE = "auto"; // Default to auto if not set
         std::string TOKEN = reader.Get("YouTube_Settings", "api_key", "");
         std::string timeBetweenPostsStr = reader.Get("YouTube_Settings", "time_between_posts", "");
         const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
@@ -86,12 +85,12 @@ int youtube() {
         }
         std::filesystem::path filePath = "../Cache/YT/youtube_used_urls.json"; // Gets used_urls.json size on disk to approximate length
         if (std::filesystem::file_size(filePath) > 100000) {
-            std::cout << "\n\tYoutube cache is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
+            std::cout << "\n\tYoutube coutache is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
             lastCoutWasReturn = false;
         }
 
         int countattempt = 0;
-        ytkeeploop = true; // Ensures keeploop isnt false if restarted after /stop
+        keeploop = true; // Ensures keeploop isnt false if restarted after /stop
 
         if (REFRESHTOKEN == "") { // If refresh token is not set, fetch it. Otherwise, run bot like normal
             std::string oauthURL = "https://accounts.google.com/o/oauth2/auth?client_id=" + ID + "&redirect_uri=http://localhost&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&prompt=consent";
@@ -117,7 +116,7 @@ int youtube() {
             curl_easy_setopt(curl, CURLOPT_URL, "https://oauth2.googleapis.com/token");
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postFields.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ytresponse);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
             CURLcode res = curl_easy_perform(curl);
             if (res != CURLE_OK) {
@@ -132,30 +131,23 @@ int youtube() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 color(6); // Reset cout color to yellow (default)
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Token retrieval response:\n" << ytresponse << std::endl;
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Token retrieval response:\n" << response << std::endl;
             }
 
             curl_easy_cleanup(curl);
 
-            json jsonResponse = json::parse(ytresponse); // Parse the JSON response
+            json jsonResponse = json::parse(response); // Parse the JSON response
             std::string refreshToken = jsonResponse["refresh_token"].get<std::string>(); // Janky fix to remove quotes from JSON string
-            ytresponse.clear();
+            response.clear();
             std::cout << "\n\tPLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN CONFIG.INI AND RE-RUN:\n\t" << refreshToken;
             return 0;
         }
-        while (ytkeeploop) {
+        while (keeploop) {
             color(6); // Reset cout color to yellow (default)
             std::time_t t = std::time(nullptr); // Get timestamp for output
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
-            ytresponse.clear();
-
-            if (!lastCoutWasReturn) {
-                std::cout << "\n"; // If last cout was not a return, print newline
-            }
-            else {
-                clear();
-            }
+            response.clear();
 
             if (countattempt == 0) { // Only output if on first post attempt
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new YouTube post\r";
@@ -186,7 +178,7 @@ int youtube() {
             std::string url = "https://oauth2.googleapis.com/token"; // OAuth token URL
             std::string body = "client_id=" + std::string(curl_easy_escape(curl, ID.c_str(), 0)) +
                 "&client_secret=" + std::string(curl_easy_escape(curl, SECRET.c_str(), 0)) +
-                "&refresh_token=" + REFRESHTOKEN + 
+                "&refresh_token=" + REFRESHTOKEN +
                 "&grant_type=refresh_token";
 
             struct curl_slist* token_headers = nullptr; // Initialize empty linked list of headers
@@ -195,7 +187,7 @@ int youtube() {
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str()); // Set the POST fields
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, token_headers); // Set HTTP headers for the request
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback); // Set callback function to capture response
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ytresponse); // Provide string to store the response
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response); // Provide string to store the response
 
             CURLcode res = curl_easy_perform(curl); // Perform HTTP POST request
 
@@ -213,14 +205,7 @@ int youtube() {
             curl_easy_cleanup(curl); // Cleanup curl session after success
             curl_slist_free_all(token_headers); // Free the headers list
 
-            if (!lastCoutWasReturn) {
-                std::cout << "\n"; // If last cout was not a return, print newline
-            }
-            else {
-                clear();
-            }
-
-            auto data = nlohmann::json::parse(ytresponse); // Parse response string into JSON object
+            auto data = nlohmann::json::parse(response); // Parse response string into JSON object
 
             if (data.contains("access_token")) {
                 OAUTHTOKEN = data["access_token"];
@@ -235,9 +220,9 @@ int youtube() {
                 return 1;
             }
 
-            ytresponse.clear();
+            response.clear();
             /* Initiate post */
-            if (YTPOSTMODE == "manual") {
+            if (POSTMODE == "manual") {
                 for (const auto& entry : std::filesystem::directory_iterator("../Videos")) { // Log all files in image/video directory
                     media.push_back(entry.path().generic_string());
                 }
@@ -257,7 +242,7 @@ int youtube() {
                 int index = std::rand() % media.size();
                 video_file = media[index];
             }
-			else { // If post mode is auto, use the meme API to get image & convert to video
+            else { // If post mode is auto, use the meme API to get image & convert to video
                 /* Open and read used_urls.json */
                 std::ifstream inFile("../Cache/YT/youtube_used_urls.json");
                 json j;
@@ -288,7 +273,7 @@ int youtube() {
                 if (curl) {
                     curl_easy_setopt(curl, CURLOPT_URL, apilink.c_str()); // Get data from meme-api
                     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ytresponse);
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
                     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // Follow redirect to new sites (fix for meme-api deprication)
 
                     res = curl_easy_perform(curl);
@@ -300,7 +285,7 @@ int youtube() {
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
                         std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res);
-                        std::cerr << "\n\tError details: " << ytresponse << std::endl;
+                        std::cerr << "\n\tError details: " << response << std::endl;
                         lastCoutWasReturn = false;
                         color(6);
                         curl_easy_cleanup(curl);
@@ -315,11 +300,11 @@ int youtube() {
                     curl_easy_cleanup(curl);
                     curl_global_cleanup();
                     try {
-                        data = json::parse(ytresponse);
+                        data = json::parse(response);
                     }
                     catch (const std::exception& e) {
                         color(4);
-                        std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << ytresponse;
+                        std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << response;
                         lastCoutWasReturn = false;
                         color(6);
                         youtubecrash(); // Optional: handle gracefully
@@ -338,7 +323,7 @@ int youtube() {
                 }
                 if (DEBUGMODE) {
                     color(6); // Reset cout color to yellow (default)
-                    std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data.dump(1, '\t'); 
+                    std::cout << "\n\tHTTP CODE : " << http_code << "\n\tJSON DATA : " << data.dump(1, '\t');
                     lastCoutWasReturn = false;
                 }
                 /* Read JSON data and attempt post*/
@@ -347,7 +332,7 @@ int youtube() {
                     caption = data["title"];
                     bool nsfw = data["nsfw"];
                     bool tempDisableCaption = false;
-					video_file = "../Cache/YT/temp.avi"; // Set video file path
+                    video_file = "../Cache/YT/temp.avi"; // Set video file path
                     if (DEBUGMODE) {
                         color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tGET success";
@@ -355,16 +340,18 @@ int youtube() {
                     }
                     imageValid = imageValidCheck(data, tempDisableCaption, countattempt, lastCoutWasReturn); // Test if image is valid for posting
                     if (imageValid) { // If image is not valid, skip to next iteration
-						std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Converting image to video...\r"; // Print status
-						lastCoutWasReturn = true;
+                        clear();
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Converting image to video...\r"; // Print status
+                        lastCoutWasReturn = true;
                         if (image_to_video(imageURL)) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
+							color(6); // Reset cout color to yellow (image_to_video can take a while)
                             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Successfully converted image to video\r"; // Print status
                             lastCoutWasReturn = true;
                         }
                         else {
                             imageValid = true;
                         }
-					}
+                    }
                 }
                 else if (http_code == 530) { // If cloudfare error, give notice
                     std::time_t t = std::time(nullptr); // Get timestamp for output
@@ -387,17 +374,10 @@ int youtube() {
                     imageValid = false; // Set imageValid to false to skip current post attempt
                 }
 
-                ytresponse.clear();
+                response.clear();
 
                 if (!imageValid) { // If image is not valid, skip to next iteration
                     continue;
-				}
-
-                if (!lastCoutWasReturn) {
-                    std::cout << "\n"; // If last cout was not a return, print newline
-                }
-                else {
-                    clear();
                 }
 
 
@@ -408,13 +388,13 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - VIDEO FILE NOT FOUND: " << video_file << "\n";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - VIDEO FILE NOT FOUND: " << video_file << "\n";
                     youtubecrash();
                     return 1;
                 }
 
                 nlohmann::json metadata;
-                if (YTPOSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
+                if (POSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
                     metadata = {
                         {"snippet", {
                             {"title", CAPTION},
@@ -449,7 +429,7 @@ int youtube() {
                 curl = curl_easy_init(); // Init curl
                 if (!curl) {
                     color(4); // Set color to red
-                    std::cerr << "\tCurl init failed\n";
+                    std::cerr << "\n\tCurl init failed\n";
                     youtubecrash();
                     return 1;
                 }
@@ -470,7 +450,7 @@ int youtube() {
                 size_t pos = video_file.rfind('.');
                 if (pos == std::string::npos) {
                     color(4); // Set color to red
-                    std::cout << "\tNO FILE EXTENSION FOUND FOR: " << video_file << "\n"; // If no extension found
+                    std::cout << "\n\tNO FILE EXTENSION FOUND FOR: " << video_file << "\n"; // If no extension found
                     youtubecrash();
                     return 1;  // No extension found
                 }
@@ -489,15 +469,16 @@ int youtube() {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, static_cast<curl_off_t>(multipart_body.size()));
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, multipart_body.c_str()); // Actual body
                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback); // Capture response
-                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ytresponse); // Set output string
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response); // Set output string
 
                 res = curl_easy_perform(curl); // Execute the POST request
+
                 if (res != CURLE_OK) {
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
                     curl_easy_cleanup(curl);
                     curl_slist_free_all(headers);
                     youtubecrash();
@@ -507,7 +488,14 @@ int youtube() {
                 curl_easy_cleanup(curl); // Clean up curl handle
                 curl_slist_free_all(headers); // Free header list
 
-                data = nlohmann::json::parse(ytresponse); // Try to parse JSON response
+                if (!lastCoutWasReturn) {
+                    std::cout << "\n"; // If last cout was not a return, print newline
+                }
+                else {
+                    clear();
+                }
+
+                data = nlohmann::json::parse(response); // Try to parse JSON response
                 std::string reason, message;
                 if (data.contains("error")) {
                     color(4); // Set color to red
@@ -547,12 +535,12 @@ int youtube() {
                         std::cout << std::endl << data.dump(4);
                     }
                     color(2); // Set color to green
-                    if (YTPOSTMODE == "manual") {
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " uploaded to YouTube"; // Print success message
+                    if (POSTMODE == "manual") {
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " from r/" + chosenSubreddit + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"; // Create message for webhook / cout
                     }
                     else {
-						std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << imageURL << " uploaded to YouTube";
-					}
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << imageURL << " uploaded to YouTube";
+                    }
                 }
                 lastCoutWasReturn = false;
 
@@ -578,7 +566,7 @@ int youtube() {
                 outFile << j.dump(4);
                 outFile.close();
 
-                std::this_thread::sleep_for(std::chrono::seconds(YT_TIME_BETWEEN_POSTS * 60)); // Sleep
+                std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
                 countattempt = 0; // Reset number of attempts to post this cycle
             }
         }
@@ -603,7 +591,7 @@ int youtube() {
 
 
 void youtubeStop() {
-    ytkeeploop = false; // Stop the loop
+    keeploop = false; // Stop the loop
 }
 
 static bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool& wasreturn) { // Ensure image is valid for instagram
@@ -685,4 +673,18 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
     color(6);
 
     return true;
+}
+
+void youtubeClearCache() { // Upon /clear, clear used_images.json
+    try {
+        keeploop = false;
+        std::ofstream outFile("../Cache/INST/youtube_used_urls.json", std::ios::trunc); // Clears contents of cache
+        if (outFile) {
+            outFile << "[]";
+            outFile.close();
+        }
+    }
+    catch (...) {
+        std::cerr << "\n\tFailed to clear instagram cache. Please check file permissions or if the file is open in another program.\n";
+    }
 }

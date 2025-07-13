@@ -30,8 +30,8 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
 static long long USER_ID;
 static long http_code;
-static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, instakeeploop, tempDisableCaption, imageValid;
-static std::string TOKEN, SUBREDDITS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, INSTAPOSTMODE, imageURL;
+static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, keeploop, tempDisableCaption, imageValid;
+static std::string TOKEN, SUBREDDITS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, POSTMODE, imageURL;
 static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, manualMedia;
 
 /* Starts sending API calls to post to instagram*/
@@ -41,9 +41,9 @@ int instagram() {
         INIReader reader("../Config.ini");
 
         std::string TOKEN = reader.Get("Instagram_Settings", "api_key", "");
-        std::string INSTAPOSTMODE = reader.Get("Instagram_Settings", "post_mode", "");
-        if (INSTAPOSTMODE.empty()) INSTAPOSTMODE = "auto"; // Default to auto if not set
-        boost::to_lower(INSTAPOSTMODE);
+        std::string POSTMODE = reader.Get("Instagram_Settings", "post_mode", "");
+        if (POSTMODE.empty()) POSTMODE = "auto"; // Default to auto if not set
+        boost::to_lower(POSTMODE);
         std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
         const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
         std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
@@ -75,11 +75,11 @@ int instagram() {
 
         const bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
         int countattempt = 0;
-        instakeeploop = true; // Ensures keeploop isnt false if restarted after /stop
+        keeploop = true; // Ensures keeploop isnt false if restarted after /stop
 
 
         /* Abort if any required value is default */
-        if (TOKEN.empty() || (INSTAPOSTMODE == "auto" && SUBREDDITS_RAW.empty())) {
+        if (TOKEN.empty() || (POSTMODE == "auto" && SUBREDDITS_RAW.empty())) {
             color(4);
             std::cout << "\n\tConfig.ini is missing required Instagram settings. Aborting...\n";
             lastCoutWasReturn = false;
@@ -144,7 +144,7 @@ int instagram() {
             curl_easy_cleanup(curl);
         }
 
-        if (INSTAPOSTMODE == "auto") {
+        if (POSTMODE == "auto") {
             /* Open and read used_urls.json */
             std::ifstream inFile("../Cache/INST/instagram_used_urls.json");
             json j;
@@ -182,7 +182,7 @@ int instagram() {
         }
         lastCoutWasReturn = false;
         /* Start instagram bot */
-        while (instakeeploop) { // Loops as long as /stop isnt used
+        while (keeploop) { // Loops as long as /stop isnt used
             color(6); // Reset cout color to yellow (default)
             std::time_t t = std::time(nullptr); // Get timestamp for output
             std::tm tm_obj;
@@ -204,7 +204,7 @@ int instagram() {
             /* Change behavior based on chosen post mode */
             json data;
             std::string chosenSubreddit;
-            if (INSTAPOSTMODE == "auto") { // If INSTAPOSTMODE is auto, use the meme API
+            if (POSTMODE == "auto") { // If POSTMODE is auto, use the meme API
 
                 int randIndex = std::rand() % SUBREDDITS.size(); // Generate random index of subreddit
                 chosenSubreddit = SUBREDDITS[randIndex];
@@ -315,16 +315,9 @@ int instagram() {
 
             }
 
-            if (INSTAPOSTMODE == "manual" || imageValid == true) { // If post mode is manual (or if automatic & image is valid)
+            if (POSTMODE == "manual" || imageValid == true) { // If post mode is manual (or if automatic & image is valid)
                 json uploadData;
-                if (INSTAPOSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
-                    if (!lastCoutWasReturn) {
-                        std::cout << "\n"; // If last cout was not a return, print newline
-                    }
-                    else {
-                        clear();
-                    }
-
+                if (POSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
                     uploadData = {
                         {"image_url", imageURL},
                         {"caption", FALLBACK_CAPTION + "\n\n.\n\n" + HASHTAGS},
@@ -369,7 +362,7 @@ int instagram() {
                         color(2); // Set color to green
 
                         std::string message;
-                        if (INSTAPOSTMODE == "auto") {
+                        if (POSTMODE == "auto") {
                             message = (imageURL + " from r/" + chosenSubreddit + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
                         }
                         else {
@@ -584,7 +577,7 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 
 void instagramClearCache() { // Upon /clear, clear used_images.json
     try {
-        instakeeploop = false;
+        keeploop = false;
         std::ofstream outFile("../Cache/INST/instagram_used_urls.json", std::ios::trunc); // Clears contents of cache
         if (outFile) {
             outFile << "[]";
@@ -603,7 +596,7 @@ void clear() { // Clear current line
 }
 
 void instagramStop() { // Upon /stop, activate flag to stop loop
-    instakeeploop = false;
+    keeploop = false;
 }
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { // Writes the instaresponse into string
