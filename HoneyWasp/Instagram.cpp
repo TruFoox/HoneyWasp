@@ -77,7 +77,7 @@ int instagram() {
         const bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
         int countattempt = 0;
         keeploop = true; // Ensures keeploop isnt false if restarted after /stop
-
+        imageValid = true;
 
         /* Abort if any required value is default */
         if (TOKEN.empty() || (POSTMODE == "auto" && SUBREDDITS_RAW.empty())) {
@@ -210,6 +210,7 @@ int instagram() {
             std::time_t t = std::time(nullptr); // Get timestamp for output
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
+            imageValid = true;
 
             if (countattempt == 0) { // Only output if on first post attempt
                 if (!lastCoutWasReturn) {
@@ -435,18 +436,17 @@ int instagram() {
                 t = std::time(nullptr); // Get timestamp for output
                 localtime_s(&tm_obj, &t);
                 color(6); // Reset cout color to yellow (Image upload can take a while)
-                if (!lastCoutWasReturn) {
-                    std::cout << "\n"; // If last cout was not a return, print newline
-                }
-                else {
-                    clear();
-                }
 
                 mediaURL = response_data;
                 if (!mediaURL.empty() && mediaURL.back() == '\n') { // Remove trailing newline that filebin adds for some reason
                     mediaURL.pop_back();
                 }
-
+                if(!lastCoutWasReturn) {
+                    std::cout << "\n"; // If last cout was not a return, print newline
+                }
+                else {
+                    clear();
+                }
                 if (status_code == 200) { // Check if upload was successful
                     std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully uploaded to FileBin: " << mediaURL << "\r"; // Print status
                     lastCoutWasReturn = true;
@@ -512,7 +512,7 @@ int instagram() {
                         if (!lastCoutWasReturn) std::cout << "\n";
                         else clear();
 
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Waiting for Instagram to process video...\r";
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Waiting for Instagram to process video. This may take a while...\r";
                         lastCoutWasReturn = true;
 
                         std::string statusCode;

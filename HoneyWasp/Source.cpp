@@ -528,6 +528,6 @@ std::vector<int> splitInts(const std::string& str, char delimiter) { // Splits c
 }
 
 void clear() { // Clear current line
-    std::cout << "\x1b[2K"; // Delete current line
+    std::cout << "\x1b[2K" << std::flush; // Delete current line
     lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
 }

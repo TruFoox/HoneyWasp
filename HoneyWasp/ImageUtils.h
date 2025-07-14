@@ -88,7 +88,7 @@ inline bool image_to_video(const std::string& imageUrl, std::string service) {
         cv::VideoWriter writer(location, cv::VideoWriter::fourcc('a', 'v', 'c', '1'), 30, img_bgr.size());
 
         if (vidCount == 1) {
-            std::cout << "\x1b[1A\x1b[1A\x1b[2K\x1b[1A\x1b[2K"; // Removes that annoying "provided by cisco" shit
+            std::cout << "\x1b[1A\x1b[2K\x1b[1A\x1b[2K\x1b[1A\x1b[2K" << std::flush; // Removes that annoying "provided by cisco" shit
         }
         if (!writer.isOpened()) {
             std::cerr << "\tFailed to open VideoWriter." << std::endl;

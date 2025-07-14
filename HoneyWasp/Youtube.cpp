@@ -27,7 +27,7 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
 static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
 static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, tempDisableCaption, imageValid, keeploop;
 static long long USER_ID, http_code;
-static std::string TOKEN, FALLBACK_CAPTION, caption, HASHTAGS, imageURL;
+static std::string TOKEN, FALLBACK_CAPTION, caption, HASHTAGS, imageURL, chosenSubreddit;
 static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, media;
 static std::string SECRET, ID, POSTMODE, OAUTHTOKEN, REFRESHTOKEN, response;
 
@@ -90,6 +90,7 @@ int youtube() {
 
         int countattempt = 0;
         keeploop = true; // Ensures keeploop isnt false if restarted after /stop
+        imageValid = true;
 
         if (REFRESHTOKEN == "") { // If refresh token is not set, fetch it. Otherwise, run bot like normal
             std::string oauthURL = "https://accounts.google.com/o/oauth2/auth?client_id=" + ID + "&redirect_uri=http://localhost&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&prompt=consent";
@@ -151,6 +152,7 @@ int youtube() {
             std::tm tm_obj;
             localtime_s(&tm_obj, &t);
             response.clear();
+            imageValid = true;
 
             if (countattempt == 0) { // Only output if on first post attempt
                 lastCoutWasReturn = true;
@@ -270,7 +272,6 @@ int youtube() {
                 inFile.close();
 
                 json data;
-                std::string chosenSubreddit;
 
                 int randIndex = std::rand() % SUBREDDITS.size(); // Generate random index of subreddit
                 chosenSubreddit = SUBREDDITS[randIndex];
@@ -399,203 +400,205 @@ int youtube() {
 
                 response.clear();
 
-                if (!imageValid) { // If image is not valid, skip to next iteration
-                    continue;
-                }
+            }
+            if (!imageValid) { // If image is not valid, skip to next iteration
+                continue;
+            }
 
 
-                /* Post to youtube */
-                std::ifstream infile(video_file); // Check if file exists
-                if (!infile.good()) {
-                    std::time_t t = std::time(nullptr); // Get timestamp for output
-                    std::tm tm_obj;
-                    localtime_s(&tm_obj, &t);
-                    color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - VIDEO FILE NOT FOUND: " << video_file << "\n";
-                    lastCoutWasReturn = false;
-                    youtubecrash();
-                    return 1;
-                }
+            /* Post to youtube */
+            std::ifstream infile(video_file); // Check if file exists
+            if (!infile.good()) {
+                std::time_t t = std::time(nullptr); // Get timestamp for output
+                std::tm tm_obj;
+                localtime_s(&tm_obj, &t);
+                color(4); // Set color to red
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - VIDEO FILE NOT FOUND: " << video_file << "\n";
+                lastCoutWasReturn = false;
+                youtubecrash();
+                return 1;
+            }
 
-                nlohmann::json metadata;
-                if (POSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
-                    metadata = {
-                        {"snippet", {
-                            {"title", CAPTION},
-                            {"description", DESCRIPTION},
-                            {"tags", {"meme", "memes"}},
-                            {"categoryId", "24"}  // Entertainment
-                        }},
-                        {"status", {
-                            {"privacyStatus", "public"},
-                            {"selfDeclaredMadeForKids", false}
-                        }}
-                    };
-                }
-                else { // If USE_REDDIT_CAPTION is true, use reddit caption
-                    std::string caption = data["title"];
-                    metadata = {
-                        {"snippet", {
-                            {"title", caption},
-                            {"description", DESCRIPTION},
-                            {"tags", {"meme", "memes"}},
-                            {"categoryId", "24"}  // Entertainment
-                        }},
-                        {"status", {
-                            {"privacyStatus", "public"},
-                            {"selfDeclaredMadeForKids", false}
-                        }}
-                    };
-                }
+            nlohmann::json metadata;
+            if (POSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
+                metadata = {
+                    {"snippet", {
+                        {"title", CAPTION},
+                        {"description", DESCRIPTION},
+                        {"tags", {"meme", "memes"}},
+                        {"categoryId", "24"}  // Entertainment
+                    }},
+                    {"status", {
+                        {"privacyStatus", "public"},
+                        {"selfDeclaredMadeForKids", false}
+                    }}
+                };
+            }
+            else { // If USE_REDDIT_CAPTION is true, use reddit caption
+                std::string caption = data["title"];
+                metadata = {
+                    {"snippet", {
+                        {"title", caption},
+                        {"description", DESCRIPTION},
+                        {"tags", {"meme", "memes"}},
+                        {"categoryId", "24"}  // Entertainment
+                    }},
+                    {"status", {
+                        {"privacyStatus", "public"},
+                        {"selfDeclaredMadeForKids", false}
+                    }}
+                };
+            }
 
-                std::string metadata_str = metadata.dump(); // Convert metadata JSON to string
+            std::string metadata_str = metadata.dump(); // Convert metadata JSON to string
 
-                curl = curl_easy_init(); // Init curl
-                if (!curl) {
-                    color(4); // Set color to red
-                    std::cerr << "\n\tCurl init failed\n";
-                    youtubecrash();
-                    return 1;
-                }
+            curl = curl_easy_init(); // Init curl
+            if (!curl) {
+                color(4); // Set color to red
+                std::cerr << "\n\tCurl init failed\n";
+                youtubecrash();
+                return 1;
+            }
 
-                // Full URL to upload endpoint
-                url = "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status";
+            // Full URL to upload endpoint
+            url = "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status";
 
-                // Build authorization header
-                struct curl_slist* headers = nullptr;
-                headers = curl_slist_append(headers, ("Authorization: Bearer " + OAUTHTOKEN).c_str()); // OAuth2 header
-                headers = curl_slist_append(headers, "Content-Type: multipart/related; boundary=foo_bar_baz"); // Manual boundary
-                headers = curl_slist_append(headers, "Accept: application/json"); // Response type
+            // Build authorization header
+            struct curl_slist* headers = nullptr;
+            headers = curl_slist_append(headers, ("Authorization: Bearer " + OAUTHTOKEN).c_str()); // OAuth2 header
+            headers = curl_slist_append(headers, "Content-Type: multipart/related; boundary=foo_bar_baz"); // Manual boundary
+            headers = curl_slist_append(headers, "Accept: application/json"); // Response type
 
-                // ---- Construct multipart body manually (video + JSON metadata) ----
-                std::ifstream video_stream(video_file, std::ios::binary);  // Open video file in binary mode
-                std::string video_data((std::istreambuf_iterator<char>(video_stream)), std::istreambuf_iterator<char>()); // Read all video bytes
+            // ---- Construct multipart body manually (video + JSON metadata) ----
+            std::ifstream video_stream(video_file, std::ios::binary);  // Open video file in binary mode
+            std::string video_data((std::istreambuf_iterator<char>(video_stream)), std::istreambuf_iterator<char>()); // Read all video bytes
 
-                size_t pos = video_file.rfind('.');
-                if (pos == std::string::npos) {
-                    color(4); // Set color to red
-                    std::cout << "\n\tNO FILE EXTENSION FOUND FOR: " << video_file << "\n"; // If no extension found
-                    youtubecrash();
-                    return 1;  // No extension found
-                }
+            size_t pos = video_file.rfind('.');
+            if (pos == std::string::npos) {
+                color(4); // Set color to red
+                std::cout << "\n\tNO FILE EXTENSION FOUND FOR: " << video_file << "\n"; // If no extension found
+                youtubecrash();
+                return 1;  // No extension found
+            }
 
-                std::string multipart_body =
-                    "--foo_bar_baz\r\n"
-                    "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-                    metadata_str + "\r\n" +
-                    "--foo_bar_baz\r\n"
-                    "Content-Type: video/" + video_file.substr(pos + 1) + "\r\n\r\n" +  // Use file extension for content type
-                    video_data + "\r\n" +
-                    "--foo_bar_baz--\r\n"; // End boundary
+            std::string multipart_body =
+                "--foo_bar_baz\r\n"
+                "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+                metadata_str + "\r\n" +
+                "--foo_bar_baz\r\n"
+                "Content-Type: video/" + video_file.substr(pos + 1) + "\r\n\r\n" +  // Use file extension for content type
+                video_data + "\r\n" +
+                "--foo_bar_baz--\r\n"; // End boundary
 
-                curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // Set upload URL
-                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers); // Set headers
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, static_cast<curl_off_t>(multipart_body.size()));
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, multipart_body.c_str()); // Actual body
-                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback); // Capture response
-                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response); // Set output string
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // Set upload URL
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers); // Set headers
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, static_cast<curl_off_t>(multipart_body.size()));
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, multipart_body.c_str()); // Actual body
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback); // Capture response
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response); // Set output string
 
-                res = curl_easy_perform(curl); // Execute the POST request
+            res = curl_easy_perform(curl); // Execute the POST request
 
-                if (res != CURLE_OK) {
-                    std::time_t t = std::time(nullptr); // Get timestamp for output
-                    std::tm tm_obj;
-                    localtime_s(&tm_obj, &t);
-                    color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
-                    lastCoutWasReturn = false;
-                    curl_easy_cleanup(curl);
-                    curl_slist_free_all(headers);
-                    youtubecrash();
-                    return 1;
-                }
+            if (res != CURLE_OK) {
+                std::time_t t = std::time(nullptr); // Get timestamp for output
+                std::tm tm_obj;
+                localtime_s(&tm_obj, &t);
+                color(4); // Set color to red
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                lastCoutWasReturn = false;
+                curl_easy_cleanup(curl);
+                curl_slist_free_all(headers);
+                youtubecrash();
+                return 1;
+            }
 
-                curl_easy_cleanup(curl); // Clean up curl handle
-                curl_slist_free_all(headers); // Free header list
+            curl_easy_cleanup(curl); // Clean up curl handle
+            curl_slist_free_all(headers); // Free header list
 
-                if (!lastCoutWasReturn) {
-                    std::cout << "\n"; // If last cout was not a return, print newline
-                }
-                else {
-                    clear();
-                }
+            if (!lastCoutWasReturn) {
+                std::cout << "\n"; // If last cout was not a return, print newline
+            }
+            else {
+                clear();
+            }
 
-                data = nlohmann::json::parse(response); // Try to parse JSON response
-                std::string reason, message;
-                if (data.contains("error")) {
-                    lastCoutWasReturn = false;
-                    color(4); // Set color to red
-                    if (data["error"].contains("errors") && data["error"]["errors"][0].contains("reason") && data["error"].contains("message")) { // Check if error structure is valid for reading
-                        reason = data["error"]["errors"][0]["reason"];
-                        message = data["error"]["message"];
-                        if (reason == "uploadLimitExceeded" || reason == "rateLimitExceeded" || reason == "quotaExceeded") { // If ratelimit hit
-                            std::time_t t = std::time(nullptr); // Get timestamp for output
-                            std::tm tm_obj;
-                            localtime_s(&tm_obj, &t);
-                            color(4); // Set color to red
-                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: RATELIMITED (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
-                        }
-                        else { // General error
-                            std::time_t t = std::time(nullptr); // Get timestamp for output
-                            std::tm tm_obj;
-                            localtime_s(&tm_obj, &t);
-                            color(4); // Set color to red
-                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: " << message;
-                        }
-                    }
-                    else { // if error structure is not valid print full response (last resort)
-                        lastCoutWasReturn = false;
+            data = nlohmann::json::parse(response); // Try to parse JSON response
+            std::string reason, message;
+            if (data.contains("error")) {
+                lastCoutWasReturn = false;
+                color(4); // Set color to red
+                if (data["error"].contains("errors") && data["error"]["errors"][0].contains("reason") && data["error"].contains("message")) { // Check if error structure is valid for reading
+                    reason = data["error"]["errors"][0]["reason"];
+                    message = data["error"]["message"];
+                    if (reason == "uploadLimitExceeded" || reason == "rateLimitExceeded" || reason == "quotaExceeded") { // If ratelimit hit
                         std::time_t t = std::time(nullptr); // Get timestamp for output
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res);
-                        curl_easy_cleanup(curl);
-                        curl_slist_free_all(headers);
+                        std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: RATELIMITED (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
+                    }
+                    else { // General error
+                        std::time_t t = std::time(nullptr); // Get timestamp for output
+                        std::tm tm_obj;
+                        localtime_s(&tm_obj, &t);
+                        color(4); // Set color to red
+                        std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: " << message;
                     }
                 }
-                else {
+                else { // if error structure is not valid print full response (last resort)
+                    lastCoutWasReturn = false;
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
-                    if (DEBUGMODE) {
-                        std::cout << std::endl << data.dump(4);
-                    }
-                    color(2); // Set color to green
-                    if (POSTMODE == "auto") {
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - " << imageURL << " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)"; // Create message for webhook / cout
-                    }
-                    else {
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - " << video_file << " uploaded to YouTube";
-                    }
-                    lastCoutWasReturn = false;
+                    color(4); // Set color to red
+                    std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res);
+                    curl_easy_cleanup(curl);
+                    curl_slist_free_all(headers);
                 }
+            }
+            else {
+                std::time_t t = std::time(nullptr); // Get timestamp for output
+                std::tm tm_obj;
+                localtime_s(&tm_obj, &t);
+                if (DEBUGMODE) {
+                    std::cout << std::endl << data.dump(4);
+                }
+                color(2); // Set color to green
+                if (POSTMODE == "auto") {
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - " << imageURL << " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)"; // Create message for webhook / cout
+                }
+                else {
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - " << video_file << " uploaded to YouTube";
+                }
+                lastCoutWasReturn = false;
+            }
 
-                /* Begin export of URL to file */
-                inFile.open("../Cache/YT/youtube_used_urls.json");
-                if (inFile) {
-                    if (inFile.peek() == std::ifstream::traits_type::eof()) { // If file is empty, start with empty array
-                        j = json::array();
-                    }
-                    else { // If file has content, parse it
-                        inFile >> j;
-                        if (!j.is_array()) j = json::array();
-                    }
-                    inFile.close();
-                }
-                else { // If file doesn't exist, start with empty array
+            /* Begin export of URL to file */
+            std::ifstream inFile("../Cache/INST/instagram_used_urls.json");
+            json j;
+            if (inFile) {
+                if (inFile.peek() == std::ifstream::traits_type::eof()) { // If file is empty, start with empty array
                     j = json::array();
                 }
-
-                j.push_back(imageURL); // Append element to JSON
-                usedUrls.push_back(imageURL); // Append element to memory
-                std::ofstream outFile("../Cache/YT/youtube_used_urls.json");
-                outFile << j.dump(4);
-                outFile.close();
-
-                std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
-                countattempt = 0; // Reset number of attempts to post this cycle
+                else { // If file has content, parse it
+                    inFile >> j;
+                    if (!j.is_array()) j = json::array();
+                }
+                inFile.close();
             }
+            else { // If file doesn't exist, start with empty array
+                j = json::array();
+            }
+
+            j.push_back(imageURL); // Append element to JSON
+            usedUrls.push_back(imageURL); // Append element to memory
+            std::ofstream outFile("../Cache/YT/youtube_used_urls.json");
+            outFile << j.dump(4);
+            outFile.close();
+
+            std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
+            countattempt = 0; // Reset number of attempts to post this cycle
+            std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep to prevent spam
         }
         return 0;
     }
