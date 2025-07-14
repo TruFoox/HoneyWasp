@@ -374,3 +374,6 @@ FodyWeavers.xsd
 /README.md
 /Cache/YT/youtube_used_urls.json
 *.avi
+/README.md
+*.mov
+*.mp4

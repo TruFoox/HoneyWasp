@@ -9,6 +9,7 @@
 #include "instagram.h"
 #include "youtube.h"
 #include "ImageUtils.h"
+#include "codec_api.h"
 #include <ctime>
 #include <iostream>
 #include <format>
@@ -33,7 +34,7 @@ int CHANNEL_ID;
 dpp::cluster bot;
 bool DEBUGMODE, RESTART;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
-float CURRENTVERSION = 1.16; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
+float CURRENTVERSION = 1.17; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
 
 /* Start bot */
 int main() {
@@ -62,15 +63,15 @@ int main() {
             @ @@@            @@@ @
             @ @@@@          @@@@ @
             @ @@@@@        @@@@@ @
-            @  @@@@@      @@@@@  @
-             @   @@        @@   @
-              @@              @@
-               @@@          @@@
+             @ @@@@@      @@@@@ @
+              @  @@        @@  @
+               @              @
+               @@            @@
                @@@@        @@@@
-               @@ @@@    @@@ @@
-                  @@ @@@@@@  @@  @@   @@   @@@@   @@   @@ @@@@@ @@   @@ @@       @@   @     @@@@@ @@@@@
+                @ @@@    @@  @@
+                  @@ @@@@@@   @  @@   @@   @@@@   @@   @@ @@@@@ @@   @@ @@       @@   @     @@@@@ @@@@@
                   @@     @@      @@   @@  @@  @@  @@@  @@ @@     @@ @@  @@   @   @@  @@@   @@@    @@  @@
-                  @@     @@      @@@@@@@ @@    @@ @@@@ @@ @@@@    @@@    @@ @@@ @@  @@ @@   @@@@  @@@@@
+                  @      @@      @@@@@@@ @@    @@ @@@@ @@ @@@@    @@@    @@ @@@ @@  @@ @@   @@@@  @@@@@
                         @@@@     @@   @@  @@  @@  @@ @@@@ @@      @@      @@@@@@@  @@@@@@@    @@@ @@
                         @@@@     @@   @@   @@@@   @@   @@ @@@@@  @@        @@ @@   @@   @@ @@@@@  @@  v{}
                          @@
@@ -139,7 +140,7 @@ int main() {
 
             /* Abort if token is missing */
             if (BOT_TOKEN.empty()) {
-                std::cout << "Config.ini is missing bot token. Aborting...";
+                std::cout << "\n\tConfig.ini is missing bot token. Aborting...";
                 system("pause");
                 return 1;
             }
@@ -174,7 +175,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping all services";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Stopping all services";
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
                             .set_color(0xFFA500)
@@ -193,7 +194,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping Instagram";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Stopping Instagram";
                         lastCoutWasReturn = true;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
@@ -213,7 +214,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Stopping YouTube";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Stopping YouTube";
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
                             .set_color(0xFFA500)
@@ -238,7 +239,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing cache";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Clearing cache";
                         lastCoutWasReturn = false;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
@@ -257,7 +258,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing Instagram cache";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Clearing Instagram cache";
                         lastCoutWasReturn = false;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
@@ -275,7 +276,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Clearing YouTube cache";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Clearing YouTube cache";
                         lastCoutWasReturn = false;
                         /* Reply to the command with embed.*/
                         dpp::embed embed = dpp::embed()
@@ -312,8 +313,8 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting Instagram";
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting YouTube";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Starting Instagram";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Starting YouTube";
                         std::vector<std::thread> threads;
                         /* Reply to the user with the message, containing our embed. */
                         event.reply(msg);
@@ -343,7 +344,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting Instagram";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Starting Instagram";
 
                         /* Reply to the user with the message, containing our embed. */
                         event.reply(msg);
@@ -368,7 +369,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestampb
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Starting YouTube";
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Starting YouTube";
                         youtube();
                     }
                 }
@@ -424,7 +425,8 @@ int main() {
                             threads.emplace_back(youtube); // Run youtube() on new thread
                         }
                     }
-                    std::cout << std::endl;
+                    std::cout << "\n\n";
+                    lastCoutWasReturn = false;
                     // Join all threads to ensure they complete before program exits
                     for (std::thread& t : threads) {
                         if (t.joinable()) t.join();
@@ -523,4 +525,9 @@ std::vector<int> splitInts(const std::string& str, char delimiter) { // Splits c
         catch (...) {} // skip invalid numbers
     }
     return result;
+}
+
+void clear() { // Clear current line
+    std::cout << "\x1b[2K"; // Delete current line
+    lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
 }

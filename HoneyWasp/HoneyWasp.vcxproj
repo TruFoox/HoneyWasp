@@ -117,6 +117,7 @@
     <PreBuildEvent>
       <Command>copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_world4120d.dll" "$(OutDir)"
 copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_videoio_ffmpeg4120_64.dll" "$(OutDir)"
+copy /Y "$(SolutionDir)HoneyWasp\dependencies\openh264-1.8.0-win64.dll" "$(OutDir)"
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -150,6 +151,7 @@ copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_v
     <PreBuildEvent>
       <Command>copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_world4120.dll" "$(OutDir)"
 copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_videoio_ffmpeg4120_64.dll" "$(OutDir)"
+copy /Y "$(SolutionDir)HoneyWasp\dependencies\openh264-1.8.0-win64.dll" "$(OutDir)"
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -179,6 +181,7 @@ copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_v
     <PreBuildEvent>
       <Command>copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_world4120d.dll" "$(OutDir)"
 copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_videoio_ffmpeg4120_64.dll" "$(OutDir)"
+copy /Y "$(SolutionDir)HoneyWasp\dependencies\openh264-1.8.0-win64.dll" "$(OutDir)"
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -212,6 +215,7 @@ copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_v
     <PreBuildEvent>
       <Command>copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_world4120.dll" "$(OutDir)"
 copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_videoio_ffmpeg4120_64.dll" "$(OutDir)"
+copy /Y "$(SolutionDir)HoneyWasp\dependencies\openh264-1.8.0-win64.dll" "$(OutDir)"
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -226,6 +230,10 @@ copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_v
     <ClInclude Include="..\..\..\Downloads\stb_image.h" />
     <ClInclude Include="..\ini.h" />
     <ClInclude Include="..\INIReader.h" />
+    <ClInclude Include="codec_api.h" />
+    <ClInclude Include="codec_app_def.h" />
+    <ClInclude Include="codec_def.h" />
+    <ClInclude Include="codec_ver.h" />
     <ClInclude Include="dependencies\include\dpp-10.1\dpp\appcommand.h" />
     <ClInclude Include="dependencies\include\dpp-10.1\dpp\application.h" />
     <ClInclude Include="dependencies\include\dpp-10.1\dpp\auditlog.h" />
@@ -326,6 +334,7 @@ copy /Y "$(SolutionDir)HoneyWasp\dependencies\opencv\build\x64\vc16\bin\opencv_v
     <ClInclude Include="youtube.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\Downloads\openh264-2.6.0-win64.dll" />
     <None Include="dependencies\opencv\build\x64\vc16\bin\opencv_world4120.dll" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

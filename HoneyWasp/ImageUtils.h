@@ -6,6 +6,9 @@
 #include <curl/curl.h>
 #include <opencv2/opencv.hpp>
 #include "stb_image.h"
+#include "source.h"
+
+inline int vidCount = 0; // Var only used to count how many videos have been created so i dont reapply the cisco remover
 
 inline size_t writeToBuffer(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
@@ -42,8 +45,9 @@ inline bool imageRatio(const std::string& imageUrl) {
     return aspect >= 0.72 && aspect <= 1.8;
 }
 
-inline bool image_to_video(const std::string& imageUrl) {
-    try { 
+inline bool image_to_video(const std::string& imageUrl, std::string service) {
+    try {
+        vidCount++; // Increment video count to keep track of how many videos have been created
         std::vector<unsigned char> imageData;
 
         CURL* curl = curl_easy_init();
@@ -80,9 +84,14 @@ inline bool image_to_video(const std::string& imageUrl) {
             img_bgr = img;
         }
 
-        cv::VideoWriter writer("../Cache/YT/temp.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, img_bgr.size());
+        std::string location = "../Cache/" + service + "/temp.mp4"; // Set location based on service
+        cv::VideoWriter writer(location, cv::VideoWriter::fourcc('a', 'v', 'c', '1'), 30, img_bgr.size());
+
+        if (vidCount == 1) {
+            std::cout << "\x1b[1A\x1b[1A\x1b[2K\x1b[1A\x1b[2K"; // Removes that annoying "provided by cisco" shit
+        }
         if (!writer.isOpened()) {
-            std::cerr << "\n\tFailed to open VideoWriter." << std::endl;
+            std::cerr << "\tFailed to open VideoWriter." << std::endl;
             stbi_image_free(pixeldata);
             return false;
         }
@@ -94,12 +103,14 @@ inline bool image_to_video(const std::string& imageUrl) {
         writer.release();
         stbi_image_free(pixeldata);
 
+
+        lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
         return true;
     }
     catch (const std::exception& e) {
         std::cerr << "\t\nError during conversion from image to video: " << e.what() << std::endl;
         return false;
-	}
+    }
 }
 
 #endif

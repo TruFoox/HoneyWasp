@@ -26,9 +26,8 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
 /* Global Variables */
 static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
 static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, tempDisableCaption, imageValid, keeploop;
-static long long USER_ID;
-static long http_code;
-static std::string TOKEN, SUBREDDITS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, HASHTAGS, imageURL;
+static long long USER_ID, http_code;
+static std::string TOKEN, FALLBACK_CAPTION, caption, HASHTAGS, imageURL;
 static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, media;
 static std::string SECRET, ID, POSTMODE, OAUTHTOKEN, REFRESHTOKEN, response;
 
@@ -124,14 +123,17 @@ int youtube() {
                 std::tm tm_obj;
                 color(4); // Set color to red
                 localtime_s(&tm_obj, &t);
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - ERROR RETRIEVING REFRESH TOKEN: " << curl_easy_strerror(res) << std::endl;
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - ERROR RETRIEVING REFRESH TOKEN: " << curl_easy_strerror(res) << std::endl;
+                lastCoutWasReturn = false;
+                return 0;
             }
             if (DEBUGMODE) {
                 std::time_t t = std::time(nullptr); // Get timestamp for output
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 color(6); // Reset cout color to yellow (default)
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Token retrieval response:\n" << response << std::endl;
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Token retrieval response:\n" << response << std::endl;
+                lastCoutWasReturn = false;
             }
 
             curl_easy_cleanup(curl);
@@ -140,6 +142,7 @@ int youtube() {
             std::string refreshToken = jsonResponse["refresh_token"].get<std::string>(); // Janky fix to remove quotes from JSON string
             response.clear();
             std::cout << "\n\tPLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN CONFIG.INI AND RE-RUN:\n\t" << refreshToken;
+            lastCoutWasReturn = false;
             return 0;
         }
         while (keeploop) {
@@ -150,13 +153,20 @@ int youtube() {
             response.clear();
 
             if (countattempt == 0) { // Only output if on first post attempt
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new YouTube post\r";
                 lastCoutWasReturn = true;
+                if (!lastCoutWasReturn) {
+                    std::cout << "\n"; // If last cout was not a return, print newline
+                }
+                else {
+                    clear();
+                }
+
+                std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Attempting new post\r";
             }
 
             if (countattempt >= ATTEMPTS_BEFORE_TIMEOUT) { // Check if stuck in loop
                 color(4);
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
+                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
                 color(6);
                 lastCoutWasReturn = false;
                 std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 180));
@@ -170,7 +180,7 @@ int youtube() {
                 std::tm tm_obj;
                 color(4); // Set color to red
                 localtime_s(&tm_obj, &t);
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL INIT FAILED\n";
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - CURL INIT FAILED\n";
                 youtubecrash();
                 return 1;
             }
@@ -196,9 +206,10 @@ int youtube() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 color(4); // Set color to red
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - FAILED TO GET ACCESS TOKEN: " << curl_easy_strerror(res) << "\n";
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - FAILED TO GET ACCESS TOKEN: " << curl_easy_strerror(res) << "\n";
                 curl_slist_free_all(token_headers);
                 curl_easy_cleanup(curl);
+                lastCoutWasReturn = false;
                 youtubecrash();
                 return 1;
             }
@@ -215,7 +226,8 @@ int youtube() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
                 color(4); // Set color to red
-                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - NO ACCESS TOKEN FOUND IN RESPONSE:\n\t" << data.dump(2) << "\n";
+                std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - NO ACCESS TOKEN FOUND IN RESPONSE:\n\t" << data.dump(2) << "\n";
+                lastCoutWasReturn = false;
                 youtubecrash();
                 return 1;
             }
@@ -232,7 +244,7 @@ int youtube() {
                     std::time_t t = std::time(nullptr); // Get timestamp for output
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - NO VIDEO FILES FOUND IN /Videos\n";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - NO VIDEO FILES FOUND IN /Videos\n";
                     youtubecrash();
                     return 1;
                 }
@@ -284,7 +296,7 @@ int youtube() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res);
+                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - CURL GET error: " << curl_easy_strerror(res);
                         std::cerr << "\n\tError details: " << response << std::endl;
                         lastCoutWasReturn = false;
                         color(6);
@@ -317,7 +329,7 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed to initialize CURL";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Failed to initialize CURL";
                     lastCoutWasReturn = false;
                     return 1;
                 }
@@ -332,7 +344,7 @@ int youtube() {
                     caption = data["title"];
                     bool nsfw = data["nsfw"];
                     bool tempDisableCaption = false;
-                    video_file = "../Cache/YT/temp.avi"; // Set video file path
+                    video_file = "../Cache/YT/temp.mp4"; // Set video file path
                     if (DEBUGMODE) {
                         color(6); // Reset cout color to yellow (default)
                         std::cout << "\n\tGET success";
@@ -340,12 +352,23 @@ int youtube() {
                     }
                     imageValid = imageValidCheck(data, tempDisableCaption, countattempt, lastCoutWasReturn); // Test if image is valid for posting
                     if (imageValid) { // If image is not valid, skip to next iteration
-                        clear();
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Converting image to video...\r"; // Print status
+                        if (!lastCoutWasReturn) {
+                            std::cout << "\n"; // If last cout was not a return, print newline
+                        }
+                        else {
+                            clear();
+                        }
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Converting image to video...\r"; // Print status
                         lastCoutWasReturn = true;
-                        if (image_to_video(imageURL)) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
-							color(6); // Reset cout color to yellow (image_to_video can take a while)
-                            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Successfully converted image to video\r"; // Print status
+                        if (image_to_video(imageURL, "YT")) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
+                            color(6); // Reset cout color to yellow (image_to_video can take a while)
+                            if (!lastCoutWasReturn) {
+                                std::cout << "\n"; // If last cout was not a return, print newline
+                            }
+                            else {
+                                clear();
+                            }
+                            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Successfully converted image to video\r"; // Print status
                             lastCoutWasReturn = true;
                         }
                         else {
@@ -358,7 +381,7 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
                     imageValid = false; // Set imageValid to false to skip current post attempt
@@ -368,7 +391,7 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - YOUTUBE HTTP GET ERROR " << http_code << ": \n\t" << data;
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - YOUTUBE HTTP GET ERROR " << http_code << ": \n\t" << data;
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(60)); // Sleep to prevent spam
                     imageValid = false; // Set imageValid to false to skip current post attempt
@@ -388,7 +411,8 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - VIDEO FILE NOT FOUND: " << video_file << "\n";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - VIDEO FILE NOT FOUND: " << video_file << "\n";
+                    lastCoutWasReturn = false;
                     youtubecrash();
                     return 1;
                 }
@@ -478,7 +502,8 @@ int youtube() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                    lastCoutWasReturn = false;
                     curl_easy_cleanup(curl);
                     curl_slist_free_all(headers);
                     youtubecrash();
@@ -498,6 +523,7 @@ int youtube() {
                 data = nlohmann::json::parse(response); // Try to parse JSON response
                 std::string reason, message;
                 if (data.contains("error")) {
+                    lastCoutWasReturn = false;
                     color(4); // Set color to red
                     if (data["error"].contains("errors") && data["error"]["errors"][0].contains("reason") && data["error"].contains("message")) { // Check if error structure is valid for reading
                         reason = data["error"]["errors"][0]["reason"];
@@ -507,22 +533,23 @@ int youtube() {
                             std::tm tm_obj;
                             localtime_s(&tm_obj, &t);
                             color(4); // Set color to red
-                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: RATELIMITED BY YOUTUBE (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
+                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: RATELIMITED (INCREASE TIME_BETWEEN_POSTS IN CONFIG.INI)";
                         }
                         else { // General error
                             std::time_t t = std::time(nullptr); // Get timestamp for output
                             std::tm tm_obj;
                             localtime_s(&tm_obj, &t);
                             color(4); // Set color to red
-                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << message << "\n";
+                            std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - UPLOAD FAILED: " << message;
                         }
                     }
                     else { // if error structure is not valid print full response (last resort)
+                        lastCoutWasReturn = false;
                         std::time_t t = std::time(nullptr); // Get timestamp for output
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res) << "\n";
+                        std::cerr << "\t" << std::put_time(&tm_obj, "%H:%M") << " - UPLOAD FAILED: " << curl_easy_strerror(res);
                         curl_easy_cleanup(curl);
                         curl_slist_free_all(headers);
                     }
@@ -535,14 +562,14 @@ int youtube() {
                         std::cout << std::endl << data.dump(4);
                     }
                     color(2); // Set color to green
-                    if (POSTMODE == "manual") {
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << video_file << " from r/" + chosenSubreddit + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"; // Create message for webhook / cout
+                    if (POSTMODE == "auto") {
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - " << imageURL << " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)"; // Create message for webhook / cout
                     }
                     else {
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << imageURL << " uploaded to YouTube";
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - " << video_file << " uploaded to YouTube";
                     }
+                    lastCoutWasReturn = false;
                 }
-                lastCoutWasReturn = false;
 
                 /* Begin export of URL to file */
                 inFile.open("../Cache/YT/youtube_used_urls.json");
@@ -573,22 +600,28 @@ int youtube() {
         return 0;
     }
     catch (const std::exception& e) { // Error handling
-        std::cerr << "\n\tYoutube crashed: " << e.what() << '\n';
+        std::time_t t = std::time(nullptr); // Get timestamp for output
+        std::tm tm_obj;
+        localtime_s(&tm_obj, &t);
+        color(4); // Set color to red
+        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - YouTube crashed: " << e.what() << '\n';
 
         lastCoutWasReturn = false;
-        youtubecrash();
+        instagramcrash(); // Call crash function to handle the error
         return 1;
     }
     catch (...) {
-        std::cerr << "\n\tYoutube crashed with unknown error.\n";
+        std::time_t t = std::time(nullptr); // Get timestamp for output
+        std::tm tm_obj;
+        localtime_s(&tm_obj, &t);
+        color(4); // Set color to red
+        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - YouTube crashed with unknown error.\n";
 
         lastCoutWasReturn = false;
-        youtubecrash();
+        instagramcrash();  // Call crash function to handle the error
         return 1;
     }
-    return 0;
 }
-
 
 void youtubeStop() {
     keeploop = false; // Stop the loop
@@ -612,7 +645,7 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
             clear();
 
         }
-        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Image is GIF - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
@@ -626,7 +659,7 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
             else {
                 clear();
             }
-            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Using fallback caption - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
         }
     }
@@ -639,7 +672,7 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
             else {
                 clear();
             }
-            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
             return false;
         }
@@ -653,7 +686,7 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
             else {
                 clear();
             }
-            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Duplicate URL - x" << countattempt << " Attempt(s)\r";
             wasreturn = true;
             return false;
         }
@@ -665,7 +698,7 @@ static bool imageValidCheck(json data, bool& tempDisableCaption, int countattemp
         else {
             clear();
         }
-        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
         wasreturn = true;
         return false;
     }

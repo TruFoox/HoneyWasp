@@ -21,18 +21,17 @@ using json = nlohmann::json; // Redefines json as one from nlohmann
 
 /* Prototypes */
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
-json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params = {});
+json HTTP_Post(const std::string& base_url, long long& http_code, const std::map<std::string, std::string>& params = {});
 void instagramStop();
 bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool& lastCoutWasReturn);
 
 
 /* Global variables */
 static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
-static long long USER_ID;
-static long http_code;
+static long long USER_ID, http_code;
 static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, keeploop, tempDisableCaption, imageValid;
-static std::string TOKEN, SUBREDDITS_RAW, BLACKLIST_RAW, CAPTION_BLACKLIST_RAW, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, POSTMODE, imageURL;
-static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, manualMedia;
+static std::string TOKEN, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, POSTMODE, mediaURL, fileDir;
+static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, media;
 
 /* Starts sending API calls to post to instagram*/
 int instagram() {
@@ -51,8 +50,10 @@ int instagram() {
         std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "");
         if (SUBREDDITS_RAW.empty()) SUBREDDITS_RAW = "memes,meme,comedyheaven"; // Default subreddits if not set
         boost::erase_all(SUBREDDITS_RAW, " ");
-        std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ',');
         boost::to_lower(SUBREDDITS_RAW);
+        std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ',');
+        std::string FORMAT = reader.Get("Instagram_Settings", "format", "video");
+        boost::to_lower(FORMAT);
         std::string BLACKLIST_RAW = reader.Get("Instagram_Settings", "blacklist", "");
         if (BLACKLIST_RAW.empty()) BLACKLIST_RAW = "Fuck,Shit,Ass,Bitch,retard,republican,democrat"; // Default if empty
         boost::erase_all(BLACKLIST_RAW, " ");
@@ -166,19 +167,41 @@ int instagram() {
             }
         }
         else {
-            /* Open and read Media.json for manual images */
-            std::ifstream inFile("..\\Media_URLs.json");
-            json j;
+            if (FORMAT == "image") {
+                /* Open and read \Images for manual images */
+                for (const auto& entry : std::filesystem::directory_iterator("../Images")) { // Log all files in image/video directory
+                    media.push_back(entry.path().generic_string());
+                }
 
-            if (inFile) {
-                inFile >> j;// Parse JSON content from file
-                for (const auto& item : j) { // Check if element is a string
-                    if (item.is_string()) {
-                        manualMedia.push_back(item.get<std::string>()); // Convert JSON string to std::string and add to vector
-                    }
+                if (media.empty()) {
+                    color(4); // Set color to red
+                    std::time_t t = std::time(nullptr); // Get timestamp for output
+                    std::tm tm_obj;
+                    localtime_s(&tm_obj, &t);
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - NO IMAGES FILES FOUND IN /Images\n";
+                    youtubecrash();
+                    return 1;
                 }
             }
-            inFile.close();
+            else {
+                for (const auto& entry : std::filesystem::directory_iterator("../Videos")) { // Log all files in image/video directory
+                    media.push_back(entry.path().generic_string());
+                }
+
+                if (media.empty()) {
+                    color(4); // Set color to red
+                    std::time_t t = std::time(nullptr); // Get timestamp for output
+                    std::tm tm_obj;
+                    localtime_s(&tm_obj, &t);
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - NO VIDEO FILES FOUND IN /Videos\n";
+                    youtubecrash();
+                    return 1;
+                }
+            }
+            // Randomize selection
+            std::srand(static_cast<unsigned int>(std::time(nullptr)));
+            int index = std::rand() % media.size();
+            fileDir = media[index];
         }
         lastCoutWasReturn = false;
         /* Start instagram bot */
@@ -189,13 +212,20 @@ int instagram() {
             localtime_s(&tm_obj, &t);
 
             if (countattempt == 0) { // Only output if on first post attempt
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Attempting new Instagram post\r";
+                if (!lastCoutWasReturn) {
+                    std::cout << "\n"; // If last cout was not a return, print newline
+                }
+                else {
+                    clear();
+                }
+
+                std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Attempting new post\r";
                 lastCoutWasReturn = true;
             }
 
             if (countattempt >= ATTEMPTS_BEFORE_TIMEOUT) { // Check if stuck in loop
                 color(4);
-                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
+                std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
                 color(6);
                 lastCoutWasReturn = false;
                 std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 180));
@@ -231,7 +261,7 @@ int instagram() {
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
                         color(4); // Set color to red
-                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - CURL GET error: " << curl_easy_strerror(res);
+                        std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - CURL GET error: " << curl_easy_strerror(res);
                         std::cerr << "\n\tError details: " << instaresponse << std::endl;
                         lastCoutWasReturn = false;
                         color(6);
@@ -264,7 +294,7 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed to initialize CURL";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed to initialize CURL";
                     lastCoutWasReturn = false;
                     return 1;
                 }
@@ -275,7 +305,7 @@ int instagram() {
                 }
                 /* Read JSON data and attempt post*/
                 if (http_code == 200) { // Ensure GET success
-                    imageURL = data["url"];
+                    mediaURL = data["url"];
                     caption = data["title"];
                     bool nsfw = data["nsfw"];
                     bool tempDisableCaption = false;
@@ -293,7 +323,7 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
                     imageValid = false; // Set imageValid to false to skip current post attempt
@@ -303,117 +333,328 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
-                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP GET ERROR " << http_code << ": \n\t" << data;
+                    std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] -  HTTP GET ERROR " << http_code << ": \n\t" << data;
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(60)); // Sleep to prevent spam
                     imageValid = false; // Set imageValid to false to skip current post attempt
                 }
-            }
-            else { // If manual, choose random item from manual list
-                int randIndex = std::rand() % manualMedia.size(); // Generate random index of subreddit
-                imageURL = manualMedia[randIndex];
-
-            }
-
-            if (POSTMODE == "manual" || imageValid == true) { // If post mode is manual (or if automatic & image is valid)
-                json uploadData;
-                if (POSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
-                    uploadData = {
-                        {"image_url", imageURL},
-                        {"caption", FALLBACK_CAPTION + "\n\n.\n\n" + HASHTAGS},
-                        {"access_token", TOKEN}
-                    };
-                }
-                else { // Disables caption if needed
-                    uploadData = {
-                        {"image_url", imageURL},
-                        {"caption", caption + "\n\n.\n\n" + HASHTAGS},
-                        {"access_token", TOKEN}
-                    };
-                }
-                std::string uploadURL = "https://graph.facebook.com/v19.0/" + std::to_string(USER_ID) + "/media"; // Generates URL for uploading image
-                json uploadJson = HTTP_Post(uploadURL, http_code, uploadData);
-                if (http_code == 200) { // Ensure POST success
-                    if (DEBUGMODE) {
-                        color(6); // Reset cout color to yellow (default)
-                        std::cout << "\n\tPOST 1 success";
-                        lastCoutWasReturn = false;
-                    }
-
-                    std::string id = uploadJson["id"]; // Get ID from /media POST request
-                    uploadData = {
-                        {"creation_id", id},
-                        {"access_token", TOKEN}
-                    };
-                    uploadURL = "https://graph.facebook.com/v19.0/" + std::to_string(USER_ID) + "/media_publish"; // Generates URL for publishing image
-                    uploadJson = HTTP_Post(uploadURL, http_code, uploadData); // Send POST publish request
-
-                    if (http_code == 200) { // Ensure POST success
-                        if (DEBUGMODE) {
-                            color(6); // Reset cout color to yellow (default)
-                            std::cout << "\n\tPOST 2 success";
-                            lastCoutWasReturn = false;
-                        }
-
-                        std::time_t t = std::time(nullptr); // Get timestamp for output
-                        std::tm tm_obj;
-                        localtime_s(&tm_obj, &t);
-
-                        color(2); // Set color to green
-
-                        std::string message;
-                        if (POSTMODE == "auto") {
-                            message = (imageURL + " from r/" + chosenSubreddit + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
-                        }
-                        else {
-                            message = (imageURL + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)"); // Create message for webhook / cout
-                        }
+                if (FORMAT == "video") { // If format is image, convert to video
+                    if (imageValid) { // If image is not valid, skip to next iteration
                         if (!lastCoutWasReturn) {
                             std::cout << "\n"; // If last cout was not a return, print newline
                         }
                         else {
                             clear();
                         }
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Converting image to video...\r"; // Print status
+                        lastCoutWasReturn = true;
 
-                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - " << message;
+                        if (image_to_video(mediaURL, "INST")) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
+                            color(6); // Reset cout color to yellow (image_to_video can take a while)
+                            if (!lastCoutWasReturn) {
+                                std::cout << "\n"; // If last cout was not a return, print newline
+                            }
+                            else {
+                                clear();
+                            }
+                            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully converted image to video\r"; // Print status
+                            lastCoutWasReturn = true;
+							fileDir = "../Cache/INST/temp.mp4"; // Set fileDir to temp.mov
+                        }
+                        else {
+                            imageValid = false; // Set imageValid to false if conversion failed
+                        }
+                    }
+				}
+            }
+            else {
+                int randIndex = std::rand() % media.size(); // Generate random index of media
+                fileDir = media[randIndex];
+            }
+            
+			if (POSTMODE == "manual" || (FORMAT == "video" && imageValid == true)) { // Upload handling for manual or video posts
+                if (POSTMODE == "auto") {
+                    fileDir = "../Cache/INST/temp.mp4";
+                }
+                std::time_t t = std::time(nullptr); // Get timestamp for output
+                std::tm tm_obj;
+                localtime_s(&tm_obj, &t);
+
+                /* Upload media to filebin */
+                if (!lastCoutWasReturn) {
+                    std::cout << "\n"; // If last cout was not a return, print newline
+                }
+                else {
+                    clear();
+                }
+                color(6);
+                std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Uploading media to temp filehoster...\r"; // Print status
+                lastCoutWasReturn = true;
+                CURL* curl = curl_easy_init();
+                if (!curl) {
+                    std::cerr << "Failed to initialize curl\n";
+                    return 1;
+                }
+
+                struct curl_httppost* formpost = nullptr;
+                struct curl_httppost* lastptr = nullptr;
+                struct curl_slist* headers = nullptr;
+
+                // Add the file to the form post
+                curl_formadd(&formpost, &lastptr,
+                    CURLFORM_COPYNAME, "file",
+                    CURLFORM_FILE, fileDir.c_str(),
+                    CURLFORM_END);
+
+                // Set custom User-Agent header
+                headers = curl_slist_append(headers, "User-Agent: HoneyWasp/1.0");
+
+                curl_easy_setopt(curl, CURLOPT_URL, "https://0x0.st");
+                curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                std::string response_data;
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+
+                // Optional: Fail on HTTP errors (like 4xx, 5xx)
+                curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+
+                CURLcode res = curl_easy_perform(curl);
+                if (res != CURLE_OK) {
+                    std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << "\n";
+                    curl_slist_free_all(headers);
+                    curl_formfree(formpost);
+                    curl_easy_cleanup(curl);
+                    return 1;
+                }
+
+                long status_code = 0;
+                curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status_code);
+
+                t = std::time(nullptr); // Get timestamp for output
+                localtime_s(&tm_obj, &t);
+                color(6); // Reset cout color to yellow (Image upload can take a while)
+                if (!lastCoutWasReturn) {
+                    std::cout << "\n"; // If last cout was not a return, print newline
+                }
+                else {
+                    clear();
+                }
+
+                mediaURL = response_data;
+                if (!mediaURL.empty() && mediaURL.back() == '\n') { // Remove trailing newline that filebin adds for some reason
+                    mediaURL.pop_back();
+                }
+
+                if (status_code == 200) { // Check if upload was successful
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully uploaded to FileBin: " << mediaURL << "\r"; // Print status
+                    lastCoutWasReturn = true;
+                }
+                else {
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed to upload video to filebin. HTTP Status Code: " << status_code; // Print status
+                    return 1;
+                }
+
+                curl_slist_free_all(headers);
+                curl_formfree(formpost);
+                curl_easy_cleanup(curl);
+                std::this_thread::sleep_for(std::chrono::seconds(5)); // Sleep to prevent spam
+			}
+
+            if (POSTMODE == "manual" || imageValid == true) { // If post mode is manual (or automatic & image valid)
+                json uploadData;
+
+                std::string finalCaption;
+                if (POSTMODE == "manual" || USE_REDDIT_CAPTION == false || tempDisableCaption == true) {
+                    finalCaption = FALLBACK_CAPTION;
+                }
+                else {
+                    finalCaption = caption;
+                }
+
+                finalCaption += "\n\n.\n\n" + HASHTAGS;
+                std::string uploadURL;
+
+                /* Build uploadData */
+                if (FORMAT == "image") {
+                    uploadData = {
+                        {"image_url", mediaURL},
+                        {"caption", finalCaption},
+                        {"access_token", TOKEN}
+                    };
+                    uploadURL = "https://graph.facebook.com/v23.0/" + std::to_string(USER_ID) + "/media";
+                }
+                else { // VIDEO
+                    uploadData = {
+                        {"video_url", mediaURL},
+                        {"media_type",  "REELS"},
+                        {"caption", finalCaption},
+                        {"access_token", TOKEN}
+                    };
+                    uploadURL = "https://graph.facebook.com/v23.0/" + std::to_string(USER_ID) + "/media?media_type=VIDEO";
+                }
+
+                json uploadJson = HTTP_Post(uploadURL, http_code, uploadData);
+                if (http_code == 200) { // POST success
+                    if (DEBUGMODE) {
+                        color(6); // yellow
+                        std::cout << "\n\tPOST 1 success";
+                        lastCoutWasReturn = false;
+                    }
+
+                    // Inside your posting function, after you get the container id:
+                    std::string id = uploadJson["id"];
+
+                    /* If video, wait for Instagram to process */
+                    if (FORMAT != "image") {
+                        color(6); // Yellow for status
+                        if (!lastCoutWasReturn) std::cout << "\n";
+                        else clear();
+
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Waiting for Instagram to process video...\r";
+                        lastCoutWasReturn = true;
+
+                        std::string statusCode;
+                        int maxRetries = 40;
+                        int retryCount = 0;
+                        long http_code = 0;
+
+                        do {
+                            std::this_thread::sleep_for(std::chrono::seconds(5)); // Wait 5 seconds
+
+                            std::string statusURL = "https://graph.facebook.com/v23.0/" + id +
+                                "?fields=status_code,status&access_token=" + TOKEN;
+
+                            CURL* curl = curl_easy_init();
+                            std::string response_string;
+
+                            if (!curl) {
+                                if (DEBUGMODE) std::cout << "\n\tCurl init failed for status check.";
+                                return 1;
+                            }
+
+                            curl_easy_setopt(curl, CURLOPT_URL, statusURL.c_str());
+                            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+                            CURLcode res = curl_easy_perform(curl);
+                            if (res != CURLE_OK) {
+                                if (DEBUGMODE) std::cout << "\n\tCurl perform failed: " << curl_easy_strerror(res);
+                                curl_easy_cleanup(curl);
+                                return 1;
+                            }
+                            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+                            curl_easy_cleanup(curl);
+
+                            if (http_code != 200) {
+                                if (DEBUGMODE) std::cout << "\n\tFailed to get status_code, HTTP " << http_code << ": " << response_string;
+                                return 1;
+                            }
+
+                            try {
+                                auto statusJson = json::parse(response_string);
+                                statusCode = statusJson.value("status_code", "");
+
+                                if (DEBUGMODE) std::cout << "\n\tStatus code: " << statusCode;
+
+                                if (statusCode == "ERROR") {
+                                    color(4); // Red
+                                    std::cout << "\n\t[ERROR] Video processing failed. Full response:\n";
+                                    std::cout << response_string << "\n";
+                                    imageValid = false;
+                                    return 1;
+                                }
+
+                            }
+                            catch (...) {
+                                if (DEBUGMODE) std::cout << "\n\tFailed to parse status JSON.";
+                                return 1;
+                            }
+
+                            retryCount++;
+                        } while (statusCode != "FINISHED" && retryCount < maxRetries);
+
+                        if (statusCode != "FINISHED") {
+                            color(4);
+                            std::cout << "\n\tVideo processing did not finish in time, aborting publish.";
+                            imageValid = false;
+                            return 1;
+                        }
+                    }
+
+                    uploadData = {
+                        {"creation_id", id},
+                        {"access_token", TOKEN}
+                    };
+                    uploadURL = "https://graph.facebook.com/v23.0/" + std::to_string(USER_ID) + "/media_publish";
+                    uploadJson = HTTP_Post(uploadURL, http_code, uploadData);
+
+                    if (http_code == 200) {
+                        if (DEBUGMODE) {
+                            color(6);
+                            std::cout << "\n\tPOST 2 success";
+                            lastCoutWasReturn = false;
+                        }
+
+                        std::time_t t = std::time(nullptr);
+                        std::tm tm_obj;
+                        localtime_s(&tm_obj, &t);
+
+                        color(2); // green
+
+                        std::string message;
+                        if (POSTMODE == "auto") {
+                            message = (mediaURL + " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)");
+                        }
+                        else {
+                            message = (mediaURL + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)");
+                        }
+                        if (!lastCoutWasReturn) {
+                            std::cout << "\n";
+                        }
+                        else {
+                            clear();
+                        }
+
+                        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - " << message;
                         lastCoutWasReturn = false;
                         send_webhook(message);
-                        /* Begin export of URL to file */
+
+                        // Export URL to file
                         std::ifstream inFile("../Cache/INST/instagram_used_urls.json");
                         json j;
 
                         if (inFile) {
-                            if (inFile.peek() == std::ifstream::traits_type::eof()) { // If file is empty, start with empty array
+                            if (inFile.peek() == std::ifstream::traits_type::eof()) {
                                 j = json::array();
                             }
-                            else { // If file has content, parse it
+                            else {
                                 inFile >> j;
                                 if (!j.is_array()) j = json::array();
                             }
                             inFile.close();
                         }
-                        else { // If file doesn't exist, start with empty array
+                        else {
                             j = json::array();
                         }
 
-                        j.push_back(imageURL); // Append element to JSON
-                        usedUrls.push_back(imageURL); // Append element to memory
+                        j.push_back(mediaURL);
+                        usedUrls.push_back(mediaURL);
                         std::ofstream outFile("../Cache/INST/instagram_used_urls.json");
                         outFile << j.dump(4);
                         outFile.close();
 
-
-                        std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
-                        countattempt = 0; // Reset number of attempts to post this cycle
+                        std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60));
+                        countattempt = 0;
                     }
                     else {
-                        std::time_t t = std::time(nullptr); // Get timestamp for output
+                        std::time_t t = std::time(nullptr);
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
-                        color(4); // Set color to red
-                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 2 ERROR " << http_code << ":\n\t";
+                        color(4); // red
+                        std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - HTTP POST 2 ERROR " << http_code << ":\n\t";
                         lastCoutWasReturn = false;
-                        if (DEBUGMODE) { // Print error details
+                        if (DEBUGMODE) {
                             std::cout << uploadJson;
                         }
                         else {
@@ -426,18 +667,18 @@ int instagram() {
                                 std::cout << uploadJson;
                             }
                         }
-                        imageValid = false; // Set imageValid to false to skip current post attempt
+                        imageValid = false;
                     }
                 }
                 else {
-                    std::time_t t = std::time(nullptr); // Get timestamp for output
+                    std::time_t t = std::time(nullptr);
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
-                    color(4); // Set color to red
-                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - INSTAGRAM HTTP POST 1 ERROR " << http_code << ":\n\t";
+                    color(4);
+                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - HTTP POST 1 ERROR " << http_code << ":\n\t";
                     lastCoutWasReturn = false;
 
-                    if (DEBUGMODE) { // Print error details
+                    if (DEBUGMODE) {
                         std::cout << uploadJson;
                     }
                     else {
@@ -450,9 +691,10 @@ int instagram() {
                             std::cout << uploadJson;
                         }
                     }
-                    imageValid = false; // Set imageValid to false to skip current post attempt
+                    imageValid = false;
                 }
             }
+
             std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep to prevent spam
         }
         return 0;
@@ -462,7 +704,7 @@ int instagram() {
         std::tm tm_obj;
         localtime_s(&tm_obj, &t);
         color(4); // Set color to red
-        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed: " << e.what() << '\n';
+        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Instagram crashed: " << e.what() << '\n';
 
         lastCoutWasReturn = false;
         instagramcrash(); // Call crash function to handle the error
@@ -473,7 +715,7 @@ int instagram() {
         std::tm tm_obj;
         localtime_s(&tm_obj, &t);
         color(4); // Set color to red
-        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - Instagram crashed with unknown error.\n";
+        std::cerr << "\n\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Instagram crashed with unknown error.\n";
 
         lastCoutWasReturn = false;
         instagramcrash();  // Call crash function to handle the error
@@ -485,22 +727,22 @@ int instagram() {
 bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool& wasreturn) { // Ensure image is valid for instagram
     color(4); // Set color to red
 
-    std::string imageURL = data["url"];
+    std::string mediaURL = data["url"];
     std::string caption = data["title"];
-    boost::to_lower(imageURL);
+    boost::to_lower(mediaURL);
     boost::to_lower(caption);
     bool nsfw = data["nsfw"];
     std::time_t t = std::time(nullptr); // Get timestamp for output
     std::tm tm_obj;
     localtime_s(&tm_obj, &t);
-    if (imageURL.find(".gif") != std::string::npos) { // If file is gif, skip
+    if (mediaURL.find(".gif") != std::string::npos) { // If file is gif, skip
         if (!lastCoutWasReturn) {
             std::cout << "\n";
         }
         else {
             clear();
         }
-        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is GIF - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Image is GIF - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
@@ -514,7 +756,7 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
             else {
                 clear();
             }
-            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Using fallback caption - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Using fallback caption - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
         }
     }
@@ -527,21 +769,21 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
             else {
                 clear();
             }
-            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
             wasreturn = true; // Set true so next cout knows to not print on newline
             return false;
         }
     }
 
     for (int i = 0; i < usedUrls.size(); i++) { // Test if URL is duplicate
-        if (imageURL == usedUrls[i]) {
+        if (mediaURL == usedUrls[i]) {
             if (!lastCoutWasReturn) {
                 std::cout << "\n";
             }
             else {
                 clear();
             }
-            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Duplicate URL - x" << countattempt << " Attempt(s)\r";
+            std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Duplicate URL - x" << countattempt << " Attempt(s)\r";
             wasreturn = true;
             return false;
         }
@@ -553,19 +795,19 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
         else {
             clear();
         }
-        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
         wasreturn = true;
         return false;
     }
 
-    if (!(imageRatio(imageURL))) { // Test image aspect ratio (Whether or not it can fit in instagram)
+    if (!(imageRatio(mediaURL))) { // Test image aspect ratio (Whether or not it can fit in instagram)
         if (!lastCoutWasReturn) {
             std::cout << "\n";
         }
         else {
             clear();
         }
-        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
+        std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
@@ -590,11 +832,6 @@ void instagramClearCache() { // Upon /clear, clear used_images.json
 }
 
 
-void clear() { // Clear current line
-    std::cout << "\r                                                                                                          \r";
-    lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
-}
-
 void instagramStop() { // Upon /stop, activate flag to stop loop
     keeploop = false;
 }
@@ -611,7 +848,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) { /
     }
 }
 
-json HTTP_Post(const std::string& base_url, long& http_code, const std::map<std::string, std::string>& params) { // HTTP POST request
+json HTTP_Post(const std::string& base_url, long long& http_code, const std::map<std::string, std::string>& params) { // HTTP POST request
     try {
         CURL* curl;
         CURLcode res;
