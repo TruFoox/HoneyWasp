@@ -78,17 +78,21 @@ inline bool image_to_video(const std::string& imageUrl, std::string service) {
 
         cv::Mat img_bgr;
         if (channels == 4) {
-            cv::cvtColor(img, img_bgr, cv::COLOR_BGRA2BGR);
+            cv::cvtColor(img, img_bgr, cv::COLOR_RGBA2BGR); // not BGRA
+        }
+        else if (channels == 3) {
+            cv::cvtColor(img, img_bgr, cv::COLOR_RGB2BGR);
         }
         else {
-            img_bgr = img;
+            img_bgr = img.clone(); // for grayscale or unknown formats
         }
+
 
         std::string location = "../Cache/" + service + "/temp.mp4"; // Set location based on service
         cv::VideoWriter writer(location, cv::VideoWriter::fourcc('a', 'v', 'c', '1'), 30, img_bgr.size());
 
         if (vidCount == 1) {
-            std::cout << "\x1b[1A\x1b[1A\x1b[2K\x1b[1A\x1b[2K"; // Removes that annoying "provided by cisco" shit
+            std::cout << "\x1b[1A\x1b[2K\x1b[1A\x1b[2K\x1b[1A\x1b[2K" << std::flush; // Removes that annoying "provided by cisco" shit
         }
         if (!writer.isOpened()) {
             std::cerr << "\tFailed to open VideoWriter." << std::endl;
