@@ -27,6 +27,7 @@
   * [YouTube Setup](#youtube-setup)
 * [Usage](#usage)
 * [Help](#help)
+  * [Windows Defender](#brief-antivirus-note)
   * [Config Help](#here-is-some-information-regarding-the-most-confusing-aspects-of-configini)
 * [Built With](#built-with)
 * [Contributing](#contributing)
@@ -182,7 +183,7 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 
 Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
 
-## Brief antivirus note:
+## Brief Antivirus Note
 This app might get flagged by Windows Defender as "Wacapew.C!ml". That’s just a generic warning Windows shows when it thinks an app *looks* suspicious (not necessarily that it is). 
 
 ### How to Allow It Through Defender:
