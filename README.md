@@ -37,6 +37,20 @@
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
+### Brief note:
+This app might get flagged by Windows Defender as "Wacapew.C!ml". That’s just a generic warning Windows shows when it thinks app *looks* suspicious. 
+
+It gets flagged due to ``Launch.exe``, the app's launcher, which is used to prevent clutter in the main directory (without the launcher, the main directory would be full of .DLL files!). All it does is launch the real exe, located in ``/data/start.exe``. This exe-launching-exe behavior sometimes attributed to malware, despite this not being such a case.
+
+### How to Allow It Through Defender:
+- Open Windows Security
+
+- Go to Virus & threat protection
+
+- Click "Protection history"
+
+- Find the blocked app and click "Actions" > "Allow"
+
 # Getting Started
 
 Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
