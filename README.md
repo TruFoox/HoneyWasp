@@ -184,7 +184,8 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
 
 ## Windows Defender Note
-This app might get flagged by Windows Defender as "Wacapew.C!ml". That’s just a generic warning Windows shows when it thinks an app *looks* suspicious (not necessarily that it is). 
+This app might get flagged by Windows Defender because automated programs that call apis can resemble certain types of malware, despite being safe. 
+If this happens, to use the bot you must allow it
 
 ### How to Allow It Through Defender:
 - Open Windows Security
