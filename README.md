@@ -27,7 +27,8 @@
   * [YouTube Setup](#youtube-setup)
 * [Usage](#usage)
 * [Help](#help)
-  * [Config Help](#here-is-some-information-regarding-the-most-confusing-aspects-of-configini)
+  * [Windows Defender](#windows-defender-note)
+  * [Config Help](#config-help)
 * [Built With](#built-with)
 * [Contributing](#contributing)
 * [Author](#author)
@@ -35,7 +36,7 @@
 
 # About The Project
 
-This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
 # Getting Started
 
@@ -182,7 +183,22 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 
 Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
 
-## Here is some information regarding the most confusing aspects of ``Config.ini``:
+## Windows Defender Note
+This app might get flagged by Windows Defender because automated programs that call apis can resemble certain types of malware, despite being safe. 
+If this happens, to use the bot you must allow it
+
+### How to Allow It Through Defender:
+- Open Windows Security
+
+- Go to Virus & threat protection
+
+- Click "Protection history"
+
+- Find the blocked app and click "Actions" > "Allow"
+
+## Config Help
+Here is some information regarding the most confusing aspects of ``Config.ini``:
+
 - Boolean values (true or false) need to be lowercase
 - Do not surround values with quotations, they are parsed automatically
 - Do not put ANYTHING in ``refresh_token`` under ``[YouTube_Settings]`` until prompted to do so by the bot
