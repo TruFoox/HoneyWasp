@@ -8,8 +8,6 @@
 #include "stb_image.h"
 #include "source.h"
 
-inline int vidCount = 0; // Var only used to count how many videos have been created so i dont reapply the cisco remover
-
 inline size_t writeToBuffer(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
     std::vector<unsigned char>* buffer = static_cast<std::vector<unsigned char>*>(userp);
@@ -47,7 +45,6 @@ inline bool imageRatio(const std::string& imageUrl) {
 
 inline bool image_to_video(const std::string& imageUrl, std::string service) {
     try {
-        vidCount++; // Increment video count to keep track of how many videos have been created
         std::vector<unsigned char> imageData;
 
         CURL* curl = curl_easy_init();
@@ -60,42 +57,61 @@ inline bool image_to_video(const std::string& imageUrl, std::string service) {
 
         CURLcode res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
-
         if (res != CURLE_OK || imageData.empty()) return false;
 
         int width, height, channels;
         unsigned char* pixeldata = stbi_load_from_memory(imageData.data(), imageData.size(), &width, &height, &channels, 0);
         if (!pixeldata) return false;
 
+        // Validate dimensions
+        if (width <= 0 || height <= 0) {
+            std::cerr << "\tInvalid image dimensions: " << width << "x" << height << std::endl;
+            stbi_image_free(pixeldata);
+            return false;
+        }
+
         int type = (channels == 4) ? CV_8UC4 : CV_8UC3;
         cv::Mat img(height, width, type, pixeldata);
-
-        if (img.empty() || img.cols == 0 || img.rows == 0) {
-            std::cerr << "\n\tInvalid image dimensions." << std::endl;
+        if (img.empty()) {
+            std::cerr << "\tFailed to construct Mat from image." << std::endl;
             stbi_image_free(pixeldata);
             return false;
         }
 
         cv::Mat img_bgr;
-        if (channels == 4) {
-            cv::cvtColor(img, img_bgr, cv::COLOR_RGBA2BGR); // not BGRA
-        }
-        else if (channels == 3) {
+        if (channels == 4)
+            cv::cvtColor(img, img_bgr, cv::COLOR_RGBA2BGR);
+        else if (channels == 3)
             cv::cvtColor(img, img_bgr, cv::COLOR_RGB2BGR);
-        }
-        else {
-            img_bgr = img.clone(); // for grayscale or unknown formats
+        else
+            img_bgr = img.clone(); // grayscale fallback
+
+        // Check resolution limit (OpenH264 can't handle > 9437184 px)
+        const int max_pixels = 9400000;
+        int original_width = img_bgr.cols;
+        int original_height = img_bgr.rows;
+
+        int total_pixels = original_width * original_height;
+
+        if (total_pixels > max_pixels) {
+            double scale = std::sqrt((double)max_pixels / total_pixels);
+            int new_width = static_cast<int>(original_width * scale);
+            int new_height = static_cast<int>(original_height * scale);
+
+            // Ensure even dimensions (many codecs require it)
+            new_width &= ~1;
+            new_height &= ~1;
+
+            cv::resize(img_bgr, img_bgr, cv::Size(new_width, new_height));
         }
 
 
-        std::string location = "../Cache/" + service + "/temp.mp4"; // Set location based on service
+
+        std::string location = "../Cache/" + service + "/temp.mp4";
         cv::VideoWriter writer(location, cv::VideoWriter::fourcc('a', 'v', 'c', '1'), 30, img_bgr.size());
 
-        if (vidCount == 1) {
-            std::cout << "\x1b[1A\x1b[2K\x1b[1A\x1b[2K\x1b[1A\x1b[2K" << std::flush; // Removes that annoying "provided by cisco" shit
-        }
         if (!writer.isOpened()) {
-            std::cerr << "\tFailed to open VideoWriter." << std::endl;
+            std::cerr << "\tFailed to open VideoWriter at " << location << std::endl;
             stbi_image_free(pixeldata);
             return false;
         }
@@ -106,15 +122,14 @@ inline bool image_to_video(const std::string& imageUrl, std::string service) {
 
         writer.release();
         stbi_image_free(pixeldata);
-
-
-        lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
+        lastCoutWasReturn = true;
         return true;
     }
     catch (const std::exception& e) {
-        std::cerr << "\t\nError during conversion from image to video: " << e.what() << std::endl;
+        std::cerr << "\tError during conversion from image to video: " << e.what() << std::endl;
         return false;
     }
 }
+
 
 #endif

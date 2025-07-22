@@ -27,6 +27,7 @@ void instagramcrash();
 void youtubecrash();
 void send_webhook(std::string& message);
 void color(int n);
+void initializeH264();
 
 /* Global Variables */
 std::string BOT_TOKEN, WEBHOOK; 
@@ -34,13 +35,14 @@ int CHANNEL_ID;
 dpp::cluster bot;
 bool DEBUGMODE, RESTART;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
-float CURRENTVERSION = 1.17; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
+float CURRENTVERSION = 2.01; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
 
 /* Start bot */
 int main() {
     try {
         INIReader reader("../Config.ini");
         RESTART = reader.GetBoolean("General_Settings", "restart_on_crash", "false"); // Load restart_on_crash config setting
+        DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
     }
     catch (const std::exception& e) { // Error handling
         std::cerr << "\nBot crashed: " << e.what();
@@ -147,6 +149,7 @@ int main() {
 
             t = std::time(nullptr); // Get timestamp
             localtime_s(&tm_obj, &t);
+            initializeH264(); // Show h264 licensing message
             std::cout << "\n\tConfig loaded";
             std::cout << "\n\tLoading discord - Discord client logs:";
             dpp::cluster bot(BOT_TOKEN);
@@ -427,10 +430,13 @@ int main() {
                     }
                     std::cout << "\n\n";
                     lastCoutWasReturn = false;
-                    // Join all threads to ensure they complete before program exits
-                    for (std::thread& t : threads) {
-                        if (t.joinable()) t.join();
-                    }
+                    if (threads.empty()) std::cout << "\n\tBot Ready. Use / commands in discord to operate the bot (Or add services to autostart in config.ini)";
+                    else {
+                        // Join all threads to ensure they complete before program exits
+                        for (std::thread& t : threads) {
+                            if (t.joinable()) t.join();
+                        }
+					}
                 }
                 });
             bot.start(dpp::st_wait); // Finalize bot start
@@ -529,5 +535,19 @@ std::vector<int> splitInts(const std::string& str, char delimiter) { // Splits c
 
 void clear() { // Clear current line
     std::cout << "\x1b[2K" << std::flush; // Delete current line
+    std::cout << "\r";
     lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
+}
+
+void initializeH264() { // Without this, it will output the licensing info when h264 is first used rather than when the bot starts
+    cv::Size frameSize(640, 480);
+
+    cv::VideoWriter writer("../Cache/YT/temp.mp4", cv::VideoWriter::fourcc('a', 'v', 'c', '1'), 30, frameSize);
+
+    cv::Mat blankFrame(frameSize, CV_8UC3, cv::Scalar(0, 0, 0)); // Write one blank frame — this triggers actual codec use
+    writer.write(blankFrame);
+
+    writer.release(); // Finalize
+    std::cout << "\x1b[1A\x1b[2K"; // Removes that annoying "provided by cisco" shit
+    return;
 }

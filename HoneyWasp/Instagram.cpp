@@ -30,12 +30,14 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
 static int TIME_BETWEEN_POSTS, ATTEMPTS_BEFORE_TIMEOUT, countattempt;
 static long long USER_ID, http_code;
 static bool DUPLICATES_ALLOWED, NSFW_ALLOWED, USE_REDDIT_CAPTION, keeploop, tempDisableCaption, imageValid;
-static std::string TOKEN, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, POSTMODE, mediaURL, fileDir;
+static std::string TOKEN, FALLBACK_CAPTION, caption, tempstring, HASHTAGS, POSTMODE, mediaURL, fileDir, redditURL;
 static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUrls, media;
 
-/* Starts sending API calls to post to instagram*/
+/* Starts sending API calls to post to instagram */
 int instagram() {
     try {
+		std::this_thread::sleep_for(std::chrono::seconds(1)); // Desynchronize with YouTube (Prevents outputting at the same time) 
+
         /* Load config data */
         INIReader reader("../Config.ini");
 
@@ -73,8 +75,6 @@ int instagram() {
         std::string FALLBACK_CAPTION = reader.Get("Instagram_Settings", "caption", "");
         std::string HASHTAGS = reader.Get("Instagram_Settings", "hashtags", "");
 
-
-        const bool DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
         int countattempt = 0;
         keeploop = true; // Ensures keeploop isnt false if restarted after /stop
         imageValid = true;
@@ -92,7 +92,7 @@ int instagram() {
         CURLcode res;
         std::string response;
 
-        std::string apilink = "https://graph.facebook.com/v19.0/me/accounts?access_token=" + TOKEN; // Get facebook page id
+        std::string apilink = "https://graph.facebook.com/v19.0/me/accounts?access_token=" + TOKEN; // Get Facebook page ID
 
         curl = curl_easy_init();
         if (curl) {
@@ -111,39 +111,59 @@ int instagram() {
             std::string pageID;
             try {
                 auto jsonResp = json::parse(response);
+                if (!jsonResp.contains("data") || jsonResp["data"].empty()) {
+                    std::cerr << "\n\tToken valid, but no Facebook Pages returned.\n";
+                    std::cout << response;
+                    curl_easy_cleanup(curl);
+                    return 1;
+                }
+
                 pageID = jsonResp["data"][0]["id"].get<std::string>();
             }
             catch (...) {
-                std::cerr << "\n\tFailed to parse page ID from response.\n";
+                std::cerr << "\n\tFailed to parse Facebook Page ID from response.\n";
                 std::cout << response;
                 curl_easy_cleanup(curl);
                 return 1;
             }
+
             response.clear();
 
-            apilink = "https://graph.facebook.com/v19.0/" + pageID + "?fields=instagram_business_account&access_token=" + TOKEN; // Get instagram ID using facebook page ID
+            apilink = "https://graph.facebook.com/v19.0/" + pageID + "?fields=instagram_business_account&access_token=" + TOKEN; // Get Instagram ID from Page
             curl_easy_setopt(curl, CURLOPT_URL, apilink.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
             res = curl_easy_perform(curl);
 
-            if (res != CURLE_OK)
+            if (res != CURLE_OK) {
                 std::cerr << "\n\tRequest failed: " << curl_easy_strerror(res) << std::endl;
-            else {
-                try {
-                    auto jsonResp = json::parse(response);
-                    pageID = jsonResp["instagram_business_account"]["id"].get<std::string>();
-                    USER_ID = std::stoll(pageID);
-                }
-                catch (...) {
-                    std::cerr << "\n\tFailed to parse instagram ID from response.\n";
+                curl_easy_cleanup(curl);
+                return 1;
+            }
+
+            try {
+                auto jsonResp = json::parse(response);
+
+                if (!jsonResp.contains("instagram_business_account")) {
+                    std::cerr << "\n\tToken valid, but no linked Instagram Business Account found.\n";
                     std::cout << response;
                     curl_easy_cleanup(curl);
                     return 1;
                 }
+
+                std::string igID = jsonResp["instagram_business_account"]["id"].get<std::string>();
+                USER_ID = std::stoll(igID);
             }
+            catch (...) {
+                std::cerr << "\n\tFailed to parse Instagram ID from response.\n";
+                std::cout << response;
+                curl_easy_cleanup(curl);
+                return 1;
+            }
+
             curl_easy_cleanup(curl);
         }
+
 
         if (POSTMODE == "auto") {
             /* Open and read used_urls.json */
@@ -164,6 +184,7 @@ int instagram() {
             if (std::filesystem::file_size(filePath) > 100000) {
                 std::cout << "\n\tInstagram cache is getting large. You should consider using /clear to clear your old URLS to prevent slowdowns\n";
                 lastCoutWasReturn = false;
+                lastCoutWasReturn = false;
             }
         }
         else {
@@ -179,7 +200,8 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - NO IMAGES FILES FOUND IN /Images\n";
-                    youtubecrash();
+                    lastCoutWasReturn = false;
+                    instagramcrash();
                     return 1;
                 }
             }
@@ -194,7 +216,8 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - NO VIDEO FILES FOUND IN /Videos\n";
-                    youtubecrash();
+                    lastCoutWasReturn = false;
+                    instagramcrash();
                     return 1;
                 }
             }
@@ -203,7 +226,7 @@ int instagram() {
             int index = std::rand() % media.size();
             fileDir = media[index];
         }
-        lastCoutWasReturn = false;
+
         /* Start instagram bot */
         while (keeploop) { // Loops as long as /stop isnt used
             color(6); // Reset cout color to yellow (default)
@@ -307,6 +330,7 @@ int instagram() {
                 /* Read JSON data and attempt post*/
                 if (http_code == 200) { // Ensure GET success
                     mediaURL = data["url"];
+					redditURL = mediaURL; // Save reddit URL for later use
                     caption = data["title"];
                     bool nsfw = data["nsfw"];
                     bool tempDisableCaption = false;
@@ -548,7 +572,6 @@ int instagram() {
 
                             if (http_code != 200) {
                                 if (DEBUGMODE) std::cout << "\n\tFailed to get status_code, HTTP " << http_code << ": " << response_string;
-                                return 1;
                             }
 
                             try {
@@ -558,17 +581,18 @@ int instagram() {
                                 if (DEBUGMODE) std::cout << "\n\tStatus code: " << statusCode;
 
                                 if (statusCode == "ERROR") {
-                                    color(4); // Red
-                                    std::cout << "\n\t[ERROR] Video processing failed. Full response:\n";
-                                    std::cout << response_string << "\n";
-                                    imageValid = false;
+                                    std::time_t t = std::time(nullptr);
+                                    std::tm tm_obj;
+                                    localtime_s(&tm_obj, &t);
+                                    color(4); // red
+                                    std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [ERROR] - Video processing failed (Try re-opening the bot). Video is likely corrupted\n\tError Message: " << statusJson["status"];
+                                    instagramcrash();
                                     return 1;
                                 }
 
                             }
                             catch (...) {
                                 if (DEBUGMODE) std::cout << "\n\tFailed to parse status JSON.";
-                                return 1;
                             }
 
                             retryCount++;
@@ -578,7 +602,6 @@ int instagram() {
                             color(4);
                             std::cout << "\n\tVideo processing did not finish in time, aborting publish.";
                             imageValid = false;
-                            return 1;
                         }
                     }
 
@@ -604,7 +627,7 @@ int instagram() {
 
                         std::string message;
                         if (POSTMODE == "auto") {
-                            message = (mediaURL + " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)");
+                            message = (redditURL + " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)");
                         }
                         else {
                             message = (mediaURL + " uploaded to Instagram - x" + std::to_string(countattempt) + " Attempt(s)");
@@ -638,13 +661,14 @@ int instagram() {
                             j = json::array();
                         }
 
-                        j.push_back(mediaURL);
-                        usedUrls.push_back(mediaURL);
+                        j.push_back(redditURL);
+                        usedUrls.push_back(redditURL);
                         std::ofstream outFile("../Cache/INST/instagram_used_urls.json");
                         outFile << j.dump(4);
                         outFile.close();
 
-                        std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60));
+                        lastCoutWasReturn = false;
+                        std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep to prevent spam
                         countattempt = 0;
                     }
                     else {
