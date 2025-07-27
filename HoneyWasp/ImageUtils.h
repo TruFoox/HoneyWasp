@@ -93,7 +93,7 @@ inline bool image_to_video(const std::string& imageUrl, std::string service) {
 
         int total_pixels = original_width * original_height;
 
-        if (total_pixels > max_pixels) {
+        if (original_width > 3000 || original_height > 3000) {
             double scale = std::sqrt((double)max_pixels / total_pixels);
             int new_width = static_cast<int>(original_width * scale);
             int new_height = static_cast<int>(original_height * scale);
