@@ -28,6 +28,7 @@ void youtubecrash();
 void send_webhook(std::string& message);
 void color(int n);
 void initializeH264();
+int randomNum(int min, int max);
 
 /* Global Variables */
 std::string BOT_TOKEN, WEBHOOK; 
@@ -39,6 +40,7 @@ float CURRENTVERSION = 2.01; // Current version of the bot. For major updates (M
 
 /* Start bot */
 int main() {
+    std::srand(std::time(nullptr));
     try {
         INIReader reader("../Config.ini");
         RESTART = reader.GetBoolean("General_Settings", "restart_on_crash", "false"); // Load restart_on_crash config setting
@@ -550,4 +552,8 @@ void initializeH264() { // Without this, it will output the licensing info when 
     writer.release(); // Finalize
     std::cout << "\x1b[1A\x1b[2K"; // Removes that annoying "provided by cisco" shit
     return;
+}
+
+int randomNumber(int low, int high) {
+    return low + std::rand() % (high - low + 1);
 }

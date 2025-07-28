@@ -47,7 +47,8 @@ int youtube() {
         if (POSTMODE.empty()) POSTMODE = "auto"; // Default to auto if not set
         std::string TOKEN = reader.Get("YouTube_Settings", "api_key", "");
         std::string timeBetweenPostsStr = reader.Get("YouTube_Settings", "time_between_posts", "");
-        const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
+        int baseTime = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
+        const int TIME_BETWEEN_POSTS = (baseTime > 20) ? (baseTime * 60 + randomNum(1, 3)) : baseTime;
         std::string attemptsBeforeTimeoutStr = reader.Get("YouTube_Settings", "attempts_before_timeout", "");
         const int ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
         std::string SUBREDDITS_RAW = reader.Get("YouTube_Settings", "subreddits", "");

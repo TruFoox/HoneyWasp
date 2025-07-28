@@ -86,23 +86,9 @@ inline bool image_to_video(const std::string& imageUrl, std::string service) {
         else
             img_bgr = img.clone(); // grayscale fallback
 
-        // Check resolution limit (OpenH264 can't handle > 9437184 px)
-        const int max_pixels = 9400000;
-        int original_width = img_bgr.cols;
-        int original_height = img_bgr.rows;
 
-        int total_pixels = original_width * original_height;
-
-        if (original_width > 3000 || original_height > 3000) {
-            double scale = std::sqrt((double)max_pixels / total_pixels);
-            int new_width = static_cast<int>(original_width * scale);
-            int new_height = static_cast<int>(original_height * scale);
-
-            // Ensure even dimensions (many codecs require it)
-            new_width &= ~1;
-            new_height &= ~1;
-
-            cv::resize(img_bgr, img_bgr, cv::Size(new_width, new_height));
+        if (img_bgr.cols > 3000 || img_bgr.rows > 3000) { // Check resolution limit (OpenH264 can't handle > 9437184)
+            return false;
         }
 
 
