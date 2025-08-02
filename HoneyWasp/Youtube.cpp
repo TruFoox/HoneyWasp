@@ -37,42 +37,45 @@ int youtube() {
         keeploop = true;
         /* Load config data */
         INIReader reader("../Config.ini");
-        std::string SECRET = reader.Get("Youtube_Settings", "client_secret", "");
-        std::string ID = reader.Get("Youtube_Settings", "client_id", "");
-        std::string POSTMODE = reader.Get("Youtube_Settings", "post_mode", "manual");
-        std::string REFRESHTOKEN = reader.Get("Youtube_Settings", "refresh_token", "");
-        std::string CAPTION = reader.Get("Youtube_Settings", "caption", "I didnt set a caption like an idiot :p");
+
+        SECRET = reader.Get("Youtube_Settings", "client_secret", "");
+        ID = reader.Get("Youtube_Settings", "client_id", "");
+        POSTMODE = reader.Get("Youtube_Settings", "post_mode", "manual");
+        REFRESHTOKEN = reader.Get("Youtube_Settings", "refresh_token", "");
+        static std::string FALLBACK_CAPTION = reader.Get("Youtube_Settings", "caption", "I didnt set a caption like an idiot :p");
         std::string DESCRIPTION = reader.Get("Youtube_Settings", "description", "I didnt set a description like an idiot :p");
         boost::to_lower(POSTMODE);
         if (POSTMODE.empty()) POSTMODE = "auto"; // Default to auto if not set
-        std::string TOKEN = reader.Get("YouTube_Settings", "api_key", "");
+        TOKEN = reader.Get("YouTube_Settings", "api_key", "");
         std::string timeBetweenPostsStr = reader.Get("YouTube_Settings", "time_between_posts", "");
         int baseTime = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
-        const int TIME_BETWEEN_POSTS = (baseTime > 20) ? (baseTime + randomNum(1, 3)) : baseTime;
+        TIME_BETWEEN_POSTS = (baseTime > 20) ? (baseTime + randomNum(1, 3)) : baseTime;
         std::string attemptsBeforeTimeoutStr = reader.Get("YouTube_Settings", "attempts_before_timeout", "");
-        const int ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
+        ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
         std::string SUBREDDITS_RAW = reader.Get("YouTube_Settings", "subreddits", "");
         if (SUBREDDITS_RAW.empty()) SUBREDDITS_RAW = "memes,meme,comedyheaven"; // Default subreddits if not set
         boost::erase_all(SUBREDDITS_RAW, " ");
-        std::vector<std::string> SUBREDDITS = split(SUBREDDITS_RAW, ',');
+        SUBREDDITS = split(SUBREDDITS_RAW, ',');
         boost::to_lower(SUBREDDITS_RAW);
         std::string BLACKLIST_RAW = reader.Get("YouTube_Settings", "blacklist", "");
         if (BLACKLIST_RAW.empty()) BLACKLIST_RAW = "Fuck,Shit,Ass,Bitch,retard,republican,democrat"; // Default if empty
         boost::erase_all(BLACKLIST_RAW, " ");
         boost::to_lower(BLACKLIST_RAW);
-        std::vector<std::string> BLACKLIST = split(BLACKLIST_RAW, ',');
-        const bool DUPLICATES_ALLOWED = reader.GetBoolean("YouTube_Settings", "duplicates_allowed", false);
+        BLACKLIST = split(BLACKLIST_RAW, ',');
+        DUPLICATES_ALLOWED = reader.GetBoolean("YouTube_Settings", "duplicates_allowed", false);
         std::string nsfwStr = reader.Get("YouTube_Settings", "nsfw_allowed", "");
-        const bool NSFW_ALLOWED = nsfwStr.empty() ? false : reader.GetBoolean("YouTube_Settings", "nsfw_allowed", false);
+        NSFW_ALLOWED = nsfwStr.empty() ? false : reader.GetBoolean("YouTube_Settings", "nsfw_allowed", false);
         std::string captionStr = reader.Get("YouTube_Settings", "use_reddit_caption", "");
-        const bool USE_REDDIT_CAPTION = captionStr.empty() ? false : reader.GetBoolean("YouTube_Settings", "use_reddit_caption", false);
+        USE_REDDIT_CAPTION = captionStr.empty() ? false : reader.GetBoolean("YouTube_Settings", "use_reddit_caption", false);
         std::string CAPTION_BLACKLIST_RAW = reader.Get("YouTube_Settings", "caption_blacklist", "");
         if (CAPTION_BLACKLIST_RAW.empty()) CAPTION_BLACKLIST_RAW = "Fuck,Shit,Ass,Bitch,retard,republican,democrat"; // Default if empty
         boost::to_lower(CAPTION_BLACKLIST_RAW);
         boost::erase_all(CAPTION_BLACKLIST_RAW, " ");
-        std::vector<std::string> CAPTION_BLACKLIST = split(CAPTION_BLACKLIST_RAW, ',');
-        std::string FALLBACK_CAPTION = reader.Get("YouTube_Settings", "caption", "");
-        std::string HASHTAGS = reader.Get("YouTube_Settings", "hashtags", "");
+        CAPTION_BLACKLIST = split(CAPTION_BLACKLIST_RAW, ',');
+
+        FALLBACK_CAPTION = reader.Get("YouTube_Settings", "caption", "");
+        HASHTAGS = reader.Get("YouTube_Settings", "hashtags", "");
+
 
         std::string video_file;
         usedUrls.clear();
@@ -426,7 +429,7 @@ int youtube() {
             if (POSTMODE == "manual" || (USE_REDDIT_CAPTION == false || tempDisableCaption == true)) { // Sets caption to either defined or post caption
                 metadata = {
                     {"snippet", {
-                        {"title", CAPTION},
+                        {"title", FALLBACK_CAPTION},
                         {"description", DESCRIPTION},
                         {"tags", {"meme", "memes"}},
                         {"categoryId", "24"}  // Entertainment
