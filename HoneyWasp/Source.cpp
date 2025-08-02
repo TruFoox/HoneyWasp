@@ -554,6 +554,6 @@ void initializeH264() { // Without this, it will output the licensing info when 
     return;
 }
 
-int randomNumber(int low, int high) {
+int randomNum(int low, int high) {
     return low + std::rand() % (high - low + 1);
 }

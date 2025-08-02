@@ -47,7 +47,7 @@ int instagram() {
         boost::to_lower(POSTMODE);
         std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
         int baseTime = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
-        const int TIME_BETWEEN_POSTS = (baseTime > 20) ? (baseTime * 60 + randomNum(1, 3)) : baseTime;
+        const int TIME_BETWEEN_POSTS = (baseTime > 20) ? (baseTime + randomNum(1, 3)) : baseTime;
         std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
         const int ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
         std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "");
@@ -801,7 +801,7 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
     }
 
     for (int i = 0; i < usedUrls.size(); i++) { // Test if URL is duplicate
-        if (mediaURL == usedUrls[i]) {
+        if (mediaURL == usedUrls[i] && !DUPLICATES_ALLOWED) {
             if (!lastCoutWasReturn) {
                 std::cout << "\n";
             }
