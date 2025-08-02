@@ -484,7 +484,7 @@ int instagram() {
                 curl_slist_free_all(headers);
                 curl_formfree(formpost);
                 curl_easy_cleanup(curl);
-                std::this_thread::sleep_for(std::chrono::seconds(5)); // Sleep to prevent spam
+				std::this_thread::sleep_for(std::chrono::seconds(10)); // Sleep to ensure filebin has time to process the upload
 			}
 
             if (POSTMODE == "manual" || imageValid == true) { // If post mode is manual (or automatic & image valid)
