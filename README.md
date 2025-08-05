@@ -171,7 +171,13 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.ini
 
 # Usage
+Before launching the bot, make sure `Config.ini` is set up correctly.  
+All necessary fields (Credentials, API keys, etc.) should already be filled.  
+You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
+All of the config settings are explained in a comment above the config setting in question, and some of the more confusing ones are explained in detail under [Config Help](#config-help).
+
+### Starting and Interacting with the bot
 To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
 
 You can interact with the bot using Discord /slash commands. A list of commands can be found below:
