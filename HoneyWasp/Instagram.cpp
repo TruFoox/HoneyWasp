@@ -46,8 +46,7 @@ int instagram() {
         if (POSTMODE.empty()) POSTMODE = "auto"; // Default to auto if not set
         boost::to_lower(POSTMODE);
         std::string timeBetweenPostsStr = reader.Get("Instagram_Settings", "time_between_posts", "");
-        int baseTime = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
-        const int TIME_BETWEEN_POSTS = (baseTime > 20) ? (baseTime + randomNum(1, 3)) : baseTime;
+        const int TIME_BETWEEN_POSTS = timeBetweenPostsStr.empty() ? 60 : std::stoi(timeBetweenPostsStr);
         std::string attemptsBeforeTimeoutStr = reader.Get("Instagram_Settings", "attempts_before_timeout", "");
         const int ATTEMPTS_BEFORE_TIMEOUT = attemptsBeforeTimeoutStr.empty() ? 50 : std::stoi(attemptsBeforeTimeoutStr);
         std::string SUBREDDITS_RAW = reader.Get("Instagram_Settings", "subreddits", "");
@@ -253,7 +252,11 @@ int instagram() {
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
                 color(6);
                 lastCoutWasReturn = false;
-                std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 180));
+
+                // Sleep for a duration based on TIME_BETWEEN_POSTS:
+                // If TIME_BETWEEN_POSTS > 29, sleep that many seconds plus 1-3 random minutes to prevent bot detection;
+                // otherwise, sleep for normal amount of time
+                std::this_thread::sleep_for(std::chrono::minutes((TIME_BETWEEN_POSTS > 29) ? ((TIME_BETWEEN_POSTS + randomNum(1, 3))) : TIME_BETWEEN_POSTS));
             }
             countattempt++; // Iterate attempts to post during this cycle
             /* Change behavior based on chosen post mode */
@@ -309,7 +312,7 @@ int instagram() {
                         std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << instaresponse;
                         lastCoutWasReturn = false;
                         color(6);
-                        instagramcrash(); // Optional: handle gracefully
+                        instagramcrash();
                         return 1;
                     }
                 }
@@ -406,7 +409,7 @@ int instagram() {
                 std::tm tm_obj;
                 localtime_s(&tm_obj, &t);
 
-                /* Upload media to filebin */
+                /* Upload media to 0x0 */
                 if (!lastCoutWasReturn) {
                     std::cout << "\n"; // If last cout was not a return, print newline
                 }
@@ -443,12 +446,18 @@ int instagram() {
                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
 
-                // Optional: Fail on HTTP errors (like 4xx, 5xx)
-                curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 
                 CURLcode res = curl_easy_perform(curl);
                 if (res != CURLE_OK) {
-                    std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << "\n";
+                    std::cerr << "\ncurl_easy_perform() failed: " << curl_easy_strerror(res) << "\nHTTP code: " << http_code << std::endl;
+					color(4); // Set color to red
+                    if (http_code == 403) {
+                        std::cerr << "0x0.su (temp storage provider) returned HTTP 403 - Oh no! I've likely been flagged as a bot, and now your ip cant access the temp storage site!\n\t. Your IP (should) be cycled and unblocked in a few days.\n\t In the meantime, you should change 'format' under [Instagram Settings] in config.ini to 'image' to bypass the need for temporary storage.\n";
+                    }
+                    else {
+                        std::cerr << "Error uploading file to 0x0: " << response_data << "\n";
+					}
+                    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
                     curl_slist_free_all(headers);
                     curl_formfree(formpost);
                     curl_easy_cleanup(curl);
@@ -463,7 +472,7 @@ int instagram() {
                 color(6); // Reset cout color to yellow (Image upload can take a while)
 
                 mediaURL = response_data;
-                if (!mediaURL.empty() && mediaURL.back() == '\n') { // Remove trailing newline that filebin adds for some reason
+                if (!mediaURL.empty() && mediaURL.back() == '\n') { // Remove trailing newline that 0x0 adds for some reason
                     mediaURL.pop_back();
                 }
                 if(!lastCoutWasReturn) {
@@ -473,18 +482,18 @@ int instagram() {
                     clear();
                 }
                 if (status_code == 200) { // Check if upload was successful
-                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully uploaded to FileBin: " << mediaURL << "\r"; // Print status
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully uploaded to temp storage: " << mediaURL << "\r"; // Print status
                     lastCoutWasReturn = true;
                 }
                 else {
-                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed to upload video to filebin. HTTP Status Code: " << status_code; // Print status
+                    std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed to upload video to temp storage. HTTP Status Code: " << status_code; // Print status
                     return 1;
                 }
 
                 curl_slist_free_all(headers);
                 curl_formfree(formpost);
                 curl_easy_cleanup(curl);
-				std::this_thread::sleep_for(std::chrono::seconds(10)); // Sleep to ensure filebin has time to process the upload
+				std::this_thread::sleep_for(std::chrono::seconds(10)); // Sleep to ensure 0x0 has time to process the upload
 			}
 
             if (POSTMODE == "manual" || imageValid == true) { // If post mode is manual (or automatic & image valid)

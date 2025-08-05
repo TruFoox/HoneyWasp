@@ -324,7 +324,7 @@ int youtube() {
                         std::cerr << "\n\tFailed to parse JSON: " << e.what() << "\n\tRaw response: " << response;
                         lastCoutWasReturn = false;
                         color(6);
-                        youtubecrash(); // Optional: handle gracefully
+                        youtubecrash();
                         return 1;
                     }
                 }
@@ -390,7 +390,7 @@ int youtube() {
                     color(4); // Set color to red
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [YouTube] - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
                     lastCoutWasReturn = false;
-                    std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
+                    std::this_thread::sleep_for(std::chrono::hours(6)); // Sleep 6h
                     imageValid = false; // Set imageValid to false to skip current post attempt
                 }
                 else { // Other error handling
@@ -608,7 +608,11 @@ int youtube() {
 
             if (imageValid) {
                 countattempt = 0; // Reset number of attempts to post this cycle
-                std::this_thread::sleep_for(std::chrono::seconds(TIME_BETWEEN_POSTS * 60)); // Sleep
+
+                // Sleep for a duration based on TIME_BETWEEN_POSTS:
+                // If TIME_BETWEEN_POSTS > 29, sleep that many seconds plus 1-3 random minutes to prevent bot detection;
+                // otherwise, sleep for normal amount of time
+                std::this_thread::sleep_for(std::chrono::minutes((TIME_BETWEEN_POSTS > 29) ? ((TIME_BETWEEN_POSTS + randomNum(1, 3))) : TIME_BETWEEN_POSTS));
             }
             std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep to prevent spam
         }
