@@ -171,7 +171,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 # Usage
 Before launching the bot, make sure `Config.ini` is set up correctly.  
-All necessary fields (Credentials, API keys, etc.) should already be filled.  
+All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed the directions in either [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
 All of the config settings are explained in a comment above the config setting in question, and some of the more confusing ones are explained in detail under [Config Help](#config-help).
