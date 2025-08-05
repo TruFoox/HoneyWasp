@@ -35,9 +35,9 @@ std::mutex cout_mutex;
 std::string BOT_TOKEN, WEBHOOK; 
 int CHANNEL_ID;
 dpp::cluster bot;
-bool DEBUGMODE, RESTART;
+bool DEBUGMODE, RESTART, BOTPREVENTION;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
-float CURRENTVERSION = 2.00; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
+float CURRENTVERSION = 2.03; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
 
 /* Start bot */
 int main() {
@@ -46,6 +46,7 @@ int main() {
         INIReader reader("../Config.ini");
         RESTART = reader.GetBoolean("General_Settings", "restart_on_crash", "false"); // Load restart_on_crash config setting
         DEBUGMODE = reader.GetBoolean("General_Settings", "debug_mode", false);
+        BOTPREVENTION = reader.GetBoolean("General_Settings", "bot_detection_prevention", false);
     }
     catch (const std::exception& e) { // Error handling
         std::cerr << "\nBot crashed: " << e.what();

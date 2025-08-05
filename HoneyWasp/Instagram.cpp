@@ -262,10 +262,8 @@ int instagram() {
                 color(6);
                 lastCoutWasReturn = false;
 
-                // Sleep for a duration based on TIME_BETWEEN_POSTS:
-                // If TIME_BETWEEN_POSTS > 29, sleep that many seconds plus 1-3 random minutes to prevent bot detection;
-                // otherwise, sleep for normal amount of time
-                std::this_thread::sleep_for(std::chrono::minutes((TIME_BETWEEN_POSTS > 29) ? ((TIME_BETWEEN_POSTS + randomNum(1, 3))) : TIME_BETWEEN_POSTS));
+				// If bot_detection_prevention is true, add a random delay of +/- 15% of TIME_BETWEEN_POSTS
+                std::this_thread::sleep_for(std::chrono::minutes((BOTPREVENTION) ? ((TIME_BETWEEN_POSTS + randomNum(TIME_BETWEEN_POSTS * -0.15, TIME_BETWEEN_POSTS * 0.15))) : TIME_BETWEEN_POSTS));
             }
             countattempt++; // Iterate attempts to post during this cycle
             /* Change behavior based on chosen post mode */
@@ -454,9 +452,19 @@ int instagram() {
                     CURLFORM_FILE, fileDir.c_str(),
                     CURLFORM_END);
 
-                // Set custom User-Agent header
-                headers = curl_slist_append(headers, "User-Agent: HoneyWasp/1.0");
+                // Spoof headers to simulate a Chrome 115 browser request:
+                headers = curl_slist_append(headers,
+                    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/115.0.5790.171 Safari/537.36");
 
+                headers = curl_slist_append(headers,"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
+                headers = curl_slist_append(headers,"Accept-Language: en-US,en;q=0.9");
+
+                headers = curl_slist_append(headers,"Accept-Encoding: gzip, deflate, br");
+                headers = curl_slist_append(headers, "Connection: keep-alive");
+                headers = curl_slist_append(headers, "Upgrade-Insecure-Requests: 1");
                 curl_easy_setopt(curl, CURLOPT_URL, "https://0x0.st");
                 curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -464,6 +472,7 @@ int instagram() {
                 std::string response_data;
                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+
 
 
                 CURLcode res = curl_easy_perform(curl);

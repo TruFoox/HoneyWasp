@@ -631,10 +631,8 @@ int youtube() {
             if (imageValid) {
                 countattempt = 0; // Reset number of attempts to post this cycle
 
-                // Sleep for a duration based on TIME_BETWEEN_POSTS:
-                // If TIME_BETWEEN_POSTS > 29, sleep that many seconds plus 1-3 random minutes to prevent bot detection;
-                // otherwise, sleep for normal amount of time
-                std::this_thread::sleep_for(std::chrono::minutes((TIME_BETWEEN_POSTS > 29) ? ((TIME_BETWEEN_POSTS + randomNum(1, 3))) : TIME_BETWEEN_POSTS));
+                // If bot_detection_prevention is true, add a random delay of +/- 15% of TIME_BETWEEN_POSTS
+                std::this_thread::sleep_for(std::chrono::minutes((BOTPREVENTION) ? ((TIME_BETWEEN_POSTS + randomNum(TIME_BETWEEN_POSTS * -0.15, TIME_BETWEEN_POSTS * 0.15))) : TIME_BETWEEN_POSTS));
             }
             std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep to prevent spam
         }
