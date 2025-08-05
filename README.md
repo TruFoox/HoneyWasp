@@ -86,7 +86,6 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 - A Facebook (Meta) account  
 - A **Facebook Developer** account: https://developers.facebook.com
 - A **Facebook Page**  
-- An **Instagram Business or Creator Account** linked to the Facebook Page    
 
 ### Step 1: Set Up Facebook App
 
