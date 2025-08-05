@@ -31,6 +31,7 @@ void initializeH264();
 int randomNum(int min, int max);
 
 /* Global Variables */
+std::mutex cout_mutex;
 std::string BOT_TOKEN, WEBHOOK; 
 int CHANNEL_ID;
 dpp::cluster bot;
@@ -318,6 +319,7 @@ int main() {
                         std::time_t t = std::time(nullptr); // Get timestamp
                         std::tm tm_obj;
                         localtime_s(&tm_obj, &t);
+                        std::lock_guard<std::mutex> lock(cout_mutex);
                         std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Starting Instagram";
                         std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [General] - Starting YouTube";
                         std::vector<std::thread> threads;
@@ -536,8 +538,10 @@ std::vector<int> splitInts(const std::string& str, char delimiter) { // Splits c
 }
 
 void clear() { // Clear current line
+    cout_mutex.lock();
     std::cout << "\x1b[2K" << std::flush; // Delete current line
     std::cout << "\r";
+    cout_mutex.unlock();
     lastCoutWasReturn = true; // Reset lastCoutWasReturn to false so next cout knows to print on current line
 }
 

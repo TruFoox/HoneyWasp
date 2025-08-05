@@ -17,5 +17,6 @@ int randomNum(int min, int max);
 extern bool DEBUGMODE; 
 extern bool lastCoutWasReturn;
 extern bool webhookActive;
+extern std::mutex cout_mutex; // Synchronization mutex for cout
 
 #endif

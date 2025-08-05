@@ -36,7 +36,7 @@ static std::vector<std::string> SUBREDDITS, BLACKLIST, CAPTION_BLACKLIST, usedUr
 /* Starts sending API calls to post to instagram */
 int instagram() {
     try {
-		std::this_thread::sleep_for(std::chrono::seconds(1)); // Desynchronize with YouTube (Prevents outputting at the same time) 
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Desynchronize with YouTube (Prevents outputting at the same time) 
 
         /* Load config data */
         INIReader reader("../Config.ini");
@@ -82,7 +82,9 @@ int instagram() {
         /* Abort if any required value is default */
         if (TOKEN.empty() || (POSTMODE == "auto" && SUBREDDITS_RAW.empty())) {
             color(4);
+            cout_mutex.lock();
             std::cout << "\n\tConfig.ini is missing required Instagram settings. Aborting...\n";
+            cout_mutex.unlock();
             lastCoutWasReturn = false;
             return 1;
         }
@@ -145,7 +147,9 @@ int instagram() {
                 auto jsonResp = json::parse(response);
 
                 if (!jsonResp.contains("instagram_business_account")) {
+                    cout_mutex.lock();
                     std::cerr << "\n\tToken valid, but no linked Instagram Business Account found.\n";
+                    cout_mutex.unlock();
                     std::cout << response;
                     curl_easy_cleanup(curl);
                     return 1;
@@ -155,7 +159,9 @@ int instagram() {
                 USER_ID = std::stoll(igID);
             }
             catch (...) {
+                cout_mutex.lock();
                 std::cerr << "\n\tFailed to parse Instagram ID from response.\n";
+                cout_mutex.unlock();
                 std::cout << response;
                 curl_easy_cleanup(curl);
                 return 1;
@@ -242,14 +248,17 @@ int instagram() {
                 else {
                     clear();
                 }
-
+                cout_mutex.lock();
                 std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Attempting new post\r";
+                cout_mutex.unlock();
                 lastCoutWasReturn = true;
             }
 
             if (countattempt >= ATTEMPTS_BEFORE_TIMEOUT) { // Check if stuck in loop
                 color(4);
+                cout_mutex.lock();
                 std::cout << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - HIT RETRY LIMIT. WAITING 3 CYCLES BEFORE RETRYING";
+                cout_mutex.unlock();
                 color(6);
                 lastCoutWasReturn = false;
 
@@ -334,7 +343,7 @@ int instagram() {
                 /* Read JSON data and attempt post*/
                 if (http_code == 200) { // Ensure GET success
                     mediaURL = data["url"];
-					redditURL = mediaURL; // Save reddit URL for later use
+                    redditURL = mediaURL; // Save reddit URL for later use
                     caption = data["title"];
                     bool nsfw = data["nsfw"];
                     bool tempDisableCaption = false;
@@ -352,7 +361,9 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
+                    cout_mutex.lock();
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed. Cloudfare HTTP Status Code 530 - The API this program utilizes appears to be under maintenence.\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...";
+                    cout_mutex.unlock();
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(21600)); // Sleep 6h
                     imageValid = false; // Set imageValid to false to skip current post attempt
@@ -362,7 +373,9 @@ int instagram() {
                     std::tm tm_obj;
                     localtime_s(&tm_obj, &t);
                     color(4); // Set color to red
+                    cout_mutex.lock();
                     std::cerr << "\n\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] -  HTTP GET ERROR " << http_code << ": \n\t" << data;
+                    cout_mutex.unlock();
                     lastCoutWasReturn = false;
                     std::this_thread::sleep_for(std::chrono::seconds(60)); // Sleep to prevent spam
                     imageValid = false; // Set imageValid to false to skip current post attempt
@@ -375,7 +388,9 @@ int instagram() {
                         else {
                             clear();
                         }
+                        cout_mutex.lock();
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Converting image to video...\r"; // Print status
+                        cout_mutex.unlock();
                         lastCoutWasReturn = true;
 
                         if (image_to_video(mediaURL, "INST")) { // Convert image to video - if failed, set imageValid to false (ImageUtils.h)
@@ -386,22 +401,24 @@ int instagram() {
                             else {
                                 clear();
                             }
+                            cout_mutex.lock();
                             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully converted image to video\r"; // Print status
+                            cout_mutex.unlock();
                             lastCoutWasReturn = true;
-							fileDir = "../Cache/INST/temp.mp4"; // Set fileDir to temp.mov
+                            fileDir = "../Cache/INST/temp.mp4"; // Set fileDir to temp.mov
                         }
                         else {
                             imageValid = false; // Set imageValid to false if conversion failed
                         }
                     }
-				}
+                }
             }
             else {
                 int randIndex = std::rand() % media.size(); // Generate random index of media
                 fileDir = media[randIndex];
             }
-            
-			if (POSTMODE == "manual" || (FORMAT == "video" && imageValid == true)) { // Upload handling for manual or video posts
+
+            if (POSTMODE == "manual" || (FORMAT == "video" && imageValid == true)) { // Upload handling for manual or video posts
                 if (POSTMODE == "auto") {
                     fileDir = "../Cache/INST/temp.mp4";
                 }
@@ -417,7 +434,9 @@ int instagram() {
                     clear();
                 }
                 color(6);
+                cout_mutex.lock();
                 std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Uploading media to temp filehoster...\r"; // Print status
+                cout_mutex.unlock();
                 lastCoutWasReturn = true;
                 CURL* curl = curl_easy_init();
                 if (!curl) {
@@ -450,13 +469,17 @@ int instagram() {
                 CURLcode res = curl_easy_perform(curl);
                 if (res != CURLE_OK) {
                     std::cerr << "\ncurl_easy_perform() failed: " << curl_easy_strerror(res) << "\nHTTP code: " << http_code << std::endl;
-					color(4); // Set color to red
+                    color(4); // Set color to red
                     if (http_code == 403) {
+                        cout_mutex.lock();
                         std::cerr << "0x0.su (temp storage provider) returned HTTP 403 - Oh no! I've likely been flagged as a bot, and now your ip cant access the temp storage site!\n\t. Your IP (should) be cycled and unblocked in a few days.\n\t In the meantime, you should change 'format' under [Instagram Settings] in config.ini to 'image' to bypass the need for temporary storage.\n";
+                        cout_mutex.unlock();
                     }
                     else {
+                        cout_mutex.lock();
                         std::cerr << "Error uploading file to 0x0: " << response_data << "\n";
-					}
+                        cout_mutex.unlock();
+                    }
                     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
                     curl_slist_free_all(headers);
                     curl_formfree(formpost);
@@ -475,26 +498,30 @@ int instagram() {
                 if (!mediaURL.empty() && mediaURL.back() == '\n') { // Remove trailing newline that 0x0 adds for some reason
                     mediaURL.pop_back();
                 }
-                if(!lastCoutWasReturn) {
+                if (!lastCoutWasReturn) {
                     std::cout << "\n"; // If last cout was not a return, print newline
                 }
                 else {
                     clear();
                 }
                 if (status_code == 200) { // Check if upload was successful
+                    cout_mutex.lock();
                     std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Successfully uploaded to temp storage: " << mediaURL << "\r"; // Print status
+                    cout_mutex.unlock();
                     lastCoutWasReturn = true;
                 }
                 else {
+                    cout_mutex.lock();
                     std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Failed to upload video to temp storage. HTTP Status Code: " << status_code; // Print status
+                    cout_mutex.unlock();
                     return 1;
                 }
 
                 curl_slist_free_all(headers);
                 curl_formfree(formpost);
                 curl_easy_cleanup(curl);
-				std::this_thread::sleep_for(std::chrono::seconds(10)); // Sleep to ensure 0x0 has time to process the upload
-			}
+                std::this_thread::sleep_for(std::chrono::seconds(10)); // Sleep to ensure 0x0 has time to process the upload
+            }
 
             if (POSTMODE == "manual" || imageValid == true) { // If post mode is manual (or automatic & image valid)
                 json uploadData;
@@ -545,8 +572,9 @@ int instagram() {
                         color(6); // Yellow for status
                         if (!lastCoutWasReturn) std::cout << "\n";
                         else clear();
-
+                        cout_mutex.lock();
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Waiting for Instagram to process video. This may take a while...\r";
+                        cout_mutex.unlock();
                         lastCoutWasReturn = true;
 
                         std::string statusCode;
@@ -637,6 +665,7 @@ int instagram() {
 
                         std::string message;
                         if (POSTMODE == "auto") {
+
                             message = (redditURL + " from r/" + chosenSubreddit + " uploaded - x" + std::to_string(countattempt) + " Attempt(s)");
                         }
                         else {
@@ -648,8 +677,9 @@ int instagram() {
                         else {
                             clear();
                         }
-
+                        cout_mutex.lock();
                         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - " << message;
+                        cout_mutex.unlock();
                         lastCoutWasReturn = false;
                         send_webhook(message);
 
@@ -734,6 +764,7 @@ int instagram() {
         return 0;
     }
     catch (const std::exception& e) { // Error handling
+        cout_mutex.unlock();
         std::time_t t = std::time(nullptr); // Get timestamp for output
         std::tm tm_obj;
         localtime_s(&tm_obj, &t);
@@ -745,6 +776,7 @@ int instagram() {
         return 1;
     }
     catch (...) {
+        cout_mutex.unlock();
         std::time_t t = std::time(nullptr); // Get timestamp for output
         std::tm tm_obj;
         localtime_s(&tm_obj, &t);
@@ -776,7 +808,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
         else {
             clear();
         }
+        cout_mutex.lock();
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Image is GIF - x" << countattempt << " Attempt(s)\r";
+        cout_mutex.unlock();
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
@@ -790,7 +824,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
             else {
                 clear();
             }
+            cout_mutex.lock();
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Using fallback caption - x" << countattempt << " Attempt(s)\r";
+            cout_mutex.unlock();
             wasreturn = true; // Set true so next cout knows to not print on newline
         }
     }
@@ -803,7 +839,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
             else {
                 clear();
             }
+            cout_mutex.lock();
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Caption contains blacklisted string - x" << countattempt << " Attempt(s)\r";
+            cout_mutex.unlock();
             wasreturn = true; // Set true so next cout knows to not print on newline
             return false;
         }
@@ -817,7 +855,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
             else {
                 clear();
             }
+            cout_mutex.lock();
             std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Duplicate URL - x" << countattempt << " Attempt(s)\r";
+            cout_mutex.unlock();
             wasreturn = true;
             return false;
         }
@@ -829,7 +869,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
         else {
             clear();
         }
+        cout_mutex.lock();
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Image is marked as NSFW - x" << countattempt << " Attempt(s)\r";
+        cout_mutex.unlock();
         wasreturn = true;
         return false;
     }
@@ -841,7 +883,9 @@ bool imageValidCheck(json data, bool& tempDisableCaption, int countattempt, bool
         else {
             clear();
         }
+        cout_mutex.lock();
         std::cout << "\t" << std::put_time(&tm_obj, "%H:%M") << " - [Instagram] - Image has invalid aspect ratio - x" << countattempt << " Attempt(s)\r";
+        cout_mutex.unlock();
         wasreturn = true; // Set true so next cout knows to not print on newline
         return false;
     }
