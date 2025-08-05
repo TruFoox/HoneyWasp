@@ -37,7 +37,7 @@ int CHANNEL_ID;
 dpp::cluster bot;
 bool DEBUGMODE, RESTART;
 bool lastCoutWasReturn; // Used to track whether the last cout included a return statement \r to prevent spam
-float CURRENTVERSION = 2.01; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
+float CURRENTVERSION = 2.00; // Current version of the bot. For major updates (Mainly new service support), change the first number. For other updates, change the second number. 
 
 /* Start bot */
 int main() {
@@ -115,7 +115,7 @@ int main() {
                         size_t pos = version.find('v'); // Clean github version string for comparison
                         version.erase(pos, 1);
 
-                        if (std::stoi(version) > CURRENTVERSION) { // Compare version numbers
+                        if (std::stof(version) > CURRENTVERSION) { // Compare version numbers
                             color(10); // Set color to neon green (To distinguish from success message)
                             std::cout << "\n\tA NEW VERSION IS AVAILABLE: " << jsonResp["tag_name"].get<std::string>() << "\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest\n";
                             color(6);
