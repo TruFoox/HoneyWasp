@@ -26,6 +26,8 @@
   * [Instagram Setup](#instagram-setup)
   * [YouTube Setup](#youtube-setup)
 * [Usage](#usage)
+  * [Customizing the Config](#the-config)
+  * [Using the Bot](#starting-and-interacting-with-the-bot)
 * [Help](#help)
   * [Windows Defender](#windows-defender-note)
   * [Config Help](#config-help)
@@ -170,13 +172,20 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.ini
 
 # Usage
+Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)
+## The Config
 Before launching the bot, make sure `Config.ini` is set up correctly.  
-All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed the directions in either [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
+All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
 All of the config settings are explained in a comment above the config setting in question, and some of the more confusing ones are explained in detail under [Config Help](#config-help).
 
-### Starting and Interacting with the bot
+### Remember
+The config file is **not** forgiving of typos - what you input is taken literally, so check your spelling
+Boolean values (true or false) **need** to be lowercase
+Do **not** surround values with quotations or put a delimiter (a comma, period, etc) at the end
+
+## Starting and Interacting with the bot
 To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
 
 You can interact with the bot using Discord /slash commands. A list of commands can be found below:
