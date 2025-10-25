@@ -92,7 +92,7 @@ public class Instagram implements Runnable {
                                 case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
                                     tempDisableCaption = true;
                             }
-                            ;
+
                             break;
 
                         case 530: // Cloudflare error
@@ -222,38 +222,34 @@ public class Instagram implements Runnable {
                     Thread.sleep(500); // Sleep for 0.5s - gives Instagram time to get ready
 
 
-                    /* Instagram needs time to render post - this loop has the bot wait until it is finished */
-
+                    /* Instagram needs time to render videos - this loop has the bot wait until it is finished */
                     String postStatus = "";
-                    do {
-                        Output.print("[INSTA] Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
+                    if (FORMAT.equals("video")) {
+                        do {
+                            Output.print("[INSTA] Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
 
-                        HTTPSend.get("https://graph.facebook.com/v23.0/" + postID +
-                                "?fields=status_code,status&access_token=" + TOKEN); // Send status check request
+                            HTTPSend.get("https://graph.facebook.com/v23.0/" + postID +
+                                    "?fields=status_code,status&access_token=" + TOKEN); // Send status check request
 
-                        if (HTTPSend.HTTPCode != 200) { // Error handling
-                            Output.print("Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
+                            if (HTTPSend.HTTPCode != 200) { // Error handling
+                                Output.print("Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
 
-                            Thread.sleep(30000); // Wait 30s and break
-                            break;
-                        }
+                                Thread.sleep(30000); // Wait 30s and break
+                                break;
+                            }
 
-                        Output.webhookPrint(response);
+                            Output.webhookPrint(response);
 
-                        /* Get post status */
-                        if (FORMAT.equals("video")) {
                             postStatus = StringToJson.getData(response, "status_code");
-                        } else {
-                            postStatus = StringToJson.getData(response, "status");
 
                             if (postStatus.equals("ERROR")) {
                                 Output.webhookPrint("Video processing failed. Video is likely corrupted. Attempting to post again..." +
                                         "\n\tError Message: " + response, Output.RED);
                                 break;
                             }
-                        }
 
-                    } while (!postStatus.equals("FINISHED"));
+                        } while (!postStatus.equals("FINISHED"));
+                    }
 
                     if (postStatus.equals("ERROR")) { // If there was an error, retry attempt
                         continue;
