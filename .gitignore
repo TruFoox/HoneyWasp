@@ -4,6 +4,11 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 .kotlin
+bot.json
+temp.mp4
+.videos/
+.images/
+README.md
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -25,7 +30,7 @@ out/
 .settings
 .springBeans
 .sts4-cache
-bin/
+.bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 

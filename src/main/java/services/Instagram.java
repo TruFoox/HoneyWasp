@@ -239,6 +239,7 @@ public class Instagram implements Runnable {
                         }
 
                         Output.webhookPrint(response);
+
                         /* Get post status */
                         if (FORMAT.equals("video")) {
                             postStatus = StringToJson.getData(response, "status_code");
