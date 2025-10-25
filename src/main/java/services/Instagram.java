@@ -20,7 +20,7 @@ public class Instagram implements Runnable {
 
     // Empty global variables
     long USERID, countAttempt = 0;
-    List<String> usedURLS;
+    List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
     boolean run = true, nsfw, tempDisableCaption;
     int randIndex;
@@ -84,7 +84,7 @@ public class Instagram implements Runnable {
 
                             Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
 
-                            switch (ImageValidity.check(response, tempDisableCaption, countAttempt, usedURLS)) { // Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio
+                            switch (ImageValidity.check(response, tempDisableCaption, countAttempt, usedURLs)) { // Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio
                                 case 0: // Image valid
                                     break;
                                 case 1: // General failed validation
@@ -280,7 +280,8 @@ public class Instagram implements Runnable {
                         // Store image URL to prevent duplicates
                         fileIO.writeList(mediaURL, "instagram");
 
-                        usedURLS.add(mediaURL); // Add url to list in memory
+                        long timestamp = System.currentTimeMillis();
+                        usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
                         if (!safeSleep(sleepTime)) break; // Sleep
                     }
@@ -352,9 +353,9 @@ public class Instagram implements Runnable {
     private boolean getMediaSource() {
         try {
             if (POSTMODE.equals("auto")) {
-                usedURLS = fileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
+                usedURLs = fileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
-                if (usedURLS == null) { // If failed, quit
+                if (usedURLs == null) { // If failed, quit
 
                     return false;
                 }

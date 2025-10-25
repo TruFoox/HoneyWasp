@@ -14,9 +14,10 @@ import java.util.List;
 public class ImageValidity { // Need to break into individual classes
     static ReadConfig config = ReadConfig.getInstance();
 
-    public static int check(String response, boolean tempDisableCaption, long countattempt, List<String> usedURLs) {
+    public static int check(String response, boolean tempDisableCaption, long countattempt, List<String[]> usedURLs) {
         final List<String> BLACKLIST = config.getInstagram().getBlacklist();
         final boolean NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
+        final long hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
         final List<String> CAPTION_BLACKLIST = config.getInstagram().getCaption_blacklist();
         String mediaURL = StringToJson.getData(response, "url");
         String caption = StringToJson.getData(response, "title");
@@ -61,13 +62,22 @@ public class ImageValidity { // Need to break into individual classes
             }
         }
 
-        for (String url : usedURLs) { // Ensure post is not duplicate
-            if (caption.toLowerCase().contains(url.toLowerCase())) {
-                Output.print("Duplicate URL - x" + countattempt + " attempts", Output.RED, true);
+        // Ensure post is not duplicate
+        for (String[] row : usedURLs) {
+            String url = row[0];
+            String timestampStr = row[1];
 
-                return 1;
+            long timestamp = Long.parseLong(timestampStr);
+
+            if ((System.currentTimeMillis() - timestamp) < hours_before_duplicate_removed * 3600000) { // Test if cached url is too old to be considered duplicate
+                if (caption.toLowerCase().contains(url.toLowerCase())) {
+                    Output.print("Duplicate URL - x" + countattempt + " attempts", Output.RED, true);
+
+                    return 1;
+                }
             }
         }
+
 
         if (!NSFW_ALLOWED && nsfw) { // If post is marked as NSFW and NSFW is disallowed
             Output.print("Image is marked as NSFW - x" + countattempt + " attempts", Output.RED, true);

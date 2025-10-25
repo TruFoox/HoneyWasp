@@ -14,6 +14,7 @@ public class InstagramSettings {
     private boolean nsfw_allowed;
     private boolean use_reddit_caption;
     private List<String> caption_blacklist;
+    private long hours_before_duplicate_removed;
     private String caption;
     private String hashtags;
 
@@ -35,6 +36,9 @@ public class InstagramSettings {
 
     public int getAttempts_before_timeout() { return attempts_before_timeout; }
     public void setAttempts_before_timeout(int attempts_before_timeout) { this.attempts_before_timeout = attempts_before_timeout; }
+
+    public long getHours_before_duplicate_removed() { return hours_before_duplicate_removed; }
+    public void setHours_before_duplicate_removed(long hours_before_duplicate_removed) {this.hours_before_duplicate_removed = hours_before_duplicate_removed;}
 
     public List<String> getSubreddits() { return subreddits; }
     public void setSubreddits(List<String> subreddits) { this.subreddits = subreddits; }
