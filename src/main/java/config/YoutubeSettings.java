@@ -14,6 +14,7 @@ public class YoutubeSettings {
     private boolean duplicates_allowed;
     private boolean nsfw_allowed;
     private boolean use_reddit_caption;
+    private long hours_before_duplicate_removed;
     private List<String> caption_blacklist;
     private String caption;
     private String description;
@@ -35,6 +36,9 @@ public class YoutubeSettings {
 
     public int getTime_between_posts() { return time_between_posts; }
     public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
+
+    public long getHours_before_duplicate_removed() { return hours_before_duplicate_removed; }
+    public void setHours_before_duplicate_removed(long hours_before_duplicate_removed) {this.hours_before_duplicate_removed = hours_before_duplicate_removed;}
 
     public int getAttempts_before_timeout() { return attempts_before_timeout; }
     public void setAttempts_before_timeout(int attempts_before_timeout) { this.attempts_before_timeout = attempts_before_timeout; }

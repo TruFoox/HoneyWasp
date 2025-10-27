@@ -27,11 +27,18 @@ public class Output {
 
     public static void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
         if (lastOutputWasNewline) {System.out.println();}
+
+        // Replaces /t with spacing required to line up with previous outputs
+        String prefix = "    [" + DateTime.time() + "] - ";
+        String spacing = " ".repeat(prefix.length());
+
+        String outputLine= message.replaceAll("\t", spacing);
+
         if (!useTimestamp) {
-            System.out.print(color + "\t" + message + RESET);
+            System.out.print(color + outputLine + RESET);
             lastOutputWasNewline = true;
         } else {
-            System.out.print(color + "\t[" + DateTime.time() + "] - " + message + RESET);
+            System.out.print(color + "\t[" + DateTime.time() + "] - " + outputLine + RESET);
             lastOutputWasNewline = true;
         }
 

@@ -30,29 +30,31 @@ public class HoneyWasp extends ListenerAdapter {
 
         ReadConfig config = ReadConfig.getInstance(); // Get config
 
+        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
+
         // Print logo
         Output.print("\n" +
-                "       @@@@@                       @@@@@@\n" +
-                "           @@@                   @@@\n" +
-                "              @@               @@\n" +
-                "                @@@@@@@@@@@@@@@\n" +
-                "              @@ @@         @@ @@\n" +
-                "             @    @@       @@    @\n" +
-                "            @ @@@             @@@ @\n" +
-                "            @ @@@@           @@@@ @\n" +
-                "            @ @@@@@         @@@@@ @\n" +
-                "             @ @@@@@       @@@@@ @\n" +
-                "              @  @@         @@  @\n" +
-                "               @               @\n" +
+                "       @@@@@                      @@@@@@\n" +
+                "           @@@                  @@@\n" +
+                "              @@              @@\n" +
+                "                @@@@@@@@@@@@@@\n" +
+                "              @@ @@        @@ @@\n" +
+                "             @    @@      @@    @\n" +
+                "            @ @@@            @@@ @\n" +
+                "            @ @@@@          @@@@ @\n" +
+                "            @ @@@@@        @@@@@ @\n" +
+                "             @ @@@@@      @@@@@ @\n" +
+                "              @  @@        @@  @\n" +
+                "               @              @\n" +
                 "               @@            @@\n" +
-                "               @@@@         @@@@\n" +
-                "                @ @@@     @@  @@\n" +
-                "                  @@ @@@@@@@   @   @@   @@   @@@@   @@   @@ @@@@@ @@   @@ @@       @@   @     @@@@@ @@@@@\n" +
-                "                  @@      @@       @@   @@  @@  @@  @@@  @@ @@     @@ @@  @@   @   @@  @@@   @@@    @@  @@\n" +
-                "                  @       @@       @@@@@@@ @@    @@ @@@@ @@ @@@@    @@@    @@ @@@ @@  @@ @@   @@@@  @@@@@\n" +
-                "                         @@@@      @@   @@  @@  @@  @@ @@@@ @@      @@      @@@@@@@  @@@@@@@    @@@ @@\n" +
-                "                         @@@@      @@   @@   @@@@   @@   @@ @@@@@  @@        @@ @@   @@   @@ @@@@@  @@  v" + currentVersion + "\n" +
-                "                          @@\n" +
+                "               @@@@        @@@@\n" +
+                "                @ @@@    @@ @@\n" +
+                "                  @@ @@@@@@ @     @@   @@   @@@@   @@   @@ @@@@@ @@   @@ @@       @@   @     @@@@@ @@@@@\n" +
+                "                  @@     @@       @@   @@  @@  @@  @@@  @@ @@     @@ @@  @@   @   @@  @@@   @@@    @@  @@\n" +
+                "                  @      @@       @@@@@@@ @@    @@ @@@@ @@ @@@@    @@@    @@ @@@ @@  @@ @@   @@@@  @@@@@\n" +
+                "                        @@@@      @@   @@  @@  @@  @@ @@@@ @@      @@      @@@@@@@  @@@@@@@    @@@ @@\n" +
+                "                        @@@@      @@   @@   @@@@   @@   @@ @@@@@  @@        @@ @@   @@   @@ @@@@@  @@  v" + currentVersion + "\n" +
+                "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
         Output.print("HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
@@ -69,14 +71,14 @@ public class HoneyWasp extends ListenerAdapter {
                             BOTTOKEN,
                             EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                     )
-                    .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // No logging
+                    .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
                     .addEventListeners(new HoneyWasp())
                     .build();
 
             // Wait until the bot is fully logged in
             jda.awaitReady();
 
-            Output.print("Bot connected successfully!\n\n", Output.YELLOW, false, false);
+            Output.print("Bot connected successfully!", Output.YELLOW, false, false);
 
         } catch (Exception e) { // Handles login failures and interruptions
             e.printStackTrace();
@@ -145,6 +147,7 @@ public class HoneyWasp extends ListenerAdapter {
                 t.start(); // Start bot
             }
         }
+        Output.print("\n\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
     }
 
     @Override

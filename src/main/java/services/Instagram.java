@@ -8,7 +8,6 @@ import config.*;
 import org.json.*;
 import utils.*;
 
-import java.net.URLEncoder;
 import java.nio.file.*;
 import java.io.IOException;
 import java.util.*;
@@ -40,23 +39,26 @@ public class Instagram implements Runnable {
 
 
     public void run() {
-        if (!authenticate()) {
-            return;
-        } // Get instagram User ID (Quit if failed)
-        if (!getMediaSource()) {
-            return;
-        } // Gets media location, cache files (Quit if failed)
+        if (!authenticate()) {return;} // Get instagram User ID (Quit if failed)
+
+        if (!getMediaSource()) {return;} // Gets media location, cache files (Quit if failed)
 
         try {
             // Start bot
             while (run) {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
 
-                if (countAttempt == 1) {
-                    Output.print("[INSTA] Attempting new post", Output.YELLOW, true);
-                } // Print first attempt message
+                if (countAttempt == 1) { // Print first attempt message
+                    Output.webhookPrint("[INSTA] Attempting new post", Output.YELLOW, true);
+                }
 
-                // Fetch media
+                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT) { // If max # of attempts have been reached
+                    Output.webhookPrint("[INSTA] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
+
+                    if (!safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
+                }
+
+                /* Fetch media */
                 if (POSTMODE.equals("auto")) {
                     String response;
 
@@ -72,7 +74,7 @@ public class Instagram implements Runnable {
                         return;
                     }
 
-                    // Status code handling
+                    /* Status code handling */
                     switch ((int) HTTPSend.HTTPCode) {
                         case 200: // Success
                             // Parse JSON data
@@ -84,7 +86,8 @@ public class Instagram implements Runnable {
 
                             Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
 
-                            switch (ImageValidity.check(response, tempDisableCaption, countAttempt, usedURLs)) { // Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio
+                            /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
+                            switch (ImageValidity.check(response, tempDisableCaption, countAttempt, usedURLs)) {
                                 case 0: // Image valid
                                     break;
                                 case 1: // General failed validation
@@ -109,7 +112,7 @@ public class Instagram implements Runnable {
                             return;
                     }
 
-                    // If format is video, convert image to video
+                    /* If format is video, convert image to video */
                     if (FORMAT.equals("video")) {
                         Image image; // Holds image data (not usually needed unless converting to video as instagram takes image url as input)
 
@@ -145,7 +148,7 @@ public class Instagram implements Runnable {
                     Output.webhookPrint(fileDir);
                 }
 
-                // Upload manual media/generated video to temp file hoster
+                /* Upload manual media/generated video to temp file hoster */
                 if (POSTMODE.equals("manual") || FORMAT.equals("video")) {
                     // Upload media to 0x0
                     Output.print("[INSTA] Uploading media to temp file hoster...", Output.YELLOW, true);
@@ -178,7 +181,7 @@ public class Instagram implements Runnable {
                 }
 
 
-                // Upload & publish media
+                /* Upload & publish media */
                 {
                     String jsonData, uploadURL, response; // Store json data & URL to be used with POST
 
