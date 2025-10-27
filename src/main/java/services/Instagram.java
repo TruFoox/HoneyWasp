@@ -21,7 +21,9 @@ public class Instagram implements Runnable {
     long USERID, countAttempt = 0;
     List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
-    boolean run = true, nsfw, tempDisableCaption;
+    static boolean run;
+    boolean nsfw;
+    boolean tempDisableCaption;
     int randIndex;
     File[] media;
 
@@ -42,6 +44,8 @@ public class Instagram implements Runnable {
         if (!authenticate()) {return;} // Get instagram User ID (Quit if failed)
 
         if (!getMediaSource()) {return;} // Gets media location, cache files (Quit if failed)
+
+        run = true;
 
         try {
             // Start bot
@@ -399,5 +403,15 @@ public class Instagram implements Runnable {
 
             return false;
         }
+    }
+
+    public static void stop() { // Stop bot
+        run = false;
+        Output.webhookPrint("Instagram successfully stopped");
+    }
+
+    public static void clear() { // Clear cache
+        fileIO.clearList("instagram");
+        Output.webhookPrint("Instagram cache successfully cleared");
     }
 }

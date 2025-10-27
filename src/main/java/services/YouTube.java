@@ -45,6 +45,9 @@ public class YouTube implements Runnable {
     public void run() {
         if (!getRefreshToken()) {return;} // If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
+        while (run) {
+
+        }
     }
 
     /* If refresh token is not set, fetch it. Otherwise, skip*/

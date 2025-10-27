@@ -224,6 +224,8 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setDescription("Stopping all services");
 
                         event.replyEmbeds(embed.build()).queue();
+
+                        Instagram.stop();
                         break;
                     }
 
@@ -237,6 +239,8 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setDescription("Stopping " + service);
 
                         event.replyEmbeds(embed.build()).queue();
+
+                        Instagram.stop();
                         break;
                     }
 
@@ -267,6 +271,9 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setDescription("All caches cleared");
 
                         event.replyEmbeds(embed.build()).queue();
+
+                        Instagram.clear();
+
                         break;
                     }
 
@@ -280,6 +287,9 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setDescription(service + " cache cleared");
 
                         event.replyEmbeds(embed.build()).queue();
+
+                        Instagram.clear();
+
                         break;
                     }
 

@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +40,15 @@ public class fileIO {
         } catch (IOException e) {
             Output.webhookPrint("[INSTA] No cache.txt found. Quitting...", Output.RED);
             return new ArrayList<>(); // safer than returning null
+        }
+    }
+    public static void clearList(String service) {
+        try {
+            Path cachePath = Paths.get(".", "cache", service, "cache.txt");
+
+            BufferedWriter writer = Files.newBufferedWriter(cachePath, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            Output.webhookPrint("[INSTA] No cache.txt found. Quitting...", Output.RED);
         }
     }
 
