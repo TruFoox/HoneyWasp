@@ -2,15 +2,11 @@ package services;
 
 import java.util.Scanner;
 import java.awt.Desktop;
-import java.awt.Image;
 import java.net.URI;
-import java.net.URL;
-import javax.imageio.ImageIO;
+
 import config.*;
-import org.json.*;
 import utils.*;
 
-import java.nio.file.*;
 import java.io.*;
 import java.util.*;
 
@@ -24,7 +20,7 @@ public class YouTube implements Runnable {
     // Empty global variables
     long USERID, countAttempt = 0;
     List<String[]> usedURLs = new ArrayList<>();
-    String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
+    String chosenSubreddit, mediaURL, redditURL, caption, fileDir, accessToken;
     boolean run = true, nsfw, tempDisableCaption;
     int randIndex;
     File[] media;
@@ -45,11 +41,69 @@ public class YouTube implements Runnable {
     public void run() {
         if (!getRefreshToken()) {return;} // If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        while (run) {
+        run = true;
 
+        try {
+            // Start bot
+            while (run) {
+                countAttempt++;
+
+                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT) { // If max # of attempts have been reached
+                    Output.webhookPrint("[INSTA] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
+
+                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
+                }
+
+                if (countAttempt == 1) { // Print first attempt message
+                    Output.webhookPrint("[INSTA] Attempting new post", Output.YELLOW, true);
+                }
+
+                getAccessToken(); // Get access token from YouTube API
+
+            }
+        } catch (InterruptedException e) { // When interrupted
+            Thread.currentThread().interrupt(); // restore interrupt flag
+            Output.webhookPrint("[YT] Unexpected error during sleep: " + e.getMessage(), Output.RED);
+
+        } catch (Exception e) { // General error handling
+            try {
+                Output.webhookPrint("[YT] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+            } catch (Exception inner) {
+                inner.printStackTrace();
+            }
         }
     }
+    private boolean getAccessToken() {
+        // Build upload data
+        Map<String, String> formData = new HashMap<>();
 
+        formData.put("client_id", ID);
+        formData.put("client_secret", SECRET);
+        formData.put("refresh_token", REFRESHTOKEN);
+        formData.put("grant_type", "authorization_code");
+
+        String response;
+
+        try {
+            response = HTTPSend.postForm("https://oauth2.googleapis.com/token", formData);
+        } catch (Exception e) {
+            Output.webhookPrint("[YT] Failed to fetch token. Quitting..." +
+                    "\n\tError: " + e, Output.RED);
+
+            return false;
+        }
+
+        if (HTTPSend.HTTPCode.get() == 200 && response.contains("access_token")) {
+            accessToken = StringToJson.getData(response, "access_token");
+
+            return true;  // Success
+        } else {
+            Output.webhookPrint("[YT] Failed to fetch token. Quitting..." +
+                    "\n\tError message: " + response, Output.RED);
+
+            return false;
+        }
+    }
     /* If refresh token is not set, fetch it. Otherwise, skip*/
     private boolean getRefreshToken() {
         if (REFRESHTOKEN.isEmpty()) { // Only run if no refresh token
@@ -91,7 +145,7 @@ public class YouTube implements Runnable {
                 return false;
             }
 
-            if (HTTPSend.HTTPCode == 200) {
+            if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                 REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
                 Output.webhookPrint("PLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN bot.json:" +

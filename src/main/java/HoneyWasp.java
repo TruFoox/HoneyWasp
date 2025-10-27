@@ -128,7 +128,7 @@ public class HoneyWasp extends ListenerAdapter {
 
             // Instagram
             if (item.toLowerCase().equals("instagram")) {
-                Output.webhookPrint("Autostarting Instagram");
+                Output.webhookPrint("Autostarting Instagram", Output.YELLOW, false);
 
 
                 Instagram ig = new Instagram(); // Create bot instance
@@ -139,7 +139,7 @@ public class HoneyWasp extends ListenerAdapter {
 
             // YouTube
             if (item.toLowerCase().equals("youtube")) {
-                Output.webhookPrint("Autostarting YouTube");
+                Output.webhookPrint("Autostarting YouTube", Output.YELLOW, false);
 
                 YouTube yt = new YouTube(); // Create bot instance
                 Thread t = new Thread(yt); // Create thread
@@ -226,6 +226,7 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         Instagram.stop();
+
                         break;
                     }
 
@@ -241,6 +242,7 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         Instagram.stop();
+
                         break;
                     }
 

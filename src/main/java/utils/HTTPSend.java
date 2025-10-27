@@ -23,7 +23,7 @@ import java.util.UUID;
 // Inputs : URL to send to, Map<String,String> containing form fields
 public class HTTPSend {
 
-    public static long HTTPCode; // If I add multithreading, ensure cant use at same time
+    public static ThreadLocal<Long> HTTPCode; // Threadlocal = "Each thread has its own version"
 
     public static String post(String URL, String jsonData) throws Exception {
         HttpClient client = HttpClient.newHttpClient(); // Creates new http instance to send request
@@ -44,7 +44,8 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Returns response & status code
-        HTTPCode = response.statusCode();
+        HTTPCode.set((long) response.statusCode());
+
         return String.valueOf(response.body());
     }
     public static String get(String url) throws Exception {
@@ -59,7 +60,8 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Returns response & status code
-        HTTPCode = response.statusCode();
+        HTTPCode.set((long) response.statusCode()); // Set HTTP code
+
         return String.valueOf(response.body());  // Return response body to caller
     }
     public static String postFile(String url, Path filePath) throws Exception {
@@ -103,7 +105,8 @@ public class HTTPSend {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        HTTPCode = response.statusCode();
+        HTTPCode.set((long) response.statusCode()); // Set HTTP code
+
         return response.body();
     }
     public static String postForm(String url, Map<String, String> data) throws Exception {
@@ -125,7 +128,7 @@ public class HTTPSend {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        HTTPCode = response.statusCode();
+        HTTPCode.set((long) response.statusCode()); // Set HTTP code
         return response.body();
     }
 

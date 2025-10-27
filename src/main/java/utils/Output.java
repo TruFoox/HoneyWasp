@@ -25,7 +25,7 @@ public class Output {
 
     static boolean lastOutputWasNewline = true;
 
-    public static void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
+    public static synchronized void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
         if (lastOutputWasNewline) {System.out.println();}
 
         // Replaces /t with spacing required to line up with previous outputs
@@ -35,7 +35,7 @@ public class Output {
         String outputLine= message.replaceAll("\t", spacing);
 
         if (!useTimestamp) {
-            System.out.print(color + outputLine + RESET);
+            System.out.print(color + "\t" + outputLine + RESET);
             lastOutputWasNewline = true;
         } else {
             System.out.print(color + "\t[" + DateTime.time() + "] - " + outputLine + RESET);
@@ -56,7 +56,7 @@ public class Output {
         }
     }
 
-    public static void print(String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
+    public static synchronized void print(String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
         if (lastOutputWasNewline) {System.out.println();}
         if (!useTimestamp) {
             if (overwriteThisLine) {

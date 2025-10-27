@@ -59,7 +59,7 @@ public class Instagram implements Runnable {
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT) { // If max # of attempts have been reached
                     Output.webhookPrint("[INSTA] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
-                    if (!safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
+                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
                 }
 
                 /* Fetch media */
@@ -79,7 +79,7 @@ public class Instagram implements Runnable {
                     }
 
                     /* Status code handling */
-                    switch ((int) HTTPSend.HTTPCode) {
+                    switch (HTTPSend.HTTPCode.get().intValue()) {
                         case 200: // Success
                             // Parse JSON data
                             mediaURL = StringToJson.getData(response, "url");
@@ -106,7 +106,7 @@ public class Instagram implements Runnable {
                             Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes appears to be under maintenance."
                                     + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
-                            if (!safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                            if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
                             continue; // Return to beginning of loop
 
                         default: // General error handling
@@ -129,7 +129,7 @@ public class Instagram implements Runnable {
                             Output.webhookPrint("[INSTA] Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
                                     + "\n\tError message: " + e, Output.RED);
 
-                            if (!safeSleep(7200000)) break;
+                            if (!Sleep.safeSleep(7200000)) break;
                             continue;
                         }
 
@@ -140,7 +140,7 @@ public class Instagram implements Runnable {
                         } else {
                             Output.print("[INSTA] Failed to convert image to video for upload. Skipping attempt...", Output.RED);
 
-                            if (!safeSleep(sleepTime)) break;
+                            if (!Sleep.safeSleep(sleepTime)) break;
                             continue;
                         }
                         fileDir = "./cache/instagram/temp.mp4";
@@ -160,14 +160,14 @@ public class Instagram implements Runnable {
                     String response = HTTPSend.postFile("https://0x0.st", Path.of(fileDir)); // Send file to 0x0
 
                     // Error handling
-                    if (HTTPSend.HTTPCode == 403) {
+                    if (HTTPSend.HTTPCode.get() == 403) {
                         Output.webhookPrint("[INSTA] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! I've likely been flagged as a bot, and now your ip cant access the temp storage site!" +
                                 "\n\tYour IP should be cycled and unblocked in a few months." +
                                 "\n\tIn the meantime, you should change 'format' to 'image' & 'post_mode' to 'auto' under [Instagram Settings] in bot.json to bypass the need for temporary storage. Quitting..." +
                                 "\n\tError message: " + response, Output.RED);
 
                         return;
-                    } else if (!(HTTPSend.HTTPCode == 200)) { // Misc error handling
+                    } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
                         Output.webhookPrint("Error uploading file to 0x0.su (temp storage provider). Quitting..." +
                                 "\n\tError message: " + response, Output.RED);
 
@@ -214,11 +214,11 @@ public class Instagram implements Runnable {
 
                     response = HTTPSend.postForm(uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
-                    if (HTTPSend.HTTPCode != 200) {
+                    if (HTTPSend.HTTPCode.get() != 200) {
                         Output.webhookPrint("[INSTA] Upload step failed! Skipping attempt... HTTP code:" + HTTPSend.HTTPCode +
                                 "\n\tError message: " + response, Output.RED);
 
-                        if (!safeSleep(sleepTime)) break;
+                        if (!Sleep.safeSleep(sleepTime)) break;
                         continue;
                     } else {
                         Output.print("[INSTA] Upload step success (1/2)", Output.YELLOW, true);
@@ -238,7 +238,7 @@ public class Instagram implements Runnable {
                             HTTPSend.get("https://graph.facebook.com/v23.0/" + postID +
                                     "?fields=status_code,status&access_token=" + TOKEN); // Send status check request
 
-                            if (HTTPSend.HTTPCode != 200) { // Error handling
+                            if (HTTPSend.HTTPCode.get() != 200) { // Error handling
                                 Output.print("Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
 
                                 Thread.sleep(30000); // Wait 30s and break
@@ -272,7 +272,7 @@ public class Instagram implements Runnable {
 
                     HTTPSend.postForm(uploadURL, formData); // Send post for publish to Instagram
 
-                    if (HTTPSend.HTTPCode != 200) {
+                    if (HTTPSend.HTTPCode.get() != 200) {
                         Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode +
                                 "\n\tError message: " + response, Output.RED);
 
@@ -285,12 +285,12 @@ public class Instagram implements Runnable {
                         }
 
                         // Store image URL to prevent duplicates
-                        fileIO.writeList(mediaURL, "instagram");
+                        FileIO.writeList(mediaURL, "instagram");
 
                         long timestamp = System.currentTimeMillis();
                         usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
-                        if (!safeSleep(sleepTime)) break; // Sleep
+                        if (!Sleep.safeSleep(sleepTime)) break; // Sleep
                     }
                 }
 
@@ -298,17 +298,14 @@ public class Instagram implements Runnable {
             }
         } catch (InterruptedException e) { // When interrupted
             Thread.currentThread().interrupt(); // restore interrupt flag
-            Output.webhookPrint("Sleep interrupted: " + e.getMessage(), Output.RED);
+            Output.webhookPrint("[INSTA] Unexpected error during sleep: " + e.getMessage(), Output.RED);
 
-            return;
         } catch (Exception e) { // General error handling
             try {
-                Output.webhookPrint("Unexpected error during sleep: " + e.getMessage(), Output.RED);
+                Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
             } catch (Exception inner) {
                 inner.printStackTrace();
             }
-
-            return;
         }
     }
 
@@ -360,7 +357,7 @@ public class Instagram implements Runnable {
     private boolean getMediaSource() {
         try {
             if (POSTMODE.equals("auto")) {
-                usedURLs = fileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
+                usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
                 if (usedURLs == null) { // If failed, quit
 
@@ -392,18 +389,6 @@ public class Instagram implements Runnable {
         return true; // Success
     }
 
-    // Prevents the bot from sleeping if there is a real interruption (like attempted exit)
-    private boolean safeSleep(long ms) throws Exception {
-        try {
-            Thread.sleep(ms);
-
-            return true;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // restore interrupt flag
-
-            return false;
-        }
-    }
 
     public static void stop() { // Stop bot
         run = false;
@@ -411,7 +396,7 @@ public class Instagram implements Runnable {
     }
 
     public static void clear() { // Clear cache
-        fileIO.clearList("instagram");
+        FileIO.clearList("instagram");
         Output.webhookPrint("Instagram cache successfully cleared");
     }
 }

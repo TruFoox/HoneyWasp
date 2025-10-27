@@ -9,7 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class fileIO {
+public class FileIO {
     public static void writeList(String in, String service) {
         try {
             long timestamp = System.currentTimeMillis();
