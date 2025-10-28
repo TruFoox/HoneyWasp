@@ -15,6 +15,7 @@ public class InstagramSettings {
     private boolean use_reddit_caption;
     private List<String> caption_blacklist;
     private long hours_before_duplicate_removed;
+    private boolean audio_enabled;
     private String caption;
     private String hashtags;
 
@@ -48,6 +49,9 @@ public class InstagramSettings {
 
     public boolean isDuplicates_allowed() { return duplicates_allowed; }
     public void setDuplicates_allowed(boolean duplicates_allowed) { this.duplicates_allowed = duplicates_allowed; }
+
+    public boolean isAudio_enabled() { return audio_enabled; }
+    public void setAudio_enabled(boolean audio_enabled) { this.audio_enabled = audio_enabled; }
 
     public boolean isNsfw_allowed() { return nsfw_allowed; }
     public void setNsfw_allowed(boolean nsfw_allowed) { this.nsfw_allowed = nsfw_allowed; }

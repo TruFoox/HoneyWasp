@@ -25,7 +25,7 @@ public class Instagram implements Runnable {
     boolean nsfw;
     boolean tempDisableCaption;
     int randIndex;
-    File[] media;
+    File[] media, audio;
 
     // Load config
     final String TOKEN = config.getInstagram().getApi_key().trim();
@@ -35,6 +35,7 @@ public class Instagram implements Runnable {
     final int ATTEMPTS_BEFORE_TIMEOUT = config.getInstagram().getAttempts_before_timeout();
     final List<String> SUBREDDITS = config.getInstagram().getSubreddits();
     final String FORMAT = config.getInstagram().getFormat().trim().toLowerCase();
+    final boolean AUDIO_ENABLED = config.getInstagram().isAudio_enabled();
     final boolean USE_REDDIT_CAPTION = config.getInstagram().isUse_reddit_caption();
     final String FALLBACK_CAPTION = config.getInstagram().getCaption();
     final String HASHTAGS = config.getInstagram().getHashtags();
@@ -54,7 +55,7 @@ public class Instagram implements Runnable {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
 
                 if (countAttempt == 1) { // Print first attempt message
-                    Output.webhookPrint("[INSTA] Attempting new post", Output.YELLOW, true);
+                    Output.print("[INSTA] Attempting new post", Output.YELLOW, true,true);
                 }
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT) { // If max # of attempts have been reached
@@ -84,9 +85,17 @@ public class Instagram implements Runnable {
                             continue;
                         }
 
+                        /* Select mp4 for audio if audio enabled */
+                        String audioDir = null; // Default value
+
+                        if (AUDIO_ENABLED) {
+                            randIndex = rand.nextInt(audio.length); // Select random audio file
+                            audioDir = String.valueOf(audio[randIndex]);
+                        }
+
                         Output.print("[INSTA] Converting image to video...", Output.YELLOW, true);
 
-                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", "instagram", "temp")), image)) { // Convert image to video
+                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", "instagram", "temp")), image, audioDir)) { // Convert image to video
                             Output.print("[INSTA] Successfully converted image to video", Output.YELLOW, true);
                         } else {
                             Output.print("[INSTA] Failed to convert image to video for upload. Skipping attempt...", Output.RED);
@@ -99,8 +108,6 @@ public class Instagram implements Runnable {
                 } else {
                     randIndex = rand.nextInt(media.length); // Select random image
                     fileDir = String.valueOf(media[randIndex]);
-
-                    Output.webhookPrint(fileDir);
                 }
 
                 /* Upload manual media/generated video to temp file hoster */
@@ -166,8 +173,12 @@ public class Instagram implements Runnable {
                     response = HTTPSend.postForm(uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
                     if (HTTPSend.HTTPCode.get() != 200) {
-                        Output.webhookPrint("[INSTA] Upload step failed! Skipping attempt... HTTP code:" + HTTPSend.HTTPCode +
+                        Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode +
                                 "\n\tError message: " + response, Output.RED);
+
+                        // Blacklist image URL permanently, as it is likely corrupted
+                        FileIO.writeList(mediaURL, "instagram", false);
+
 
                         if (!Sleep.safeSleep(sleepTime)) break;
                         continue;
@@ -227,22 +238,21 @@ public class Instagram implements Runnable {
                         Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode +
                                 "\n\tError message: " + response, Output.RED);
 
-                        // Mark URL as invalid permanently
-                        FileIO.writeList(mediaURL, "instagram");
-                        usedURLs.add(new String[]{mediaURL, "99999999999999999"});
+                        // Blacklist image URL permanently, as it is likely corrupted
+                        FileIO.writeList(mediaURL, "instagram", false);
 
                         continue;
                     } else {
-                        countAttempt = 0;
-
                         if (POSTMODE.equals("auto")) {
                             Output.webhookPrint("[INSTA] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
                         } else {
                             Output.webhookPrint("[INSTA] " + redditURL + " uploaded to Instagram - x" + countAttempt + " attempt(s)", Output.GREEN);
                         }
 
+                        countAttempt = 0;
+
                         // Store image URL to prevent duplicates
-                        FileIO.writeList(mediaURL, "instagram");
+                        FileIO.writeList(mediaURL, "instagram", true);
 
                         long timestamp = System.currentTimeMillis();
                         usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
@@ -333,6 +343,25 @@ public class Instagram implements Runnable {
 
                 // Start logging media
                 media = directory.listFiles(); // Gets all files in the directory
+            }
+
+            // Get audio
+            if (AUDIO_ENABLED) {
+                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./videos"
+
+                if (!directory.exists() || !directory.isDirectory()) {
+                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in bot.json. Quitting...", Output.RED);
+                    return false;
+                }
+
+                // Ensure there is at least 1 file in directory
+                int fileCount = Objects.requireNonNull(directory.list()).length;
+                if (fileCount == 0) {
+                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in bot.json. Quitting...", Output.RED);
+                    return false;
+                }
+
+                audio = directory.listFiles(); // Gets all files in the directory
             }
         } catch (Exception e) {
             try {

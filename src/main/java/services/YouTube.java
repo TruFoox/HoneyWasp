@@ -36,7 +36,7 @@ public class YouTube implements Runnable {
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir, accessToken;
     boolean run = true, nsfw, tempDisableCaption;
     int randIndex;
-    File[] media;
+    File[] media, audio;
 
     // Load config
     String SECRET = config.getYoutube().getClient_secret().trim();
@@ -47,6 +47,7 @@ public class YouTube implements Runnable {
     final int ATTEMPTS_BEFORE_TIMEOUT = config.getYoutube().getAttempts_before_timeout();
     final List<String> SUBREDDITS = config.getYoutube().getSubreddits();
     final boolean USE_REDDIT_CAPTION = config.getYoutube().isUse_reddit_caption();
+    final boolean AUDIO_ENABLED = config.getYoutube().isAudio_enabled();
     final String FALLBACK_CAPTION = config.getYoutube().getCaption();
     final String DESCRIPTION = config.getYoutube().getDescription();
     String REFRESHTOKEN = config.getYoutube().getRefresh_token(); // Not final because it can be fetched while still running
@@ -71,7 +72,7 @@ public class YouTube implements Runnable {
                 }
 
                 if (countAttempt == 1) { // Print first attempt message
-                    Output.webhookPrint("[YT] Attempting new post", Output.YELLOW, true);
+                    Output.print("[YT] Attempting new post", Output.YELLOW, true,true);
                 }
 
                 if (!getMemeAPI()) {
@@ -101,7 +102,15 @@ public class YouTube implements Runnable {
 
                         Output.print("[YT] Converting image to video...", Output.YELLOW, true);
 
-                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", "youtube", "temp")), image)) { // Convert image to video
+                        /* Select mp4 for audio if audio enabled */
+                        String audioDir = null; // Default value
+
+                        if (AUDIO_ENABLED) {
+                            randIndex = rand.nextInt(audio.length); // Select random audio file
+                            audioDir = String.valueOf(audio[randIndex]);
+                        }
+
+                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", "youtube", "temp")), image, audioDir)) { // Convert image to video
                             Output.print("[YT] Successfully converted image to video", Output.YELLOW, true);
                         } else {
                             Output.print("[YT] Failed to convert image to video for upload. Skipping attempt...", Output.RED);
@@ -115,8 +124,6 @@ public class YouTube implements Runnable {
                 } else {
                     randIndex = rand.nextInt(media.length); // Select random image
                     fileDir = String.valueOf(media[randIndex]);
-
-                    Output.webhookPrint(fileDir);
                 }
 
                 /* Post media to YouTube */
@@ -151,41 +158,49 @@ public class YouTube implements Runnable {
 
                     JSONObject response = StringToJson.getJSON(strResponse); // Convert to json for check
 
-                    switch (HTTPSend.HTTPCode.get().intValue()) {
-                        case 200: // Success
-                            break;
-                        case 401: // Not logged in
-                            Output.webhookPrint("Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + " with error code " + HTTPSend.HTTPCode + ". Quitting..."
-                                    + "\n\tYour client_secret/client_id or refresh_token may be invalid...", Output.RED);
+                    if (HTTPSend.HTTPCode.get() != 200) { // Error handling
+                        /* Get ready for YouTube's terrible nested JSON (I'm sure there's an easier way) */
+                        String reason = "";
+                        if (response.has("error")) {
+                            reason = response.getJSONObject("error").getJSONArray("errors").getJSONObject(0).getString("reason");
+                        }
 
-                            if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
-                            break;
+                        /* Error handling */
+                        if (reason.equals("uploadLimitExceeded") || reason.equals("rateLimitExceeded") || reason.equals("quotaExceeded")) {
+                             Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Skipping this attempt..."
+                                        + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
-                        default: // General error handling
-                            /* Get ready for YouTube's awful nested json bullshit (I'm sure there's an easier way) */
-                            if (response.has("error")) {
-                                JSONObject err = response.getJSONObject("error");
-                                if (err.has("errors") && err.has("message")) {
-                                    JSONArray arr = err.getJSONArray("errors");
-                                    if (!arr.isEmpty() && arr.getJSONObject(0).has("reason")) {
-                                        String reason = arr.getJSONObject(0).getString("reason");
-                                        String message = err.getString("message");
-                                        if (reason.equals("uploadLimitExceeded") ||
-                                                reason.equals("rateLimitExceeded") ||
-                                                reason.equals("quotaExceeded")) {
-                                            Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + " with error code " + HTTPSend.HTTPCode + ". Quitting..."
-                                                    + "\n\tYou are being ratelimited. You can only post a few times per day to the YouTube API", Output.RED);
-                                        }
-                                    }
-                                }
-                            } else {
-                                Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + " with error code " + HTTPSend.HTTPCode + ". Quitting..."
-                                        + "\n\tError message: " + response, Output.RED);
-                            }
-                            break;
+                            if (!Sleep.safeSleep(sleepTime)) break; // Sleep
+
+                        } else { // General error handling
+                            Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Trying again, and marking this URL as invalid..."
+                                    + "\n\tError message: " + response, Output.RED);
+
+                            // Blacklist image URL permanently, as it is likely corrupted
+                            FileIO.writeList(mediaURL, "youtube", false);
+                        }
+
+                    } else { // Post success handling
+
+                        if (POSTMODE.equals("auto")) {
+                            Output.webhookPrint("[YT] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
+                        } else {
+                            Output.webhookPrint("[YT] " + redditURL + " uploaded to YouTube - x" + countAttempt + " attempt(s)", Output.GREEN);
+                        }
+
+                        countAttempt = 0;
+
+                        // Store image URL to prevent duplicates
+                        FileIO.writeList(mediaURL, "youtube", false);
+
+                        long timestamp = System.currentTimeMillis();
+                        usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
+
+                        if (!Sleep.safeSleep(sleepTime)) break; // Sleep
                     }
                 }
 
+                Thread.sleep(1500); // Sleep 1.5 sec to prevent spam
             }
         } catch (InterruptedException e) { // When interrupted
             Thread.currentThread().interrupt(); // restore interrupt flag
@@ -310,6 +325,25 @@ public class YouTube implements Runnable {
 
                 // Start logging media
                 media = directory.listFiles(); // Gets all files in the directory
+            }
+
+            // Get audio
+            if (AUDIO_ENABLED) {
+                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./videos"
+
+                if (!directory.exists() || !directory.isDirectory()) {
+                    Output.webhookPrint("[YT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Youtube_Settings] in bot.json. Quitting...", Output.RED);
+                    return false;
+                }
+
+                // Ensure there is at least 1 file in directory
+                int fileCount = Objects.requireNonNull(directory.list()).length;
+                if (fileCount == 0) {
+                    Output.webhookPrint("[YT] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Youtube_Settings] in bot.json. Quitting...", Output.RED);
+                    return false;
+                }
+
+                audio = directory.listFiles(); // Gets all files in the directory
             }
         } catch (Exception e) {
             try {
