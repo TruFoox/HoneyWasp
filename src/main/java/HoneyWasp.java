@@ -60,6 +60,8 @@ public class HoneyWasp extends ListenerAdapter {
         Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         final String BOTTOKEN = config.getGeneral().getDiscordBotToken().trim();
+        final Boolean RESTART = config.getGeneral().isRestart();
+
         final List<String> AUTOSTART = config.getGeneral().getAutostart();
 
         JDA jda = null; // Init JDA to null to prevent uninitialized error

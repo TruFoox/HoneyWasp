@@ -219,8 +219,8 @@ public class YouTube implements Runnable {
             } catch (Exception inner) {
                 inner.printStackTrace();
             }
-        } finally { // Add handling for telling user when bot quits
-            Output.webhookPrint("YouTube stopped");
+        } finally { // Crash/Stop handling
+            Output.webhookPrint("[SYS] YouTube stopped");
         }
     }
     private boolean getAccessToken() {
@@ -344,14 +344,14 @@ public class YouTube implements Runnable {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./videos"
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[YT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Youtube_Settings] in bot.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[YT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Youtube_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[YT] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Youtube_Settings] in bot.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[YT] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Youtube_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
@@ -412,7 +412,7 @@ public class YouTube implements Runnable {
             if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                 REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
-                Output.webhookPrint("PLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN bot.json:" +
+                Output.webhookPrint("PLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN config.json:" +
                         "\n\t" + REFRESHTOKEN +
                         "\n\tBOT WILL STILL CONTINUE TO RUN BUT IF YOU DONT ADD TO CONFIG YOU WILL NEED TO REAUTHENTICATE NEXT LAUNCH", Output.GREEN);
 
