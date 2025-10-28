@@ -14,7 +14,7 @@ import java.util.List;
 public class ImageValidity { // Need to break into individual classes
     static ReadConfig config = ReadConfig.getInstance();
 
-    public static int check(String response, long countattempt, List<String[]> usedURLs) {
+    public static int check(String response, long countattempt, List<String[]> usedURLs, boolean testSize) {
         final List<String> BLACKLIST = config.getInstagram().getBlacklist();
         final boolean NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
         final long hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
@@ -24,7 +24,7 @@ public class ImageValidity { // Need to break into individual classes
         boolean nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
 
         // Download image & check aspect ratio
-        {
+        if (testSize) {
             Image image;
 
             try {
@@ -39,7 +39,7 @@ public class ImageValidity { // Need to break into individual classes
 
             double ratio = (double) image.getWidth(null) / image.getHeight(null);
 
-            if(ratio >1.8||ratio< 0.72) {
+            if (ratio > 0.8 || ratio < 1.91) { // Test aspect ratio
                 Output.print("Image has invalid aspect ratio", Output.RED, true);
 
                 return 1;

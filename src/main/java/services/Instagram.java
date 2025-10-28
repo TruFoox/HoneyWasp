@@ -227,8 +227,14 @@ public class Instagram implements Runnable {
                         Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode +
                                 "\n\tError message: " + response, Output.RED);
 
+                        // Mark URL as invalid permanently
+                        FileIO.writeList(mediaURL, "instagram");
+                        usedURLs.add(new String[]{mediaURL, "99999999999999999"});
+
                         continue;
                     } else {
+                        countAttempt = 0;
+
                         if (POSTMODE.equals("auto")) {
                             Output.webhookPrint("[INSTA] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
                         } else {
@@ -367,7 +373,7 @@ public class Instagram implements Runnable {
                 Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs)) {
+                switch (ImageValidity.check(response, countAttempt, usedURLs, true)) {
                     case 0: // Image valid
                         return true;
                     case 1: // General failed validation

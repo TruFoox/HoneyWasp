@@ -15,6 +15,8 @@ import java.net.URI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import utils.*;
 
 import javax.imageio.ImageIO;
@@ -147,7 +149,41 @@ public class YouTube implements Runnable {
                     // Publish YouTube video
                     String strResponse = postYouTubeVideo("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status", Path.of(fileDir), metadataJson, accessToken);
 
-                    Output.webhookPrint(strResponse);
+                    JSONObject response = StringToJson.getJSON(strResponse); // Convert to json for check
+
+                    switch (HTTPSend.HTTPCode.get().intValue()) {
+                        case 200: // Success
+                            break;
+                        case 401: // Not logged in
+                            Output.webhookPrint("Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + " with error code " + HTTPSend.HTTPCode + ". Quitting..."
+                                    + "\n\tYour client_secret/client_id or refresh_token may be invalid...", Output.RED);
+
+                            if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                            break;
+
+                        default: // General error handling
+                            /* Get ready for YouTube's awful nested json bullshit (I'm sure there's an easier way) */
+                            if (response.has("error")) {
+                                JSONObject err = response.getJSONObject("error");
+                                if (err.has("errors") && err.has("message")) {
+                                    JSONArray arr = err.getJSONArray("errors");
+                                    if (!arr.isEmpty() && arr.getJSONObject(0).has("reason")) {
+                                        String reason = arr.getJSONObject(0).getString("reason");
+                                        String message = err.getString("message");
+                                        if (reason.equals("uploadLimitExceeded") ||
+                                                reason.equals("rateLimitExceeded") ||
+                                                reason.equals("quotaExceeded")) {
+                                            Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + " with error code " + HTTPSend.HTTPCode + ". Quitting..."
+                                                    + "\n\tYou are being ratelimited. You can only post a few times per day to the YouTube API", Output.RED);
+                                        }
+                                    }
+                                }
+                            } else {
+                                Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + " with error code " + HTTPSend.HTTPCode + ". Quitting..."
+                                        + "\n\tError message: " + response, Output.RED);
+                            }
+                            break;
+                    }
                 }
 
             }
@@ -224,7 +260,7 @@ public class YouTube implements Runnable {
                 Output.print("[YT] Reddit post data successfully retrieved", Output.YELLOW, true);
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs)) {
+                switch (ImageValidity.check(response, countAttempt, usedURLs, false)) {
                     case 0: // Image valid
                         return true;
                     case 1: // General failed validation
@@ -344,6 +380,8 @@ public class YouTube implements Runnable {
         }
         return true; // Skip this step
     }
+
+    /* I put this in a separate class because it's not my code (YouTube uploading is annoyingly specific) */
     public static String postYouTubeVideo(String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
 
@@ -383,7 +421,7 @@ public class YouTube implements Runnable {
         writer.write("--" + boundary + "--" + CRLF);
         writer.flush();
 
-        // Build request using your style
+        // Build request
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
