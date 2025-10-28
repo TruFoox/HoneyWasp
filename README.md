@@ -53,7 +53,7 @@ Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyW
 ### Prerequisites
 
 - A Discord account
-- A Discord server (with permission to add bots)
+- A Discord server (with permission to add bots) 
 - [Discord Developer Portal](https://discord.com/developers/applications)
 
 ### Step 1: Create Your Application
