@@ -225,48 +225,52 @@ Here is some information regarding the different inputs within ``config.json``:
 
 
 ### General_Settings
-- `"discord_bot_token"`: Your bot's token for logging in to Discord
-- `"webhook_url"`: Optional webhook URL for Discord notifications
-- `"autostart"`: Services to launch automatically (e.g., `["instagram"]`), separate multiple with commas
-- `"restart"`: Whether to attempt to restart the bot when it crashes (Experimental)
-- `"debug_mode"`: Enables verbose logging and debug output
+| Key                   | Description                                                      |
+|-----------------------|------------------------------------------------------------------|
+| `"discord_bot_token"` | Your bot's token for logging in to Discord                       |
+| `"webhook_url"`       | Optional Discord webhook URL for notifications                   |
+| `"autostart"`         | List of services to launch automatically (e.g., `["instagram"]`) |
+| `"restart"`           | Whether to attempt bot restart on crash (Experimental)           |
+| `"debug_mode"`        | Enables verbose logging and debug output                         |
 
 ### Instagram_Settings
-- `"api_key"`: Instagram API key for posting (separate by commas if multiple)
-- `"post_mode"`: Posting mode: `"auto"` = automatically grab posts from Reddit, `"manual"` = post from media.json
-- `"forimage"` or `"video"`, determines how content is posted
-    - If `"post_mode"` is `"auto"` = determines whether to convert image into a video before posting
-    - If `"post_mode"` is `"manual"` = determines whether to get media from `/Videos` or `/Images`
-- `"audio_enabled"`: Include audio when converting images to videos
-- `"time_between_posts"`: Minutes between posts
-- `"attempts_before_timeout"`: Number of failed post attempts before giving up
-- `"hours_before_duplicate_removed"`: Time before a duplicate is allowed again
-- `"subreddits"`: Subreddits to pull content from (auto post mode only, DO NOT include `r/`)
-- `"blacklist"`: Case-insensitive words to block from posts (auto post mode only)
-- `"duplicates_allowed"`: Whether duplicate posts are allowed
-- `"nsfw_allowed"`: Allow NSFW content (FALSE recommended)
-- `"use_reddit_caption"`: Use Reddit post title as the caption
-- `"caption_blacmat"`: `"klist"`: Words that cause fallback caption to be used (auto post mode only)
-- `"caption"`: Default post caption
-- `"hashtags"`: Hashtags appended to each Instagram post
+| Key                                | Description                                                                       |
+|------------------------------------|-----------------------------------------------------------------------------------|
+| `"api_key"`                        | Instagram API key(s), separate multiple by commas                                 |
+| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `media.json`            |
+| `"format"`                         | Determines how content is posted (`"video"` or `"image"`)                         |
+| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP4s to `/audio`) |
+| `"time_between_posts"`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)      |
+| `"attempts_before_timeout"`        | The number of failed post attempts before giving up                               |
+| `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                         |
+| `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)           |
+| `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)       |
+| `"duplicates_allowed"`             | Whether to allow duplicate posts                                                  |
+| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE recommended**)                             |
+| `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                   |
+| `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                           |
+| `"caption"`                        | Default post caption                                                              |
+| `"hashtags"`                       | Hashtags appended to each Instagram post                                          |
 
 ### YouTube_Settings
-- `"refresh_token"`: Token used to retrieve OAuth token (leave empty until prompted)
-- `"client_secret"`: YouTube API key for posting
-- `"client_id"`: YouTube user ID for API access (ends in `"apps.googleusercontent.com"`)
-- `"post_mode"`: Posting mode: `"auto"` = grab posts from Reddit, `"manual"` = post from `/Videos`
-- `"audio_enabled"`: Include audio when converting images to videos
-- `"time_between_posts"`: Minutes between posts (YouTube rate limits ~6/day for new API key)
-- `"attempts_before_timeout"`: Number of failed post attempts before giving up
-- `"subreddits"`: Subreddits to pull content from (auto post mode only, DO NOT include `r/`)
-- `"blacklist"`: Case-insensitive words to block from posts (auto post mode only)
-- `"duplicates_allowed"`: Whether duplicate posts are allowed
-- `"nsfw_allowed"`: Allow NSFW content (FALSE recommended)
-- `"use_reddit_caption"`: Use Reddit post title as the caption
-- `"caption_blacklist"`: Words that cause fallback caption to be used (auto post mode only)
-- `"caption"`: Post caption
-- `"description"`: Post description
-
+| Key                                | Description                                                                       |
+|------------------------------------|-----------------------------------------------------------------------------------|
+| `"refresh_token"`                  | Token for OAuth (****)                                                            |
+| `"client_secret"`                  | YouTube API key for posting                                                       |
+| `"client_id"`                      | YouTube user ID for API access (ends with `"apps.googleusercontent.com"`)         |
+| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `/Videos`               |
+| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP4s to `/audio`) |  
+| `"time_between_posts"`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)         |
+| `"attempts_before_timeout"`        | The number of failed post attempts before giving up                               |
+| `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                         |
+| `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)           |
+| `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)       |
+| `"duplicates_allowed"`             | Whether to allow duplicate posts                                                  |
+| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**)                      |
+| `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                   |
+| `"caption_blacklist"`              | Words that trigger fallback caption (auto post_mode only)                         |
+| `"caption"`                        | Post caption                                                                      |
+| `"description"`                    | Post description                                                                  |
 
 ## Built With
 
