@@ -12,6 +12,7 @@ public class YoutubeSettings {
     private List<String> subreddits;
     private List<String> blacklist;
     private boolean duplicates_allowed;
+    private boolean audio_enabled;
     private boolean nsfw_allowed;
     private boolean use_reddit_caption;
     private long hours_before_duplicate_removed;
@@ -51,6 +52,9 @@ public class YoutubeSettings {
 
     public boolean isDuplicates_allowed() { return duplicates_allowed; }
     public void setDuplicates_allowed(boolean duplicates_allowed) { this.duplicates_allowed = duplicates_allowed; }
+
+    public boolean isAudio_enabled() { return audio_enabled; }
+    public void setAudio_enabled(boolean audio_enabled) { this.audio_enabled = audio_enabled; }
 
     public boolean isNsfw_allowed() { return nsfw_allowed; }
     public void setNsfw_allowed(boolean nsfw_allowed) { this.nsfw_allowed = nsfw_allowed; }
