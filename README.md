@@ -40,11 +40,10 @@
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
-Update 3.0 (Next update) will likely be a port to Java, as it is easier and more modular
-
+Update 3.0 (Coming soon) is a port to Java, with webhook logging and audio support!
 # Getting Started
 
-Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.exe.
+Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Win.bat on Windows, or Launch.sh on Linux/Mac. Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 **You must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot in any capacity**
 
@@ -63,7 +62,7 @@ Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyW
 3. Name it, then click **Create**
 4. Click your new bot to open its settings
 5. In the **Bot** tab in the left panel, → click **Reset Token**, follow the instructions to get your bot's API token
-6. Finally, copy the new token it gives you into ```discord_bot_token``` under ``[General_Settings]`` in Config.ini
+6. Finally, copy the new token it gives you into ```discord_bot_token``` under ``[General_Settings]`` in config.json
 
 ### Step 2: Set OAuth2 Permissions
 
@@ -126,7 +125,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 2. Paste your access token into the box and press **Debug**
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
-5. Place the result inside the ``api_key`` under ``[Instagram_Settings]`` of Config.ini
+5. Place the result inside the ``api_key`` under ``[Instagram_Settings]`` of config.json
 
 ## YouTube Setup
 
@@ -161,7 +160,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 5. Under **Create OAuth client ID**, choose **Desktop App**
 6. Name it anything → click **Create**
 7. Copy the **Client ID** and **Client Secret**
-8. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.ini
+8. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.json
 
 ### Step 4: Generate a Refresh Token (One-Time)
 1. Open **Launch.exe** in HoneyWasp
@@ -171,12 +170,12 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 5. When prompted to allow access to your YouTube account, press **Continue**
 6. You can find your access token in the URL, between "http://localhost/?code=" and "&scope=https://www.googleapis.com/auth/youtube.upload"
 7. Your access token should look something like this: ``4/0AJIL1DDF16...`` (Do not include the "&" before "scope" or the "=" after "code"). Paste it into the console
-8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.ini
+8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.json
 
 # Usage
 Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)
 ## The Config
-Before launching the bot, make sure `Config.ini` is set up correctly.  
+Before launching the bot, make sure `Config.json` is set up correctly.  
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
@@ -184,8 +183,11 @@ All of the config settings are explained in a comment above the config setting i
 
 ### Remember
 The config file is **not** forgiving of typos - what you input is taken literally, so check your spelling
-Boolean values (true or false) **need** to be lowercase
-Do **not** surround values with quotations or put a delimiter (a comma, period, etc) at the end
+
+Boolean values (true or false) **need** to be lowercase ("youHavePurpose" = true)
+ALWAYS surround string (non-numeric, non-boolean) values with quotations ("fruits" = "apple","banana")
+There MUST be a comma delimiter after every config value
+
 
 ## Starting and Interacting with the bot
 To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
@@ -213,33 +215,61 @@ If this happens, to use the bot you must allow it
 - Find the blocked app and click "Actions" > "Allow"
 
 ## Config Help
-Here is some information regarding the most confusing aspects of ``Config.ini``:
+Here is some information regarding the different inputs within ``config.json``:
 
-- Boolean values (true or false) need to be lowercase
-- Do not surround values with quotations, they are parsed automatically
-- Do not put ANYTHING in ``refresh_token`` under ``[YouTube_Settings]`` until prompted to do so by the bot
+### Tips
+- Boolean values (`true` or `false`) need to be lowercase (e.g., `"debug_mode": true`)
+- ALWAYS surround string (non-numeric, non-boolean) values with quotes (e.g., `"caption": "Enjoy this meme"`)
+- Do not put anything in `"refresh_token"` under `"Youtube_Settings"` until prompted to do so by the bot
 
-### Autostart:
-- If you want the bot to automatically launch any service (or multiple), input the service you'd like to launch (``autostart = instagram``)
-    - If you want to launch multiple, separate them with commas (``autostart = instagram, youtube``)
-### Restart:
-- If you want to bot to automatically restart **anytime** it crashes for **any** reason, set this to **true**. This is highly experimental
-### Subreddits (Auto post mode only):
-- List subreddits you want to automatically retrieve images from. Do **not** include r/
-    - If you want to launch multiple, separate them with commas (``subreddits = memes,meme``)
-### Blacklist (Auto post mode only):
-- List words that, if found in the reddit post's caption, will cause the post to be discarded
-    - If you want to launch multiple, separate them with commas (``blacklist = thing1,thing2``)
-### Caption Blacklist (Auto post mode only):
-- List words that, if found in the reddit post's caption, will cause the caption to be discarded and instead use the fallback caption
-    - This is not to be confused with Blacklist, which entirely discards the post if the phrase is found
-    - If you want to launch multiple, separate them with commas (``caption_blacklist = thing1,thing2``)
-### Attempts Before Timeout (Auto post mode only):
-- The number you set here will determine the amount of times the bot will attempt to post before giving up. The bot usually fails to post due to the post being a duplicate.
+
+### General_Settings
+- `"discord_bot_token"`: Your bot's token for logging in to Discord
+- `"webhook_url"`: Optional webhook URL for Discord notifications
+- `"autostart"`: Services to launch automatically (e.g., `["instagram"]`), separate multiple with commas
+- `"restart"`: Whether to attempt to restart the bot when it crashes (Experimental)
+- `"debug_mode"`: Enables verbose logging and debug output
+
+### Instagram_Settings
+- `"api_key"`: Instagram API key for posting (separate by commas if multiple)
+- `"post_mode"`: Posting mode: `"auto"` = automatically grab posts from Reddit, `"manual"` = post from media.json
+- `"forimage"` or `"video"`, determines how content is posted
+    - If `"post_mode"` is `"auto"` = determines whether to convert image into a video before posting
+    - If `"post_mode"` is `"manual"` = determines whether to get media from `/Videos` or `/Images`
+- `"audio_enabled"`: Include audio when converting images to videos
+- `"time_between_posts"`: Minutes between posts
+- `"attempts_before_timeout"`: Number of failed post attempts before giving up
+- `"hours_before_duplicate_removed"`: Time before a duplicate is allowed again
+- `"subreddits"`: Subreddits to pull content from (auto post mode only, DO NOT include `r/`)
+- `"blacklist"`: Case-insensitive words to block from posts (auto post mode only)
+- `"duplicates_allowed"`: Whether duplicate posts are allowed
+- `"nsfw_allowed"`: Allow NSFW content (FALSE recommended)
+- `"use_reddit_caption"`: Use Reddit post title as the caption
+- `"caption_blacmat"`: `"klist"`: Words that cause fallback caption to be used (auto post mode only)
+- `"caption"`: Default post caption
+- `"hashtags"`: Hashtags appended to each Instagram post
+
+### YouTube_Settings
+- `"refresh_token"`: Token used to retrieve OAuth token (leave empty until prompted)
+- `"client_secret"`: YouTube API key for posting
+- `"client_id"`: YouTube user ID for API access (ends in `"apps.googleusercontent.com"`)
+- `"post_mode"`: Posting mode: `"auto"` = grab posts from Reddit, `"manual"` = post from `/Videos`
+- `"audio_enabled"`: Include audio when converting images to videos
+- `"time_between_posts"`: Minutes between posts (YouTube rate limits ~6/day for new API key)
+- `"attempts_before_timeout"`: Number of failed post attempts before giving up
+- `"subreddits"`: Subreddits to pull content from (auto post mode only, DO NOT include `r/`)
+- `"blacklist"`: Case-insensitive words to block from posts (auto post mode only)
+- `"duplicates_allowed"`: Whether duplicate posts are allowed
+- `"nsfw_allowed"`: Allow NSFW content (FALSE recommended)
+- `"use_reddit_caption"`: Use Reddit post title as the caption
+- `"caption_blacklist"`: Words that cause fallback caption to be used (auto post mode only)
+- `"caption"`: Post caption
+- `"description"`: Post description
+
 
 ## Built With
 
-Programmed in Visual Studio 2022, see [Acknowledgements](#acknowledgements)
+Programmed with Java 23 in [IntelliJ IDEA]("https://www.jetbrains.com/idea/"), see [Acknowledgements](#acknowledgements)
 
 ## Contributing
 
@@ -263,10 +293,10 @@ Contributions are what make the open source community such an amazing place to l
 
 ## Acknowledgements
 
-* **[D++](https://dpp.dev/)** by [Brainboxdotcc](https://github.com/brainboxdotcc) - D++ is used in this program to communicate with discord
-* **[Libcurl](https://curl.se/libcurl/)** - Allows HTTP API calls in C++
-* **[Inih](https://github.com/benhoyt/inih)** by [Ben Hoyt](https://github.com/benhoyt) - Simplified reading .ini config
-* **[nlohmann/json](https://github.com/nlohmann/json)** by [Nlohmann](https://github.com/nlohmann) - Parses json from API calls
+* **[JDA](https://github.com/DV8FromTheWorld/JDA)** - Java Discord API used to communicate with Discord
+* **[org.json](https://github.com/stleary/JSON-java)** - JSON parsing library for API calls and config handling
+* **[Discord Webhooks](https://github.com/MinnDevelopment/Discord-Webhooks)** - For sending messages via Discord webhooks
+* **[JavaCV](https://github.com/bytedeco/javacv)** - Java wrapper for OpenCV, used to convert photos to video
+* **[Jackson](https://github.com/FasterXML/jackson-databind)** - JSON serialization/deserialization library for configs and API calls
 * **[MemeAPI](https://github.com/D3vd/Meme_Api)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesn't choose a source
-* **[OpenCV](https://opencv.org/)** - Used to convert photos from meme-api to video
-* **[0x0](https://0x0.su)** - Used to temporarily store videos for the bot to then send the url to Instagram
+* **[0x0](https://0x0.su)** - Used to temporarily store videos for the bot to then send the URL to Instagram

@@ -1,6 +1,7 @@
 package config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +33,10 @@ public class ReadConfig {
     public static ReadConfig getInstance() {
         if (instance == null) {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+
             try {
-                instance = mapper.readValue(new File("bot.json"), ReadConfig.class);
+                instance = mapper.readValue(new File("config.json"), ReadConfig.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }

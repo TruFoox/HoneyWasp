@@ -129,7 +129,7 @@ public class Instagram implements Runnable {
                     if (HTTPSend.HTTPCode.get() == 403) {
                         Output.webhookPrint("[INSTA] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! I've likely been flagged as a bot, and now your ip cant access the temp storage site!" +
                                 "\n\tYour IP should be cycled and unblocked in a few months." +
-                                "\n\tIn the meantime, you should change 'format' to 'image' & 'post_mode' to 'auto' under [Instagram Settings] in bot.json to bypass the need for temporary storage. Quitting..." +
+                                "\n\tIn the meantime, you should change 'format' to 'image' & 'post_mode' to 'auto' under [Instagram Settings] in config.json to bypass the need for temporary storage. Quitting..." +
                                 "\n\tError message: " + response, Output.RED);
 
                         return;
@@ -281,8 +281,8 @@ public class Instagram implements Runnable {
             } catch (Exception inner) {
                 inner.printStackTrace();
             }
-        } finally { // Add handling for telling user when bot quits
-        Output.webhookPrint("Instagram stopped");
+        } finally { // Crash/Stop handling
+        Output.webhookPrint("[SYS] Instagram stopped");
         }
     }
 
@@ -360,14 +360,15 @@ public class Instagram implements Runnable {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./videos"
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in bot.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in bot.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config" +
+                            ".json. Quitting...", Output.RED);
                     return false;
                 }
 
