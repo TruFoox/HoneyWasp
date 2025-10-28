@@ -32,6 +32,12 @@ public class HoneyWasp extends ListenerAdapter {
 
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
 
+        try {
+            Class.forName("utils.HTTPSend");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         // Print logo
         Output.print("\n" +
                 "       @@@@@                      @@@@@@\n" +

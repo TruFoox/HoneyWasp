@@ -41,10 +41,11 @@ public class Instagram implements Runnable {
 
 
     public void run() {
-        if (!authenticate()) {return;} // Get instagram User ID (Quit if failed)
+        if (!getUserID()) {return;} // Get instagram User ID (Quit if failed)
 
         if (!getMediaSource()) {return;} // Gets media location, cache files (Quit if failed)
 
+        Output.webhookPrint("Bot successfully started on Instagram");
         run = true;
 
         try {
@@ -64,57 +65,7 @@ public class Instagram implements Runnable {
 
                 /* Fetch media */
                 if (POSTMODE.equals("auto")) {
-                    String response;
-
-                    randIndex = rand.nextInt(SUBREDDITS.size()); // Generate random subreddit index
-
-                    chosenSubreddit = SUBREDDITS.get(randIndex);
-
-                    try {
-                        response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
-                    } catch (Exception e) {
-                        Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
-                                + "\n\tError message: " + e, Output.RED);
-                        return;
-                    }
-
-                    /* Status code handling */
-                    switch (HTTPSend.HTTPCode.get().intValue()) {
-                        case 200: // Success
-                            // Parse JSON data
-                            mediaURL = StringToJson.getData(response, "url");
-                            redditURL = StringToJson.getData(response, "postLink");
-                            caption = StringToJson.getData(response, "title");
-                            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-                            tempDisableCaption = false;
-
-                            Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
-
-                            /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                            switch (ImageValidity.check(response, tempDisableCaption, countAttempt, usedURLs)) {
-                                case 0: // Image valid
-                                    break;
-                                case 1: // General failed validation
-                                    continue;
-                                case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
-                                    tempDisableCaption = true;
-                            }
-
-                            break;
-
-                        case 530: // Cloudflare error
-                            Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes appears to be under maintenance."
-                                    + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
-
-                            if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
-                            continue; // Return to beginning of loop
-
-                        default: // General error handling
-                            Output.webhookPrint("[INSTA] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode + ". Quitting..."
-                                    + "\n\tError message: " + response, Output.RED);
-
-                            return;
-                    }
+                    getMemeAPI(); // Get data from meme-api.com
 
                     /* If format is video, convert image to video */
                     if (FORMAT.equals("video")) {
@@ -311,7 +262,7 @@ public class Instagram implements Runnable {
 
 
     // Get Facebook ID & use it to retrieve Instagram ID
-    private boolean authenticate() {
+    private boolean getUserID() {
         try {
             try {
                 String response = HTTPSend.get("https://graph.facebook.com/v19.0/me/accounts?access_token=" + TOKEN);
@@ -359,13 +310,13 @@ public class Instagram implements Runnable {
             if (POSTMODE.equals("auto")) {
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
-                if (usedURLs == null) { // If failed, quit
-
-                    return false;
-                }
-
             } else { // Log manual media
                 File directory = Paths.get(".", FORMAT + "s").toFile(); // Generate filepath "./{Format}s"
+
+                if (!directory.exists() || !directory.isDirectory()) {
+                    Output.webhookPrint("[YT] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
+                    return false;
+                }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
@@ -377,7 +328,6 @@ public class Instagram implements Runnable {
                 // Start logging media
                 media = directory.listFiles(); // Gets all files in the directory
             }
-            Output.webhookPrint("Bot successfully started on Instagram");
         } catch (Exception e) {
             try {
                 Output.webhookPrint(String.valueOf(e), Output.RED);
@@ -389,6 +339,59 @@ public class Instagram implements Runnable {
         return true; // Success
     }
 
+    public boolean getMemeAPI() throws Exception {
+        String response;
+
+        randIndex = rand.nextInt(SUBREDDITS.size()); // Generate random subreddit index
+
+        chosenSubreddit = SUBREDDITS.get(randIndex);
+
+        try {
+            response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
+        } catch (Exception e) {
+            Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
+                    + "\n\tError message: " + e, Output.RED);
+            return false;
+        }
+
+        /* Status code handling */
+        switch (HTTPSend.HTTPCode.get().intValue()) {
+            case 200: // Success
+                // Parse JSON data
+                mediaURL = StringToJson.getData(response, "url");
+                redditURL = StringToJson.getData(response, "postLink");
+                caption = StringToJson.getData(response, "title");
+                nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+                tempDisableCaption = false;
+
+                Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
+
+                /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
+                switch (ImageValidity.check(response, countAttempt, usedURLs)) {
+                    case 0: // Image valid
+                        return true;
+                    case 1: // General failed validation
+                        return false;
+                    case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
+                        tempDisableCaption = true;
+                        return true;
+                }
+
+            case 530: // Cloudflare error
+                Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes appears to be under maintenance."
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
+
+                if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                return false;
+
+            default: // General error handling
+                Output.webhookPrint("[INSTA] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode + ". Quitting..."
+                        + "\n\tError message: " + response, Output.RED);
+
+                return false;
+        }
+        return false;
+    }
 
     public static void stop() { // Stop bot
         run = false;

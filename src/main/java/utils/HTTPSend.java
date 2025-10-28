@@ -19,11 +19,13 @@ import java.util.UUID;
 // String HTTPSend.postFile  ; Send HTTP POST request & send file
 // Inputs : URL to send to, path of file
 //
-// String HTTPSend.postForm  ; Send HTTP POST request with form-encoded fields
+// String HTTPSend.postForm  ; Send HTTP POST request with form fields
 // Inputs : URL to send to, Map<String,String> containing form fields
 public class HTTPSend {
 
-    public static ThreadLocal<Long> HTTPCode; // Threadlocal = "Each thread has its own version"
+    public static ThreadLocal<Long> HTTPCode = ThreadLocal.withInitial(() -> 0L);
+    // Threadlocal = "Each thread has its own version"
+    // ThreadLocal.withInitial(() -> 0L) = "Start with value
 
     public static String post(String URL, String jsonData) throws Exception {
         HttpClient client = HttpClient.newHttpClient(); // Creates new http instance to send request

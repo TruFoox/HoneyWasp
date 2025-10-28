@@ -14,7 +14,7 @@ import java.util.List;
 public class ImageValidity { // Need to break into individual classes
     static ReadConfig config = ReadConfig.getInstance();
 
-    public static int check(String response, boolean tempDisableCaption, long countattempt, List<String[]> usedURLs) {
+    public static int check(String response, long countattempt, List<String[]> usedURLs) {
         final List<String> BLACKLIST = config.getInstagram().getBlacklist();
         final boolean NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
         final long hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
@@ -46,7 +46,6 @@ public class ImageValidity { // Need to break into individual classes
             }
         }
 
-
         // Test image validity
         if (mediaURL.contains(".gif")) { // Ensure image is not gif
             Output.print("Image is gif - x" + countattempt + " attempts", Output.RED, true);
@@ -54,7 +53,8 @@ public class ImageValidity { // Need to break into individual classes
             return 1;
         }
 
-        for (String word : BLACKLIST) { // Ensure no blacklisted string in post caption
+        // Ensure no blacklisted string in post caption
+        for (String word : BLACKLIST) {
             if (caption.toLowerCase().contains(word.toLowerCase())) {
                 Output.print("Caption contains blacklisted string - x" + countattempt + " attempts", Output.RED, true);
 
