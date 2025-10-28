@@ -57,7 +57,7 @@ public class HoneyWasp extends ListenerAdapter {
                 "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
-        Output.print("HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+        Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         final String BOTTOKEN = config.getGeneral().getDiscordBotToken().trim();
         final List<String> AUTOSTART = config.getGeneral().getAutostart();
@@ -66,7 +66,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         // Login to bot
         try {
-            Output.print("Logging in to Discord bot...", Output.YELLOW, false, false);
+            Output.print("[SYS] Logging in to Discord bot...", Output.YELLOW, false, false);
             jda = JDABuilder.createDefault(
                             BOTTOKEN,
                             EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
@@ -78,11 +78,11 @@ public class HoneyWasp extends ListenerAdapter {
             // Wait until the bot is fully logged in
             jda.awaitReady();
 
-            Output.print("Bot connected successfully!", Output.YELLOW, false, false);
+            Output.print("[SYS] Bot connected successfully!", Output.YELLOW, false, false);
 
         } catch (Exception e) { // Handles login failures and interruptions
             e.printStackTrace();
-            Output.print("Bot failed to log in. Quitting...");
+            Output.print("[SYS] Bot failed to log in. Quitting...");
             Output.exitProgram();
         }
 
@@ -94,7 +94,7 @@ public class HoneyWasp extends ListenerAdapter {
 
             double versionDouble = Double.parseDouble(version);
             if (versionDouble > currentVersion) {
-                Output.webhookPrint("A new version is available! : v" + versionDouble + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
+                Output.webhookPrint("[SYS] A new version is available! : v" + versionDouble + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
             }
 
 
@@ -128,9 +128,9 @@ public class HoneyWasp extends ListenerAdapter {
 
             // Instagram
             if (item.toLowerCase().equals("instagram")) {
-                Output.webhookPrint("Autostarting Instagram", Output.YELLOW, false);
+                Output.webhookPrint("[SYS] Autostarting Instagram", Output.YELLOW, false);
 
-
+                HoneyWasp main = new HoneyWasp(); // Create call for bot to acknowledge when a thread closes
                 Instagram ig = new Instagram(); // Create bot instance
                 Thread t = new Thread(ig); // Create thread
 
@@ -139,7 +139,7 @@ public class HoneyWasp extends ListenerAdapter {
 
             // YouTube
             if (item.toLowerCase().equals("youtube")) {
-                Output.webhookPrint("Autostarting YouTube", Output.YELLOW, false);
+                Output.webhookPrint("[SYS] Autostarting YouTube", Output.YELLOW, false);
 
                 YouTube yt = new YouTube(); // Create bot instance
                 Thread t = new Thread(yt); // Create thread
@@ -314,5 +314,8 @@ public class HoneyWasp extends ListenerAdapter {
             default:
                 event.reply("Unknown command.").setEphemeral(true).queue();
         }
+    }
+    public void instagramStopped() {
+
     }
 }

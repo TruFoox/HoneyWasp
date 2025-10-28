@@ -5,7 +5,6 @@ plugins {
 }
 
 group = "Foox.HoneyWasp"
-version = "3.0"
 
 repositories {
     mavenCentral()
@@ -18,7 +17,7 @@ dependencies {
 	implementation("org.json:json:20240303")
     implementation("club.minnced:discord-webhooks:0.8.4")
     implementation("org.slf4j:slf4j-simple:2.0.9")
-    implementation("org.bytedeco:javacv-platform:1.5.12")
+    implementation("org.bytedeco:javacv:1.5.12")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.5")
     implementation("com.fasterxml.jackson.core:jackson-core:2.13.5")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.5")
@@ -34,9 +33,14 @@ application {
 
 tasks {
     named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
-        archiveBaseName.set("discord-bot")
-        archiveVersion.set("1.0")
+        archiveBaseName.set("HoneyWasp")
         archiveClassifier.set("") // removes the -all suffix
+
+        // exclude FFmpeg folder from being bundled into the jar
+        exclude("ffmpeg/**")
+
+        // Force output to IntelliJ artifact folder
+        destinationDirectory.set(file("C:/Users/lande/Desktop/HoneyWasp v3"))
     }
 
     build {

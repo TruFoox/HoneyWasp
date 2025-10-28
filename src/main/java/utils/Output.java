@@ -25,20 +25,21 @@ public class Output {
 
     static boolean lastOutputWasNewline = true;
 
+    // \t not used, instead use "     " - avoids the fact that \t can be different lengths depending on environment & break formatting
     public static synchronized void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
         if (lastOutputWasNewline) {System.out.println();}
 
         // Replaces /t with spacing required to line up with previous outputs
-        String prefix = "    [" + DateTime.time() + "] - ";
+        String prefix = "     [" + DateTime.time() + "] - ";
         String spacing = " ".repeat(prefix.length());
 
         String outputLine= message.replaceAll("\t", spacing);
 
         if (!useTimestamp) {
-            System.out.print(color + "\t" + outputLine + RESET);
+            System.out.print(color + "     " + outputLine + RESET);
             lastOutputWasNewline = true;
         } else {
-            System.out.print(color + "\t[" + DateTime.time() + "] - " + outputLine + RESET);
+            System.out.print(color + "     [" + DateTime.time() + "] - " + outputLine + RESET);
             lastOutputWasNewline = true;
         }
 
@@ -61,20 +62,20 @@ public class Output {
         if (!useTimestamp) {
             if (overwriteThisLine) {
                 System.out.print("\r\033[2K");
-                System.out.print(color + "\t" + message + RESET + "\r");
+                System.out.print(color + "     " + message + RESET + "\r");
                 lastOutputWasNewline = false;
             } else {
-                System.out.print(color + "\t" + message + RESET);
+                System.out.print(color + "     " + message + RESET);
                 lastOutputWasNewline = true;
             }
         } else {
             if (overwriteThisLine) {
                 System.out.print("\r\033[2K");
-                System.out.print(color + "\t[" + DateTime.time() + "] - " + message + RESET+ "\r");
+                System.out.print(color + "     [" + DateTime.time() + "] - " + message + RESET+ "\r");
                 lastOutputWasNewline = false;
             } else {
 
-                System.out.print(color + "\t[" + DateTime.time() + "] - " + message + RESET);
+                System.out.print(color + "     [" + DateTime.time() + "] - " + message + RESET);
                 lastOutputWasNewline = true;
             }
         }

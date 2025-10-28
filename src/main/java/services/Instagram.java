@@ -46,7 +46,7 @@ public class Instagram implements Runnable {
 
         if (!getMediaSource()) {return;} // Gets media location, cache files (Quit if failed)
 
-        Output.webhookPrint("Bot successfully started on Instagram");
+        Output.webhookPrint("[SYS] Bot successfully started on Instagram");
         run = true;
 
         try {
@@ -66,7 +66,15 @@ public class Instagram implements Runnable {
 
                 /* Fetch media */
                 if (POSTMODE.equals("auto")) {
-                    getMemeAPI(); // Get data from meme-api.com
+                    switch (getMemeAPI()) {
+                        case 0: // Success
+                            break;
+                        case 1: // Soft fail (retry)
+                            continue;
+                        case 2:
+                            return;
+
+                    }
 
                     /* If format is video, convert image to video */
                     if (FORMAT.equals("video")) {
@@ -273,6 +281,8 @@ public class Instagram implements Runnable {
             } catch (Exception inner) {
                 inner.printStackTrace();
             }
+        } finally { // Add handling for telling user when bot quits
+        Output.webhookPrint("Instagram stopped");
         }
     }
 
@@ -374,7 +384,7 @@ public class Instagram implements Runnable {
         return true; // Success
     }
 
-    public boolean getMemeAPI() throws Exception {
+    public int getMemeAPI() throws Exception {
         String response;
 
         randIndex = rand.nextInt(SUBREDDITS.size()); // Generate random subreddit index
@@ -386,7 +396,7 @@ public class Instagram implements Runnable {
         } catch (Exception e) {
             Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
-            return false;
+            return 2;
         }
 
         /* Status code handling */
@@ -404,12 +414,12 @@ public class Instagram implements Runnable {
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
                 switch (ImageValidity.check(response, countAttempt, usedURLs, true)) {
                     case 0: // Image valid
-                        return true;
+                        return 0;
                     case 1: // General failed validation
-                        return false;
+                        return 1;
                     case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
                         tempDisableCaption = true;
-                        return true;
+                        return 0;
                 }
 
             case 530: // Cloudflare error
@@ -417,15 +427,17 @@ public class Instagram implements Runnable {
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
-                return false;
+                return 1;
 
             default: // General error handling
                 Output.webhookPrint("[INSTA] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
-                return false;
+                return 2;
         }
-        return false;
+        Output.webhookPrint("[YT] How did the bot get here? This shouldn't be possible. Quitting..."
+                + "\n\tError message: " + response, Output.RED);
+        return 2;
     }
 
     public static void stop() { // Stop bot

@@ -57,7 +57,7 @@ public class YouTube implements Runnable {
 
         if (!getMediaSource()) {return;}// Gets media location, cache files (Quit if failed)
 
-        Output.webhookPrint("Bot successfully started on YouTube");
+        Output.webhookPrint("[SYS] Bot successfully started on YouTube");
         run = true;
 
         try {
@@ -75,13 +75,18 @@ public class YouTube implements Runnable {
                     Output.print("[YT] Attempting new post", Output.YELLOW, true,true);
                 }
 
-                if (!getMemeAPI()) {
-                    return;
-                } // Get data from meme-api.com
 
                 /* Get media */
                 if (POSTMODE.equals("auto")) {
-                    getMemeAPI(); // Get data from meme-api.com
+                    switch (getMemeAPI()) { // Get data from meme-api.com
+                        case 0: // Success
+                            break;
+                        case 1: // Soft fail (retry)
+                            continue;
+                        case 2:
+                            return;
+
+                    }
 
                     /* Convert image to video */
                     {
@@ -172,6 +177,8 @@ public class YouTube implements Runnable {
 
                             if (!Sleep.safeSleep(sleepTime)) break; // Sleep
 
+                            continue;
+
                         } else { // General error handling
                             Output.webhookPrint("[YT] Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Trying again, and marking this URL as invalid..."
                                     + "\n\tError message: " + response, Output.RED);
@@ -212,6 +219,8 @@ public class YouTube implements Runnable {
             } catch (Exception inner) {
                 inner.printStackTrace();
             }
+        } finally { // Add handling for telling user when bot quits
+            Output.webhookPrint("YouTube stopped");
         }
     }
     private boolean getAccessToken() {
@@ -247,7 +256,7 @@ public class YouTube implements Runnable {
         }
     }
 
-    public boolean getMemeAPI() throws Exception {
+    public int getMemeAPI() throws Exception {
         String response;
 
         randIndex = rand.nextInt(SUBREDDITS.size()); // Generate random subreddit index
@@ -259,7 +268,7 @@ public class YouTube implements Runnable {
         } catch (Exception e) {
             Output.webhookPrint("[YT] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
-            return false;
+            return 2;
         }
 
         /* Status code handling */
@@ -277,12 +286,12 @@ public class YouTube implements Runnable {
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
                 switch (ImageValidity.check(response, countAttempt, usedURLs, false)) {
                     case 0: // Image valid
-                        return true;
+                        return 0;
                     case 1: // General failed validation
-                        return false;
+                        return 1;
                     case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
                         tempDisableCaption = true;
-                        return true;
+                        return 0;
                 }
 
             case 530: // Cloudflare error
@@ -290,15 +299,18 @@ public class YouTube implements Runnable {
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
-                return false;
+                return 1;
 
             default: // General error handling
                 Output.webhookPrint("[YT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
-                return false;
+                return 2;
         }
-        return false;
+
+        Output.webhookPrint("[YT] How did the bot get here? This shouldn't be possible. Quitting..."
+                + "\n\tError message: " + response, Output.RED);
+        return 2;
     }
 
     // Get media location (based on POSTMODE & selected media format)

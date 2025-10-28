@@ -39,15 +39,15 @@ public class ImageValidity { // Need to break into individual classes
 
             double ratio = (double) image.getWidth(null) / image.getHeight(null);
 
-            if (ratio > 0.8 || ratio < 1.75) { // Test aspect ratio
+            if (ratio < 0.82 || ratio > 1.70) {
                 Output.print("Image has invalid aspect ratio", Output.RED, true);
-
                 return 1;
             }
+
         }
 
         // Test image validity
-        if (mediaURL.contains(".gif")) { // Ensure image is not gif
+        if (mediaURL.contains(".gif") || mediaURL.contains(".gifv")) { // Ensure image is not gif
             Output.print("Image is gif - x" + countattempt + " attempts", Output.RED, true);
 
             return 1;
