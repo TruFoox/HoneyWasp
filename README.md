@@ -168,7 +168,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 8. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.json
 
 ### Step 4: Generate a Refresh Token (One-Time)
-1. Open **Launch.exe** in HoneyWasp
+1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
 2. In the Discord Server where you have the bot, use ``/start youtube``
 3. Assuming ``refresh_token`` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
 4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
@@ -195,41 +195,41 @@ All of the different config items are explained below
 
 
 ### General_Settings
-| Key                   | Description                                                      |
-|-----------------------|------------------------------------------------------------------|
-| `"discord_bot_token"` | Your bot's token for logging in to Discord                       |
-| `"webhook_url"`       | Optional Discord webhook URL for notifications                   |
-| `"autostart"`         | List of services to launch automatically (e.g., `["instagram"]`) |
-| `"restart"`           | Whether to attempt bot restart on crash (Experimental)           |
-| `"debug_mode"`        | Enables verbose logging and debug output                         |
+| Key                   | Description                                                                |
+|-----------------------|----------------------------------------------------------------------------|
+| `"discord_bot_token"` | Your bot's token for logging in to Discord                                 |
+| `"webhook_url"`       | Optional Discord webhook URL for notifications                             |
+| `"autostart"`         | List of services to launch automatically (e.g., `["instagram","youtube"]`) |
+| `"restart"`           | Whether to attempt bot restart on crash (Experimental)                     |
+| `"debug_mode"`        | Enables verbose logging and debug output                                   |
 
 ### Instagram_Settings
-| Key                                | Description                                                                       |
-|------------------------------------|-----------------------------------------------------------------------------------|
-| `"api_key"`                        | Instagram API key                                                                 |
-| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `media.json`            |
-| `"format"`                         | Determines how content is posted (`"video"` or `"image"`)                         |
-| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP4s to `/audio`) |
-| `"time_between_posts"`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)      |
-| `"attempts_before_timeout"`        | The number of failed post attempts before giving up                               |
-| `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                         |
-| `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)           |
-| `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)       |
-| `"duplicates_allowed"`             | Whether to allow duplicate posts                                                  |
-| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE recommended**)                             |
-| `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                   |
-| `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                           |
-| `"caption"`                        | Default post caption                                                              |
-| `"hashtags"`                       | Hashtags appended to each Instagram post                                          |
+| Key                                | Description                                                                                             |
+|------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `"api_key"`                        | Instagram API key                                                                                       |
+| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `/images` or `/videos` depending on post_mode |
+| `"format"`                         | Determines how content is posted (`"video"` or `"image"`)                                               |
+| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                       |
+| `"time_between_posts"`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                            |
+| `"attempts_before_timeout"`        | The number of failed post attempts before giving up                                                     |
+| `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                                               |
+| `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                 |
+| `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                             |
+| `"duplicates_allowed"`             | Whether to allow duplicate posts                                                                        |
+| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE recommended**)                                                   |
+| `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                                         |
+| `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                                                 |
+| `"caption"`                        | Default post caption                                                                                    |
+| `"hashtags"`                       | Hashtags appended to each Instagram post                                                                |
 
 ### YouTube_Settings
 | Key                                | Description                                                                       |
 |------------------------------------|-----------------------------------------------------------------------------------|
-| `"refresh_token"`                  | Token for OAuth (****)                                                            |
+| `"refresh_token"`                  | Token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**) |
 | `"client_secret"`                  | YouTube API key for posting                                                       |
 | `"client_id"`                      | YouTube user ID for API access (ends with `"apps.googleusercontent.com"`)         |
-| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `/Videos`               |
-| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP4s to `/audio`) |  
+| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `/videos`               |
+| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`) |  
 | `"time_between_posts"`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)         |
 | `"attempts_before_timeout"`        | The number of failed post attempts before giving up                               |
 | `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                         |
@@ -243,7 +243,8 @@ All of the different config items are explained below
 | `"description"`                    | Post description                                                                  |
 
 ## Starting and Interacting with the bot
-To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
+To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
+- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 You can interact with the bot using Discord /slash commands. A list of commands can be found below:
 - ``/start [SERVICE/ALL]`` - Start the bot on the specified service
@@ -256,7 +257,7 @@ Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me
 
 ## Windows Defender Note
 This app might get flagged by Windows Defender because automated programs that call apis can resemble certain types of malware, despite being safe.
-If this happens, to use the bot you must allow it
+If this happens, to use the bot you must allow it through Windows Defender (Or your specific antivirus, but below are instructions for Defender)
 
 ### How to Allow It Through Defender:
 - Open Windows Security
@@ -269,7 +270,7 @@ If this happens, to use the bot you must allow it
 
 ## Built With
 
-Programmed with Java 23 in [IntelliJ IDEA]("https://www.jetbrains.com/idea/"), see [Acknowledgements](#acknowledgements)
+Programmed with Java 23 in [IntelliJ IDEA](https://www.jetbrains.com/idea/), see [Acknowledgements](#acknowledgements)
 
 ## Contributing
 
