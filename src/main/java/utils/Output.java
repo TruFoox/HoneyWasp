@@ -28,7 +28,7 @@ public class Output {
 
     // \t not used, instead use "     " - avoids the fact that \t can be different lengths depending on environment & break formatting
     public static synchronized void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
-        if (lastOutputWasNewline) {System.out.println();}
+        if (lastOutputWasNewline) {System.out.println();} else {System.out.print("\r\033[2K");}
 
         // Replaces /t with spacing required to line up with previous outputs
         String prefix = "     [" + DateTime.time() + "] - ";
@@ -58,7 +58,8 @@ public class Output {
     }
 
     public static synchronized void print(String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
-        if (lastOutputWasNewline) {System.out.println();}
+        if (lastOutputWasNewline) {System.out.println();} else {System.out.print("\r\033[2K");}
+
         if (!useTimestamp) {
             if (overwriteThisLine) {
                 System.out.print("\r\033[2K");
