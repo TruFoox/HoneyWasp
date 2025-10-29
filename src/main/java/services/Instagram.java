@@ -283,6 +283,8 @@ public class Instagram implements Runnable {
             }
         } finally { // Crash/Stop handling
         Output.webhookPrint("[SYS] Instagram stopped");
+
+            Status.instagramRunning = false;
         }
     }
 
@@ -352,7 +354,7 @@ public class Instagram implements Runnable {
                 }
 
                 // Start logging media
-                media = directory.listFiles(); // Gets all files in the directory
+                media = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
             }
 
             // Get audio
@@ -372,7 +374,7 @@ public class Instagram implements Runnable {
                     return false;
                 }
 
-                audio = directory.listFiles(); // Gets all files in the directory
+                media = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
             try {
@@ -413,7 +415,7 @@ public class Instagram implements Runnable {
                 Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs, true)) {
+                switch (ImageValidity.check(response, countAttempt, usedURLs, true, "instagram")) {
                     case 0: // Image valid
                         return 0;
                     case 1: // General failed validation

@@ -53,18 +53,7 @@ public class ImageToVideo {
             bufferedImage.flush();
 
 
-
-
-            // Get the folder where ffmpeg is located (which happens to be the same as the jar/main dir)
-            File jarDir = new File(ImageToVideo.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI())
-                    .getParentFile();
-
-            // Windows ffmpeg path relative to JAR
-            File ffmpegFile = new File(jarDir, "ffmpeg/win/bin/ffmpeg.exe");
+            File ffmpegFile = new File("./ffmpeg/win/bin/ffmpeg.exe");
 
             String ffmpegPath;
             if (ffmpegFile.exists()) {
@@ -157,10 +146,6 @@ public class ImageToVideo {
 
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-
-            return false;
-        } catch (URISyntaxException e) {
             e.printStackTrace();
 
             return false;

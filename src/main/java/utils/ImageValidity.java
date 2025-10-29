@@ -14,14 +14,34 @@ import java.util.List;
 public class ImageValidity { // Need to break into individual classes
     static ReadConfig config = ReadConfig.getInstance();
 
-    public static int check(String response, long countattempt, List<String[]> usedURLs, boolean testSize) {
-        final List<String> BLACKLIST = config.getInstagram().getBlacklist();
-        final boolean NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
-        final long hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
-        final List<String> CAPTION_BLACKLIST = config.getInstagram().getCaption_blacklist();
-        String mediaURL = StringToJson.getData(response, "url");
-        String caption = StringToJson.getData(response, "title");
-        boolean nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+    static List<String> BLACKLIST;
+    static boolean NSFW_ALLOWED;
+    static long hours_before_duplicate_removed;
+    static List<String> CAPTION_BLACKLIST;
+    static String mediaURL;
+    static String caption;
+    static boolean nsfw;
+    public static int check(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
+
+        /* Get config data */
+        if (platform.equals("instagram")) {
+            BLACKLIST = config.getInstagram().getBlacklist();
+            NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
+            hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
+            CAPTION_BLACKLIST = config.getInstagram().getCaption_blacklist();
+            mediaURL = StringToJson.getData(response, "url");
+            caption = StringToJson.getData(response, "title");
+            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+
+        } else if (platform.equals("youtube")) {
+            BLACKLIST = config.getYoutube().getBlacklist();
+            NSFW_ALLOWED = config.getYoutube().isNsfw_allowed();
+            hours_before_duplicate_removed = config.getYoutube().getHours_before_duplicate_removed();
+            CAPTION_BLACKLIST = config.getYoutube().getCaption_blacklist();
+            mediaURL = StringToJson.getData(response, "url");
+            caption = StringToJson.getData(response, "title");
+            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+        }
 
         // Download image & check aspect ratio
         if (testSize) {

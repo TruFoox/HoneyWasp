@@ -31,6 +31,12 @@ application {
     mainClass = "HoneyWasp"
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(23))
+    }
+}
+
 tasks {
     named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
         archiveBaseName.set("HoneyWasp")

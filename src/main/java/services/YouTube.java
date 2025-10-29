@@ -221,6 +221,8 @@ public class YouTube implements Runnable {
             }
         } finally { // Crash/Stop handling
             Output.webhookPrint("[SYS] YouTube stopped");
+
+            Status.youtubeRunning = false;
         }
     }
     private boolean getAccessToken() {
@@ -284,7 +286,7 @@ public class YouTube implements Runnable {
                 Output.print("[YT] Reddit post data successfully retrieved", Output.YELLOW, true);
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs, false)) {
+                switch (ImageValidity.check(response, countAttempt, usedURLs, false, "youtube")) {
                     case 0: // Image valid
                         return 0;
                     case 1: // General failed validation
@@ -336,12 +338,12 @@ public class YouTube implements Runnable {
                 }
 
                 // Start logging media
-                media = directory.listFiles(); // Gets all files in the directory
+                media = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
             }
 
             // Get audio
             if (AUDIO_ENABLED) {
-                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./videos"
+                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[YT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Youtube_Settings] in config.json. Quitting...", Output.RED);
@@ -355,7 +357,7 @@ public class YouTube implements Runnable {
                     return false;
                 }
 
-                audio = directory.listFiles(); // Gets all files in the directory
+                audio = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
             try {

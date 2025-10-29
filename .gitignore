@@ -7,7 +7,7 @@ build/
 
 ### Custom Stuff ###
 cache.txt
-bot.json
+config.json
 avfilter-11.dll
 avcodec-62.dll
 temp.mp4

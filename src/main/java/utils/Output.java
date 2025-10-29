@@ -11,6 +11,7 @@ import java.util.Scanner;
 // Void Output.print  ; Print message to console, no webhook
 // Inputs : Message to print, color to print as (Default white), whether to mark this line with \r as overridable (default false), whether to use timestamp (Default true)
 public class Output {
+    static ReadConfig config = ReadConfig.getInstance();
 
     // Colors (Use Output.[COLOR])
     public static final String RESET = "\u001B[0m";
@@ -43,10 +44,9 @@ public class Output {
             lastOutputWasNewline = true;
         }
 
-        ReadConfig config = ReadConfig.getInstance();
         if (config != null && config.getGeneral() != null) {
-            String botToken = config.getGeneral().getDiscordBotToken();
-            if (botToken != null && !botToken.isEmpty()) {
+            String webhook_url = config.getGeneral().getDiscordWebhook();
+            if (webhook_url != null && !webhook_url.isEmpty()) {
                 SendWebhook webhook = new SendWebhook();
 
                 String webhookMessage = message.replace("\t", "")

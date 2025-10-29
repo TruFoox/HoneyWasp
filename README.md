@@ -30,7 +30,6 @@
     * [Using the Bot](#starting-and-interacting-with-the-bot)
 * [Help](#help)
     * [Windows Defender](#windows-defender-note)
-    * [Config Help](#config-help)
 * [Built With](#built-with)
 * [Contributing](#contributing)
 * [Author](#author)
@@ -40,10 +39,9 @@
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
-Update 3.0 (Coming soon) is a port to Java, with webhook logging and audio support!
 # Getting Started
 
-Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Win.bat on Windows, or Launch.sh on Linux/Mac. 
+Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 **You must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot in any capacity**
@@ -180,46 +178,12 @@ Before launching the bot, make sure `Config.json` is set up correctly.
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
-All of the config settings are explained in a comment above the config setting in question, and some of the more confusing ones are explained in detail under [Config Help](#config-help).
-
-### Remember
-The config file is **not** forgiving of typos - what you input is taken literally, so check your spelling
-
-Boolean values (true or false) **need** to be lowercase ("youHavePurpose" = true)
-ALWAYS surround string (non-numeric, non-boolean) values with quotations ("fruits" = "apple","banana")
-There MUST be a comma delimiter after every config value
-
-
-## Starting and Interacting with the bot
-To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
-
-You can interact with the bot using Discord /slash commands. A list of commands can be found below:
-- ``/start [SERVICE/ALL]`` - Start the bot on the specified service
-- ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
-- ``/stop [SERVICE/ALL]`` - Stop the bot on the specified service
-
-# Help
-
-Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
-
-## Windows Defender Note
-This app might get flagged by Windows Defender because automated programs that call apis can resemble certain types of malware, despite being safe.
-If this happens, to use the bot you must allow it
-
-### How to Allow It Through Defender:
-- Open Windows Security
-
-- Go to Virus & threat protection
-
-- Click "Protection history"
-
-- Find the blocked app and click "Actions" > "Allow"
-
-## Config Help
-Here is some information regarding the different inputs within ``config.json``:
+All of the different config items are explained below
 
 ### Tips
+- The config file is **not** forgiving of typos - what you input is taken literally, so check your spelling
 - Boolean values (`true` or `false`) need to be lowercase (e.g., `"debug_mode": true`)
+- There MUST be a comma delimiter after every config value
 - ALWAYS surround string (non-numeric, non-boolean) values with quotes (e.g., `"caption": "Enjoy this meme"`)
 - Do not put anything in `"refresh_token"` under `"Youtube_Settings"` until prompted to do so by the bot
 
@@ -271,6 +235,31 @@ Here is some information regarding the different inputs within ``config.json``:
 | `"caption_blacklist"`              | Words that trigger fallback caption (auto post_mode only)                         |
 | `"caption"`                        | Post caption                                                                      |
 | `"description"`                    | Post description                                                                  |
+
+## Starting and Interacting with the bot
+To use the bot, launch ``launch.exe`` (You can also launch it using ``/data/start.exe``. launch.exe is just a launcher to make the main directory cleaner)
+
+You can interact with the bot using Discord /slash commands. A list of commands can be found below:
+- ``/start [SERVICE/ALL]`` - Start the bot on the specified service
+- ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
+- ``/stop [SERVICE/ALL]`` - Stop the bot on the specified service
+
+# Help
+
+Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
+
+## Windows Defender Note
+This app might get flagged by Windows Defender because automated programs that call apis can resemble certain types of malware, despite being safe.
+If this happens, to use the bot you must allow it
+
+### How to Allow It Through Defender:
+- Open Windows Security
+
+- Go to Virus & threat protection
+
+- Click "Protection history"
+
+- Find the blocked app and click "Actions" > "Allow"
 
 ## Built With
 
