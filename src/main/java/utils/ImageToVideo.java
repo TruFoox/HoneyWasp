@@ -56,7 +56,7 @@ public class ImageToVideo {
             File ffmpegFile = new File("./ffmpeg/win/bin/ffmpeg.exe");
 
             String ffmpegPath;
-            if (ffmpegFile.exists()) {
+            if (ffmpegFile.exists() && System.getProperty("os.name").toLowerCase().contains("win")) {
                 ffmpegPath = ffmpegFile.getAbsolutePath();
             } else {
                 ffmpegPath = "ffmpeg"; // fallback

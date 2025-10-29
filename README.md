@@ -43,9 +43,12 @@ This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon
 
 Before you can run the bot, you’ll need **Java 23 or higher** installed.
 
-- You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build.
-- After installing, verify it’s working by running:```java -version```
-- It should show version `23` or higher.
+- You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build. 
+  - On Linux, you can run `sudo apt install openjdk-23-jdk`
+- After installing, verify it’s working by running```java -version``` - It should show version 23 or higher.
+
+- If you are running the bot on Mac or Linux, video support requires ffmpeg installed to your system PATH.
+  - You can do this on linux with `sudo apt install ffmpeg`
 
 After you have successfully confirmed you have Java 23+ installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
