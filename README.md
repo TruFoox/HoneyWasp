@@ -40,7 +40,6 @@
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
-Update 3.0 (Coming soon) is a port to Java, with webhook logging and audio support!
 # Getting Started
 
 Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Win.bat on Windows, or Launch.sh on Linux/Mac. 
