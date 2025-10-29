@@ -41,7 +41,13 @@ This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon
 
 # Getting Started
 
-Download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
+Before you can run the bot, you’ll need **Java 23 or higher** installed.
+
+- You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build.
+- After installing, verify it’s working by running:```java -version```
+- It should show version `23` or higher.
+
+After you have successfully confirmed you have Java 23+ installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 **You must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot in any capacity**
@@ -200,7 +206,7 @@ All of the different config items are explained below
 ### Instagram_Settings
 | Key                                | Description                                                                       |
 |------------------------------------|-----------------------------------------------------------------------------------|
-| `"api_key"`                        | Instagram API key(s), separate multiple by commas                                 |
+| `"api_key"`                        | Instagram API key                                                                 |
 | `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `media.json`            |
 | `"format"`                         | Determines how content is posted (`"video"` or `"image"`)                         |
 | `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP4s to `/audio`) |
