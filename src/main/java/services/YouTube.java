@@ -296,8 +296,8 @@ public class YouTube implements Runnable {
                         return 0;
                 }
 
-            case 530: // Cloudflare error
-                Output.webhookPrint("[YT] Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes appears to be under maintenance."
+            case 503: // Cloudflare error
+                Output.webhookPrint("[YT] Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours

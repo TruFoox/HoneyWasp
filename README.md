@@ -45,7 +45,7 @@ Before you can run the bot, you’ll need **Java 23 or higher** installed.
 
 - You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build. 
   - On Linux, you can run `sudo apt install openjdk-23-jdk`
-- After installing, verify it’s working by running```java -version``` - It should show version 23 or higher.
+- After installing, verify it’s working by running``java -version`` - It should show version 23 or higher.
 
 - If you are running the bot on Mac or Linux, video support requires ffmpeg installed to your system PATH.
   - You can do this on linux with `sudo apt install ffmpeg`
@@ -70,7 +70,7 @@ After you have successfully confirmed you have Java 23+ installed, download the 
 3. Name it, then click **Create**
 4. Click your new bot to open its settings
 5. In the **Bot** tab in the left panel, → click **Reset Token**, follow the instructions to get your bot's API token
-6. Finally, copy the new token it gives you into ```discord_bot_token``` under ``[General_Settings]`` in config.json
+6. Finally, copy the new token it gives you into ``discord_bot_token`` under `[General_Settings]` in config.json
 
 ### Step 2: Set OAuth2 Permissions
 
@@ -133,7 +133,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 2. Paste your access token into the box and press **Debug**
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
-5. Place the result inside the ``api_key`` under ``[Instagram_Settings]`` of config.json
+5. Place the result inside the `api_key` under `[Instagram_Settings]` of config.json
 
 ## YouTube Setup
 
@@ -168,17 +168,17 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 5. Under **Create OAuth client ID**, choose **Desktop App**
 6. Name it anything → click **Create**
 7. Copy the **Client ID** and **Client Secret**
-8. Place the Client ID in ``client_id`` and Client Secret in ``client_secret`` under ``[Youtube_Settings]`` of Config.json
+8. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
 
 ### Step 4: Generate a Refresh Token (One-Time)
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
-2. In the Discord Server where you have the bot, use ``/start youtube``
-3. Assuming ``refresh_token`` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
+2. In the Discord Server where you have the bot, use `/start youtube`
+3. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
 4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 5. When prompted to allow access to your YouTube account, press **Continue**
-6. You can find your access token in the URL, between "http://localhost/?code=" and "&scope=https://www.googleapis.com/auth/youtube.upload"
-7. Your access token should look something like this: ``4/0AJIL1DDF16...`` (Do not include the "&" before "scope" or the "=" after "code"). Paste it into the console
-8. Assuming your token was valid, the console will now give you a new token to put in ``refresh_token`` under ``[Youtube_Settings]`` of Config.json
+6. You can find your access token in the URL, between `http://localhost/?code=` and `&scope=https://www.googleapis.com/auth/youtube.upload` (DO NOT INCLUDE THESE)
+7. Your access token should look something like this: `4/0AJIL1DDF16...` (Do not include ANY component of the two parts of the URL listed in Step 6). Paste it into the console
+8. Assuming your token was valid, the console will now give you a new token to put in `refresh_token` under `[Youtube_Settings]` of Config.json
 
 # Usage
 Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)
@@ -203,7 +203,6 @@ All of the different config items are explained below
 | `"discord_bot_token"` | Your bot's token for logging in to Discord                                 |
 | `"webhook_url"`       | Optional Discord webhook URL for notifications                             |
 | `"autostart"`         | List of services to launch automatically (e.g., `["instagram","youtube"]`) |
-| `"restart"`           | Whether to attempt bot restart on crash (Experimental)                     |
 | `"debug_mode"`        | Enables verbose logging and debug output                                   |
 
 ### Instagram_Settings
@@ -250,9 +249,9 @@ To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 You can interact with the bot using Discord /slash commands. A list of commands can be found below:
-- ``/start [SERVICE/ALL]`` - Start the bot on the specified service
-- ``/clear [SERVICE/ALL]`` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
-- ``/stop [SERVICE/ALL]`` - Stop the bot on the specified service
+- `/start [SERVICE/ALL]` - Start the bot on the specified service
+- `/clear [SERVICE/ALL]` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
+- `/stop [SERVICE/ALL]` - Stop the bot on the specified service
 
 # Help
 
