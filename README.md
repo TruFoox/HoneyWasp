@@ -219,7 +219,7 @@ All of the different config items are explained below
 | `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                 |
 | `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                             |
 | `"duplicates_allowed"`             | Whether to allow duplicate posts                                                                        |
-| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE recommended**)                                                   |
+| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                                   |
 | `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                                         |
 | `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                                                 |
 | `"caption"`                        | Default post caption                                                                                    |
