@@ -16,8 +16,6 @@
 </p>
 
 
-
-
 # Table Of Contents
 
 * [About the Project](#about-the-project)
@@ -38,6 +36,10 @@
 # About The Project
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+
+<p align="center">
+  <img src="https://i.postimg.cc/sxs4P5cW/image.png" alt="HoneyWasp" width="726" height="1025" /> 
+</p>
 
 # Getting Started
 
@@ -159,7 +161,8 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 1. Go to **APIs & Services → Credentials**
 2. Click **Create Credentials → OAuth client ID**
-3. If prompted, set up the OAuth consent screen:
+   - Set the **Application Type** as ``Desktop App``
+4. If prompted, set up the OAuth consent screen:
     - Go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
     - Go to **APIs & Services → OAuth consent screen**
     - Fill in required fields (app name, support email. These do not matter)
@@ -218,7 +221,7 @@ All of the different config items are explained below
 | `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                 |
 | `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                             |
 | `"duplicates_allowed"`             | Whether to allow duplicate posts                                                                        |
-| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE recommended**)                                                   |
+| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                                   |
 | `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                                         |
 | `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                                                 |
 | `"caption"`                        | Default post caption                                                                                    |
