@@ -65,7 +65,7 @@ public class YouTube implements Runnable {
             while (run) {
                 countAttempt++;
 
-                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT) { // If max # of attempts have been reached
+                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                     Output.webhookPrint("[YT] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
                     if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
