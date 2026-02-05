@@ -16,8 +16,6 @@
 </p>
 
 
-
-
 # Table Of Contents
 
 * [About the Project](#about-the-project)
@@ -38,6 +36,10 @@
 # About The Project
 
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+
+<p align="center">
+  <img src="https://i.postimg.cc/sxs4P5cW/image.png" alt="HoneyWasp" width="726" height="1025" /> 
+</p>
 
 # Getting Started
 
