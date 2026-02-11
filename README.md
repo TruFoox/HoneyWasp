@@ -305,4 +305,4 @@ Contributions are what make the open source community such an amazing place to l
 * **[JavaCV](https://github.com/bytedeco/javacv)** - Java wrapper for OpenCV, used to convert photos to video
 * **[Jackson](https://github.com/FasterXML/jackson-databind)** - JSON serialization/deserialization library for configs and API calls
 * **[MemeAPI](https://github.com/D3vd/Meme_Api)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesn't choose a source
-* **[0x0](https://0x0.su)** - Used to temporarily store videos for the bot to then send the URL to Instagram
+* **[0x0](https://0x0.st)** - Used to temporarily store videos for the bot to then send the URL to Instagram
