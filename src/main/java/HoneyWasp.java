@@ -228,6 +228,7 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         Instagram.stop();
+                        YouTube.stop();
 
                         break;
                     }
@@ -258,6 +259,9 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setDescription("Stopping " + service);
 
                         event.replyEmbeds(embed.build()).queue();
+
+                        YouTube.stop();
+
                         break;
                     }
                 }
@@ -277,7 +281,7 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         Instagram.clear();
-
+                        YouTube.clear();
                         break;
                     }
 
@@ -293,7 +297,6 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         Instagram.clear();
-
                         break;
                     }
 
@@ -307,6 +310,8 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setDescription(service + " cache cleared");
 
                         event.replyEmbeds(embed.build()).queue();
+
+                        YouTube.clear();
                         break;
                     }
                 }
@@ -316,8 +321,5 @@ public class HoneyWasp extends ListenerAdapter {
             default:
                 event.reply("Unknown command.").setEphemeral(true).queue();
         }
-    }
-    public void instagramStopped() {
-
     }
 }
