@@ -34,7 +34,8 @@ public class YouTube implements Runnable {
     long USERID, countAttempt = 0;
     List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir, accessToken;
-    boolean run = true, nsfw, tempDisableCaption;
+    boolean nsfw, tempDisableCaption;
+    static boolean run;
     int randIndex;
     File[] media, audio;
 
@@ -484,5 +485,14 @@ public class YouTube implements Runnable {
         return response.body();
     }
 
+    public static void stop() { // Stop bot
+        run = false;
+        Output.webhookPrint("YouTube successfully stopped");
+    }
+
+    public static void clear() { // Clear cache
+        FileIO.clearList("youtube");
+        Output.webhookPrint("YouTube cache successfully cleared");
+    }
 
 }
