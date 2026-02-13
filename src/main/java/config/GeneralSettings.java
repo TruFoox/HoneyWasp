@@ -8,7 +8,7 @@ public class GeneralSettings {
     @JsonProperty("discord_bot_token")
     private String discordBotToken;
 
-    @JsonProperty("webhook_url")  // Match the exact JSON key including case
+    @JsonProperty("webhook_url")
     private String discordWebhook;
 
     @JsonProperty("autostart")
