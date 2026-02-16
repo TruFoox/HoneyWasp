@@ -23,17 +23,18 @@ public class Twitter {
     File[] media, audio;
 
     // Load config
-    String SECRET = config.getYoutube().getClient_secret().trim();
-    String ID = config.getYoutube().getClient_id().trim();
-    final String POSTMODE = config.getYoutube().getPost_mode().trim().toLowerCase();
-    final int TIME_BETWEEN_POSTS = config.getYoutube().getTime_between_posts();
+    final String TOKEN = config.getTwitter().getApi_key().trim();
+    final String POSTMODE = config.getTwitter().getPost_mode().trim().toLowerCase();
+    final int TIME_BETWEEN_POSTS = config.getTwitter().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
-    final int ATTEMPTS_BEFORE_TIMEOUT = config.getYoutube().getAttempts_before_timeout();
-    final List<String> SUBREDDITS = config.getYoutube().getSubreddits();
-    final boolean USE_REDDIT_CAPTION = config.getYoutube().isUse_reddit_caption();
-    final boolean AUDIO_ENABLED = config.getYoutube().isAudio_enabled();
-    final String FALLBACK_CAPTION = config.getYoutube().getCaption();
-    final String DESCRIPTION = config.getYoutube().getDescription();
-    String REFRESHTOKEN = config.getYoutube().getRefresh_token(); // Not final because it can be fetched while still running
+    final int ATTEMPTS_BEFORE_TIMEOUT = config.getTwitter().getAttempts_before_timeout();
+    final List<String> SUBREDDITS = config.getTwitter().getSubreddits();
+    final String FORMAT = config.getTwitter().getFormat().trim().toLowerCase();
+    final boolean AUDIO_ENABLED = config.getTwitter().isAudio_enabled();
+    final boolean USE_REDDIT_CAPTION = config.getTwitter().isUse_reddit_caption();
+    final String FALLBACK_CAPTION = config.getTwitter().getCaption();
+    final String HASHTAGS = config.getTwitter().getHashtags();
+
+
 
 }
