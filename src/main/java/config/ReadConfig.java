@@ -14,6 +14,7 @@ import java.io.IOException;
 // ReadConfig.getGeneral  ; Retrieve general configuration section
 // ReadConfig.getInstagram  ; Retrieve Instagram configuration section
 // ReadConfig.getYoutube  ; Retrieve YouTube configuration section
+// ReadConfig.getTwitter  ; Retrieve Twitter configuration section
 public class ReadConfig {
     private static ReadConfig instance;
 
@@ -25,6 +26,9 @@ public class ReadConfig {
 
     @JsonProperty("Youtube_Settings")
     private YoutubeSettings Youtube_Settings;
+
+    @JsonProperty("Twitter_Settings")
+    private TwitterSettings Twitter_Settings;
 
     // Private constructor to prevent external instantiation
     private ReadConfig() {}
@@ -53,4 +57,7 @@ public class ReadConfig {
 
     public YoutubeSettings getYoutube() { return Youtube_Settings; }
     public void setYoutube(YoutubeSettings youtube_Settings) { Youtube_Settings = youtube_Settings; }
+
+    public TwitterSettings getTwitter() { return Twitter_Settings; }
+    public void setTwitter(TwitterSettings twitter_Settings) { Twitter_Settings = twitter_Settings; }
 }
