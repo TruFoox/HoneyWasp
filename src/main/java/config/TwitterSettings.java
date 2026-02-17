@@ -3,7 +3,9 @@ package config;
 import java.util.List;
 
 public class TwitterSettings {
-    private String api_key;
+    private String consumer_key;
+    private String client_secret;
+    private String refresh_token;
     private String post_mode;
     private String format;
     private int time_between_posts;
@@ -23,8 +25,14 @@ public class TwitterSettings {
     public TwitterSettings() {}
 
     // Getters and setters
-    public String getApi_key() { return api_key; }
-    public void setApi_key(String api_key) { this.api_key = api_key; }
+    public String getConsumer_key() { return consumer_key; }
+    public void setConsumer_key(String consumer_key) { this.consumer_key = consumer_key; }
+
+    public String getClient_secret() { return client_secret; }
+    public void setClient_secret(String client_secret) { this.client_secret = client_secret; }
+
+    public String getRefresh_token() { return refresh_token; }
+    public void setRefresh_token(String refresh_token) { this.refresh_token = refresh_token; }
 
     public String getPost_mode() { return post_mode; }
     public void setPost_mode(String post_mode) { this.post_mode = post_mode; }

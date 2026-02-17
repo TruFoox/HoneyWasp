@@ -9,12 +9,8 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import config.ReadConfig;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import utils.DateTime;
-import utils.HTTPSend;
-import utils.Output;
-import utils.StringToJson;
-import services.Instagram;
-import services.YouTube;
+import services.*;
+import utils.*;
 import java.awt.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -112,17 +108,21 @@ public class HoneyWasp extends ListenerAdapter {
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")),
+                                        .addChoice("Youtube", "youtube")
+                                        .addChoice("Twitter", "twitter")),
                         Commands.slash("stop", "Stops the specified HoneyWasp service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")),
+                                        .addChoice("Youtube", "youtube")
+                                        .addChoice("Twitter", "twitter")),
                         Commands.slash("clear", "Clear HoneyWasp cache of specific service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube"))
+                                        .addChoice("Youtube", "youtube")
+                                        .addChoice("Twitter", "twitter"))
+
                 ).queue();
 
         // Automatic starting of services
@@ -145,6 +145,16 @@ public class HoneyWasp extends ListenerAdapter {
 
                 YouTube yt = new YouTube(); // Create bot instance
                 Thread t = new Thread(yt); // Create thread
+
+                t.start(); // Start bot
+            }
+
+            // Twitter
+            if (item.toLowerCase().equals("twitter")) {
+                Output.webhookPrint("[SYS] Autostarting Twitter", Output.YELLOW, false);
+
+                Twitter tw = new Twitter(); // Create bot instance
+                Thread t = new Thread(tw); // Create thread
 
                 t.start(); // Start bot
             }
@@ -172,8 +182,10 @@ public class HoneyWasp extends ListenerAdapter {
                         // Threads
                         Thread i  = new Thread(new Instagram()); // Start Instagram
                         Thread y = new Thread(new YouTube()); // Start YouTube
+                        Thread t = new Thread(new Twitter()); // Start Twitter
                         i.start();
                         y.start();
+                        t.start();
 
                         break;
                     }
@@ -211,6 +223,22 @@ public class HoneyWasp extends ListenerAdapter {
 
                         break;
                     }
+                    case "twitter": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFFA500))
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
+                                .addField("Starting bot on " + service, "Use /stop to stop", false);
+
+                        event.replyEmbeds(embed.build()).queue();
+
+                        Thread t = new Thread(new Twitter()); // Start Twitter
+                        t.start();
+
+                        break;
+                    }
                 }
                 break;
             }
@@ -229,6 +257,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         Instagram.stop();
                         YouTube.stop();
+                        Twitter.stop();
 
                         break;
                     }
@@ -261,6 +290,21 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         YouTube.stop();
+
+                        break;
+                    }
+                    case "twitter": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFFA500))
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
+                                .setDescription("Stopping " + service);
+
+                        event.replyEmbeds(embed.build()).queue();
+
+                        Twitter.stop();
 
                         break;
                     }
@@ -282,6 +326,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         Instagram.clear();
                         YouTube.clear();
+                        Twitter.clear();
                         break;
                     }
 
@@ -312,6 +357,20 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         YouTube.clear();
+                        break;
+                    }
+                    case "twitter": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFFA500))
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
+                                .setDescription(service + " cache cleared");
+
+                        event.replyEmbeds(embed.build()).queue();
+
+                        Twitter.clear();
                         break;
                     }
                 }
