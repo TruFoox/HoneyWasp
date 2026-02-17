@@ -50,6 +50,8 @@ public class HTTPSend {
 
         return String.valueOf(response.body());
     }
+
+
     public static String get(String url) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
 
@@ -66,6 +68,28 @@ public class HTTPSend {
 
         return String.valueOf(response.body());  // Return response body to caller
     }
+
+    public static String get(String url, Map<String, String> headers) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET();
+
+        // Add headers from the map
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                builder.header(entry.getKey(), entry.getValue());
+            }
+        }
+
+        HttpRequest request = builder.build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        HTTPCode.set((long) response.statusCode());
+        return response.body();
+    }
+
     public static String postFile(String url, Path filePath) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
 
@@ -111,6 +135,8 @@ public class HTTPSend {
 
         return response.body();
     }
+
+
     public static String postForm(String url, Map<String, String> data) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
 
