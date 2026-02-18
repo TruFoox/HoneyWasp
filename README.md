@@ -171,7 +171,8 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 5. Under **Create OAuth client ID**, choose **Desktop App**
 6. Name it anything → click **Create**
 7. Copy the **Client ID** and **Client Secret**
-8. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
+8. Set `Redirect URI` to `http://localhost` in the OAuth 2.0 client settings. This ensures the bot can receive the authorization code when you authorize the app.
+9. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
 
 ### Step 4: Generate a Refresh Token (One-Time)
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
