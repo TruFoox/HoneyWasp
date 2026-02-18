@@ -41,17 +41,18 @@ public class FileIO {
             return splitList;
 
         } catch (IOException e) {
-            Output.webhookPrint("[INSTA] No cache.txt found. Quitting...", Output.RED);
-            return new ArrayList<>(); // safer than returning null
+            Output.webhookPrint("No /cache/" + service + "/cache.txt found. Quitting...", Output.RED);
+            return new ArrayList<>();
         }
     }
+
     public static void clearList(String service) {
         try {
             Path cachePath = Paths.get(".", "cache", service, "cache.txt");
 
             BufferedWriter writer = Files.newBufferedWriter(cachePath, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            Output.webhookPrint("[INSTA] No cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint("No /cache/" + service + "/cache.txt found. Quitting...", Output.RED);
         }
     }
 

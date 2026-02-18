@@ -2,12 +2,14 @@ package services;
 
 import config.ReadConfig;
 
+import java.awt.*;
 import java.io.File;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.awt.Image;
 import java.io.File;
 import java.net.URL;
 import javax.imageio.ImageIO;
@@ -33,6 +35,11 @@ public class Twitter implements Runnable {
     int randIndex;
     File[] media, audio;
 
+    // Twitter API expects a randomly generated hash every time you post but... why would I do that?
+    String securityKey = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"; // verifier
+    String codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"; // precomputed SHA256
+
+
     // Load config
     String KEY = config.getTwitter().getConsumer_key().trim();
     final String SECRET = config.getTwitter().getClient_secret().trim();
@@ -46,14 +53,56 @@ public class Twitter implements Runnable {
     final boolean USE_REDDIT_CAPTION = config.getTwitter().isUse_reddit_caption();
     final String FALLBACK_CAPTION = config.getTwitter().getCaption();
     final String HASHTAGS = config.getTwitter().getHashtags();
-    String REFRESH_TOKEN = config.getTwitter().getRefresh_token().trim();  // Not final because it can be fetched while still running
-    String TOKEN; // Temporary token that must be fetched every cycle
+    String REFRESHTOKEN = config.getTwitter().getRefresh_token().trim();  // Not final because it can be fetched while still running
+    String TOKEN; // Temporary access token that must be fetched every cycle
 
     public void run() {
-        if (!getAccessToken()) {return;} // Fetch user access token (Quit if failed)
-        if (!getUserID()) {return;} // Fetch user's UserID (Quit if failed)
+        if (!getRefreshToken()) {return;} // If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
+
+        if (!getAccessToken()) {return;} // Fetch temporary user access token (Quit if failed)
+
+        if (!getUserID()) {return;} // Fetch user's UserID using temporary token (Quit if failed)
     }
 
+    private boolean getRefreshToken() {
+        if (REFRESHTOKEN.isEmpty()) { // Only run if no refresh token
+            try {
+                String scope = "tweet.write media.write users.read offline.access";
+                String oauthURL = "https://twitter.com/i/oauth2/authorize?response_type=code" +
+                        "&client_id=" + KEY +
+                        "&redirect_uri=http://localhost" +
+                        "&scope=" + URLEncoder.encode(scope, "UTF-8") + // Convert to UTF-8 to add %20
+                        "&state=anything" +
+                        "&code_challenge=" + codeChallenge +
+                        "&code_challenge_method=S256";
+
+
+                Output.webhookPrint("BEFORE YOU CAN POST TO TWITTER, YOU MUST RETRIEVE YOUR ACCESS TOKEN." +
+                        "\n\tATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (OR GO TO " + oauthURL + ")", Output.RED);
+
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
+                    try {
+                        Desktop.getDesktop().browse(new URI(oauthURL));
+                    } catch (Exception e) {
+                        // Ignore
+                    }
+                }
+
+                Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE INPUT THE AUTHORIZATION CODE YOU RECEIVED AFTER GRANTING ACCESS (SEE https://github.com/TruFoox/HoneyWasp/#twitter-setup FOR HELP):", Output.RED);
+                String authCode = scanner.nextLine(); // Read user input
+
+                return true;
+            } catch (Exception e) {
+                try {
+                    Output.webhookPrint(String.valueOf(e), Output.RED);
+                } catch (Exception ex) {
+                    throw new RuntimeException(e);
+                }
+                return false;
+            }
+        }
+        return true;
+    }
     private boolean getAccessToken() {
         try {
 
@@ -67,14 +116,10 @@ public class Twitter implements Runnable {
             return false;
         }
     }
+
     private boolean getUserContextToken() { // Fetch UserID from X
         try {
-            Map<String, String> headers = new HashMap<>(); // Build Uplaod Data
-            headers.put("Authorization", "Bearer " + TOKEN); // TOKEN = your X API Bearer token
-            headers.put("Content-Type", "application/json");
-            String request = HTTPSend.get("https://api.x.com/2/users/me", headers);
 
-            Output.webhookPrint(request);
             return true;
         } catch (Exception e) {
             try {
@@ -85,10 +130,11 @@ public class Twitter implements Runnable {
             return false;
         }
     }
+
     private boolean getUserID() { // Fetch UserID from X
         try {
-            Map<String, String> headers = new HashMap<>(); // Build Uplaod Data
-            headers.put("Authorization", "Bearer " + TOKEN); // TOKEN = your X API Bearer token
+            Map<String, String> headers = new HashMap<>(); // Build Upload Data
+            headers.put("Authorization", "Bearer " + TOKEN);
             headers.put("Content-Type", "application/json");
             String request = HTTPSend.get("https://api.x.com/2/users/me", headers);
 
