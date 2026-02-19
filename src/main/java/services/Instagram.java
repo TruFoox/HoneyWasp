@@ -355,7 +355,7 @@ public class Instagram implements Runnable {
                 }
 
                 // Start logging media
-                media = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
+                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
             }
 
             // Get audio
@@ -375,7 +375,7 @@ public class Instagram implements Runnable {
                     return false;
                 }
 
-                media = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
+                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
             try {

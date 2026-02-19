@@ -1,11 +1,11 @@
 package services;
 
 import java.awt.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,7 +15,6 @@ import java.net.URI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.*;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.*;
 
@@ -31,7 +30,7 @@ public class YouTube implements Runnable {
     Scanner scanner = new Scanner(System.in); // Scanner
 
     // Empty global variables
-    long USERID, countAttempt = 0;
+    long countAttempt = 0;
     List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir, accessToken;
     boolean nsfw, tempDisableCaption;
@@ -208,7 +207,7 @@ public class YouTube implements Runnable {
                     }
                 }
 
-                Thread.sleep(1500); // Sleep 1.5 sec to prevent spam
+                if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 sec to prevent spam
             }
         } catch (InterruptedException e) { // When interrupted
             Thread.currentThread().interrupt(); // restore interrupt flag
@@ -334,12 +333,12 @@ public class YouTube implements Runnable {
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint(String.format("[YT] No videos found in /videos directory. Add media or set post_mode to auto. Quitting..."), Output.RED);
+                    Output.webhookPrint("[YT] No videos found in /videos directory. Add media or set post_mode to auto. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Start logging media
-                media = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
+                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
             }
 
             // Get audio
@@ -358,7 +357,7 @@ public class YouTube implements Runnable {
                     return false;
                 }
 
-                audio = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
+                audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
             try {
@@ -432,6 +431,7 @@ public class YouTube implements Runnable {
 
     /* I put this in a separate class because it's not my code (YouTube uploading is annoyingly specific) */
     public static String postYouTubeVideo(String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
+
         HttpClient client = HttpClient.newHttpClient();
 
         String boundary = UUID.randomUUID().toString();
@@ -451,7 +451,7 @@ public class YouTube implements Runnable {
 
         // Build multipart/related body manually
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
 
         // JSON metadata part
         writer.write("--" + boundary + CRLF);

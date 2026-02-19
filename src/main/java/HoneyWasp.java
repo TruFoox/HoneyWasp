@@ -56,11 +56,10 @@ public class HoneyWasp extends ListenerAdapter {
         Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         final String BOTTOKEN = config.getGeneral().getDiscordBotToken().trim();
-        final Boolean RESTART = config.getGeneral().isRestart();
 
         final List<String> AUTOSTART = config.getGeneral().getAutostart();
 
-        JDA jda = null; // Init JDA to null to prevent uninitialized error
+        JDA jda = null; // Init JDA object to prevent uninitialized error
 
         // Login to bot
         try {
@@ -87,12 +86,12 @@ public class HoneyWasp extends ListenerAdapter {
         // Check for new version
         try {
             String responseString = HTTPSend.get("https://api.github.com/repos/trufoox/honeywasp/releases/latest");
-            String version = StringToJson.getData(responseString, "tag_name");
-            version = version.replace("v", "");
 
-            double versionDouble = Double.parseDouble(version);
-            if (versionDouble > currentVersion) {
-                Output.webhookPrint("[SYS] A new version is available! : v" + versionDouble + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
+            // Fetch latest version, remove "v" (e.g. v4), then parse as double
+            double version =  Double.parseDouble(StringToJson.getData(responseString, "tag_name").replace("v", ""));
+
+            if (version > currentVersion) {
+                Output.webhookPrint("[SYS] A new version is available! : v" + version + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
             }
 
 
@@ -129,7 +128,7 @@ public class HoneyWasp extends ListenerAdapter {
         for(String item : AUTOSTART) {
 
             // Instagram
-            if (item.toLowerCase().equals("instagram")) {
+            if (item.equalsIgnoreCase("instagram")) {
                 Output.webhookPrint("[SYS] Autostarting Instagram", Output.YELLOW, false);
 
                 Instagram ig = new Instagram(); // Create bot instance
@@ -139,7 +138,7 @@ public class HoneyWasp extends ListenerAdapter {
             }
 
             // YouTube
-            if (item.toLowerCase().equals("youtube")) {
+            if (item.equalsIgnoreCase("youtube")) {
                 Output.webhookPrint("[SYS] Autostarting YouTube", Output.YELLOW, false);
 
                 YouTube yt = new YouTube(); // Create bot instance
@@ -149,7 +148,7 @@ public class HoneyWasp extends ListenerAdapter {
             }
 
             // Twitter
-            if (item.toLowerCase().equals("twitter")) {
+            if (item.equalsIgnoreCase("twitter")) {
                 Output.webhookPrint("[SYS] Autostarting Twitter", Output.YELLOW, false);
 
                 Twitter tw = new Twitter(); // Create bot instance
