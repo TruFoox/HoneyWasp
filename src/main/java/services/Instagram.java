@@ -42,7 +42,7 @@ public class Instagram implements Runnable {
 
 
     public void run() {
-        if (!getUserID()) {return;} // Get instagram User ID (Quit if failed)
+        if (!getUserID()) {return;} // Get Instagram User ID (Quit if failed)
 
         if (!getMediaSource()) {return;} // Gets media location, cache files (Quit if failed)
 
@@ -241,7 +241,7 @@ public class Instagram implements Runnable {
                     formData.put("access_token", TOKEN);
                     uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media_publish";
 
-                    HTTPSend.postForm(uploadURL, formData); // Send post for publish to Instagram
+                    response = HTTPSend.postForm(uploadURL, formData); // Send post for publish to Instagram
 
                     if (HTTPSend.HTTPCode.get() != 200) {
                         Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
