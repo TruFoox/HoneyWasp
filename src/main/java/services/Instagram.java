@@ -180,8 +180,8 @@ public class Instagram implements Runnable {
 
                     response = HTTPSend.postForm(uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
-                    if (HTTPSend.HTTPCode.get() != 200) {
-                        Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode +
+                    if (HTTPSend.HTTPCode.get() != 200 || HTTPSend.HTTPCode.get() != 201) {
+                        Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
                                 "\n\tError message: " + response, Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
@@ -243,7 +243,7 @@ public class Instagram implements Runnable {
                     HTTPSend.postForm(uploadURL, formData); // Send post for publish to Instagram
 
                     if (HTTPSend.HTTPCode.get() != 200) {
-                        Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode +
+                        Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
                                 "\n\tError message: " + response, Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
@@ -433,7 +433,7 @@ public class Instagram implements Runnable {
                 return 1;
 
             default: // General error handling
-                Output.webhookPrint("[INSTA] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode + ". Quitting..."
+                Output.webhookPrint("[INSTA] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
                 return 2;

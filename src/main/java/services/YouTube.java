@@ -305,7 +305,7 @@ public class YouTube implements Runnable {
                 return 1;
 
             default: // General error handling
-                Output.webhookPrint("[YT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode + ". Quitting..."
+                Output.webhookPrint("[YT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
                 return 2;
