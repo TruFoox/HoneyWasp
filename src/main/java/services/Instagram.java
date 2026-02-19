@@ -233,6 +233,7 @@ public class Instagram implements Runnable {
                         continue;
                     }
 
+                    if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 seconds to allow instagram time to publish media
 
                     /* Publish post */
                     formData.clear(); // Clear formData hashmap for publish
