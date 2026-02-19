@@ -22,7 +22,7 @@ import java.util.List;
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
     public static void main(String[] args) {
-        double currentVersion = 3.10; // Current version number
+        double currentVersion = 3.20; // Current version number
 
         ReadConfig config = ReadConfig.getInstance(); // Get config
 
@@ -132,7 +132,6 @@ public class HoneyWasp extends ListenerAdapter {
             if (item.toLowerCase().equals("instagram")) {
                 Output.webhookPrint("[SYS] Autostarting Instagram", Output.YELLOW, false);
 
-                HoneyWasp main = new HoneyWasp(); // Create call for bot to acknowledge when a thread closes
                 Instagram ig = new Instagram(); // Create bot instance
                 Thread t = new Thread(ig); // Create thread
 

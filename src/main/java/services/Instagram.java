@@ -71,7 +71,7 @@ public class Instagram implements Runnable {
                             break;
                         case 1: // Soft fail (retry)
                             continue;
-                        case 2:
+                        case 2: // Fail (quit)
                             return;
 
                     }
@@ -180,8 +180,9 @@ public class Instagram implements Runnable {
 
                     response = HTTPSend.postForm(uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
-                    if (HTTPSend.HTTPCode.get() != 200 || HTTPSend.HTTPCode.get() != 201) {
-                        Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
+
+                    if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
+                        Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                                 "\n\tError message: " + response, Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
