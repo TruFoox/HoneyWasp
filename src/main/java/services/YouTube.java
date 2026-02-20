@@ -41,7 +41,7 @@ public class YouTube implements Runnable {
     // Load config
     String SECRET = config.getYoutube().getClient_secret().trim();
     String ID = config.getYoutube().getClient_id().trim();
-    final String POSTMODE = config.getYoutube().getPost_mode().trim().toLowerCase();
+    final boolean AUTOPOSTMODE = config.getYoutube().isAuto_Post_Mode();
     final int TIME_BETWEEN_POSTS = config.getYoutube().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
     final int ATTEMPTS_BEFORE_TIMEOUT = config.getYoutube().getAttempts_before_timeout();
@@ -77,7 +77,7 @@ public class YouTube implements Runnable {
 
 
                 /* Get media */
-                if (POSTMODE.equals("auto")) {
+                if (AUTOPOSTMODE) {
                     switch (getMemeAPI()) { // Get data from meme-api.com
                         case 0: // Success
                             break;
@@ -135,7 +135,7 @@ public class YouTube implements Runnable {
                 {
                     if (!getAccessToken()) {return;} // Fetch temporary token from YouTube
 
-                    if (POSTMODE.equals("manual") || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
+                    if (!AUTOPOSTMODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
                         caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
 
                     }
@@ -189,7 +189,7 @@ public class YouTube implements Runnable {
 
                     } else { // Post success handling
 
-                        if (POSTMODE.equals("auto")) {
+                        if (AUTOPOSTMODE) {
                             Output.webhookPrint("[YT] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
                         } else {
                             Output.webhookPrint("[YT] " + redditURL + " uploaded to YouTube - x" + countAttempt + " attempt(s)", Output.GREEN);
@@ -318,7 +318,7 @@ public class YouTube implements Runnable {
     // Get media location (based on POSTMODE & selected media format)
     private boolean getMediaSource() {
         try {
-            if (POSTMODE.equals("auto")) {
+            if (AUTOPOSTMODE) {
                 usedURLs = FileIO.readList("youtube"); // Generate filepath "./cache/[youtube]/cache.txt" for given OS & read file
 
 

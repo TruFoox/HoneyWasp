@@ -29,12 +29,12 @@ public class Instagram implements Runnable {
 
     // Load config
     final String TOKEN = config.getInstagram().getApi_key().trim();
-    final String POSTMODE = config.getInstagram().getPost_mode().trim().toLowerCase();
+    final boolean AUTOPOSTMODE = config.getInstagram().isAuto_Post_Mode();
     final int TIME_BETWEEN_POSTS = config.getInstagram().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
     final int ATTEMPTS_BEFORE_TIMEOUT = config.getInstagram().getAttempts_before_timeout();
     final List<String> SUBREDDITS = config.getInstagram().getSubreddits();
-    final String FORMAT = config.getInstagram().getFormat().trim().toLowerCase();
+    final boolean VIDEO_MODE = config.getInstagram().isVideo_mode();
     final boolean AUDIO_ENABLED = config.getInstagram().isAudio_enabled();
     final boolean USE_REDDIT_CAPTION = config.getInstagram().isUse_reddit_caption();
     final String FALLBACK_CAPTION = config.getInstagram().getCaption();
@@ -65,7 +65,7 @@ public class Instagram implements Runnable {
                 }
 
                 /* Fetch media */
-                if (POSTMODE.equals("auto")) {
+                if (AUTOPOSTMODE) {
                     switch (getMemeAPI()) {
                         case 0: // Success
                             break;
@@ -77,7 +77,7 @@ public class Instagram implements Runnable {
                     }
 
                     /* If format is video, convert image to video */
-                    if (FORMAT.equals("video")) {
+                    if (VIDEO_MODE) {
                         Image image; // Holds image data (not usually needed unless converting to video as instagram takes image url as input)
 
                         try {
@@ -119,7 +119,7 @@ public class Instagram implements Runnable {
                 }
 
                 /* Upload manual media/generated video to temp file hoster */
-                if (POSTMODE.equals("manual") || FORMAT.equals("video")) {
+                if (!AUTOPOSTMODE || VIDEO_MODE) {
                     // Upload media to 0x0
                     Output.print("[INSTA] Uploading media to temp file hoster...", Output.YELLOW, true);
 
@@ -129,7 +129,7 @@ public class Instagram implements Runnable {
                     if (HTTPSend.HTTPCode.get() == 403) {
                         Output.webhookPrint("[INSTA] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
                                 "\n\tYour IP should be cycled and unblocked in a few months." +
-                                "\n\n\tIn the meantime, you should change 'format' to 'image' & 'post_mode' to 'auto' under [Instagram Settings]" +
+                                "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [Instagram Settings]" +
                                 "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
                                 "\n\n\tError message: " + response, Output.RED);
 
@@ -156,7 +156,7 @@ public class Instagram implements Runnable {
                 {
                     String jsonData, uploadURL, response; // Store json data & URL to be used with POST
 
-                    if (POSTMODE.equals("manual") || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
+                    if (!AUTOPOSTMODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
                         caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
                     }
 
@@ -165,7 +165,7 @@ public class Instagram implements Runnable {
                     // Build upload data
                     Map<String, String> formData = new HashMap<>();
 
-                    if (FORMAT.equals("image")) {
+                    if (!VIDEO_MODE) {
                         formData.put("image_url", mediaURL);
                         formData.put("caption", caption);
                         formData.put("access_token", TOKEN);
@@ -203,7 +203,7 @@ public class Instagram implements Runnable {
 
                     /* Instagram needs time to render videos - this loop has the bot wait until it is finished */
                     String postStatus = "";
-                    if (FORMAT.equals("video")) {
+                    if (VIDEO_MODE) {
                         do {
                             Output.print("[INSTA] Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
 
@@ -254,7 +254,7 @@ public class Instagram implements Runnable {
 
                         continue;
                     } else {
-                        if (POSTMODE.equals("auto")) {
+                        if (AUTOPOSTMODE) {
                             Output.webhookPrint("[INSTA] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
                         } else {
                             Output.webhookPrint("[INSTA] " + redditURL + " uploaded to Instagram - x" + countAttempt + " attempt(s)", Output.GREEN);
@@ -338,11 +338,11 @@ public class Instagram implements Runnable {
     // Get media location (based on POSTMODE & selected media format)
     private boolean getMediaSource() {
         try {
-            if (POSTMODE.equals("auto")) {
+            if (AUTOPOSTMODE) {
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
             } else { // Log manual media
-                File directory = Paths.get(".", FORMAT + "s").toFile(); // Generate filepath "./{Format}s"
+                File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[YT] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
@@ -351,8 +351,9 @@ public class Instagram implements Runnable {
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
+                String format = (VIDEO_MODE) ? "videos" : "images";
                 if (fileCount == 0) {
-                    Output.webhookPrint(String.format("[INSTA] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", FORMAT, FORMAT), Output.RED);
+                    Output.webhookPrint(String.format("[INSTA] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;
                 }
 
@@ -361,7 +362,7 @@ public class Instagram implements Runnable {
             }
 
             // Get audio
-            if (AUDIO_ENABLED && FORMAT.equals("video")) {
+            if (AUDIO_ENABLED && VIDEO_MODE) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
 
                 if (!directory.exists() || !directory.isDirectory()) {

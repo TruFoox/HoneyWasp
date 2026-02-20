@@ -6,7 +6,7 @@ public class YoutubeSettings {
     private String refresh_token;
     private String client_secret;
     private String client_id;
-    private String post_mode;
+    private boolean auto_post_mode;
     private int time_between_posts;
     private int attempts_before_timeout;
     private List<String> subreddits;
@@ -32,8 +32,8 @@ public class YoutubeSettings {
     public String getClient_id() { return client_id; }
     public void setClient_id(String client_id) { this.client_id = client_id; }
 
-    public String getPost_mode() { return post_mode; }
-    public void setPost_mode(String post_mode) { this.post_mode = post_mode; }
+    public boolean isAuto_Post_Mode() { return auto_post_mode; }
+    public void setAuto_Post_Mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
 
     public int getTime_between_posts() { return time_between_posts; }
     public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
