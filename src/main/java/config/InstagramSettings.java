@@ -5,7 +5,7 @@ import java.util.List;
 public class InstagramSettings {
     private String api_key;
     private String post_mode;
-    private String format;
+    private boolean video_mode;
     private int time_between_posts;
     private int attempts_before_timeout;
     private List<String> subreddits;
@@ -29,8 +29,8 @@ public class InstagramSettings {
     public String getPost_mode() { return post_mode; }
     public void setPost_mode(String post_mode) { this.post_mode = post_mode; }
 
-    public String getFormat() { return format; }
-    public void setFormat(String format) { this.format = format; }
+    public boolean isVideo_mode() { return video_mode; }
+    public void setVideo_mode(boolean video_mode) { this.video_mode = video_mode; }
 
     public int getTime_between_posts() { return time_between_posts; }
     public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
