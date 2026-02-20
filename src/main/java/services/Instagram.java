@@ -233,7 +233,7 @@ public class Instagram implements Runnable {
                         continue;
                     }
 
-                    if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 seconds to allow instagram time to publish media
+                    if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 seconds to allow instagram time to upload media
 
                     /* Publish post */
                     formData.clear(); // Clear formData hashmap for publish
@@ -361,7 +361,7 @@ public class Instagram implements Runnable {
 
             // Get audio
             if (AUDIO_ENABLED) {
-                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./videos"
+                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
@@ -371,12 +371,11 @@ public class Instagram implements Runnable {
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config" +
-                            ".json. Quitting...", Output.RED);
+                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
-                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
+                audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
             try {
