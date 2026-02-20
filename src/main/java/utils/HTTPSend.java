@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
-// HTTPSend
+// HTTPSend - Some of these I made, but the highly complicated ones I didn't
 //
 // String HTTPSend.post  ; Send HTTP POST request
 // Inputs : URL to send to, JSON data to include in body
@@ -96,30 +96,31 @@ public class HTTPSend {
         return response.body();
     }
 
-    public static String postFile(String url, Path filePath) throws Exception {
+    public static String postFile(String url, Path filePath) throws Exception { // DESIGNED FOR USE WITH 0x0 ONLY
         HttpClient client = HttpClient.newHttpClient();
 
-        // Generate boundary for multipart/form-data
         String boundary = UUID.randomUUID().toString();
-
-        // Read file bytes
         byte[] fileBytes = Files.readAllBytes(filePath);
 
-        // Build multipart body manually
         String CRLF = "\r\n";
         String fileName = filePath.getFileName().toString();
         StringBuilder sb = new StringBuilder();
 
+        // expires field
+        sb.append("--").append(boundary).append(CRLF);
+        sb.append("Content-Disposition: form-data; name=\"expires\"").append(CRLF);
+        sb.append(CRLF);
+        sb.append("1").append(CRLF); // 1 hour
+
+        // file field
         sb.append("--").append(boundary).append(CRLF);
         sb.append("Content-Disposition: form-data; name=\"file\"; filename=\"")
                 .append(fileName).append("\"").append(CRLF);
         sb.append("Content-Type: application/octet-stream").append(CRLF).append(CRLF);
 
         byte[] preamble = sb.toString().getBytes();
-
         byte[] ending = (CRLF + "--" + boundary + "--" + CRLF).getBytes();
 
-        // Combine preamble + file bytes + ending
         byte[] body = new byte[preamble.length + fileBytes.length + ending.length];
         System.arraycopy(preamble, 0, body, 0, preamble.length);
         System.arraycopy(fileBytes, 0, body, preamble.length, fileBytes.length);
@@ -127,9 +128,7 @@ public class HTTPSend {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        + "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        + "Chrome/118.0.0.0 Safari/537.36")
+                .header("User-Agent", "HoneyWasp/3.0")
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
                 .header("Accept-Language", "en-US,en;q=0.9")
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
@@ -137,7 +136,7 @@ public class HTTPSend {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        HTTPCode.set((long) response.statusCode()); // Set HTTP code
+        HTTPCode.set((long) response.statusCode());
 
         return response.body();
     }

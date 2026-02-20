@@ -127,10 +127,11 @@ public class Instagram implements Runnable {
 
                     // Error handling
                     if (HTTPSend.HTTPCode.get() == 403) {
-                        Output.webhookPrint("[INSTA] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! I've likely been flagged as a bot, and now your ip cant access the temp storage site!" +
+                        Output.webhookPrint("[INSTA] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
                                 "\n\tYour IP should be cycled and unblocked in a few months." +
-                                "\n\tIn the meantime, you should change 'format' to 'image' & 'post_mode' to 'auto' under [Instagram Settings] in config.json to bypass the need for temporary storage. Quitting..." +
-                                "\n\tError message: " + response, Output.RED);
+                                "\n\n\tIn the meantime, you should change 'format' to 'image' & 'post_mode' to 'auto' under [Instagram Settings]" +
+                                "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
+                                "\n\n\tError message: " + response, Output.RED);
 
                         return;
                     } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
@@ -360,7 +361,7 @@ public class Instagram implements Runnable {
             }
 
             // Get audio
-            if (AUDIO_ENABLED) {
+            if (AUDIO_ENABLED && FORMAT.equals("video")) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
 
                 if (!directory.exists() || !directory.isDirectory()) {
@@ -374,7 +375,6 @@ public class Instagram implements Runnable {
                     Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
-
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
