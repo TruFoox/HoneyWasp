@@ -41,7 +41,7 @@ public class YouTube implements Runnable {
     // Load config
     String SECRET = config.getYoutube().getClient_secret().trim();
     String ID = config.getYoutube().getClient_id().trim();
-    final boolean AUTOPOSTMODE = config.getYoutube().isAuto_Post_Mode();
+    final boolean AUTOPOSTMODE = config.getYoutube().isAuto_post_mode();
     final int TIME_BETWEEN_POSTS = config.getYoutube().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
     final int ATTEMPTS_BEFORE_TIMEOUT = config.getYoutube().getAttempts_before_timeout();

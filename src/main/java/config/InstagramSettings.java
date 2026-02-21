@@ -19,6 +19,10 @@ public class InstagramSettings {
     private String caption;
     private String hashtags;
 
+    // Jackson expects a very specific format - DO NOT capitalize in any other way. Too many hours have been spent trying to fix that issue only to find it was some BS:
+    // Non-bool: getFirstword_secondword_thirdword
+    // Bool: isFirstword-secondword-thirdword
+
     // Default constructor
     public InstagramSettings() {}
 
@@ -26,8 +30,8 @@ public class InstagramSettings {
     public String getApi_key() { return api_key; }
     public void setApi_key(String api_key) { this.api_key = api_key; }
 
-    public boolean isAuto_Post_Mode() { return auto_post_mode; }
-    public void setAuto_Post_Mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
+    public boolean isAuto_post_mode() { return auto_post_mode; }
+    public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
 
     public boolean isVideo_mode() { return video_mode; }
     public void setVideo_mode(boolean video_mode) { this.video_mode = video_mode; }

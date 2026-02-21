@@ -53,6 +53,12 @@ public class HoneyWasp extends ListenerAdapter {
                 "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
+
+        if (config == null) {
+            Output.webhookPrint("Config is invalid");
+            return;
+        }
+
         Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         final String BOTTOKEN = config.getGeneral().getDiscordBotToken().trim();

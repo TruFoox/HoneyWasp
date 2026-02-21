@@ -29,7 +29,7 @@ public class Instagram implements Runnable {
 
     // Load config
     final String TOKEN = config.getInstagram().getApi_key().trim();
-    final boolean AUTOPOSTMODE = config.getInstagram().isAuto_Post_Mode();
+    final boolean AUTOPOSTMODE = config.getInstagram().isAuto_post_mode();
     final int TIME_BETWEEN_POSTS = config.getInstagram().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
     final int ATTEMPTS_BEFORE_TIMEOUT = config.getInstagram().getAttempts_before_timeout();

@@ -32,8 +32,8 @@ public class YoutubeSettings {
     public String getClient_id() { return client_id; }
     public void setClient_id(String client_id) { this.client_id = client_id; }
 
-    public boolean isAuto_Post_Mode() { return auto_post_mode; }
-    public void setAuto_Post_Mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
+    public boolean isAuto_post_mode() { return auto_post_mode; }
+    public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
 
     public int getTime_between_posts() { return time_between_posts; }
     public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
