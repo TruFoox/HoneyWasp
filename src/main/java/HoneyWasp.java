@@ -55,7 +55,7 @@ public class HoneyWasp extends ListenerAdapter {
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
 
         if (config == null) {
-            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at )", Output.RED, false, false);
+            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
             return;
         }
 

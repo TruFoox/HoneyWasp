@@ -10,7 +10,7 @@
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
   <br /><br />
-  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
+  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total.svg" alt="Downloads" />
   <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
   <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
 </p>
@@ -191,7 +191,9 @@ Before launching the bot, make sure `Config.json` is set up correctly.
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
-All of the different config items are explained below
+[An example config has been provided here](https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json). If you are having issues, make sure your config has identical formatting to the example.
+
+Below you can find documentation on every configuration option
 
 ### Tips
 - The config file is **not** forgiving of typos - what you input is taken literally, so check your spelling
