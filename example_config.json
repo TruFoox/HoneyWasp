@@ -1,7 +1,8 @@
-"None of these are valid keys or IDs so even try lol"
+None of these are valid keys or IDs so don't even try lol
+
 {
   "General_Settings": {
-    "discord_bot_token": "2M1DEz2MAET3NT5zIMMNOMkAwT.UYGOtF.TpQw7ZDSnH OLRiFMZ7y6_ gQvOEDZWo0F2Ljdxc",
+    "discord_bot_token": "2M1DEz2MAET3NT5zIMMNOMkAwT.UYGOtF.TpQw7ZDSnH OLRiFMZ7y6_gQvOEDZWo0F2Ljdxc",
     "webhook_url": "https://discord.com/api/webhooks/1301837897882123134/NUoPEicoTI0QoaxirYcWPUJIECWsOtBBGt_b9P2xHWrhaE7Z2jNozINM6IkF13zAKm1S",
     "autostart": ["instagram","youtube"],
     "debug_mode": false
@@ -25,7 +26,7 @@
   },
   "Youtube_Settings": {
     "refresh_token": "1//raJFPmWaS9hogpEwIgtMCRL264q4GjLAIYTiyyOx6l6I-YMP_MaLDdPbN7-h0wYAAzLj8TXFNA2taEymvUBJ6RPA0aGXw1KhFgZl",
-    "client_secret": "BVjOS7Ag9KP1dp gnHe8-4xb mzNXGCBsP5At",
+    "client_secret": "BVjOS7Ag9KP1dp gnHe8-4xbmzNXGCBsP5At",
     "client_id": "g796i8gqfg092k3kt642n146e75530h63vej37jk-5dp0.apps.googleusercontent.com",
     "auto_post_mode": true,
 	"audio_enabled": true,

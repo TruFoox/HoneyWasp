@@ -38,11 +38,10 @@ public class Output {
 
         if (!useTimestamp) {
             System.out.print(color + "     " + outputLine + RESET);
-            lastOutputWasNewline = true;
         } else {
             System.out.print(color + "     [" + DateTime.time() + "] - " + outputLine + RESET);
-            lastOutputWasNewline = true;
         }
+        lastOutputWasNewline = true;
 
         if (config != null && config.getGeneral() != null) {
             String webhook_url = config.getGeneral().getDiscordWebhook();
