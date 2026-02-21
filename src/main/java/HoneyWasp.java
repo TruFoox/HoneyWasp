@@ -55,7 +55,7 @@ public class HoneyWasp extends ListenerAdapter {
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
 
         if (config == null) {
-            Output.webhookPrint("Config is invalid");
+            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at )", Output.RED, false, false);
             return;
         }
 
@@ -163,7 +163,7 @@ public class HoneyWasp extends ListenerAdapter {
                 t.start(); // Start bot
             }
         }
-        Output.print("\n\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
+        Output.print("\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
     }
 
     @Override

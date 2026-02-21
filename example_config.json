@@ -1,0 +1,44 @@
+"None of these are valid keys or IDs so even try lol"
+{
+  "General_Settings": {
+    "discord_bot_token": "2M1DEz2MAET3NT5zIMMNOMkAwT.UYGOtF.TpQw7ZDSnH OLRiFMZ7y6_ gQvOEDZWo0F2Ljdxc",
+    "webhook_url": "https://discord.com/api/webhooks/1301837897882123134/NUoPEicoTI0QoaxirYcWPUJIECWsOtBBGt_b9P2xHWrhaE7Z2jNozINM6IkF13zAKm1S",
+    "autostart": ["instagram","youtube"],
+    "debug_mode": false
+  },
+  "Instagram_Settings": {
+    "api_key": "EAALkfA7tsCwDtnJU4kQPOPf1XYDVT7cDyBmFQIGALaaM9j2bkOAvg3pT6mBYLjJQ5vvSBxy9BIduj5jB8MLtPlvHk95ZkwZGTLVaxqEbH5VBpTBZHBh26yu76lbZpBVa0RZNciDBg7xEM9RiLclrB5hfvNrrYzWYXqTeiunkl1ZZ7ErLZKZAIGcaFpwuIjLuBmsJH",
+    "auto_post_mode": true,
+    "video_mode": false,
+	"audio_enabled": true,
+    "time_between_posts": 45,
+    "attempts_before_timeout": 50,
+    "hours_before_duplicate_removed": 500,
+	"subreddits": ["memes", "meme", "comedyheaven"],
+    "blacklist": ["politic", "democrat", "republican", "liberal", "conservative", "trump", "biden", "r/"],
+    "duplicates_allowed": false,
+    "nsfw_allowed": false,
+    "use_reddit_caption": false,
+    "caption_blacklist": ["Fuck", "Shit", "Ass", "Bitch"],
+    "caption": "Enjoy this meme? Follow for MEMES EVERY 45 MINUTES",
+    "hashtags": "#meme #memes #funny #dankmemes #memesdaily #funnymemes #lol #humor #follow #dank #love #like #memepage #comedy #instagram #dankmeme #tiktok #anime #lmao #dailymemes #edgymemes #fun #ol #offensivememes #memestagram #bhfyp #funnymeme #instagood #shitpost #memer"
+  },
+  "Youtube_Settings": {
+    "refresh_token": "1//raJFPmWaS9hogpEwIgtMCRL264q4GjLAIYTiyyOx6l6I-YMP_MaLDdPbN7-h0wYAAzLj8TXFNA2taEymvUBJ6RPA0aGXw1KhFgZl",
+    "client_secret": "BVjOS7Ag9KP1dp gnHe8-4xb mzNXGCBsP5At",
+    "client_id": "g796i8gqfg092k3kt642n146e75530h63vej37jk-5dp0.apps.googleusercontent.com",
+    "auto_post_mode": true,
+	"audio_enabled": true,
+    "time_between_posts": 140,
+    "attempts_before_timeout": 50,
+	"hours_before_duplicate_removed": 500,
+    "subreddits": ["memes", "meme", "comedyheaven"],
+    "blacklist": ["politic", "democrat", "republican", "liberal", "conservative", "trump", "biden", "r/"],
+	"duplicates_allowed": false,
+    "nsfw_allowed": false,
+    "use_reddit_caption": false,
+    "caption_blacklist": ["Fuck", "Shit", "Ass", "Bitch"],
+	"caption": "Enjoy this meme? Follow for MEMES EVERY DAY",
+    "description": "#youtubememes #memes #meme #funnymemes #memefollow #favoritememes #memerevolution #lastmeme #justmemes #memedinner #mostrecentmemes #memescholar #memewar #memeaddicts #drunkpeoplememes #skatememes #rapmemes #memechef #partymemes #hiphopmemes #dankmemes #morale #youtube #spanishmemes #policememes #girlmemes #kanyewestmemes #artistmeme #prememe #mememedication"
+  }
+}
