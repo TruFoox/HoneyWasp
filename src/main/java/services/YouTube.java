@@ -387,8 +387,10 @@ public class YouTube implements Runnable {
                 }
             }
 
-            Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE INPUT THE AUTHORIZATION CODE YOU RECEIVED AFTER GRANTING ACCESS (SEE https://github.com/TruFoox/HoneyWasp/#youtube-setup FOR HELP):", Output.RED);
-            String authCode = scanner.nextLine(); // Read user input
+            Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#youtube-setup FOR HELP):", Output.RED);
+            String redirectUrl = scanner.nextLine(); // Read user input
+
+            String authCode = redirectUrl.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
 
 
             // Build upload data

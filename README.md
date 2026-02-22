@@ -180,9 +180,8 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 3. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
 4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 5. When prompted to allow access to your YouTube account, press **Continue**
-6. You can find your access token in the URL, between `http://localhost/?code=` and `&scope=https://www.googleapis.com/auth/youtube.upload` (DO NOT INCLUDE THESE)
-7. Your access token should look something like this: `4/0AJIL1DDF16...` (Do not include ANY component of the two parts of the URL listed in Step 6). Paste it into the console
-8. Assuming your token was valid, the console will now give you a new token to put in `refresh_token` under `[Youtube_Settings]` of Config.json
+6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
+7. Assuming your token was valid, the console will now give you a new token to put in `refresh_token` under `[Youtube_Settings]` of Config.json
 
 # Usage
 Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)
