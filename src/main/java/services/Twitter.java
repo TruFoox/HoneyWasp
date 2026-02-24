@@ -35,7 +35,7 @@ public class Twitter implements Runnable {
     int randIndex;
     File[] media, audio;
 
-    // Twitter API expects a randomly generated hash every time you post but... why would I do that?
+    // Twitter API expects a randomly generated hash every time you post but... why would I do that? It's Twitter.
     String securityKey = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"; // verifier
     String codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"; // precomputed SHA256
 
@@ -67,11 +67,10 @@ public class Twitter implements Runnable {
     private boolean getRefreshToken() {
         if (REFRESHTOKEN.isEmpty()) { // Only run if no refresh token
             try {
-                String scope = "tweet.write media.write users.read offline.access";
                 String oauthURL = "https://twitter.com/i/oauth2/authorize?response_type=code" +
                         "&client_id=" + KEY +
                         "&redirect_uri=http://localhost" +
-                        "&scope=" + URLEncoder.encode(scope, "UTF-8") + // Convert to UTF-8 to add %20
+                        "&scope=tweet.write%20media.write%20users.read%20offline.access"+ // Convert to UTF-8 to add %20
                         "&state=anything" +
                         "&code_challenge=" + codeChallenge +
                         "&code_challenge_method=S256";
@@ -91,10 +90,34 @@ public class Twitter implements Runnable {
                 Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#twitter-setup FOR HELP):", Output.RED);
                 String redirectUrl = scanner.nextLine(); // Read user input
 
-                String authCode = redirectUrl.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
+                String authCode = redirectUrl.replace("http://localhost/?state=anything&code=", ""); // Remove non-code part of URL
 
+                oauthURL = "https://api.twitter.com/2/oauth2/token";
+                // Build upload data
+                Map<String, String> formData = new HashMap<>();
 
-                return true;
+                formData.put("client_id", KEY);
+                formData.put("grant_type", "authorization_code");
+                formData.put("redirect_uri", "http://localhost");
+                formData.put("code", authCode);
+                formData.put("code_verifier", securityKey);
+
+                String response = HTTPSend.postForm(oauthURL, formData);
+
+                if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
+                    REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
+
+                    Output.webhookPrint("PLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [Twitter_Settings] IN config.json:" +
+                            "\n\t" + REFRESHTOKEN +
+                            "\n\tBOT WILL STILL CONTINUE TO RUN BUT IF YOU DONT ADD TO CONFIG YOU WILL NEED TO REAUTHENTICATE NEXT LAUNCH", Output.GREEN);
+
+                    return true;  // Success
+                } else {
+                    Output.webhookPrint("[Twit] Failed to fetch token. Quitting..." +
+                            "\n\tError message: " + response, Output.RED);
+
+                    return false;
+                }
             } catch (Exception e) {
                 try {
                     Output.webhookPrint(String.valueOf(e), Output.RED);

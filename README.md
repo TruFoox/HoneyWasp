@@ -38,7 +38,7 @@
 This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
 <p align="center">
-  <img src="https://i.postimg.cc/sxs4P5cW/image.png" alt="HoneyWasp" width="726" height="1025" /> 
+  <img src="https://i.postimg.cc/44ct5bQk/image.png" alt="HoneyWasp" width="1025" height="578" /> 
 </p>
 
 # Getting Started
@@ -181,7 +181,7 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 5. When prompted to allow access to your YouTube account, press **Continue**
 6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
-7. Assuming your token was valid, the console will now give you a new token to put in `refresh_token` under `[Youtube_Settings]` of Config.json
+7. Assuming your url was valid, the console will now give you a new token to put in `refresh_token` under `[Youtube_Settings]` of Config.json
 
 # Usage
 Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)

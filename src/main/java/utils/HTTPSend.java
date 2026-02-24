@@ -8,6 +8,11 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
+// Reminder:
+// Header: Metadata about request
+// Body: The data actually being sent
+
+
 // HTTPSend - Some of these I made, but the highly complicated ones I didn't
 //
 // String HTTPSend.post  ; Send HTTP POST request
