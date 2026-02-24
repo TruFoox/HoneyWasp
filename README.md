@@ -5,7 +5,7 @@
   <br /><br />
   <strong>HoneyWasp</strong>
   <br /><br />
-  A bot to automatically post to various social media services.
+  A Java-based bot for automating uploads to various social media services
   <br /><br />
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
@@ -35,10 +35,11 @@
 
 # About The Project
 
-This is a simple, lightweight, yet powerful bot for Instagram, Youtube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+This is a simple, lightweight, yet powerful bot for Instagram, YouTube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
+All data handling, keys, tokens, and processing is handled **client side** - Your information is **YOURS**
 <p align="center">
-  <img src="https://i.postimg.cc/44ct5bQk/image.png" alt="HoneyWasp" width="1025" height="578" /> 
+  <img src="https://i.postimg.cc/44ct5bQk/image.png" alt="HoneyWasp" width="850" height="680" /> 
 </p>
 
 # Getting Started
@@ -162,17 +163,17 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 1. Go to **APIs & Services → Credentials**
 2. Click **Create Credentials → OAuth client ID**
    - Set the **Application Type** as ``Desktop App``
-4. If prompted, set up the OAuth consent screen:
+3. If prompted, set up the OAuth consent screen:
     - Go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
     - Go to **APIs & Services → OAuth consent screen**
     - Fill in required fields (app name, support email. These do not matter)
     - Choose **External**, then press **Create**
     - Click **Save and Continue** until you can hit **Back to Dashboard**
-5. Under **Create OAuth client ID**, choose **Desktop App**
-6. Name it anything → click **Create**
-7. Copy the **Client ID** and **Client Secret**
-8. Set `Redirect URI` to `http://localhost` in the OAuth 2.0 client settings. This ensures the bot can receive the authorization code when you authorize the app.
-9. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
+4. Under **Create OAuth client ID**, choose **Desktop App**
+5. Name it anything → click **Create**
+6. Copy the **Client ID** and **Client Secret**
+7. Set `Redirect URI` to `http://localhost` in the OAuth 2.0 client settings. This ensures the bot can receive the authorization code when you authorize the app.
+8. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
 
 ### Step 4: Generate a Refresh Token (One-Time)
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
@@ -223,7 +224,7 @@ Below you can find documentation on every configuration option
 | `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                 |
 | `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                             |
 | `"duplicates_allowed"`             | Whether to allow duplicate posts                                                                        |
-| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                                   |
+| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                            |
 | `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                                         |
 | `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                                                 |
 | `"caption"`                        | Default post caption                                                                                    |

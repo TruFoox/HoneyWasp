@@ -70,7 +70,7 @@ public class Twitter implements Runnable {
                 String oauthURL = "https://twitter.com/i/oauth2/authorize?response_type=code" +
                         "&client_id=" + KEY +
                         "&redirect_uri=http://localhost" +
-                        "&scope=tweet.write%20media.write%20users.read%20offline.access"+ // Convert to UTF-8 to add %20
+                        "&scope=tweet.write%20media.write%20users.read%20offline.access"+
                         "&state=anything" +
                         "&code_challenge=" + codeChallenge +
                         "&code_challenge_method=S256";
@@ -87,12 +87,13 @@ public class Twitter implements Runnable {
                     }
                 }
 
-                Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#twitter-setup FOR HELP):", Output.RED);
+                Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#twitter-setup FOR HELP):", Output.YELLOW);
                 String redirectUrl = scanner.nextLine(); // Read user input
 
                 String authCode = redirectUrl.replace("http://localhost/?state=anything&code=", ""); // Remove non-code part of URL
 
                 oauthURL = "https://api.twitter.com/2/oauth2/token";
+
                 // Build upload data
                 Map<String, String> formData = new HashMap<>();
 
