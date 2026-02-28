@@ -280,7 +280,10 @@ public class Instagram implements Runnable {
 
         } catch (Exception e) { // General error handling
             try {
-                Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+                if (ErrorHandling.messageTable.containsKey(e.getMessage())) // Test if error is known
+                    Output.webhookPrint("[INSTA] Bot crashed with error: " + ErrorHandling.messageTable.get(e.getMessage()), Output.RED);
+                    else
+                        Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
             } catch (Exception inner) {
                 inner.printStackTrace();
             }

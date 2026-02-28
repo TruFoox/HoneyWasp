@@ -14,6 +14,7 @@ import utils.*;
 import java.awt.*;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Scanner;
 
 
 /* Main
@@ -23,6 +24,8 @@ import java.util.List;
 public class HoneyWasp extends ListenerAdapter {
     public static void main(String[] args) {
         double currentVersion = 3.20; // Current version number
+
+        Scanner scanner = new Scanner(System.in); // Create input scanner
 
         ReadConfig config = ReadConfig.getInstance(); // Get config
 
@@ -55,7 +58,8 @@ public class HoneyWasp extends ListenerAdapter {
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
 
         if (config == null) {
-            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
+            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)\nPress Enter to quit...", Output.RED, false, false);
+            scanner.nextLine();
             return;
         }
 
