@@ -58,6 +58,8 @@ public class Output {
             }
             } catch (HttpException e) { // Webhook error
                 System.err.print(color + "     [" + DateTime.time() + "] - Discord webhook URL is likely invalid. Either make the field blank, or replace it with a valid one. This message will spam until you do so." + RESET);
+            } catch (Exception e) {
+                System.err.print(e);
             }
     }
 
@@ -84,18 +86,9 @@ public class Output {
                 lastOutputWasNewline = true;
             }
         }
+
     }
 
-    public static void exitProgram() {
-        System.out.println("\nPress Enter to exit...");
-
-        Scanner scanner = new Scanner(System.in);
-
-        scanner.nextLine(); // Waits for user input
-        scanner.close();
-
-        System.exit(0); // Exits the program
-    }
     // Default overloads
     public static void webhookPrint(String message) {webhookPrint(message, YELLOW, true);}
     public static void webhookPrint(String message, String color) {webhookPrint(message, color, true);}

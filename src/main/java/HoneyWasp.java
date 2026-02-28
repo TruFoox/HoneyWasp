@@ -58,9 +58,8 @@ public class HoneyWasp extends ListenerAdapter {
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
 
         if (config == null) {
-            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)\nPress Enter to quit...", Output.RED, false, false);
-            scanner.nextLine();
-            return;
+            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
+            ErrorHandling.exitProgram();
         }
 
         Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
@@ -90,7 +89,7 @@ public class HoneyWasp extends ListenerAdapter {
         } catch (Exception e) { // Handles login failures and interruptions
             e.printStackTrace();
             Output.print("[SYS] Bot failed to log in. Quitting...");
-            Output.exitProgram();
+            ErrorHandling.exitProgram();
         }
 
         // Check for new version
