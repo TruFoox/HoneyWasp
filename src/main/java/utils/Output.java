@@ -88,6 +88,15 @@ public class Output {
         }
 
     }
+    public static synchronized void debugPrint(String message) {
+        if (config.getGeneral().isDebug_mode()) { // Only print if debug mode is enabled
+            if (lastOutputWasNewline) {System.out.println();} else {System.out.print("\r\033[2K");}
+
+            System.out.print(YELLOW + "     [" + DateTime.time() + "] - " + message + RESET);
+            lastOutputWasNewline = true;
+
+        }
+    }
 
     // Default overloads
     public static void webhookPrint(String message) {webhookPrint(message, YELLOW, true);}

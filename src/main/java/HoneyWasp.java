@@ -2,6 +2,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -85,7 +86,9 @@ public class HoneyWasp extends ListenerAdapter {
             jda.awaitReady();
 
             Output.print("[SYS] Bot connected successfully!", Output.YELLOW, false, false);
-
+        } catch (InvalidTokenException e) {
+            Output.print("[SYS] Discord bot token is invalid. Please verify you copied the full token from the developer portal");
+            ErrorHandling.exitProgram();
         } catch (Exception e) { // Handles login failures and interruptions
             e.printStackTrace();
             Output.print("[SYS] Bot failed to log in. Quitting...");
