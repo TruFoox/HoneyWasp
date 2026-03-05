@@ -10,7 +10,7 @@
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
   <br /><br />
-  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total.svg" alt="Downloads" />
+  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
   <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
   <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
 </p>
