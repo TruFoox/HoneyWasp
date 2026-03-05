@@ -1,5 +1,6 @@
 package utils;
 
+import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.*;
 import java.net.URI;
@@ -13,10 +14,8 @@ import java.util.UUID;
 // Body: The data actually being sent
 
 
-// HTTPSend - Some of these I made, but the highly complicated ones I didn't
+// HTTPSend - Most of these I made, but HTTPSend.postFile I didn't make
 //
-// String HTTPSend.post  ; Send HTTP POST request
-// Inputs : URL to send to, JSON data to include in body
 //
 // String HTTPSend.get  ; Send HTTP GET request
 // Inputs : URL to send to
@@ -32,32 +31,9 @@ public class HTTPSend {
     // Threadlocal = "Each thread has its own version"
     // ThreadLocal.withInitial(() -> 0L) = "Start with value
 
-    public static String post(String URL, String jsonData) throws Exception {
-        HttpClient client = HttpClient.newHttpClient(); // Creates new http instance to send request
-
-        // Build POST
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(URL))
-                .header("Content-Type", "application/json")
-
-                // UserAgent spoofing
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        + "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        + "Chrome/118.0.0.0 Safari/537.36")
-
-                .POST(HttpRequest.BodyPublishers.ofString(jsonData))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        // Returns response & status code
-        HTTPCode.set((long) response.statusCode());
-
-        return String.valueOf(response.body());
-    }
-
 
     public static String get(String url) throws Exception {
+        Output.debugPrint("Starting GET on " + url);
         HttpClient client = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -70,6 +46,7 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+        Output.debugPrint("Response:" + response);
         // Returns response & status code
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
@@ -78,6 +55,7 @@ public class HTTPSend {
 
     public static String get(String url, Map<String, String> headers) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
+        Output.debugPrint("Starting GET on " + url + "\nWith headers: " + headers);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -96,6 +74,7 @@ public class HTTPSend {
 
         HttpRequest request = builder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Output.debugPrint("Response:" + response);
 
         HTTPCode.set((long) response.statusCode());
         return response.body();
@@ -103,6 +82,7 @@ public class HTTPSend {
 
     public static String postFile(String url, Path filePath) throws Exception { // DESIGNED FOR USE WITH 0x0 ONLY
         HttpClient client = HttpClient.newHttpClient();
+        Output.debugPrint("Starting post on " + url + "\nWith file: " + filePath);
 
         String boundary = UUID.randomUUID().toString();
         byte[] fileBytes = Files.readAllBytes(filePath);
@@ -142,6 +122,7 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode());
+        Output.debugPrint("Response:" + response);
 
         return response.body();
     }
@@ -149,6 +130,7 @@ public class HTTPSend {
 
     public static String postForm(String url, Map<String, String> data) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
+        Output.debugPrint("Starting post on " + url + "\nWith form: " + data);
 
         StringBuilder form = new StringBuilder();
         for (Map.Entry<String, String> entry : data.entrySet()) {
@@ -167,6 +149,8 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
+
+        Output.debugPrint("Response:" + response);
         return response.body();
     }
 
