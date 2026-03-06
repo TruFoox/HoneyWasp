@@ -53,6 +53,7 @@ public class Instagram implements Runnable {
             // Start bot
             while (run) {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
+                Output.debugPrint("[INSTA] New attempt started");
 
                 if (countAttempt == 1) { // Print first attempt message
                     Output.print("[INSTA] Attempting new post", Output.YELLOW, true,true);
@@ -75,6 +76,7 @@ public class Instagram implements Runnable {
                             return;
 
                     }
+                    Output.debugPrint("[INSTA] Successfully fetched URL" + mediaURL);
 
                     /* If format is video, convert image to video */
                     if (VIDEO_MODE) {
@@ -299,6 +301,9 @@ public class Instagram implements Runnable {
     private boolean getUserID() {
         try {
             try {
+                Output.debugPrint("[INSTA] Attempting to fetch User ID");
+
+                Output.debugPrint("[INSTA] Attempting to fetch access token (Step 1)");
                 String response = HTTPSend.get("https://graph.facebook.com/v19.0/me/accounts?access_token=" + TOKEN);
 
                 String facebookID;
@@ -307,6 +312,7 @@ public class Instagram implements Runnable {
 
                 facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
+                Output.debugPrint("Attempting to fetching User ID from token (Step 2)");
                 // Get Instagram ID
                 response = HTTPSend.get("https://graph.facebook.com/v19.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
@@ -342,13 +348,15 @@ public class Instagram implements Runnable {
     private boolean getMediaSource() {
         try {
             if (AUTOPOSTMODE) {
+                Output.debugPrint("[INSTA] Reading automatic cache");
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
             } else { // Log manual media
                 File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
+                Output.debugPrint("Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[YT] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
+                    Output.webhookPrint("[INSTA] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
                     return false;
                 }
 
@@ -360,6 +368,8 @@ public class Instagram implements Runnable {
                     return false;
                 }
 
+                Output.debugPrint("[INSTA] Logging media from manual directory");
+
                 // Start logging media
                 media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
             }
@@ -367,6 +377,7 @@ public class Instagram implements Runnable {
             // Get audio
             if (AUDIO_ENABLED && VIDEO_MODE) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
+                Output.debugPrint("[INSTA] Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
@@ -379,6 +390,8 @@ public class Instagram implements Runnable {
                     Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
+
+                Output.debugPrint("[INSTA] Logging audio from manual directory");
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
@@ -399,8 +412,11 @@ public class Instagram implements Runnable {
 
         chosenSubreddit = SUBREDDITS.get(randIndex);
 
+        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
+
+        Output.debugPrint("[INSTA] Fetching media URL from " + URL);
         try {
-            response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
+            response = HTTPSend.get(URL);
         } catch (Exception e) {
             Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
@@ -443,7 +459,7 @@ public class Instagram implements Runnable {
 
                 return 2;
         }
-        Output.webhookPrint("[YT] How did the bot get here? This shouldn't be possible. Quitting..."
+        Output.webhookPrint("[INSTA] How did the bot get here? This shouldn't be possible. Quitting..."
                 + "\n\tError message: " + response, Output.RED);
         return 2;
     }
