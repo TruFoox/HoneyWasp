@@ -15,7 +15,6 @@ import utils.*;
 import java.awt.*;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Scanner;
 
 
 /* Main
@@ -26,7 +25,6 @@ public class HoneyWasp extends ListenerAdapter {
     public static void main(String[] args) {
         double currentVersion = 3.20; // Current version number
 
-        Scanner scanner = new Scanner(System.in); // Create input scanner
 
         ReadConfig config = ReadConfig.getInstance(); // Get config
 
@@ -82,6 +80,7 @@ public class HoneyWasp extends ListenerAdapter {
                     .addEventListeners(new HoneyWasp())
                     .build();
 
+            Output.debugPrint("Waiting for JDA to connect");
             // Wait until the bot is fully logged in
             jda.awaitReady();
 
@@ -97,6 +96,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         // Check for new version
         try {
+            Output.debugPrint("Checking for new version");
             String responseString = HTTPSend.get("https://api.github.com/repos/trufoox/honeywasp/releases/latest");
 
             // Fetch latest version, remove "v" (e.g. v4), then parse as double
@@ -138,6 +138,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         // Automatic starting of services
         for(String item : AUTOSTART) {
+            Output.debugPrint("Checking autostart token: \"" + item + "\"");
 
             // Instagram
             if (item.equalsIgnoreCase("instagram")) {
@@ -175,9 +176,11 @@ public class HoneyWasp extends ListenerAdapter {
     @Override
     // Slash commands
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        String service = event.getOption("service").getAsString();
+        Output.debugPrint("Command /" + event.getName() + "used on service " + service);
+
         switch (event.getName()) {
             case "start": {
-                String service = event.getOption("service").getAsString();
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
@@ -253,7 +256,6 @@ public class HoneyWasp extends ListenerAdapter {
                 break;
             }
             case "stop": {
-                String service = event.getOption("service").getAsString();
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
@@ -322,7 +324,6 @@ public class HoneyWasp extends ListenerAdapter {
                 break;
             }
             case "clear": {
-                String service = event.getOption("service").getAsString();
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
