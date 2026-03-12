@@ -83,6 +83,7 @@ public class Instagram implements Runnable {
                     if (VIDEO_MODE) {
                         Image image; // Holds image data (not usually needed unless converting to video as instagram takes image url as input)
 
+                        Output.debugPrint("[INSTA] Attempting to retrieve image data");
                         try {
                             // Download image from Reddit
                             URL url = new URL(mediaURL);
@@ -100,6 +101,7 @@ public class Instagram implements Runnable {
                         String audioDir = null; // Default value
 
                         if (AUDIO_ENABLED) {
+                            Output.debugPrint("[YT] Attempting to select audio file for use");
                             randIndex = rand.nextInt(audio.length); // Select random audio file
                             audioDir = String.valueOf(audio[randIndex]);
                         }

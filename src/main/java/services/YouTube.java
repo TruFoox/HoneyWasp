@@ -90,6 +90,7 @@ public class YouTube implements Runnable {
                     /* Convert image to video */
                     {
                         Image image; // Holds image data
+
                         Output.debugPrint("[YT] Attempting to retrieve image data");
                         try {
                             // Download image from Reddit
@@ -110,6 +111,7 @@ public class YouTube implements Runnable {
                         String audioDir = null; // Default value
 
                         if (AUDIO_ENABLED) {
+                            Output.debugPrint("[YT] Attempting to select audio file for use");
                             randIndex = rand.nextInt(audio.length); // Select random audio file
                             audioDir = String.valueOf(audio[randIndex]);
                         }
@@ -318,11 +320,12 @@ public class YouTube implements Runnable {
     private boolean getMediaSource() {
         try {
             if (AUTOPOSTMODE) {
+                Output.debugPrint("[YT] Reading automatic cache");
                 usedURLs = FileIO.readList("youtube"); // Generate filepath "./cache/[youtube]/cache.txt" for given OS & read file
-
 
             } else { // Log manual media
                 File directory = Paths.get(".","videos").toFile(); // Generate filepath "./videos"
+                Output.debugPrint("[YT] Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[YT] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
@@ -336,6 +339,8 @@ public class YouTube implements Runnable {
                     return false;
                 }
 
+                Output.debugPrint("[INSTA] Logging media from manual directory");
+
                 // Start logging media
                 media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
             }
@@ -343,6 +348,7 @@ public class YouTube implements Runnable {
             // Get audio
             if (AUDIO_ENABLED) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
+                Output.debugPrint("[YT] Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[YT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Youtube_Settings] in config.json. Quitting...", Output.RED);
@@ -356,6 +362,7 @@ public class YouTube implements Runnable {
                     return false;
                 }
 
+                Output.debugPrint("[YT] Logging audio from manual directory");
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
@@ -379,6 +386,7 @@ public class YouTube implements Runnable {
             Output.webhookPrint("BEFORE YOU CAN POST TO YOUTUBE, YOU MUST RETRIEVE YOUR ACCESS TOKEN." +
                     "\n\tATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (OR GO TO " + oauthURL + ")", Output.RED);
 
+            Output.debugPrint("[YT] Attempting redirect");
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
                 try {
                     Desktop.getDesktop().browse(new URI(oauthURL));
@@ -390,8 +398,9 @@ public class YouTube implements Runnable {
             Output.webhookPrint("[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#youtube-setup FOR HELP):", Output.YELLOW);
             String redirectUrl = scanner.nextLine(); // Read user input
 
+            Output.debugPrint("[YT] Extracting code from user input");
             String authCode = redirectUrl.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
-
+            Output.debugPrint("[YT] Code: " + authCode);
 
             // Build upload data
             Map<String, String> formData = new HashMap<>();
