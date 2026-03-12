@@ -63,6 +63,7 @@ public class Instagram implements Runnable {
                     Output.webhookPrint("[INSTA] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
                     if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
+                    countAttempt = 1;
                 }
 
                 /* Fetch media */
@@ -312,7 +313,7 @@ public class Instagram implements Runnable {
 
                 facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
-                Output.debugPrint("Attempting to fetching User ID from token (Step 2)");
+                Output.debugPrint("[INSTA] Attempting to fetching User ID from token (Step 2)");
                 // Get Instagram ID
                 response = HTTPSend.get("https://graph.facebook.com/v19.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
@@ -353,7 +354,7 @@ public class Instagram implements Runnable {
 
             } else { // Log manual media
                 File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
-                Output.debugPrint("Media source set to " + directory);
+                Output.debugPrint("[INSTA] Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrint("[INSTA] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);

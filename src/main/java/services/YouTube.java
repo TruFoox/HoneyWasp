@@ -59,12 +59,14 @@ public class YouTube implements Runnable {
         try {
             // Start bot
             while (run) {
+                Output.debugPrint("[YT] New attempt started");
                 countAttempt++;
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                     Output.webhookPrint("[YT] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
                     if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
+                    countAttempt = 1;
                 }
 
                 if (countAttempt == 1) { // Print first attempt message
@@ -83,11 +85,12 @@ public class YouTube implements Runnable {
                             return;
 
                     }
+                    Output.debugPrint("[YT] Successfully fetched URL" + mediaURL);
 
                     /* Convert image to video */
                     {
                         Image image; // Holds image data
-
+                        Output.debugPrint("[YT] Attempting to retrieve image data");
                         try {
                             // Download image from Reddit
                             URL url = new URL(mediaURL);
@@ -368,6 +371,7 @@ public class YouTube implements Runnable {
 
     /* If refresh token is not set, fetch it. Otherwise, skip */
     private boolean getRefreshToken() {
+        Output.debugPrint("[YT] Testing if refresh_token is empty");
         if (REFRESHTOKEN.isEmpty()) { // Only run if no refresh token
             // Generate OAuth URL & prompt user to go there to get token
             String oauthURL = "https://accounts.google.com/o/oauth2/auth?client_id=" + ID + "&redirect_uri=http://localhost&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&prompt=consent";
@@ -424,6 +428,7 @@ public class YouTube implements Runnable {
                 return false;
             }
         }
+        Output.debugPrint("[YT] refresh_token was found to contain data");
         return true; // Skip this step
     }
 
