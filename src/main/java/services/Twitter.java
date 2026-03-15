@@ -21,6 +21,8 @@ import java.nio.file.*;
 import java.io.IOException;
 import java.util.*;
 
+// Remember to add debug outputs after finished with implementation
+
 public class Twitter implements Runnable {
     ReadConfig config = ReadConfig.getInstance(); // Get config
     Random rand = new Random(); // Generate seed for random number generation
@@ -35,7 +37,7 @@ public class Twitter implements Runnable {
     int randIndex;
     File[] media, audio;
 
-    // Twitter API expects a randomly generated hash every time you post but... why would I do that? It's Twitter.
+    // Twitter API expects a randomly generated hash every time you post but... why would I do that? It's Twitter, not fort knox
     String securityKey = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"; // verifier
     String codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"; // precomputed SHA256
 

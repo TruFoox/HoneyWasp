@@ -15,6 +15,8 @@ public class FileIO {
             long timestamp = System.currentTimeMillis();
             // Generate filepath "./cache/[Service]/cache.txt" for given OS & write to file
             Path cachePath = Paths.get(".", "cache", service, "cache.txt");
+            Output.debugPrint("Attempting to write to " + cachePath);
+
             if (permanant) {
                 Files.write(cachePath, (in + "," + timestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             } else {
@@ -28,6 +30,7 @@ public class FileIO {
     }
     public static List<String[]> readList(String service) {
         Path cachePath = Paths.get(".", "cache", service, "cache.txt");
+        Output.debugPrint("Attempting to read from " + cachePath);
 
         try {
             List<String> temp = Files.readAllLines(cachePath);
@@ -49,7 +52,7 @@ public class FileIO {
     public static void clearList(String service) {
         try {
             Path cachePath = Paths.get(".", "cache", service, "cache.txt");
-
+            Output.debugPrint("Attempting to clear cache at " + cachePath);
             BufferedWriter writer = Files.newBufferedWriter(cachePath, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             Output.webhookPrint("No /cache/" + service + "/cache.txt found. Quitting...", Output.RED);

@@ -15,6 +15,7 @@ public class SendWebhook {
     private final WebhookClient client;
 
     public SendWebhook() {
+        Output.debugPrint("Attempting to send with webhook");
         ReadConfig config = ReadConfig.getInstance(); // Get singleton config
         String webhookUrl = config.getGeneral().getDiscordWebhook();
 

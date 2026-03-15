@@ -22,7 +22,7 @@ public class ImageValidity { // Need to break into individual classes
     static String caption;
     static boolean nsfw;
     public static int check(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
-
+        Output.debugPrint("Validating image");
         /* Get config data */
         if (platform.equals("instagram")) {
             BLACKLIST = config.getInstagram().getBlacklist();
@@ -45,6 +45,7 @@ public class ImageValidity { // Need to break into individual classes
 
         // Download image & check aspect ratio
         if (testSize) {
+            Output.debugPrint("Attempting to download image to verify aspect ratio validity");
             Image image;
 
             try {
@@ -59,6 +60,7 @@ public class ImageValidity { // Need to break into individual classes
 
             double ratio = (double) image.getWidth(null) / image.getHeight(null);
 
+            Output.debugPrint("Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
             if (ratio < 0.82 || ratio > 1.70) {
                 Output.print("Image has invalid aspect ratio", Output.RED, true);
                 return 1;
@@ -67,6 +69,7 @@ public class ImageValidity { // Need to break into individual classes
         }
 
         // Test image validity
+        Output.debugPrint("Testing if image is gif");
         if (mediaURL.contains(".gif") || mediaURL.contains(".gifv")) { // Ensure image is not gif
             Output.print("Image is gif - x" + countattempt + " attempts", Output.RED, true);
 
@@ -74,6 +77,7 @@ public class ImageValidity { // Need to break into individual classes
         }
 
         // Ensure no blacklisted string in post caption
+        Output.debugPrint("Testing if image caption contains blacklisted string");
         for (String word : BLACKLIST) {
             if (caption.toLowerCase().contains(word.toLowerCase())) {
                 Output.print("Caption contains blacklisted string - x" + countattempt + " attempts", Output.RED, true);
@@ -83,6 +87,7 @@ public class ImageValidity { // Need to break into individual classes
         }
 
         // Ensure post is not duplicate
+        Output.debugPrint("Testing if image url is duplicate");
         for (String[] row : usedURLs) {
             String url = row[0];
             String timestampStr = row[1];
@@ -98,14 +103,14 @@ public class ImageValidity { // Need to break into individual classes
             }
         }
 
-
+        Output.debugPrint("Testing if image is marked as NSFW");
         if (!NSFW_ALLOWED && nsfw) { // If post is marked as NSFW and NSFW is disallowed
             Output.print("Image is marked as NSFW - x" + countattempt + " attempts", Output.RED, true);
 
             return 1;
         }
 
-
+        Output.debugPrint("Testing if caption contains blacklisted strings to use preset caption");
         for (String word : CAPTION_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
             if (caption.toLowerCase().contains(word.toLowerCase())) {
                 Output.print("Using fallback caption - x" + countattempt + " attempts", Output.RED, true);
