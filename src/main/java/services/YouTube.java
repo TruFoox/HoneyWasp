@@ -268,6 +268,10 @@ public class YouTube implements Runnable {
 
         try {
             response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
+            if (response == "CD") {
+                Output.print("[INSTA] Connection drop detected. Trying again...");
+                return 1;
+            }
         } catch (Exception e) {
             Output.webhookPrint("[YT] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);

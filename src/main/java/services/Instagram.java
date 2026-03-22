@@ -420,6 +420,10 @@ public class Instagram implements Runnable {
         Output.debugPrint("[INSTA] Fetching media URL from " + URL);
         try {
             response = HTTPSend.get(URL);
+            if (response == "CD") {
+                Output.print("[INSTA] Connection drop detected. Trying again...");
+                return 1;
+            }
         } catch (Exception e) {
             Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
