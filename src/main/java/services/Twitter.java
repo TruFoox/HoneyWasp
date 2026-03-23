@@ -67,6 +67,43 @@ public class Twitter implements Runnable {
         if (!getUserID()) {return;} // 3 Fetch user's UserID using temporary token fetched in step 2(Quit if failed)
 
         if (!getMediaSource()) {return;} // 4 Gets media location, cache files (Quit if failed)
+
+        try {
+            while (run) {
+                Output.debugPrint("[TWIT] New attempt started");
+                countAttempt++;
+
+                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
+                    Output.webhookPrint("[TWIT] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
+
+                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
+                    countAttempt = 1;
+                }
+
+                if (countAttempt == 1) { // Print first attempt message
+                    Output.print("[TWIT] Attempting new post", Output.YELLOW, true,true);
+                }
+
+
+                // Rest here when finished with getAccessToken
+
+
+            }
+        } catch (InterruptedException e) { // When interrupted
+            Thread.currentThread().interrupt(); // restore interrupt flag
+            Output.webhookPrint("[TWIT] Unexpected error during sleep: " + e.getMessage(), Output.RED);
+
+        } catch (Exception e) { // General error handling
+            try {
+                Output.webhookPrint("[TWIT] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+            } catch (Exception inner) {
+                inner.printStackTrace();
+            }
+        } finally { // Crash/Stop handling
+            Output.webhookPrint("[SYS] Twitter stopped");
+
+            Status.youtubeRunning = false;
+        }
     }
 
     private boolean getRefreshToken() {
@@ -119,7 +156,7 @@ public class Twitter implements Runnable {
 
                     return true;  // Success
                 } else {
-                    Output.webhookPrint("[X] Failed to fetch token. Quitting..." +
+                    Output.webhookPrint("[TWIT] Failed to fetch token. Quitting..." +
                             "\n\tError message: " + response, Output.RED);
 
                     return false;
@@ -192,11 +229,11 @@ public class Twitter implements Runnable {
         try {
             response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
             if (response == "CD") {
-                Output.print("[X] Connection drop detected. Trying again...");
+                Output.print("[TWIT] Connection drop detected. Trying again...");
                 return 1;
             }
         } catch (Exception e) {
-            Output.webhookPrint("[X] Failed to fetch image from meme-api.com"
+            Output.webhookPrint("[TWIT] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
             return 2;
         }
@@ -211,7 +248,7 @@ public class Twitter implements Runnable {
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
                 tempDisableCaption = false;
 
-                Output.print("[X] Reddit post data successfully retrieved", Output.YELLOW, true);
+                Output.print("[TWIT] Reddit post data successfully retrieved", Output.YELLOW, true);
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
                 switch (ImageValidity.check(response, countAttempt, usedURLs, true, "twitter")) {
@@ -225,20 +262,20 @@ public class Twitter implements Runnable {
                 }
 
             case 503: // Cloudflare error
-                Output.webhookPrint("[X] Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
+                Output.webhookPrint("[TWIT] Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
                 return 1;
 
             default: // General error handling
-                Output.webhookPrint("[X] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
+                Output.webhookPrint("[TWIT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
                 return 2;
         }
 
-        Output.webhookPrint("[X] How did the bot get here? This shouldn't be possible. Quitting..."
+        Output.webhookPrint("[TWIT] How did the bot get here? This shouldn't be possible. Quitting..."
                 + "\n\tError message: " + response, Output.RED);
         return 2;
     }
@@ -247,26 +284,26 @@ public class Twitter implements Runnable {
     private boolean getMediaSource() {
         try {
             if (AUTOPOSTMODE) {
-                Output.debugPrint("[X] Reading automatic cache");
+                Output.debugPrint("[TWIT] Reading automatic cache");
                 usedURLs = FileIO.readList("twitter"); // Generate filepath "./cache/[twitter]/cache.txt" for given OS & read file
 
             } else { // Log manual media
                 File directory = Paths.get(".","videos").toFile(); // Generate filepath "./videos"
-                Output.debugPrint("[X] Media source set to " + directory);
+                Output.debugPrint("[TWIT] Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[X] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
+                    Output.webhookPrint("[TWIT] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[X] No videos found in /videos directory. Add media or set post_mode to auto. Quitting...", Output.RED);
+                    Output.webhookPrint("[TWIT] No videos found in /videos directory. Add media or set post_mode to auto. Quitting...", Output.RED);
                     return false;
                 }
 
-                Output.debugPrint("[X] Logging media from manual directory");
+                Output.debugPrint("[TWIT] Logging media from manual directory");
 
                 // Start logging media
                 media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
@@ -275,21 +312,21 @@ public class Twitter implements Runnable {
             // Get audio
             if (AUDIO_ENABLED) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
-                Output.debugPrint("[X] Audio source set to " + directory);
+                Output.debugPrint("[TWIT] Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[X] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[TWIT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[X] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[TWIT] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
-                Output.debugPrint("[X] Logging audio from manual directory");
+                Output.debugPrint("[TWIT] Logging audio from manual directory");
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
