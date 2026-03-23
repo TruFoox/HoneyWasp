@@ -5,6 +5,8 @@ import java.util.List;
 public class TwitterSettings {
     private String consumer_key;
     private String client_secret;
+    private boolean auto_post_mode;
+    private boolean video_mode;
     private String refresh_token;
     private String post_mode;
     private String format;
@@ -27,6 +29,12 @@ public class TwitterSettings {
     // Getters and setters
     public String getConsumer_key() { return consumer_key; }
     public void setConsumer_key(String consumer_key) { this.consumer_key = consumer_key; }
+
+    public boolean isAuto_post_mode() { return auto_post_mode; }
+    public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
+
+    public boolean isVideo_mode() { return video_mode; }
+    public void setVideo_mode(boolean video_mode) { this.video_mode = video_mode; }
 
     public String getClient_secret() { return client_secret; }
     public void setClient_secret(String client_secret) { this.client_secret = client_secret; }

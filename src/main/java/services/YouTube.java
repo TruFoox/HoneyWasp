@@ -49,9 +49,9 @@ public class YouTube implements Runnable {
     String REFRESHTOKEN = config.getYoutube().getRefresh_token(); // Not final because it can be fetched while still running
 
     public void run() {
-        if (!getRefreshToken()) {return;} // If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
+        if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        if (!getMediaSource()) {return;}// Gets media location, cache files (Quit if failed)
+        if (!getMediaSource()) {return;}// 2 Gets media location, cache files (Quit if failed)
 
         Output.webhookPrint("[SYS] Bot successfully started on YouTube");
         run = true;
@@ -269,7 +269,7 @@ public class YouTube implements Runnable {
         try {
             response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
             if (response == "CD") {
-                Output.print("[INSTA] Connection drop detected. Trying again...");
+                Output.print("[YT] Connection drop detected. Trying again...");
                 return 1;
             }
         } catch (Exception e) {
@@ -343,7 +343,7 @@ public class YouTube implements Runnable {
                     return false;
                 }
 
-                Output.debugPrint("[INSTA] Logging media from manual directory");
+                Output.debugPrint("[YT] Logging media from manual directory");
 
                 // Start logging media
                 media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory

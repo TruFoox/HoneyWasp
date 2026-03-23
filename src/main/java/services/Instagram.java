@@ -42,9 +42,9 @@ public class Instagram implements Runnable {
 
 
     public void run() {
-        if (!getUserID()) {return;} // Get Instagram User ID (Quit if failed)
+        if (!getUserID()) {return;} // 1 Get Instagram User ID (Quit if failed)
 
-        if (!getMediaSource()) {return;} // Gets media location, cache files (Quit if failed)
+        if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
 
         Output.webhookPrint("[SYS] Bot successfully started on Instagram");
         run = true;

@@ -41,6 +41,14 @@ public class ImageValidity { // Need to break into individual classes
             mediaURL = StringToJson.getData(response, "url");
             caption = StringToJson.getData(response, "title");
             nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+        } else if (platform.equals("twitter")) {
+            BLACKLIST = config.getTwitter().getBlacklist();
+            NSFW_ALLOWED = config.getTwitter().isNsfw_allowed();
+            hours_before_duplicate_removed = config.getTwitter().getHours_before_duplicate_removed();
+            CAPTION_BLACKLIST = config.getTwitter().getCaption_blacklist();
+            mediaURL = StringToJson.getData(response, "url");
+            caption = StringToJson.getData(response, "title");
+            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
         }
 
         // Download image & check aspect ratio
