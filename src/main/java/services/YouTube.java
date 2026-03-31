@@ -307,6 +307,12 @@ public class YouTube implements Runnable {
 
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
                 return 1;
+            case 502: // Cloudflare error 2
+                Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
+
+                if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                return 1;
 
             default: // General error handling
                 Output.webhookPrint("[YT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
