@@ -10,17 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileIO {
-    public static void writeList(String in, String service, boolean permanant) {
+    public static void writeList(String in, String service, boolean permanent) {
         try {
             long timestamp = System.currentTimeMillis();
             // Generate filepath "./cache/[Service]/cache.txt" for given OS & write to file
             Path cachePath = Paths.get(".", "cache", service, "cache.txt");
             Output.debugPrint("Attempting to write to " + cachePath);
 
-            if (permanant) {
-                Files.write(cachePath, (in + "," + timestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            } else {
+            if (permanent) {
                 Files.write(cachePath, (in + ",9999999999999999" + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } else {
+                Files.write(cachePath, (in + "," + timestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             }
 
         } catch (IOException ex) {

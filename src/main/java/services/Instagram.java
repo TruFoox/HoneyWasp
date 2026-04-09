@@ -89,6 +89,12 @@ public class Instagram implements Runnable {
                             URL url = new URL(mediaURL);
                             image = ImageIO.read(url);
 
+                        } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
+                            Output.webhookPrint("[INSTA] Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid...");
+
+                            // Blacklist image URL permanently, as it is likely corrupted
+                            FileIO.writeList(mediaURL, "instagram", true);
+                            continue;
                         } catch (IOException e) {
                             Output.webhookPrint("[INSTA] Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
                                     + "\n\tError message: " + e, Output.RED);
@@ -192,7 +198,7 @@ public class Instagram implements Runnable {
                                 "\n\tError message: " + response, Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeList(mediaURL, "instagram", false);
+                        FileIO.writeList(mediaURL, "instagram", true);
 
 
                         if (!Sleep.safeSleep(sleepTime)) break;
@@ -255,7 +261,7 @@ public class Instagram implements Runnable {
                                 "\n\tError message: " + response, Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeList(mediaURL, "instagram", false);
+                        FileIO.writeList(mediaURL, "instagram", true);
 
                         continue;
                     } else {
@@ -268,7 +274,7 @@ public class Instagram implements Runnable {
                         countAttempt = 0;
 
                         // Store image URL to prevent duplicates
-                        FileIO.writeList(mediaURL, "instagram", true);
+                        FileIO.writeList(mediaURL, "instagram", false);
 
                         long timestamp = System.currentTimeMillis();
                         usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
@@ -461,9 +467,9 @@ public class Instagram implements Runnable {
                 return 1;
             case 502: // Cloudflare error 2
                 Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time
                 return 1;
 
             default: // General error handling

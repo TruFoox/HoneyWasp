@@ -97,6 +97,12 @@ public class YouTube implements Runnable {
                             URL url = new URL(mediaURL);
                             image = ImageIO.read(url);
 
+                        } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
+                            Output.webhookPrint("[YT] Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid...");
+
+                            // Blacklist image URL permanently, as it is likely corrupted
+                            FileIO.writeList(mediaURL, "youtube", true);
+                            continue;
                         } catch (IOException e) {
                             Output.webhookPrint("[YT] Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
                                     + "\n\tError message: " + e, Output.RED);
@@ -104,6 +110,7 @@ public class YouTube implements Runnable {
                             if (!Sleep.safeSleep(7200000)) break;
                             continue;
                         }
+
 
                         Output.print("[YT] Converting image to video...", Output.YELLOW, true);
 
@@ -185,7 +192,7 @@ public class YouTube implements Runnable {
                                     + "\n\tError message: " + response, Output.RED);
 
                             // Blacklist image URL permanently, as it is likely corrupted
-                            FileIO.writeList(mediaURL, "youtube", false);
+                            FileIO.writeList(mediaURL, "youtube", true);
                         }
 
                     } else { // Post success handling
@@ -308,10 +315,10 @@ public class YouTube implements Runnable {
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
                 return 1;
             case 502: // Cloudflare error 2
-                Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
+                Output.webhookPrint("[YT] Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time
                 return 1;
 
             default: // General error handling
