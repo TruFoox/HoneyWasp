@@ -427,7 +427,8 @@ public class Instagram implements Runnable {
         try {
             response = HTTPSend.get(URL);
             if (response == "CD") {
-                Output.print("[INSTA] Connection drop detected. Trying again...");
+                Output.print("[INSTA] Connection drop detected. Trying again in 10 seconds...");
+                if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
                 return 1;
             }
         } catch (Exception e) {

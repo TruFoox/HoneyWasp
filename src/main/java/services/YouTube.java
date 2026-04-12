@@ -276,7 +276,8 @@ public class YouTube implements Runnable {
         try {
             response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
             if (response == "CD") {
-                Output.print("[YT] Connection drop detected. Trying again...");
+                Output.print("[YT] Connection drop detected. Trying again in 10 seconds...");
+                if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
                 return 1;
             }
         } catch (Exception e) {
