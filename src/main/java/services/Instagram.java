@@ -313,7 +313,7 @@ public class Instagram implements Runnable {
                 Output.debugPrint("[INSTA] Attempting to fetch User ID");
 
                 Output.debugPrint("[INSTA] Attempting to fetch access token (Step 1)");
-                String response = HTTPSend.get("https://graph.facebook.com/v19.0/me/accounts?access_token=" + TOKEN);
+                String response = HTTPSend.get("https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
 
                 String facebookID;
                 JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
@@ -323,7 +323,7 @@ public class Instagram implements Runnable {
 
                 Output.debugPrint("[INSTA] Attempting to fetching User ID from token (Step 2)");
                 // Get Instagram ID
-                response = HTTPSend.get("https://graph.facebook.com/v19.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
+                response = HTTPSend.get("https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
                 if (!response.contains("instagram_business_account")) { // Ensure account is business account
                     Output.webhookPrint("Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
