@@ -48,7 +48,7 @@ public class HTTPSend {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            Output.debugPrint("Response:" + response);
+            Output.debugPrint("Response:" + response.body());
             // Returns response & status code
             HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
@@ -80,7 +80,7 @@ public class HTTPSend {
 
             HttpRequest request = builder.build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            Output.debugPrint("Response:" + response);
+            Output.debugPrint("Response:" + response.body());
 
             HTTPCode.set((long) response.statusCode());
             return response.body();
@@ -132,7 +132,7 @@ public class HTTPSend {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             HTTPCode.set((long) response.statusCode());
-            Output.debugPrint("Response:" + response);
+            Output.debugPrint("Response:" + response.body());
 
             return response.body();
         } catch (ConnectException e) {
@@ -164,7 +164,7 @@ public class HTTPSend {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
-            Output.debugPrint("Response:" + response);
+            Output.debugPrint("Response:" + response.body());
             return response.body();
         } catch (ConnectException e) {
             return "CD"; // Connection dropped
