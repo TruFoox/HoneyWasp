@@ -204,51 +204,51 @@ Below you can find documentation on every configuration option
 
 
 ### General_Settings
-| Key                   | Description                                                                |
-|-----------------------|----------------------------------------------------------------------------|
-| `"discord_bot_token"` | Your bot's token for logging in to Discord                                 |
-| `"webhook_url"`       | Optional Discord webhook URL for notifications                             |
-| `"autostart"`         | List of services to launch automatically (e.g., `["instagram","youtube"]`) |
-| `"debug_mode"`        | Enables verbose logging and debug output                                   |
+| Key                 | Description                                                                |
+|---------------------|----------------------------------------------------------------------------|
+| `discord_bot_token` | Your bot's token for logging in to Discord                                 |
+| `webhook_url`       | Optional Discord webhook URL for notifications                             |
+| `autostart`         | List of services to launch automatically (e.g., `["instagram","youtube"]`) |
+| `debug_mode`        | Enables verbose logging and debug output                                   |
 
 ### Instagram_Settings
-| Key                                | Description                                                                                             |
-|------------------------------------|---------------------------------------------------------------------------------------------------------|
-| `"api_key"`                        | Instagram API key                                                                                       |
-| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `/images` or `/videos` depending on post_mode |
-| `"format"`                         | Determines how content is posted (`"video"` or `"image"`)                                               |
-| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                       |
-| `"time_between_posts"`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                            |
-| `"attempts_before_timeout"`        | The number of failed post attempts before giving up                                                     |
-| `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                                               |
-| `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                 |
-| `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                             |
-| `"duplicates_allowed"`             | Whether to allow duplicate posts                                                                        |
-| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                            |
-| `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                                         |
-| `"caption_blacklist"`              | Words triggering fallback caption (auto post_mode only)                                                 |
-| `"caption"`                        | Default post caption                                                                                    |
-| `"hashtags"`                       | Hashtags appended to each Instagram post                                                                |
+| Key                              | Description                                                                                                                               |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `api_key`                        | Instagram API key                                                                                                                         |
+| `post_mode`                      | Set to `auto` or `manual` (`auto` → grab posts from Reddit \| `manual` → post from `/images` or `/videos` based on `format`)              |
+| `format`                         | Determines how content is posted (`video` or `image`)                                                                                     |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                         |
+| `time_between_posts`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                              |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                               |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again                                                                                 |
+| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                                                   |
+| `blacklist`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                                                               |
+| `duplicates_allowed`             | Whether to allow duplicate posts                                                                                                          |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                                                              |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption                                                                                           |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit post caption (auto `post_mode` & true `use_reddit_caption` only) |
+| `caption`                        | Default post caption                                                                                                                      |
+| `hashtags`                       | Hashtags appended to each Instagram post                                                                                                  |
 
 ### YouTube_Settings
-| Key                                | Description                                                                       |
-|------------------------------------|-----------------------------------------------------------------------------------|
-| `"refresh_token"`                  | Token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**) |
-| `"client_secret"`                  | YouTube API key for posting                                                       |
-| `"client_id"`                      | YouTube user ID for API access (ends with `"apps.googleusercontent.com"`)         |
-| `"post_mode"`                      | `"auto"` = grab posts from Reddit, `"manual"` = post from `/videos`               |
-| `"audio_enabled"`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`) |  
-| `"time_between_posts"`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)         |
-| `"attempts_before_timeout"`        | The number of failed post attempts before giving up                               |
-| `"hours_before_duplicate_removed"` | Time, in hours, before a post is allowed to be used again                         |
-| `"subreddits"`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)           |
-| `"blacklist"`                      | Words that trigger this post to be discarded entirely (auto post_mode only)       |
-| `"duplicates_allowed"`             | Whether to allow duplicate posts                                                  |
-| `"nsfw_allowed"`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**)                      |
-| `"use_reddit_caption"`             | Whether to use Reddit post title as the caption                                   |
-| `"caption_blacklist"`              | Words that trigger fallback caption (auto post_mode only)                         |
-| `"caption"`                        | Post caption                                                                      |
-| `"description"`                    | Post description                                                                  |
+| Key                              | Description                                                                                                                             |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `refresh_token`                  | Token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                       |
+| `client_secret`                  | YouTube API key for posting                                                                                                             |
+| `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                 |
+| `post_mode`                      | Set to `auto` or `manual` (`auto` → grab posts from Reddit \| `manual` → post from `/videos`)                                           |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                       |  
+| `time_between_posts`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                               |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                             |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again                                                                               |
+| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                                                 |
+| `blacklist`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                                                             |
+| `duplicates_allowed`             | Whether to allow duplicate posts                                                                                                        |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**)                                                                            |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption                                                                                         |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (auto `post_mode` & true `use_reddit_caption` only) |
+| `caption`                        | Default post caption                                                                                                                    |
+| `description`                    | Post description                                                                                                                        |
 
 ## Starting and Interacting with the bot
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
