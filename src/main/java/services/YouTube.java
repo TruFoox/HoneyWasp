@@ -1,6 +1,7 @@
 package services;
 
 import java.awt.*;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
@@ -85,7 +86,7 @@ public class YouTube implements Runnable {
                             return;
 
                     }
-                    Output.debugPrint("[YT] Successfully fetched URL" + mediaURL);
+                    Output.debugPrint("[YT] Successfully fetched URL " + mediaURL);
 
                     /* Convert image to video */
                     {
@@ -273,13 +274,17 @@ public class YouTube implements Runnable {
 
         chosenSubreddit = SUBREDDITS.get(randIndex);
 
+        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
+
+        Output.debugPrint("[YT] Fetching media URL from " + URL);
         try {
-            response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
-            if (response == "CD") {
-                Output.print("[YT] Connection drop detected. Trying again in 10 seconds...");
-                if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
-                return 1;
-            }
+            response = HTTPSend.get(URL);
+
+        } catch (ConnectException e) {
+            Output.print("[YT] Connection drop detected. Trying again in 10 seconds...");
+
+            if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
+            return 1;
         } catch (Exception e) {
             Output.webhookPrint("[YT] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);

@@ -2,6 +2,7 @@ package services;
 
 import java.awt.Image;
 import java.io.File;
+import java.net.ConnectException;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import config.*;
@@ -53,7 +54,7 @@ public class Instagram implements Runnable {
             // Start bot
             while (run) {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
-                Output.debugPrint("[INSTA] New attempt started");
+                Output.debugPrint("[INSTA] Attempt " + countAttempt + "started");
 
                 if (countAttempt == 1) { // Print first attempt message
                     Output.print("[INSTA] Attempting new post", Output.YELLOW, true,true);
@@ -77,7 +78,7 @@ public class Instagram implements Runnable {
                             return;
 
                     }
-                    Output.debugPrint("[INSTA] Successfully fetched URL" + mediaURL);
+                    Output.debugPrint("[INSTA] Successfully fetched URL " + mediaURL);
 
                     /* If format is video, convert image to video */
                     if (VIDEO_MODE) {
@@ -426,11 +427,11 @@ public class Instagram implements Runnable {
         Output.debugPrint("[INSTA] Fetching media URL from " + URL);
         try {
             response = HTTPSend.get(URL);
-            if (response == "CD") {
-                Output.print("[INSTA] Connection drop detected. Trying again in 10 seconds...");
-                if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
-                return 1;
-            }
+        } catch (ConnectException e) {
+            Output.print("[INSTA] Connection drop detected. Trying again in 10 seconds...");
+
+            if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
+            return 1;
         } catch (Exception e) {
             Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);

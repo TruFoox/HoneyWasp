@@ -177,7 +177,7 @@ public class HoneyWasp extends ListenerAdapter {
     // Slash commands
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String service = event.getOption("service").getAsString();
-        Output.debugPrint("Command /" + event.getName() + "used on service " + service);
+        Output.debugPrint("Command /" + event.getName() + " used on service " + service);
 
         switch (event.getName()) {
             case "start": {
