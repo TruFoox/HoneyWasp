@@ -60,7 +60,8 @@ public class YouTube implements Runnable {
         try {
             // Start bot
             while (run) {
-                Output.debugPrint("[INSTA] Attempt " + countAttempt + "started");
+                Output.debugPrint("[YT" +
+                        "] Attempt " + countAttempt + " started");
                 countAttempt++;
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached

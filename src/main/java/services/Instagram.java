@@ -54,7 +54,7 @@ public class Instagram implements Runnable {
             // Start bot
             while (run) {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
-                Output.debugPrint("[INSTA] Attempt " + countAttempt + "started");
+                Output.debugPrint("[INSTA] Attempt " + countAttempt + " started");
 
                 if (countAttempt == 1) { // Print first attempt message
                     Output.print("[INSTA] Attempting new post", Output.YELLOW, true,true);
