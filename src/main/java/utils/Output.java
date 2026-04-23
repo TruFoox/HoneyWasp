@@ -64,10 +64,11 @@ public class Output {
     }
 
     public static synchronized void print(String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
-        if (lastOutputWasNewline || config.getGeneral().isDebug_mode()) {System.out.println();} else {System.out.print("\r\033[2K");}
+        Boolean debug = config.getGeneral().isDebug_mode();
+        if (lastOutputWasNewline || debug) {System.out.println();} else {System.out.print("\r\033[2K");}
 
         if (!useTimestamp) {
-            if (overwriteThisLine) {
+            if (overwriteThisLine || debug) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + "     " + message + RESET + "\r");
                 lastOutputWasNewline = false;
@@ -76,7 +77,7 @@ public class Output {
                 lastOutputWasNewline = true;
             }
         } else {
-            if (overwriteThisLine) {
+            if (overwriteThisLine || debug) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + "     [" + DateTime.time() + "] - " + message + RESET+ "\r");
                 lastOutputWasNewline = false;
