@@ -202,7 +202,7 @@ public class Instagram implements Runnable {
                         FileIO.writeList(mediaURL, "instagram", true);
 
 
-                        if (!Sleep.safeSleep(sleepTime)) break;
+                        if (!Sleep.safeSleep(1000)) break;
                         continue;
                     } else {
                         Output.print("[INSTA] Upload step success (1/2)", Output.YELLOW, true);

@@ -45,7 +45,7 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
         // Returns response & status code
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
@@ -73,7 +73,7 @@ public class HTTPSend {
 
         HttpRequest request = builder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
 
         HTTPCode.set((long) response.statusCode());
         return response.body();
@@ -121,7 +121,7 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode());
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
 
         return response.body();
     }
@@ -129,7 +129,7 @@ public class HTTPSend {
 
     public static String postForm(String url, Map<String, String> data) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        Output.debugPrint("Starting post on " + url + "\nWith form: " + data);
+        Output.debugPrint("Starting post on " + url + "\n\tWith form: " + data);
 
         StringBuilder form = new StringBuilder();
         for (Map.Entry<String, String> entry : data.entrySet()) {
@@ -149,7 +149,7 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
         return response.body();
     }
 

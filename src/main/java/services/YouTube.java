@@ -195,6 +195,9 @@ public class YouTube implements Runnable {
 
                             // Blacklist image URL permanently, as it is likely corrupted
                             FileIO.writeList(mediaURL, "youtube", true);
+
+                            if (!Sleep.safeSleep(1000)) break;
+                            continue;
                         }
 
                     } else { // Post success handling
