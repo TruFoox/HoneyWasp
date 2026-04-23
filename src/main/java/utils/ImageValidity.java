@@ -14,16 +14,24 @@ import java.util.List;
 public class ImageValidity { // Need to break into individual classes
     static ReadConfig config = ReadConfig.getInstance();
 
-    static List<String> BLACKLIST;
-    static boolean NSFW_ALLOWED;
-    static long hours_before_duplicate_removed;
-    static List<String> CAPTION_BLACKLIST;
-    static String mediaURL;
-    static String caption;
-    static boolean nsfw;
     public static int check(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
+        List<String> BLACKLIST;
+        boolean NSFW_ALLOWED;
+        String caption;
+        long hours_before_duplicate_removed;
+        List<String> CAPTION_BLACKLIST;
+        String mediaURL;
+        boolean nsfw;
+
         Output.debugPrint("Validating image");
+
         /* Get config data */
+
+        // This should prob be replaced w/ something like
+        // PlatformConfig platformConfig = config.getPlatform(platform);
+        // BLACKLIST = platformConfig.getBlacklist();
+        // NSFW_ALLOWED = platformConfig.isNsfwAllowed();
+        // etc
         if (platform.equals("instagram")) {
             BLACKLIST = config.getInstagram().getBlacklist();
             NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
@@ -49,6 +57,8 @@ public class ImageValidity { // Need to break into individual classes
             mediaURL = StringToJson.getData(response, "url");
             caption = StringToJson.getData(response, "title");
             nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+        } else {
+            return 1; // To appease the compiler
         }
 
         // Download image & check aspect ratio

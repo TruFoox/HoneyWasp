@@ -60,9 +60,9 @@ public class YouTube implements Runnable {
         try {
             // Start bot
             while (run) {
+                countAttempt++;
                 Output.debugPrint("[YT" +
                         "] Attempt " + countAttempt + " started");
-                countAttempt++;
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                     Output.webhookPrint("[YT] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
@@ -104,6 +104,9 @@ public class YouTube implements Runnable {
 
                             // Blacklist image URL permanently, as it is likely corrupted
                             FileIO.writeList(mediaURL, "youtube", true);
+
+
+                            if (!Sleep.safeSleep(1000)) break;
                             continue;
                         } catch (IOException e) {
                             Output.webhookPrint("[YT] Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
