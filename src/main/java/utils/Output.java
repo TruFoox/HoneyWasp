@@ -68,7 +68,7 @@ public class Output {
         if (lastOutputWasNewline || debug) {System.out.println();} else {System.out.print("\r\033[2K");}
 
         if (!useTimestamp) {
-            if (overwriteThisLine || debug) {
+            if (overwriteThisLine && !debug) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + "     " + message + RESET + "\r");
                 lastOutputWasNewline = false;
@@ -77,7 +77,7 @@ public class Output {
                 lastOutputWasNewline = true;
             }
         } else {
-            if (overwriteThisLine || debug) {
+            if (overwriteThisLine && !debug) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + "     [" + DateTime.time() + "] - " + message + RESET+ "\r");
                 lastOutputWasNewline = false;

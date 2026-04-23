@@ -66,7 +66,7 @@ public class ImageValidity { // Need to break into individual classes
                 return 1;
             }
 
-            double ratio = (double) image.getWidth(null) / image.getHeight(null);
+            float ratio = (float) image.getWidth(null) / image.getHeight(null);
 
             Output.debugPrint("Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
             if (ratio < 0.82 || ratio > 1.70) {
@@ -78,7 +78,7 @@ public class ImageValidity { // Need to break into individual classes
 
         // Test image validity
         Output.debugPrint("Testing if image is gif");
-        if (mediaURL.contains(".gif") || mediaURL.contains(".gifv")) { // Ensure image is not gif
+        if (mediaURL.contains(".gif")) { // Ensure image is not gif
             Output.print("Image is gif - x" + countattempt + " attempts", Output.RED, true);
 
             return 1;
@@ -121,7 +121,7 @@ public class ImageValidity { // Need to break into individual classes
         Output.debugPrint("Testing if caption contains blacklisted strings to use preset caption");
         for (String word : CAPTION_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
             if (caption.toLowerCase().contains(word.toLowerCase())) {
-                Output.print("Using fallback caption - x" + countattempt + " attempts", Output.RED, true);
+                Output.print("Using fallback caption (\"" + word + "\" found) - x" + countattempt + " attempts", Output.RED, true);
 
                 return 2;
             }
