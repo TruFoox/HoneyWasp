@@ -1,7 +1,5 @@
 package utils;
 
-import java.net.ConnectException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.*;
 import java.net.URI;
@@ -47,7 +45,7 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        Output.debugPrint("Response: " + response.body());
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
         // Returns response & status code
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
@@ -75,7 +73,7 @@ public class HTTPSend {
 
         HttpRequest request = builder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Output.debugPrint("Response: " + response.body());
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
 
         HTTPCode.set((long) response.statusCode());
         return response.body();
@@ -123,7 +121,7 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode());
-        Output.debugPrint("Response: " + response.body());
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
 
         return response.body();
     }
@@ -151,7 +149,7 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
-        Output.debugPrint("Response: " + response.body());
+        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", ""));
         return response.body();
     }
 
