@@ -26,39 +26,42 @@ public class ImageValidity { // Need to break into individual classes
         Output.debugPrint("Validating image");
 
         /* Get config data */
-
         // This should prob be replaced w/ something like
         // PlatformConfig platformConfig = config.getPlatform(platform);
         // BLACKLIST = platformConfig.getBlacklist();
         // NSFW_ALLOWED = platformConfig.isNsfwAllowed();
         // etc
-        if (platform.equals("instagram")) {
-            BLACKLIST = config.getInstagram().getBlacklist();
-            NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
-            hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
-            CAPTION_BLACKLIST = config.getInstagram().getCaption_blacklist();
-            mediaURL = StringToJson.getData(response, "url");
-            caption = StringToJson.getData(response, "title");
-            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-
-        } else if (platform.equals("youtube")) {
-            BLACKLIST = config.getYoutube().getBlacklist();
-            NSFW_ALLOWED = config.getYoutube().isNsfw_allowed();
-            hours_before_duplicate_removed = config.getYoutube().getHours_before_duplicate_removed();
-            CAPTION_BLACKLIST = config.getYoutube().getCaption_blacklist();
-            mediaURL = StringToJson.getData(response, "url");
-            caption = StringToJson.getData(response, "title");
-            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-        } else if (platform.equals("twitter")) {
-            BLACKLIST = config.getTwitter().getBlacklist();
-            NSFW_ALLOWED = config.getTwitter().isNsfw_allowed();
-            hours_before_duplicate_removed = config.getTwitter().getHours_before_duplicate_removed();
-            CAPTION_BLACKLIST = config.getTwitter().getCaption_blacklist();
-            mediaURL = StringToJson.getData(response, "url");
-            caption = StringToJson.getData(response, "title");
-            nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-        } else {
-            return 1; // To appease the compiler
+        switch (platform) {
+            case "instagram" -> {
+                BLACKLIST = config.getInstagram().getBlacklist();
+                NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
+                hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
+                CAPTION_BLACKLIST = config.getInstagram().getCaption_blacklist();
+                mediaURL = StringToJson.getData(response, "url");
+                caption = StringToJson.getData(response, "title");
+                nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+            }
+            case "youtube" -> {
+                BLACKLIST = config.getYoutube().getBlacklist();
+                NSFW_ALLOWED = config.getYoutube().isNsfw_allowed();
+                hours_before_duplicate_removed = config.getYoutube().getHours_before_duplicate_removed();
+                CAPTION_BLACKLIST = config.getYoutube().getCaption_blacklist();
+                mediaURL = StringToJson.getData(response, "url");
+                caption = StringToJson.getData(response, "title");
+                nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+            }
+            case "twitter" -> {
+                BLACKLIST = config.getTwitter().getBlacklist();
+                NSFW_ALLOWED = config.getTwitter().isNsfw_allowed();
+                hours_before_duplicate_removed = config.getTwitter().getHours_before_duplicate_removed();
+                CAPTION_BLACKLIST = config.getTwitter().getCaption_blacklist();
+                mediaURL = StringToJson.getData(response, "url");
+                caption = StringToJson.getData(response, "title");
+                nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+            }
+            default -> {
+                return 1; // To appease the compiler
+            }
         }
 
         // Download image & check aspect ratio

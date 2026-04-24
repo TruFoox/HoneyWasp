@@ -129,7 +129,7 @@ public class HTTPSend {
 
     public static String postForm(String url, Map<String, String> data) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        Output.debugPrint("Starting post on " + url + "\n\tWith form: " + data);
+        Output.debugPrint("Starting post on " + url + "\n\tWith form: " + data.toString().replace("\n", ""));
 
         StringBuilder form = new StringBuilder();
         for (Map.Entry<String, String> entry : data.entrySet()) {

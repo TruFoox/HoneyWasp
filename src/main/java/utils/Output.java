@@ -93,6 +93,12 @@ public class Output {
         if (config.getGeneral().isDebug_mode()) { // Only print if debug mode is enabled
             if (lastOutputWasNewline) {System.out.println();}
 
+            // Replaces /t with spacing required to line up with previous outputs
+            String prefix = "     [" + DateTime.time() + "] - ";
+            String spacing = " ".repeat(prefix.length());
+
+            String outputLine= message.replaceAll("\t", spacing);
+
             System.out.print(YELLOW + "     [" + DateTime.time() + "] - " + message + RESET);
             lastOutputWasNewline = true;
 
