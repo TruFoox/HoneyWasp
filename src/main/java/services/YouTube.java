@@ -2,6 +2,7 @@ package services;
 
 import java.awt.*;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
@@ -225,20 +226,19 @@ public class YouTube implements Runnable {
 
                 if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 sec to prevent spam
             }
-        } catch (InterruptedException e) { // When interrupted
-            Thread.currentThread().interrupt(); // restore interrupt flag
-            Output.webhookPrint("[YT] Unexpected error during sleep: " + e.getMessage(), Output.RED);
-
+        } catch (InterruptedException e) { // When the thread's stop flag is thrown while it is busy
+            Output.webhookPrint("[INSTA] Unexpected error during sleep: " + e.getMessage(), Output.RED);
+        } catch (SocketException e) {
+            Output.webhookPrint("[INSTA] Bot crashed: Connection likely dropped", Output.RED);
+        } catch (IOException e) {
+            Output.webhookPrint("[INSTA] Bot crashed: IO issue occurred", Output.RED);
         } catch (Exception e) { // General error handling
-            try {
-                Output.webhookPrint("[YT] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
-            } catch (Exception inner) {
-                inner.printStackTrace();
-            }
-        } finally { // Crash/Stop handling
-            Output.webhookPrint("[SYS] YouTube stopped");
+            Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
 
-            Status.youtubeRunning = false;
+        } finally { // Crash/Stop handling
+            Output.webhookPrint("[SYS] Instagram stopped");
+
+            Status.instagramRunning = false;
         }
     }
     private boolean getAccessToken() {

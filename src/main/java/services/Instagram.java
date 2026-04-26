@@ -3,6 +3,7 @@ package services;
 import java.awt.Image;
 import java.io.File;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.URL;
 import javax.imageio.ImageIO;
 import config.*;
@@ -286,19 +287,15 @@ public class Instagram implements Runnable {
 
                 Thread.sleep(1500); // Sleep 1.5 sec to prevent spam
             }
-        } catch (InterruptedException e) { // When interrupted
-            Thread.currentThread().interrupt(); // restore interrupt flag
+        } catch (InterruptedException e) { // When the thread's stop flag is thrown while it is busy
             Output.webhookPrint("[INSTA] Unexpected error during sleep: " + e.getMessage(), Output.RED);
-
+        } catch (SocketException e) {
+            Output.webhookPrint("[INSTA] Bot crashed: Connection likely dropped", Output.RED);
+        } catch (IOException e) {
+            Output.webhookPrint("[INSTA] Bot crashed: IO issue occurred", Output.RED);
         } catch (Exception e) { // General error handling
-            try {
-                if (ErrorHandling.messageTable.containsKey(e.getMessage())) // Test if error is known
-                    Output.webhookPrint("[INSTA] Bot crashed with error: " + ErrorHandling.messageTable.get(e.getMessage()), Output.RED);
-                    else
-                        Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
-            } catch (Exception inner) {
-                inner.printStackTrace();
-            }
+            Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+
         } finally { // Crash/Stop handling
         Output.webhookPrint("[SYS] Instagram stopped");
 

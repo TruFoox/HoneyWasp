@@ -99,7 +99,7 @@ public class Output {
 
             String outputLine= message.replaceAll("\t", spacing);
 
-            System.out.print(YELLOW + "     [" + DateTime.time() + "] - " + message + RESET);
+            System.out.print(YELLOW + "     [" + DateTime.time() + "] - " + outputLine + RESET);
             lastOutputWasNewline = true;
 
         }
