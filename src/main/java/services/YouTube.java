@@ -57,6 +57,7 @@ public class YouTube implements Runnable {
 
         Output.webhookPrint("[SYS] Bot successfully started on YouTube");
         run = true;
+        Status.youtubeRunning = true;
 
         try {
             // Start bot
@@ -227,18 +228,18 @@ public class YouTube implements Runnable {
                 if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 sec to prevent spam
             }
         } catch (InterruptedException e) { // When the thread's stop flag is thrown while it is busy
-            Output.webhookPrint("[INSTA] Unexpected error during sleep: " + e.getMessage(), Output.RED);
+            Output.webhookPrint("[YT] Unexpected error during sleep: " + e.getMessage(), Output.RED);
         } catch (SocketException e) {
-            Output.webhookPrint("[INSTA] Bot crashed: Connection likely dropped", Output.RED);
+            Output.webhookPrint("[YT] Bot crashed: Connection likely dropped", Output.RED);
         } catch (IOException e) {
-            Output.webhookPrint("[INSTA] Bot crashed: IO issue occurred", Output.RED);
+            Output.webhookPrint("[YT] Bot crashed: IO issue occurred", Output.RED);
         } catch (Exception e) { // General error handling
-            Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+            Output.webhookPrint("[INYTSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
 
         } finally { // Crash/Stop handling
-            Output.webhookPrint("[SYS] Instagram stopped");
+            Output.webhookPrint("[SYS] YouTube stopped");
 
-            Status.instagramRunning = false;
+            Status.youtubeRunning = false;
         }
     }
     private boolean getAccessToken() {
@@ -341,8 +342,6 @@ public class YouTube implements Runnable {
                 return 2;
         }
 
-        Output.webhookPrint("[YT] How did the bot get here? This shouldn't be possible. Quitting..."
-                + "\n\tError message: " + response, Output.RED);
         return 2;
     }
 

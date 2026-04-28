@@ -50,6 +50,7 @@ public class Instagram implements Runnable {
 
         Output.webhookPrint("[SYS] Bot successfully started on Instagram");
         run = true;
+        Status.instagramRunning = true;
 
         try {
             // Start bot
@@ -196,12 +197,15 @@ public class Instagram implements Runnable {
 
 
                     if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
-                        Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
-                                "\n\tError message: " + response, Output.RED);
+                        if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
+                            Output.webhookPrint("[INSTA] Upload step failed because instagram doesn't like this URL for some reason. Trying again... ", Output.RED);
+                        } else {
+                            Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
+                                    "\n\tError message: " + response, Output.RED);
 
-                        // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeList(mediaURL, "instagram", true);
-
+                            // Blacklist image URL permanently, as it is likely corrupted
+                            FileIO.writeList(mediaURL, "instagram", true);
+                        }
 
                         if (!Sleep.safeSleep(1000)) break;
                         continue;
@@ -303,7 +307,6 @@ public class Instagram implements Runnable {
         }
     }
 
-
     // Get Facebook ID & use it to retrieve Instagram ID
     private boolean getUserID() {
         try {
@@ -347,68 +350,6 @@ public class Instagram implements Runnable {
             return false;
         }
 
-        return true; // Success
-    }
-
-
-    // Get media location (based on POSTMODE & selected media format)
-    private boolean getMediaSource() {
-        try {
-            if (AUTOPOSTMODE) {
-                Output.debugPrint("[INSTA] Reading automatic cache");
-                usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
-
-            } else { // Log manual media
-                File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
-                Output.debugPrint("[INSTA] Media source set to " + directory);
-
-                if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[INSTA] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
-                    return false;
-                }
-
-                // Ensure there is at least 1 file in directory
-                int fileCount = Objects.requireNonNull(directory.list()).length;
-                String format = (VIDEO_MODE) ? "videos" : "images";
-                if (fileCount == 0) {
-                    Output.webhookPrint(String.format("[INSTA] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
-                    return false;
-                }
-
-                Output.debugPrint("[INSTA] Logging media from manual directory");
-
-                // Start logging media
-                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
-            }
-
-            // Get audio
-            if (AUDIO_ENABLED && VIDEO_MODE) {
-                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
-                Output.debugPrint("[INSTA] Audio source set to " + directory);
-
-                if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
-                    return false;
-                }
-
-                // Ensure there is at least 1 file in directory
-                int fileCount = Objects.requireNonNull(directory.list()).length;
-                if (fileCount == 0) {
-                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
-                    return false;
-                }
-
-                Output.debugPrint("[INSTA] Logging audio from manual directory");
-                audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
-            }
-        } catch (Exception e) {
-            try {
-                Output.webhookPrint(String.valueOf(e), Output.RED);
-            } catch (Exception ex) {
-                throw new RuntimeException(e);
-            }
-            return false;
-        }
         return true; // Success
     }
 
@@ -477,9 +418,68 @@ public class Instagram implements Runnable {
 
                 return 2;
         }
-        Output.webhookPrint("[INSTA] How did the bot get here? This shouldn't be possible. Quitting..."
-                + "\n\tError message: " + response, Output.RED);
-        return 2;
+        return 2; // Isn't possible but the compiler whines
+    }
+
+    // Get media location (based on POSTMODE & selected media format)
+    private boolean getMediaSource() {
+        try {
+            if (AUTOPOSTMODE) {
+                Output.debugPrint("[INSTA] Reading automatic cache");
+                usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
+
+            } else { // Log manual media
+                File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
+                Output.debugPrint("[INSTA] Media source set to " + directory);
+
+                if (!directory.exists() || !directory.isDirectory()) {
+                    Output.webhookPrint("[INSTA] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
+                    return false;
+                }
+
+                // Ensure there is at least 1 file in directory
+                int fileCount = Objects.requireNonNull(directory.list()).length;
+                String format = (VIDEO_MODE) ? "videos" : "images";
+                if (fileCount == 0) {
+                    Output.webhookPrint(String.format("[INSTA] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
+                    return false;
+                }
+
+                Output.debugPrint("[INSTA] Logging media from manual directory");
+
+                // Start logging media
+                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
+            }
+
+            // Get audio
+            if (AUDIO_ENABLED && VIDEO_MODE) {
+                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
+                Output.debugPrint("[INSTA] Audio source set to " + directory);
+
+                if (!directory.exists() || !directory.isDirectory()) {
+                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
+                    return false;
+                }
+
+                // Ensure there is at least 1 file in directory
+                int fileCount = Objects.requireNonNull(directory.list()).length;
+                if (fileCount == 0) {
+                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
+                    return false;
+                }
+
+                Output.debugPrint("[INSTA] Logging audio from manual directory");
+                audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
+            }
+        } catch (Exception e) {
+            try {
+                Output.webhookPrint(String.valueOf(e), Output.RED);
+            } catch (Exception ex) {
+                throw new RuntimeException(e);
+            }
+            return false;
+        }
+        return true; // Success
     }
 
     public static void stop() { // Stop bot

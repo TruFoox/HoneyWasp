@@ -27,6 +27,7 @@ import java.util.UUID;
 public class HTTPSend {
 
     public static ThreadLocal<Long> HTTPCode = ThreadLocal.withInitial(() -> 0L);
+    // Reminder:
     // Threadlocal = "Each thread has its own version"
     // ThreadLocal.withInitial(() -> 0L) = "Start with value
 
