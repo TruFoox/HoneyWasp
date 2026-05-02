@@ -110,13 +110,13 @@ public class ImageValidity { // Need to break into individual classes
         // Ensure post is not duplicate
         Output.debugPrint("Testing if image url is duplicate");
         for (String[] row : usedURLs) {
-            String url = row[0];
+            String usedUrl = row[0];
             String timestampStr = row[1];
 
             long timestamp = Long.parseLong(timestampStr);
 
             if ((System.currentTimeMillis() - timestamp) < hours_before_duplicate_removed * 3600000) { // Test if cached url is too old to be considered duplicate
-                if (caption.toLowerCase().contains(url.toLowerCase())) {
+                if (mediaURL.equalsIgnoreCase(usedUrl)) {
                     Output.print("Duplicate URL - x" + countattempt + " attempts", Output.RED, true);
 
                     return 1;
