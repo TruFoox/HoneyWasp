@@ -1,30 +1,24 @@
 package services;
 
-import config.ReadConfig;
+import config.Config;
 
 import java.awt.*;
 import java.io.File;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.io.File;
-import java.net.URL;
-import javax.imageio.ImageIO;
-import config.*;
-import org.json.*;
+
 import utils.*;
 
 import java.nio.file.*;
-import java.io.IOException;
 import java.util.*;
 
 // Remember to add debug outputs after finished with implementation
 
 public class Twitter implements Runnable {
-    ReadConfig config = ReadConfig.getInstance(); // Get config
+    Config config = Config.getInstance(); // Get config
     Random rand = new Random(); // Generate seed for random number generation
     Scanner scanner = new Scanner(System.in); // Scanner
 
@@ -44,7 +38,6 @@ public class Twitter implements Runnable {
 
     // Load config
     String KEY = config.getTwitter().getConsumer_key().trim();
-    final String SECRET = config.getTwitter().getClient_secret().trim();
     final String POSTMODE = config.getTwitter().getPost_mode().trim().toLowerCase();
     final boolean AUTOPOSTMODE = config.getTwitter().isAuto_post_mode();
     final int TIME_BETWEEN_POSTS = config.getTwitter().getTime_between_posts();
@@ -56,17 +49,15 @@ public class Twitter implements Runnable {
     final boolean USE_REDDIT_CAPTION = config.getTwitter().isUse_reddit_caption();
     final String FALLBACK_CAPTION = config.getTwitter().getCaption();
     final String HASHTAGS = config.getTwitter().getHashtags();
-    String REFRESHTOKEN = config.getTwitter().getRefresh_token().trim();  // Not final because it can be fetched while still running
+    String REFRESHTOKEN = config.getTwitter().getRefresh_token().trim();
     String TOKEN; // Temporary access token that must be fetched every cycle
 
     public void run() {
         if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        if (!getAccessToken()) {return;} // 2 Fetch temporary user access token (Quit if failed)
+        if (!getAccessToken()) {return;} // 2 Fetch temporary user access token & replace old refresh token with new one for next time (Quit if failed)
 
-        if (!getUserID()) {return;} // 3 Fetch user's UserID using temporary token fetched in step 2(Quit if failed)
-
-        if (!getMediaSource()) {return;} // 4 Gets media location, cache files (Quit if failed)
+        if (!getMediaSource()) {return;} // 3 Gets media location, cache files (Quit if failed)
 
         try {
             while (run) {
@@ -150,9 +141,7 @@ public class Twitter implements Runnable {
                 if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                     REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
-                    Output.webhookPrint("PLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [Twitter_Settings] IN config.json:" +
-                            "\n\t" + REFRESHTOKEN +
-                            "\n\tBOT WILL STILL CONTINUE TO RUN BUT IF YOU DONT ADD TO CONFIG YOU WILL NEED TO REAUTHENTICATE NEXT LAUNCH", Output.GREEN);
+                    config.getTwitter().setRefresh_token(REFRESHTOKEN);
 
                     return true;  // Success
                 } else {
@@ -170,12 +159,37 @@ public class Twitter implements Runnable {
                 return false;
             }
         }
+        Output.debugPrint("[TWIT] refresh_token was found to contain data");
         return true;
     }
     private boolean getAccessToken() {
         try {
+            String oauthURL = "https://api.twitter.com/2/oauth2/token";
 
-            return true;
+            // Build upload data
+            Map<String, String> formData = new HashMap<>();
+
+            formData.put("grant_type", "refresh_token");
+            formData.put("refresh_token", REFRESHTOKEN);
+            formData.put("client_id", KEY);
+
+            String response = HTTPSend.postForm(oauthURL, formData);
+
+            Output.print(response);
+            if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token") && response.contains("access_token")) {
+                // Set both access and refresh, as Twitter refresh tokens are re-given on every use
+                TOKEN = StringToJson.getData(response, "access_token");
+                REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
+
+                config.getTwitter().setRefresh_token(REFRESHTOKEN);
+                config.saveConfig(); // Write to file
+                return true;  // Success
+            } else {
+                Output.webhookPrint("[TWIT] Failed to fetch token. Quitting..." +
+                        "\n\tError message: " + response, Output.RED);
+
+                return false;
+            }
         } catch (Exception e) {
             try {
                 Output.webhookPrint(String.valueOf(e), Output.RED);
@@ -186,19 +200,6 @@ public class Twitter implements Runnable {
         }
     }
 
-    private boolean getUserContextToken() { // Fetch UserID from X
-        try {
-
-            return true;
-        } catch (Exception e) {
-            try {
-                Output.webhookPrint(String.valueOf(e), Output.RED);
-            } catch (Exception ex) {
-                throw new RuntimeException(e);
-            }
-            return false;
-        }
-    }
 
     private boolean getUserID() { // Fetch UserID from X
         try {
