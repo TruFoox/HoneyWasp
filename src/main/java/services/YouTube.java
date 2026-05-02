@@ -334,7 +334,12 @@ public class YouTube implements Runnable {
 
                 if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time
                 return 1;
+            case 530: // Cloudflare error 3
+                Output.webhookPrint("[YT] Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
+                        + "\n\tThere is nothing that can be done to fix this but wait, but it shouldn't take too long. Skipping attempt...", Output.RED);
 
+                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time + 6 hours
+                return 1;
             default: // General error handling
                 Output.webhookPrint("[YT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
