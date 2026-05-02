@@ -23,7 +23,7 @@ import java.util.*;
 
 
 public class YouTube implements Runnable {
-    ReadConfig config = ReadConfig.getInstance(); // Get config
+    Config config = Config.getInstance(); // Get config
     Random rand = new Random(); // Generate seed for random number generation
     Scanner scanner = new Scanner(System.in); // Scanner
 
@@ -454,9 +454,8 @@ public class YouTube implements Runnable {
             if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                 REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
-                Output.webhookPrint("PLEASE INPUT THE FOLLOWING INTO 'refresh_token' UNDER [YouTube_Settings] IN config.json:" +
-                        "\n\t" + REFRESHTOKEN +
-                        "\n\tBOT WILL STILL CONTINUE TO RUN BUT IF YOU DONT ADD TO CONFIG YOU WILL NEED TO REAUTHENTICATE NEXT LAUNCH", Output.GREEN);
+                config.getYoutube().setRefresh_token(REFRESHTOKEN);
+                config.saveConfig(); // Write to file
 
                 return true;  // Success
             } else {

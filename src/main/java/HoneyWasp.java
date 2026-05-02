@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import config.ReadConfig;
+import config.Config;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
@@ -26,7 +26,7 @@ public class HoneyWasp extends ListenerAdapter {
         double currentVersion = 3.20; // Current version number
 
 
-        ReadConfig config = ReadConfig.getInstance(); // Get config
+        Config config = Config.getInstance(); // Get config
 
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
 

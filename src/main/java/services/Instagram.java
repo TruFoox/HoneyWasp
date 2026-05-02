@@ -16,7 +16,7 @@ import java.util.*;
 
 
 public class Instagram implements Runnable {
-    ReadConfig config = ReadConfig.getInstance(); // Get config
+    Config config = Config.getInstance(); // Get config
     Random rand = new Random(); // Generate seed for random number generation
 
     // Empty global variables

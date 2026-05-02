@@ -1,8 +1,7 @@
 package utils;
 
 import club.minnced.discord.webhook.exception.HttpException;
-import config.ReadConfig;
-import java.util.Scanner;
+import config.Config;
 
 // Output
 //
@@ -12,7 +11,7 @@ import java.util.Scanner;
 // Void Output.print  ; Print message to console, no webhook
 // Inputs : Message to print, color to print as (Default white), whether to mark this line with \r as overridable (default false), whether to use timestamp (Default true)
 public class Output {
-    static ReadConfig config = ReadConfig.getInstance();
+    static Config config = Config.getInstance();
 
     // Use Output.[COLOR]
     public static final String RESET = "\u001B[0m";
@@ -64,7 +63,7 @@ public class Output {
     }
 
     public static synchronized void print(String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
-        Boolean debug = config.getGeneral().isDebug_mode();
+        boolean debug = config.getGeneral().isDebug_mode();
         if (lastOutputWasNewline || debug) {System.out.println();} else {System.out.print("\r\033[2K");}
 
         if (!useTimestamp) {

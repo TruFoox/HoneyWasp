@@ -1,6 +1,27 @@
 package config;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.List;
+
+@JsonPropertyOrder({ // Force this order when writing
+        "refresh_token",
+        "client_secret",
+        "client_id",
+        "auto_post_mode",
+        "time_between_posts",
+        "attempts_before_timeout",
+        "subreddits",
+        "blacklist",
+        "duplicates_allowed",
+        "audio_enabled",
+        "nsfw_allowed",
+        "use_reddit_caption",
+        "hours_before_duplicate_removed",
+        "caption_blacklist",
+        "caption",
+        "description"
+})
 
 public class YoutubeSettings {
     private String refresh_token;

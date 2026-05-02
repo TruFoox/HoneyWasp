@@ -1,6 +1,6 @@
 package utils;
 
-import config.ReadConfig;
+import config.Config;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.util.List;
 // Output 1 ; fail
 // Output 2 ; Disable caption but still post
 public class ImageValidity { // Need to break into individual classes
-    static ReadConfig config = ReadConfig.getInstance();
+    static Config config = Config.getInstance();
 
     public static int check(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
         List<String> BLACKLIST;

@@ -1,6 +1,29 @@
 package config;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.List;
+
+@JsonPropertyOrder({ // Force this order when writing
+        "refresh_token",
+        "consumer_key",
+        "post_mode",
+        "format",
+        "audio_enabled",
+        "auto_post_mode",
+        "video_mode",
+        "time_between_posts",
+        "attempts_before_timeout",
+        "subreddits",
+        "blacklist",
+        "duplicates_allowed",
+        "nsfw_allowed",
+        "use_reddit_caption",
+        "caption_blacklist",
+        "hours_before_duplicate_removed",
+        "caption",
+        "hashtags"
+})
 
 public class TwitterSettings {
     private String consumer_key;
@@ -22,6 +45,7 @@ public class TwitterSettings {
     private boolean audio_enabled;
     private String caption;
     private String hashtags;
+
 
     // Default constructor
     public TwitterSettings() {}

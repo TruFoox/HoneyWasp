@@ -3,7 +3,7 @@ package utils;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import config.ReadConfig;
+import config.Config;
 
 // SendWebhook
 //
@@ -15,7 +15,7 @@ public class SendWebhook {
     private final WebhookClient client;
 
     public SendWebhook() {
-        ReadConfig config = ReadConfig.getInstance(); // Get singleton config
+        Config config = Config.getInstance(); // Get singleton config
         String webhookUrl = config.getGeneral().getDiscordWebhook();
 
         // Build the webhook
