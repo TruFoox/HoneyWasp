@@ -31,7 +31,7 @@ public class Instagram implements Runnable {
 
     // Load config
     final String TOKEN = config.Instagram().getApi_key().trim();
-    final boolean AUTOPOSTMODE = config.Instagram().isAuto_post_mode();
+    final boolean AUTO_POST_MODE = config.Instagram().isAuto_post_mode();
     final int TIME_BETWEEN_POSTS = config.Instagram().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
     final int ATTEMPTS_BEFORE_TIMEOUT = config.Instagram().getAttempts_before_timeout();
@@ -70,7 +70,7 @@ public class Instagram implements Runnable {
                 }
 
                 /* Fetch media */
-                if (AUTOPOSTMODE) {
+                if (AUTO_POST_MODE) {
                     switch (getMemeAPI()) {
                         case 0: // Success
                             break;
@@ -133,7 +133,7 @@ public class Instagram implements Runnable {
                 }
 
                 /* Upload manual media/generated video to temp file hoster */
-                if (!AUTOPOSTMODE || VIDEO_MODE) {
+                if (!AUTO_POST_MODE || VIDEO_MODE) {
                     // Upload media to 0x0
                     Output.print("[INSTA] Uploading media to temp file hoster...", Output.YELLOW, true);
 
@@ -170,7 +170,7 @@ public class Instagram implements Runnable {
                 {
                     String jsonData, uploadURL, response; // Store json data & URL to be used with POST
 
-                    if (!AUTOPOSTMODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
+                    if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
                         caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
                     }
 
@@ -271,7 +271,7 @@ public class Instagram implements Runnable {
 
                         continue;
                     } else {
-                        if (AUTOPOSTMODE) {
+                        if (AUTO_POST_MODE) {
                             Output.webhookPrint("[INSTA] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
                         } else {
                             Output.webhookPrint("[INSTA] " + redditURL + " uploaded to Instagram - x" + countAttempt + " attempt(s)", Output.GREEN);
@@ -429,7 +429,7 @@ public class Instagram implements Runnable {
     // Get media location (based on POSTMODE & selected media format)
     private boolean getMediaSource() {
         try {
-            if (AUTOPOSTMODE) {
+            if (AUTO_POST_MODE) {
                 Output.debugPrint("[INSTA] Reading automatic cache");
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 

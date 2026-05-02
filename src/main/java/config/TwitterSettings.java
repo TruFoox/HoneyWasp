@@ -61,12 +61,6 @@ public class TwitterSettings {
     public String getRefresh_token() { return refresh_token; }
     public void setRefresh_token(String refresh_token) { this.refresh_token = refresh_token; }
 
-    public String getPost_mode() { return post_mode; }
-    public void setPost_mode(String post_mode) { this.post_mode = post_mode; }
-
-    public String getFormat() { return format; }
-    public void setFormat(String format) { this.format = format; }
-
     public int getTime_between_posts() { return time_between_posts; }
     public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
 

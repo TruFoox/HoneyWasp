@@ -39,13 +39,12 @@ public class Twitter implements Runnable {
 
     // Load config
     String KEY = config.Twitter().getConsumer_key().trim();
-    final String POSTMODE = config.Twitter().getPost_mode().trim().toLowerCase();
-    final boolean AUTOPOSTMODE = config.Twitter().isAuto_post_mode();
+    final boolean AUTO_POST_MODE = config.Twitter().isAuto_post_mode();
     final int TIME_BETWEEN_POSTS = config.Twitter().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
     final int ATTEMPTS_BEFORE_TIMEOUT = config.Twitter().getAttempts_before_timeout();
     final List<String> SUBREDDITS = config.Twitter().getSubreddits();
-    final String FORMAT = config.Twitter().getFormat().trim().toLowerCase();
+    final boolean VIDEO_MODE = config.Twitter().isVideo_mode();
     final boolean AUDIO_ENABLED = config.Twitter().isAudio_enabled();
     final boolean USE_REDDIT_CAPTION = config.Twitter().isUse_reddit_caption();
     final String FALLBACK_CAPTION = config.Twitter().getCaption();
@@ -278,15 +277,17 @@ public class Twitter implements Runnable {
         return 2;
     }
 
+
+
     // Get media location (based on POSTMODE & selected media format)
     private boolean getMediaSource() {
         try {
-            if (AUTOPOSTMODE) {
+            if (AUTO_POST_MODE) {
                 Output.debugPrint("[TWIT] Reading automatic cache");
-                usedURLs = FileIO.readList("twitter"); // Generate filepath "./cache/[twitter]/cache.txt" for given OS & read file
+                usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
             } else { // Log manual media
-                File directory = Paths.get(".","videos").toFile(); // Generate filepath "./videos"
+                File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
                 Output.debugPrint("[TWIT] Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
@@ -296,8 +297,9 @@ public class Twitter implements Runnable {
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
+                String format = (VIDEO_MODE) ? "videos" : "images";
                 if (fileCount == 0) {
-                    Output.webhookPrint("[TWIT] No videos found in /videos directory. Add media or set post_mode to auto. Quitting...", Output.RED);
+                    Output.webhookPrint(String.format("[TWIT] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;
                 }
 
@@ -308,23 +310,23 @@ public class Twitter implements Runnable {
             }
 
             // Get audio
-            if (AUDIO_ENABLED) {
+            if (AUDIO_ENABLED && VIDEO_MODE) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
-                Output.debugPrint("[TWIT] Audio source set to " + directory);
+                Output.debugPrint("[INSTA] Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[TWIT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[TWIT] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
-                Output.debugPrint("[TWIT] Logging audio from manual directory");
+                Output.debugPrint("[INSTA] Logging audio from manual directory");
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
