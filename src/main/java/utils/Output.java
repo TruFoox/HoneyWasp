@@ -29,7 +29,7 @@ public class Output {
     // \t not used, instead use "     " - avoids the fact that \t can be different lengths depending on environment & break formatting
     public static synchronized void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
             try {
-            if (lastOutputWasNewline || config.getGeneral().isDebug_mode()) {System.out.println();} else {System.out.print("\r\033[2K");}
+            if (lastOutputWasNewline || config.General().isDebug_mode()) {System.out.println();} else {System.out.print("\r\033[2K");}
 
             // Replaces /t with spacing required to line up with previous outputs
             String prefix = "     [" + DateTime.time() + "] - ";
@@ -44,8 +44,8 @@ public class Output {
             }
             lastOutputWasNewline = true;
 
-            if (config != null && config.getGeneral() != null) {
-                String webhook_url = config.getGeneral().getDiscordWebhook();
+            if (config != null && config.General() != null) {
+                String webhook_url = config.General().getDiscordWebhook();
                 if (webhook_url != null && !webhook_url.isEmpty()) {
                     SendWebhook webhook = new SendWebhook();
 
@@ -63,7 +63,7 @@ public class Output {
     }
 
     public static synchronized void print(String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
-        boolean debug = config.getGeneral().isDebug_mode();
+        boolean debug = config.General().isDebug_mode();
         if (lastOutputWasNewline || debug) {System.out.println();} else {System.out.print("\r\033[2K");}
 
         if (!useTimestamp) {
@@ -89,7 +89,7 @@ public class Output {
 
     }
     public static synchronized void debugPrint(String message) {
-        if (config.getGeneral().isDebug_mode()) { // Only print if debug mode is enabled
+        if (config.General().isDebug_mode()) { // Only print if debug mode is enabled
             if (lastOutputWasNewline) {System.out.println();}
 
             // Replaces /t with spacing required to line up with previous outputs

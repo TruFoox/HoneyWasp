@@ -16,7 +16,7 @@ public class SendWebhook {
 
     public SendWebhook() {
         Config config = Config.getInstance(); // Get singleton config
-        String webhookUrl = config.getGeneral().getDiscordWebhook();
+        String webhookUrl = config.General().getDiscordWebhook();
 
         // Build the webhook
         WebhookClientBuilder builder = new WebhookClientBuilder(webhookUrl);

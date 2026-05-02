@@ -14,11 +14,11 @@ import java.util.List;
         "subreddits",
         "blacklist",
         "duplicates_allowed",
-        "audio_enabled",
         "nsfw_allowed",
         "use_reddit_caption",
-        "hours_before_duplicate_removed",
         "caption_blacklist",
+        "hours_before_duplicate_removed",
+        "audio_enabled",
         "caption",
         "description"
 })

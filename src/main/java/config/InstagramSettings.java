@@ -1,7 +1,26 @@
 package config;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.List;
 
+@JsonPropertyOrder({
+        "api_key",
+        "auto_post_mode",
+        "video_mode",
+        "time_between_posts",
+        "attempts_before_timeout",
+        "subreddits",
+        "blacklist",
+        "duplicates_allowed",
+        "nsfw_allowed",
+        "use_reddit_caption",
+        "caption_blacklist",
+        "hours_before_duplicate_removed",
+        "audio_enabled",
+        "caption",
+        "hashtags"
+})
 public class InstagramSettings {
     private String api_key;
     private boolean auto_post_mode;

@@ -7,9 +7,6 @@ import java.util.List;
 @JsonPropertyOrder({ // Force this order when writing
         "refresh_token",
         "consumer_key",
-        "post_mode",
-        "format",
-        "audio_enabled",
         "auto_post_mode",
         "video_mode",
         "time_between_posts",
@@ -21,13 +18,13 @@ import java.util.List;
         "use_reddit_caption",
         "caption_blacklist",
         "hours_before_duplicate_removed",
+        "audio_enabled",
         "caption",
         "hashtags"
 })
 
 public class TwitterSettings {
     private String consumer_key;
-    private String client_secret;
     private boolean auto_post_mode;
     private boolean video_mode;
     private String refresh_token;
@@ -60,8 +57,6 @@ public class TwitterSettings {
     public boolean isVideo_mode() { return video_mode; }
     public void setVideo_mode(boolean video_mode) { this.video_mode = video_mode; }
 
-    public String getClient_secret() { return client_secret; }
-    public void setClient_secret(String client_secret) { this.client_secret = client_secret; }
 
     public String getRefresh_token() { return refresh_token; }
     public void setRefresh_token(String refresh_token) { this.refresh_token = refresh_token; }

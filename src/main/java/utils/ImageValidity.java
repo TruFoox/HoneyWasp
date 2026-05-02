@@ -33,28 +33,28 @@ public class ImageValidity { // Need to break into individual classes
         // etc
         switch (platform) {
             case "instagram" -> {
-                BLACKLIST = config.getInstagram().getBlacklist();
-                NSFW_ALLOWED = config.getInstagram().isNsfw_allowed();
-                hours_before_duplicate_removed = config.getInstagram().getHours_before_duplicate_removed();
-                CAPTION_BLACKLIST = config.getInstagram().getCaption_blacklist();
+                BLACKLIST = config.Instagram().getBlacklist();
+                NSFW_ALLOWED = config.Instagram().isNsfw_allowed();
+                hours_before_duplicate_removed = config.Instagram().getHours_before_duplicate_removed();
+                CAPTION_BLACKLIST = config.Instagram().getCaption_blacklist();
                 mediaURL = StringToJson.getData(response, "url");
                 caption = StringToJson.getData(response, "title");
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
             }
             case "youtube" -> {
-                BLACKLIST = config.getYoutube().getBlacklist();
-                NSFW_ALLOWED = config.getYoutube().isNsfw_allowed();
-                hours_before_duplicate_removed = config.getYoutube().getHours_before_duplicate_removed();
-                CAPTION_BLACKLIST = config.getYoutube().getCaption_blacklist();
+                BLACKLIST = config.Youtube().getBlacklist();
+                NSFW_ALLOWED = config.Youtube().isNsfw_allowed();
+                hours_before_duplicate_removed = config.Youtube().getHours_before_duplicate_removed();
+                CAPTION_BLACKLIST = config.Youtube().getCaption_blacklist();
                 mediaURL = StringToJson.getData(response, "url");
                 caption = StringToJson.getData(response, "title");
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
             }
             case "twitter" -> {
-                BLACKLIST = config.getTwitter().getBlacklist();
-                NSFW_ALLOWED = config.getTwitter().isNsfw_allowed();
-                hours_before_duplicate_removed = config.getTwitter().getHours_before_duplicate_removed();
-                CAPTION_BLACKLIST = config.getTwitter().getCaption_blacklist();
+                BLACKLIST = config.Twitter().getBlacklist();
+                NSFW_ALLOWED = config.Twitter().isNsfw_allowed();
+                hours_before_duplicate_removed = config.Twitter().getHours_before_duplicate_removed();
+                CAPTION_BLACKLIST = config.Twitter().getCaption_blacklist();
                 mediaURL = StringToJson.getData(response, "url");
                 caption = StringToJson.getData(response, "title");
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));

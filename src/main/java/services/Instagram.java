@@ -30,17 +30,17 @@ public class Instagram implements Runnable {
     File[] media, audio;
 
     // Load config
-    final String TOKEN = config.getInstagram().getApi_key().trim();
-    final boolean AUTOPOSTMODE = config.getInstagram().isAuto_post_mode();
-    final int TIME_BETWEEN_POSTS = config.getInstagram().getTime_between_posts();
+    final String TOKEN = config.Instagram().getApi_key().trim();
+    final boolean AUTOPOSTMODE = config.Instagram().isAuto_post_mode();
+    final int TIME_BETWEEN_POSTS = config.Instagram().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
-    final int ATTEMPTS_BEFORE_TIMEOUT = config.getInstagram().getAttempts_before_timeout();
-    final List<String> SUBREDDITS = config.getInstagram().getSubreddits();
-    final boolean VIDEO_MODE = config.getInstagram().isVideo_mode();
-    final boolean AUDIO_ENABLED = config.getInstagram().isAudio_enabled();
-    final boolean USE_REDDIT_CAPTION = config.getInstagram().isUse_reddit_caption();
-    final String FALLBACK_CAPTION = config.getInstagram().getCaption();
-    final String HASHTAGS = config.getInstagram().getHashtags();
+    final int ATTEMPTS_BEFORE_TIMEOUT = config.Instagram().getAttempts_before_timeout();
+    final List<String> SUBREDDITS = config.Instagram().getSubreddits();
+    final boolean VIDEO_MODE = config.Instagram().isVideo_mode();
+    final boolean AUDIO_ENABLED = config.Instagram().isAudio_enabled();
+    final boolean USE_REDDIT_CAPTION = config.Instagram().isUse_reddit_caption();
+    final String FALLBACK_CAPTION = config.Instagram().getCaption();
+    final String HASHTAGS = config.Instagram().getHashtags();
 
 
     public void run() {

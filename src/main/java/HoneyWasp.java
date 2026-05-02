@@ -55,17 +55,19 @@ public class HoneyWasp extends ListenerAdapter {
                 "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
-
         if (config == null) {
             Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
             ErrorHandling.exitProgram();
+
+            return; // Unnecessary but the compiler whines
         }
+
 
         Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
-        final String BOTTOKEN = config.getGeneral().getDiscordBotToken().trim();
+        final String BOTTOKEN = config.General().getDiscordBotToken().trim();
 
-        final List<String> AUTOSTART = config.getGeneral().getAutostart();
+        final List<String> AUTOSTART = config.General().getAutostart();
 
         JDA jda = null; // Init JDA object to prevent uninitialized error
 

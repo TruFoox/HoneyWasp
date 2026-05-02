@@ -37,18 +37,18 @@ public class YouTube implements Runnable {
     File[] media, audio;
 
     // Load config
-    String SECRET = config.getYoutube().getClient_secret().trim();
-    String ID = config.getYoutube().getClient_id().trim();
-    final boolean AUTOPOSTMODE = config.getYoutube().isAuto_post_mode();
-    final int TIME_BETWEEN_POSTS = config.getYoutube().getTime_between_posts();
+    String SECRET = config.Youtube().getClient_secret().trim();
+    String ID = config.Youtube().getClient_id().trim();
+    final boolean AUTOPOSTMODE = config.Youtube().isAuto_post_mode();
+    final int TIME_BETWEEN_POSTS = config.Youtube().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
-    final int ATTEMPTS_BEFORE_TIMEOUT = config.getYoutube().getAttempts_before_timeout();
-    final List<String> SUBREDDITS = config.getYoutube().getSubreddits();
-    final boolean USE_REDDIT_CAPTION = config.getYoutube().isUse_reddit_caption();
-    final boolean AUDIO_ENABLED = config.getYoutube().isAudio_enabled();
-    final String FALLBACK_CAPTION = config.getYoutube().getCaption();
-    final String DESCRIPTION = config.getYoutube().getDescription();
-    String REFRESHTOKEN = config.getYoutube().getRefresh_token(); // Not final because it can be fetched while still running
+    final int ATTEMPTS_BEFORE_TIMEOUT = config.Youtube().getAttempts_before_timeout();
+    final List<String> SUBREDDITS = config.Youtube().getSubreddits();
+    final boolean USE_REDDIT_CAPTION = config.Youtube().isUse_reddit_caption();
+    final boolean AUDIO_ENABLED = config.Youtube().isAudio_enabled();
+    final String FALLBACK_CAPTION = config.Youtube().getCaption();
+    final String DESCRIPTION = config.Youtube().getDescription();
+    String REFRESHTOKEN = config.Youtube().getRefresh_token(); // Not final because it can be fetched while still running
 
     public void run() {
         if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
@@ -454,7 +454,7 @@ public class YouTube implements Runnable {
             if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                 REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
-                config.getYoutube().setRefresh_token(REFRESHTOKEN);
+                config.Youtube().setRefresh_token(REFRESHTOKEN);
                 config.saveConfig(); // Write to file
 
                 return true;  // Success

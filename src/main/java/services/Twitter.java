@@ -4,6 +4,7 @@ import config.Config;
 
 import java.awt.*;
 import java.io.File;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,19 +38,19 @@ public class Twitter implements Runnable {
 
 
     // Load config
-    String KEY = config.getTwitter().getConsumer_key().trim();
-    final String POSTMODE = config.getTwitter().getPost_mode().trim().toLowerCase();
-    final boolean AUTOPOSTMODE = config.getTwitter().isAuto_post_mode();
-    final int TIME_BETWEEN_POSTS = config.getTwitter().getTime_between_posts();
+    String KEY = config.Twitter().getConsumer_key().trim();
+    final String POSTMODE = config.Twitter().getPost_mode().trim().toLowerCase();
+    final boolean AUTOPOSTMODE = config.Twitter().isAuto_post_mode();
+    final int TIME_BETWEEN_POSTS = config.Twitter().getTime_between_posts();
     final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
-    final int ATTEMPTS_BEFORE_TIMEOUT = config.getTwitter().getAttempts_before_timeout();
-    final List<String> SUBREDDITS = config.getTwitter().getSubreddits();
-    final String FORMAT = config.getTwitter().getFormat().trim().toLowerCase();
-    final boolean AUDIO_ENABLED = config.getTwitter().isAudio_enabled();
-    final boolean USE_REDDIT_CAPTION = config.getTwitter().isUse_reddit_caption();
-    final String FALLBACK_CAPTION = config.getTwitter().getCaption();
-    final String HASHTAGS = config.getTwitter().getHashtags();
-    String REFRESHTOKEN = config.getTwitter().getRefresh_token().trim();
+    final int ATTEMPTS_BEFORE_TIMEOUT = config.Twitter().getAttempts_before_timeout();
+    final List<String> SUBREDDITS = config.Twitter().getSubreddits();
+    final String FORMAT = config.Twitter().getFormat().trim().toLowerCase();
+    final boolean AUDIO_ENABLED = config.Twitter().isAudio_enabled();
+    final boolean USE_REDDIT_CAPTION = config.Twitter().isUse_reddit_caption();
+    final String FALLBACK_CAPTION = config.Twitter().getCaption();
+    final String HASHTAGS = config.Twitter().getHashtags();
+    String REFRESHTOKEN = config.Twitter().getRefresh_token().trim();
     String TOKEN; // Temporary access token that must be fetched every cycle
 
     public void run() {
@@ -141,7 +142,7 @@ public class Twitter implements Runnable {
                 if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                     REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
-                    config.getTwitter().setRefresh_token(REFRESHTOKEN);
+                    config.Twitter().setRefresh_token(REFRESHTOKEN);
 
                     return true;  // Success
                 } else {
@@ -162,6 +163,7 @@ public class Twitter implements Runnable {
         Output.debugPrint("[TWIT] refresh_token was found to contain data");
         return true;
     }
+
     private boolean getAccessToken() {
         try {
             String oauthURL = "https://api.twitter.com/2/oauth2/token";
@@ -181,7 +183,7 @@ public class Twitter implements Runnable {
                 TOKEN = StringToJson.getData(response, "access_token");
                 REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
 
-                config.getTwitter().setRefresh_token(REFRESHTOKEN);
+                config.Twitter().setRefresh_token(REFRESHTOKEN);
                 config.saveConfig(); // Write to file
                 return true;  // Success
             } else {
@@ -201,25 +203,6 @@ public class Twitter implements Runnable {
     }
 
 
-    private boolean getUserID() { // Fetch UserID from X
-        try {
-            Map<String, String> headers = new HashMap<>(); // Build Upload Data
-            headers.put("Authorization", "Bearer " + TOKEN);
-            headers.put("Content-Type", "application/json");
-            String request = HTTPSend.get("https://api.x.com/2/users/me", headers);
-
-            Output.webhookPrint(request);
-            return true;
-        } catch (Exception e) {
-            try {
-                Output.webhookPrint(String.valueOf(e), Output.RED);
-            } catch (Exception ex) {
-                throw new RuntimeException(e);
-            }
-            return false;
-        }
-    }
-
     public int getMemeAPI() throws Exception {
         String response;
 
@@ -227,12 +210,17 @@ public class Twitter implements Runnable {
 
         chosenSubreddit = SUBREDDITS.get(randIndex);
 
+        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
+
+        Output.debugPrint("[TWIT] Fetching media URL from " + URL);
         try {
-            response = HTTPSend.get("https://meme-api.com/gimme/" + chosenSubreddit);
-            if (response == "CD") {
-                Output.print("[TWIT] Connection drop detected. Trying again...");
-                return 1;
-            }
+            response = HTTPSend.get(URL);
+
+        } catch (ConnectException e) {
+            Output.print("[TWIT] Connection drop detected. Trying again in 10 seconds...");
+
+            if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
+            return 1;
         } catch (Exception e) {
             Output.webhookPrint("[TWIT] Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
@@ -252,7 +240,7 @@ public class Twitter implements Runnable {
                 Output.print("[TWIT] Reddit post data successfully retrieved", Output.YELLOW, true);
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs, true, "twitter")) {
+                switch (ImageValidity.check(response, countAttempt, usedURLs, false, "twitter")) {
                     case 0: // Image valid
                         return 0;
                     case 1: // General failed validation
@@ -268,6 +256,12 @@ public class Twitter implements Runnable {
 
                 if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
                 return 1;
+            case 502: // Cloudflare error 2
+                Output.webhookPrint("[TWIT] Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
+
+                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time
+                return 1;
 
             default: // General error handling
                 Output.webhookPrint("[TWIT] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
@@ -276,8 +270,6 @@ public class Twitter implements Runnable {
                 return 2;
         }
 
-        Output.webhookPrint("[TWIT] How did the bot get here? This shouldn't be possible. Quitting..."
-                + "\n\tError message: " + response, Output.RED);
         return 2;
     }
 

@@ -69,11 +69,11 @@ public class Config {
 
 
     // Getters and setters
-    public GeneralSettings getGeneral() { return General_Settings; }
+    public GeneralSettings General() { return General_Settings; }
 
-    public InstagramSettings getInstagram() { return Instagram_Settings; }
+    public InstagramSettings Instagram() { return Instagram_Settings; }
 
-    public YoutubeSettings getYoutube() { return Youtube_Settings; }
+    public YoutubeSettings Youtube() { return Youtube_Settings; }
 
-    public TwitterSettings getTwitter() { return Twitter_Settings; }
+    public TwitterSettings Twitter() { return Twitter_Settings; }
 }
