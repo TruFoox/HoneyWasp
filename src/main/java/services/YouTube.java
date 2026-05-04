@@ -53,7 +53,7 @@ public class YouTube implements Runnable {
     public void run() {
         if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        if (!getMediaSource()) {return;}// 2 Gets media location, cache files (Quit if failed)
+        if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
 
         Output.webhookPrint("[SYS] Bot successfully started on YouTube");
         run = true;

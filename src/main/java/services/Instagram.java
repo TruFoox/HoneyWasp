@@ -434,17 +434,17 @@ public class Instagram implements Runnable {
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
             } else { // Log manual media
-                File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
+                String format = (VIDEO_MODE) ? "videos" : "images";
+                File directory = Paths.get(".", format).toFile(); // Generate filepath "./{Format}"
                 Output.debugPrint("[INSTA] Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[INSTA] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
+                    Output.webhookPrint(String.format("[INSTA] /%s directory does not exist. Please create it or set post_mode to auto. Quitting...", format), Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
-                String format = (VIDEO_MODE) ? "videos" : "images";
                 if (fileCount == 0) {
                     Output.webhookPrint(String.format("[INSTA] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;

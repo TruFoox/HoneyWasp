@@ -55,12 +55,12 @@ public class Twitter implements Runnable {
     public void run() {
         if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        if (!getAccessToken()) {return;} // 2 Fetch temporary user access token & replace old refresh token with new one for next time (Quit if failed)
-
-        if (!getMediaSource()) {return;} // 3 Gets media location, cache files (Quit if failed)
+        if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
 
         try {
             while (run) {
+                if (!getAccessToken()) {return;} // Fetch temporary user access token & replace old refresh token with new one for next time (+ test validity)
+
                 Output.debugPrint("[TWIT] New attempt started");
                 countAttempt++;
 
@@ -185,6 +185,7 @@ public class Twitter implements Runnable {
                 config.Twitter().setRefresh_token(REFRESHTOKEN);
                 config.saveConfig(); // Write to file
                 return true;  // Success
+
             } else {
                 Output.webhookPrint("[TWIT] Failed to fetch token. Quitting..." +
                         "\n\tError message: " + response, Output.RED);
@@ -236,7 +237,7 @@ public class Twitter implements Runnable {
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
                 tempDisableCaption = false;
 
-                Output.print("[TWIT] Reddit post data successfully retrieved", Output.YELLOW, true);
+                Output.debugPrint("[TWIT] Reddit post data successfully retrieved");
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
                 switch (ImageValidity.check(response, countAttempt, usedURLs, false, "twitter")) {
@@ -287,17 +288,17 @@ public class Twitter implements Runnable {
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
 
             } else { // Log manual media
-                File directory = Paths.get(".", (VIDEO_MODE) ? "videos" : "images").toFile(); // Generate filepath "./{Format}s"
+                String format = (VIDEO_MODE) ? "videos" : "images";
+                File directory = Paths.get(".", format).toFile(); // Generate filepath "./{Format}"
                 Output.debugPrint("[TWIT] Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[TWIT] /videos directory does not exist. Please create it or set post_mode to auto. Quitting...", Output.RED);
+                    Output.webhookPrint(String.format("[TWIT] /%s directory does not exist. Please create it or set post_mode to auto. Quitting...", format), Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
-                String format = (VIDEO_MODE) ? "videos" : "images";
                 if (fileCount == 0) {
                     Output.webhookPrint(String.format("[TWIT] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;
