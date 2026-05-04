@@ -386,7 +386,7 @@ public class Instagram implements Runnable {
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
                 tempDisableCaption = false;
 
-                Output.print("[INSTA] Reddit post data successfully retrieved", Output.YELLOW, true);
+                Output.debugPrint("[INSTA] Reddit post data successfully retrieved");
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
                 switch (ImageValidity.check(response, countAttempt, usedURLs, true, "instagram")) {
