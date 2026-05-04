@@ -198,15 +198,15 @@ public class Instagram implements Runnable {
 
                     if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
                         if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
-                            Output.webhookPrint("[INSTA] Upload step failed because instagram doesn't like this URL for some reason. Trying again... ", Output.RED);
+                            Output.webhookPrint("[INSTA] Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
                         } else {
                             Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                                     "\n\tError message: " + response, Output.RED);
 
-                            // Blacklist image URL permanently, as it is likely corrupted
-                            FileIO.writeList(mediaURL, "instagram", true);
                         }
 
+                        // Blacklist image URL permanently, as it is likely corrupted
+                        FileIO.writeList(mediaURL, "instagram", true);
                         if (!Sleep.safeSleep(1000)) break;
                         continue;
                     } else {

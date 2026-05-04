@@ -198,7 +198,7 @@ Below you can find documentation on every configuration option
 ### Tips
 - The config file is **not** forgiving of typos - what you input is taken literally, so check your spelling
 - Boolean values (`true` or `false`) need to be lowercase (e.g., `"debug_mode": true`)
-- There MUST be a comma delimiter after every config value
+- There MUST be a comma delimiter after every config value, except for the last one
 - ALWAYS surround string (non-numeric, non-boolean) values with quotes (e.g., `"caption": "Enjoy this meme"`)
 - Do not put anything in `"refresh_token"` under `"Youtube_Settings"` until prompted to do so by the bot
 
