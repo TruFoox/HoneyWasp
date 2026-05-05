@@ -446,7 +446,7 @@ public class Instagram implements Runnable {
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint(String.format("[INSTA] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
+                    Output.webhookPrint(String.format("[INSTA] No %s found in /%s directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;
                 }
 

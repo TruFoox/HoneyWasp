@@ -55,11 +55,12 @@ public class Twitter implements Runnable {
     public void run() {
         if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
+        if (!refreshAccessToken()) {return;} // 2 Fetch temporary user access token & replace old refresh token with new one for next time (+ test validity)
+
+        if (!getMediaSource()) {return;} // 3 Gets media location, cache files (Quit if failed)
 
         try {
             while (run) {
-                if (!getAccessToken()) {return;} // Fetch temporary user access token & replace old refresh token with new one for next time (+ test validity)
 
                 Output.debugPrint("[TWIT] New attempt started");
                 countAttempt++;
@@ -75,8 +76,7 @@ public class Twitter implements Runnable {
                     Output.print("[TWIT] Attempting new post", Output.YELLOW, true,true);
                 }
 
-
-                // Rest here when finished with getAccessToken
+                if (!refreshAccessToken()) {return;} // Refresh temporary user access token
 
 
             }
@@ -98,6 +98,7 @@ public class Twitter implements Runnable {
     }
 
     private boolean getRefreshToken() {
+        Output.debugPrint("[TWIT] Fetching refresh token");
         if (REFRESHTOKEN.isEmpty()) { // Only run if no refresh token
             try {
                 String oauthURL = "https://twitter.com/i/oauth2/authorize?response_type=code" +
@@ -140,12 +141,13 @@ public class Twitter implements Runnable {
 
                 if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                     REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
+                    TOKEN = StringToJson.getData(response, "refresh_token");
 
                     config.Twitter().setRefresh_token(REFRESHTOKEN);
 
                     return true;  // Success
                 } else {
-                    Output.webhookPrint("[TWIT] Failed to fetch token. Quitting..." +
+                    Output.webhookPrint("[TWIT] Failed to fetch refresh token. Quitting..." +
                             "\n\tError message: " + response, Output.RED);
 
                     return false;
@@ -163,8 +165,9 @@ public class Twitter implements Runnable {
         return true;
     }
 
-    private boolean getAccessToken() {
+    private boolean refreshAccessToken() {
         try {
+            Output.debugPrint("[TWIT] Fetching access token");
             String oauthURL = "https://api.twitter.com/2/oauth2/token";
 
             // Build upload data
@@ -176,7 +179,6 @@ public class Twitter implements Runnable {
 
             String response = HTTPSend.postForm(oauthURL, formData);
 
-            Output.print(response);
             if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token") && response.contains("access_token")) {
                 // Set both access and refresh, as Twitter refresh tokens are re-given on every use
                 TOKEN = StringToJson.getData(response, "access_token");
@@ -184,7 +186,15 @@ public class Twitter implements Runnable {
 
                 config.Twitter().setRefresh_token(REFRESHTOKEN);
                 config.saveConfig(); // Write to file
+
                 return true;  // Success
+
+            } else if (response.contains("token was invalid")) { // If refresh token is invalid
+                Output.webhookPrint("[TWIT] Refresh token appears to be invalid. You need to reauthenticate it.", Output.RED);
+
+                REFRESHTOKEN = "";
+
+                return getRefreshToken(); // Attempt to fetch refresh token again
 
             } else {
                 Output.webhookPrint("[TWIT] Failed to fetch token. Quitting..." +
@@ -300,7 +310,7 @@ public class Twitter implements Runnable {
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint(String.format("[TWIT] No %ss found in /%ss directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
+                    Output.webhookPrint(String.format("[TWIT] No %s found in /%s directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;
                 }
 
