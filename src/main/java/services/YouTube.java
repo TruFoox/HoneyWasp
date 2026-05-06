@@ -46,7 +46,7 @@ public class YouTube implements Runnable {
     final List<String> SUBREDDITS = config.Youtube().getSubreddits();
     final boolean USE_REDDIT_CAPTION = config.Youtube().isUse_reddit_caption();
     final boolean AUDIO_ENABLED = config.Youtube().isAudio_enabled();
-    final String FALLBACK_CAPTION = config.Youtube().getCaption();
+    final String FALLBACK_CAPTION = config.Youtube().getTitle();
     final String DESCRIPTION = config.Youtube().getDescription();
     String REFRESHTOKEN = config.Youtube().getRefresh_token(); // Not final because it can be fetched while still running
 

@@ -38,7 +38,7 @@ public class YoutubeSettings {
     private boolean use_reddit_caption;
     private long hours_before_duplicate_removed;
     private List<String> caption_blacklist;
-    private String caption;
+    private String title;
     private String description;
 
     public YoutubeSettings() {}
@@ -86,8 +86,8 @@ public class YoutubeSettings {
     public List<String> getCaption_blacklist() { return caption_blacklist; }
     public void setCaption_blacklist(List<String> caption_blacklist) { this.caption_blacklist = caption_blacklist; }
 
-    public String getCaption() { return caption; }
-    public void setCaption(String caption) { this.caption = caption; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
