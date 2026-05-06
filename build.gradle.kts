@@ -46,7 +46,7 @@ tasks {
         exclude("ffmpeg/**")
 
         // Force output to IntelliJ artifact folder
-        destinationDirectory.set(file("C:/Users/lande/Desktop/HoneyWasp v3"))
+        destinationDirectory.set(file("C:/Users/lande/Desktop/HoneyWasp"))
     }
 
     build {

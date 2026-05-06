@@ -23,7 +23,7 @@ import java.util.List;
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
     public static void main(String[] args) {
-        double currentVersion = 3.20; // Current version number
+        double currentVersion = 4.0; // Current version number
 
 
         Config config = Config.getInstance(); // Get config

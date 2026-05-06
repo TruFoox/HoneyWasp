@@ -110,7 +110,7 @@ public class Instagram implements Runnable {
                         String audioDir = null; // Default value
 
                         if (AUDIO_ENABLED) {
-                            Output.debugPrint("[TWIT] Attempting to select audio file for use");
+                            Output.debugPrint("[INSTA] Attempting to select audio file for use");
                             randIndex = rand.nextInt(audio.length); // Select random audio file
                             audioDir = String.valueOf(audio[randIndex]);
                         }
@@ -432,6 +432,7 @@ public class Instagram implements Runnable {
             if (AUTO_POST_MODE) {
                 Output.debugPrint("[INSTA] Reading automatic cache");
                 usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
+                if (usedURLs == null) {return false;}
 
             } else { // Log manual media
                 String format = (VIDEO_MODE) ? "videos" : "images";

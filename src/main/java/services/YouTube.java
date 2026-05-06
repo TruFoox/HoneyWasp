@@ -354,7 +354,7 @@ public class YouTube implements Runnable {
             if (AUTO_POST_MODE) {
                 Output.debugPrint("[YT] Reading automatic cache");
                 usedURLs = FileIO.readList("youtube"); // Generate filepath "./cache/[youtube]/cache.txt" for given OS & read file
-
+                if (usedURLs == null) {return false;}
             } else { // Log manual media
                 File directory = Paths.get(".","videos").toFile(); // Generate filepath "./videos"
                 Output.debugPrint("[YT] Media source set to " + directory);

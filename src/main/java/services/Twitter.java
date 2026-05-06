@@ -58,7 +58,7 @@ public class Twitter implements Runnable {
     public void run() {
         if (!getRefreshToken()) {return;} // 1 If refresh token is not set, fetch it. Otherwise, run bot like normal (Quit if failed)
 
-        if (!refreshAccessToken()) {return;} // 2 Fetch temporary user access token & replace old refresh token with new one for next time (+ test validity)
+        if (!refreshAccessToken()) {return;} // 2 Fetch temporary user access token & replace old refresh token with new one for next time (+ tests validity of refresh)
 
         if (!getMediaSource()) {return;} // 3 Gets media location, cache files (Quit if failed)
 
@@ -69,7 +69,7 @@ public class Twitter implements Runnable {
         try {
             while (run) {
                 countAttempt++;
-                Output.debugPrint("[YT] Attempt " + countAttempt + " started");
+                Output.debugPrint("[TWIT] Attempt " + countAttempt + " started");
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                     Output.webhookPrint("[TWIT] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
@@ -245,9 +245,9 @@ public class Twitter implements Runnable {
 
                 if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
                     REFRESHTOKEN = StringToJson.getData(response, "refresh_token");
-                    TOKEN = StringToJson.getData(response, "refresh_token");
 
                     config.Twitter().setRefresh_token(REFRESHTOKEN);
+                    config.saveConfig();
 
                     return true;  // Success
                 } else {
@@ -400,6 +400,7 @@ public class Twitter implements Runnable {
             if (AUTO_POST_MODE) {
                 Output.debugPrint("[TWIT] Reading automatic cache");
                 usedURLs = FileIO.readList("twitter"); // Generate filepath "./cache/[twitter]/cache.txt" for given OS & read file
+                if (usedURLs == null) {return false;}
 
             } else { // Log manual media
                 String format = (VIDEO_MODE) ? "videos" : "images";

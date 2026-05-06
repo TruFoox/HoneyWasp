@@ -45,7 +45,7 @@ public class FileIO {
 
         } catch (IOException e) {
             Output.webhookPrint("No /cache/" + service + "/cache.txt found. Quitting...", Output.RED);
-            return new ArrayList<>();
+            return null;
         }
     }
 
