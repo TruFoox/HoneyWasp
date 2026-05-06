@@ -32,7 +32,7 @@ public class YouTube implements Runnable {
     List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir, accessToken;
     boolean nsfw, tempDisableCaption;
-    static boolean run;
+    static boolean run = true;
     int randIndex;
     File[] media, audio;
 
@@ -56,7 +56,6 @@ public class YouTube implements Runnable {
         if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
 
         Output.webhookPrint("[SYS] Bot successfully started on YouTube");
-        run = true;
         Status.youtubeRunning = true;
 
         try {

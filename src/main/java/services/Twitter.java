@@ -4,8 +4,10 @@ import config.Config;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,6 +15,7 @@ import java.util.Scanner;
 
 import utils.*;
 
+import javax.imageio.ImageIO;
 import java.nio.file.*;
 import java.util.*;
 
@@ -28,7 +31,7 @@ public class Twitter implements Runnable {
     List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir, accessToken;
     boolean nsfw, tempDisableCaption;
-    static boolean run;
+    static boolean run = true;
     int randIndex;
     File[] media, audio;
 
@@ -59,11 +62,14 @@ public class Twitter implements Runnable {
 
         if (!getMediaSource()) {return;} // 3 Gets media location, cache files (Quit if failed)
 
+        Output.webhookPrint("[SYS] Bot successfully started on Twitter");
+        Status.twitterRunning = true;
+
+
         try {
             while (run) {
-
-                Output.debugPrint("[TWIT] New attempt started");
                 countAttempt++;
+                Output.debugPrint("[YT] Attempt " + countAttempt + " started");
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                     Output.webhookPrint("[TWIT] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
@@ -77,6 +83,104 @@ public class Twitter implements Runnable {
                 }
 
                 if (!refreshAccessToken()) {return;} // Refresh temporary user access token
+                
+                /* Fetch media */
+                if (AUTO_POST_MODE) {
+                    switch (getMemeAPI()) {
+                        case 0: // Success
+                            break;
+                        case 1: // Soft fail (retry)
+                            continue;
+                        case 2: // Fail (quit)
+                            return;
+
+                    }
+                    Output.debugPrint("[TWIT] Successfully fetched URL " + mediaURL);
+
+                    /* If format is video, convert image to video */
+                    if (VIDEO_MODE) {
+                        Image image; // Holds image data (not usually needed unless converting to video as twitter takes image url as input)
+
+                        Output.debugPrint("[TWIT] Attempting to retrieve image data");
+                        try {
+                            // Download image from Reddit
+                            URL url = new URL(mediaURL);
+                            image = ImageIO.read(url);
+
+                        } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
+                            Output.webhookPrint("[TWIT] Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid...");
+
+                            // Blacklist image URL permanently, as it is likely corrupted
+                            FileIO.writeList(mediaURL, "twitter", true);
+                            continue;
+                        } catch (IOException e) {
+                            Output.webhookPrint("[TWIT] Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
+                                    + "\n\tError message: " + e, Output.RED);
+
+                            if (!Sleep.safeSleep(7200000)) break;
+                            continue;
+                        }
+
+                        /* Select mp4 for audio if audio enabled */
+                        String audioDir = null; // Default value
+
+                        if (AUDIO_ENABLED) {
+                            Output.debugPrint("[TWIT] Attempting to select audio file for use");
+                            randIndex = rand.nextInt(audio.length); // Select random audio file
+                            audioDir = String.valueOf(audio[randIndex]);
+                        }
+
+                        Output.print("[TWIT] Converting image to video...", Output.YELLOW, true);
+
+                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", "twitter", "temp")), image, audioDir)) { // Convert image to video
+                            Output.print("[TWIT] Successfully converted image to video", Output.YELLOW, true);
+                        } else {
+                            Output.print("[TWIT] Failed to convert image to video for upload. Skipping attempt...", Output.RED);
+
+                            if (!Sleep.safeSleep(sleepTime)) break;
+                            continue;
+                        }
+                        fileDir = "./cache/twitter/temp.mp4";
+                    }
+                } else {
+                    randIndex = rand.nextInt(media.length); // Select random image
+                    fileDir = String.valueOf(media[randIndex]);
+                }
+
+                /* Upload manual media/generated video to temp file hoster */
+                if (!AUTO_POST_MODE || VIDEO_MODE) {
+                    // Upload media to 0x0
+                    Output.print("[TWIT] Uploading media to temp file hoster...", Output.YELLOW, true);
+
+                    String response = HTTPSend.postFile("https://0x0.st", Path.of(fileDir)); // Send file to 0x0
+
+                    // Error handling
+                    if (HTTPSend.HTTPCode.get() == 403) {
+                        Output.webhookPrint("[TWIT] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
+                                "\n\tYour IP should be cycled and unblocked in a few months." +
+                                "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [twitter Settings]" +
+                                "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
+                                "\n\n\tError message: " + response, Output.RED);
+
+                        return;
+                    } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
+                        Output.webhookPrint("Error uploading file to 0x0.su (temp storage provider). Quitting..." +
+                                "\n\tError message: " + response, Output.RED);
+
+                        return;
+                    }
+
+                    mediaURL = response;
+
+                    if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
+                        mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
+                    }
+
+                    // Success message
+                    Output.print("Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
+                }
+
+
 
 
             }
@@ -295,7 +399,7 @@ public class Twitter implements Runnable {
         try {
             if (AUTO_POST_MODE) {
                 Output.debugPrint("[TWIT] Reading automatic cache");
-                usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
+                usedURLs = FileIO.readList("twitter"); // Generate filepath "./cache/[twitter]/cache.txt" for given OS & read file
 
             } else { // Log manual media
                 String format = (VIDEO_MODE) ? "videos" : "images";
@@ -323,21 +427,21 @@ public class Twitter implements Runnable {
             // Get audio
             if (AUDIO_ENABLED && VIDEO_MODE) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
-                Output.debugPrint("[INSTA] Audio source set to " + directory);
+                Output.debugPrint("[TWIT] Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[TWIT] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint("[TWIT] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Twitter_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
-                Output.debugPrint("[INSTA] Logging audio from manual directory");
+                Output.debugPrint("[TWIT] Logging audio from manual directory");
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {

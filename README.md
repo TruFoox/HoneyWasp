@@ -38,12 +38,14 @@
 This is a simple, lightweight, yet powerful bot for Instagram, YouTube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
 All data handling, keys, tokens, and processing is handled **client side** - Your information is **YOURS**
+
+Currently, the bot is not very polymorphic, but I plan to eventually address that and consolidate it
+
 <p align="center">
   <img src="https://i.postimg.cc/44ct5bQk/image.png" alt="HoneyWasp" width="850" height="680" /> 
 </p>
 
 # Getting Started
-
 Before you can run the bot, you’ll need **Java 23 or higher** installed.
 
 - You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build. 

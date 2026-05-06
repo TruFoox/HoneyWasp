@@ -23,7 +23,7 @@ public class Instagram implements Runnable {
     long USERID, countAttempt = 0;
     List<String[]> usedURLs = new ArrayList<>();
     String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
-    static boolean run;
+    static boolean run = true;
     boolean nsfw;
     boolean tempDisableCaption;
     int randIndex;
@@ -49,7 +49,7 @@ public class Instagram implements Runnable {
         if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
 
         Output.webhookPrint("[SYS] Bot successfully started on Instagram");
-        run = true;
+
         Status.instagramRunning = true;
 
         try {
@@ -110,7 +110,7 @@ public class Instagram implements Runnable {
                         String audioDir = null; // Default value
 
                         if (AUDIO_ENABLED) {
-                            Output.debugPrint("[YT] Attempting to select audio file for use");
+                            Output.debugPrint("[TWIT] Attempting to select audio file for use");
                             randIndex = rand.nextInt(audio.length); // Select random audio file
                             audioDir = String.valueOf(audio[randIndex]);
                         }
