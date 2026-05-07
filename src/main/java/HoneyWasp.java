@@ -96,6 +96,8 @@ public class HoneyWasp extends ListenerAdapter {
             ErrorHandling.exitProgram();
         }
 
+        assert jda != null;
+
         // Check for new version
         try {
             Output.debugPrint("Checking for new version");
@@ -138,41 +140,23 @@ public class HoneyWasp extends ListenerAdapter {
 
                 ).queue();
 
+        Runnable bot = null; // Stores autostart bot objects
+
+        Output.print("\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
+
         // Automatic starting of services
         for(String item : AUTOSTART) {
-            Output.debugPrint("Checking autostart token: \"" + item + "\"");
+            Output.debugPrint("Checking autostart token: " + item);
 
-            // Instagram
-            if (item.equalsIgnoreCase("instagram")) {
-                Output.webhookPrint("[SYS] Autostarting Instagram", Output.YELLOW, false);
+            if (item.equalsIgnoreCase("instagram")) bot = new Instagram();
+            else if (item.equalsIgnoreCase("youtube")) bot = new YouTube();
+            else if (item.equalsIgnoreCase("twitter")) bot = new Twitter();
 
-                Instagram ig = new Instagram(); // Create bot instance
-                Thread t = new Thread(ig); // Create thread
-
-                t.start(); // Start bot
-            }
-
-            // YouTube
-            if (item.equalsIgnoreCase("youtube")) {
-                Output.webhookPrint("[SYS] Autostarting YouTube", Output.YELLOW, false);
-
-                YouTube yt = new YouTube(); // Create bot instance
-                Thread t = new Thread(yt); // Create thread
-
-                t.start(); // Start bot
-            }
-
-            // Twitter
-            if (item.equalsIgnoreCase("twitter")) {
-                Output.webhookPrint("[SYS] Autostarting Twitter", Output.YELLOW, false);
-
-                Twitter tw = new Twitter(); // Create bot instance
-                Thread t = new Thread(tw); // Create thread
-
-                t.start(); // Start bot
+            if (bot != null) {
+                Output.webhookPrint("[SYS] Autostarting " + item, Output.YELLOW, false);
+                new Thread(bot).start();
             }
         }
-        Output.print("\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
     }
 
     @Override

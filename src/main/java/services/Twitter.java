@@ -19,6 +19,8 @@ import javax.imageio.ImageIO;
 import java.nio.file.*;
 import java.util.*;
 
+// Currently uses authorization code flow with PKCE for authentication
+
 // Remember to add debug outputs after finished with implementation
 
 public class Twitter implements Runnable {

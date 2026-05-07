@@ -162,12 +162,12 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 
 ### Step 3: Set Up OAuth Credentials
 
-1. Go to **APIs & Services → Credentials**
+1. Go to **APIs & services → Credentials**
 2. Click **Create Credentials → OAuth client ID**
    - Set the **Application Type** as ``Desktop App``
 3. If prompted, set up the OAuth consent screen:
     - Go to [this link](https://console.cloud.google.com/auth/audience) (Auth → Audience), and under **Publishing status**, press **Publish App**
-    - Go to **APIs & Services → OAuth consent screen**
+    - Go to **APIs & services → OAuth consent screen**
     - Fill in required fields (app name, support email. These do not matter)
     - Choose **External**, then press **Create**
     - Click **Save and Continue** until you can hit **Back to Dashboard**

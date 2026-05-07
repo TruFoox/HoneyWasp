@@ -2,6 +2,7 @@ package utils;
 
 import club.minnced.discord.webhook.exception.HttpException;
 import config.Config;
+import services.Services;
 
 // Output
 //
@@ -25,6 +26,41 @@ public class Output {
     public static final String WHITE = "\u001B[37m";
 
     static boolean lastOutputWasNewline = true;
+
+    public static synchronized void webhookPrinttemptest(Services service, String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
+        try {
+            if (lastOutputWasNewline || config.General().isDebug_mode()) {System.out.println();} else {System.out.print("\r\033[2K");}
+
+            // Replaces /t with spacing required to line up with previous outputs
+            String prefix = "     [" + DateTime.time() + "] - ";
+            String spacing = " ".repeat(prefix.length());
+
+            String outputLine= message.replaceAll("\t", spacing);
+
+            if (!useTimestamp) {
+                System.out.print(color + "     [" + service.getShortname() + "]" +  outputLine + RESET);
+            } else {
+                System.out.print(color + "     [" + DateTime.time() + "] - " + outputLine + RESET);
+            }
+            lastOutputWasNewline = true;
+
+            if (config != null && config.General() != null) {
+                String webhook_url = config.General().getDiscordWebhook();
+                if (webhook_url != null && !webhook_url.isEmpty()) {
+                    SendWebhook webhook = new SendWebhook();
+
+                    String webhookMessage = message.replace("\t", "")
+                            .replace("\r", "");
+
+                    webhook.sendMessage(webhookMessage);
+                }
+            }
+        } catch (HttpException e) { // Webhook error
+            System.err.print(color + "     [" + DateTime.time() + "] - Discord webhook URL is likely invalid. Either make the field blank, or replace it with a valid one. This message will spam until you do so." + RESET);
+        } catch (Exception e) {
+            System.err.print(e);
+        }
+    }
 
     // \t not used, instead use "     " - avoids the fact that \t can be different lengths depending on environment & break formatting
     public static synchronized void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
@@ -105,6 +141,8 @@ public class Output {
     }
 
     // Default overloads
+    public static synchronized void webhookPrinttemptest(Services service, String message, String color) {webhookPrinttemptest(service, message, color, true);}
+    public static synchronized void webhookPrinttemptest(Services service, String message) {webhookPrinttemptest(service, message, YELLOW, true);}
     public static void webhookPrint(String message) {webhookPrint(message, YELLOW, true);}
     public static void webhookPrint(String message, String color) {webhookPrint(message, color, true);}
 
