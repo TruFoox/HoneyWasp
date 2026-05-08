@@ -1,8 +1,13 @@
 package utils;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.net.http.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -151,6 +156,61 @@ public class HTTPSend {
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
         Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        return response.body();
+    }
+    /* I put this in a separate class because it's not my code (YouTube uploading is annoyingly specific) */
+    public static String postYouTubeVideo(String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        String boundary = UUID.randomUUID().toString();
+        String CRLF = "\r\n";
+
+        // Read video bytes
+        byte[] videoBytes = Files.readAllBytes(videoPath);
+        String fileName = videoPath.getFileName().toString();
+
+        // Determine video content type from extension
+        int dotPos = fileName.lastIndexOf('.');
+        if (dotPos == -1 || dotPos == fileName.length() - 1) {
+            throw new IOException("No file extension found for: " + fileName);
+        }
+        String ext = fileName.substring(dotPos + 1);
+        String videoContentType = "video/" + ext;
+
+        // Build multipart/related body manually
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
+
+        // JSON metadata part
+        writer.write("--" + boundary + CRLF);
+        writer.write("Content-Type: application/json; charset=UTF-8" + CRLF + CRLF);
+        writer.write(metadataJson + CRLF);
+
+        // Video part
+        writer.write("--" + boundary + CRLF);
+        writer.write("Content-Type: " + videoContentType + CRLF + CRLF);
+        writer.flush(); // headers written before video bytes
+
+        baos.write(videoBytes);
+        baos.write(CRLF.getBytes());
+
+        // End boundary
+        writer.write("--" + boundary + "--" + CRLF);
+        writer.flush();
+
+        // Build request
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .header("Authorization", "Bearer " + oauthToken)
+                .header("Content-Type", "multipart/related; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofByteArray(baos.toByteArray()))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HTTPSend.HTTPCode.set((long) response.statusCode());
+
         return response.body();
     }
 

@@ -40,7 +40,7 @@ public abstract class Services extends Thread {
     // Empty global/commonly used variables
     protected java.util.List<String[]> usedURLs = new ArrayList<>();
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
-    protected boolean nsfw, tempDisableCaption, run = true;
+    protected boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
     protected int randIndex, sleepTime, countAttempt = 0;
     protected File[] media, audio;
 
@@ -166,71 +166,61 @@ public abstract class Services extends Thread {
                     fileDir = String.valueOf(media[randIndex]);
                 }
 
-                /* Upload manual media/generated video to temp file hoster */
-                if (!AUTO_POST_MODE || VIDEO_MODE) {
-                    // Upload media to 0x0
-                    Output.printtest(this, "Uploading media to temp file hoster...", Output.YELLOW, true);
+                if (use0x0) { // If enabled for this service, upload manual media/generated video to temp file hoster (0x0.st)
+                    if (!AUTO_POST_MODE || VIDEO_MODE) {
+                        Output.printtest(this, "Uploading media to temp file hoster...", Output.YELLOW, true);
 
-                    String response = HTTPSend.postFile("https://0x0.st", Path.of(fileDir)); // Send file to 0x0
+                        String response = HTTPSend.postFile("https://0x0.st", Path.of(fileDir)); // Send file to 0x0
 
-                    // Error handling
-                    if (HTTPSend.HTTPCode.get() == 403) {
-                        Output.webhookPrinttemptest(this,"0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
-                                "\n\tYour IP should be cycled and unblocked in a few months." +
-                                "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [" + name + " Settings]" +
-                                "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
-                                "\n\n\tError message: " + response, Output.RED);
+                        // Error handling
+                        if (HTTPSend.HTTPCode.get() == 403) {
+                            Output.webhookPrinttemptest(this, "0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
+                                    "\n\tYour IP should be cycled and unblocked in a few months." +
+                                    "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [" + name + " Settings]" +
+                                    "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
+                                    "\n\n\tError message: " + response, Output.RED);
 
-                        return;
-                    } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
-                        Output.webhookPrinttemptest(this,"Error uploading file to 0x0.su (temp storage provider). Quitting..." +
-                                "\n\tError message: " + response, Output.RED);
+                            return;
+                        } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
+                            Output.webhookPrinttemptest(this, "Error uploading file to 0x0.su (temp storage provider). Quitting..." +
+                                    "\n\tError message: " + response, Output.RED);
 
-                        return;
+                            return;
+                        }
+
+                        mediaURL = response;
+
+                        if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
+                            mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
+                        }
+
+                        // Success message
+                        Output.printtest(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
                     }
-
-                    mediaURL = response;
-
-                    if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
-                        mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
-                    }
-
-                    // Success message
-                    Output.printtest(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
                 }
 
                 if (!fetchUserToken()) {return;}
 
-                if (!upload()) {return;}
+                if (upload()) {
+                    if (!Sleep.safeSleep(2000)) return; // Sleep 2 seconds to allow server time to process
 
-                if (!Sleep.safeSleep(2000)) return; // Sleep 2 seconds to allow server time to process
+                    if (publish()) {
+                        if (AUTO_POST_MODE) {
+                            Output.webhookPrinttemptest(this,redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
+                        } else {
+                            Output.webhookPrinttemptest(this,redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
+                        }
 
-                if (!publish()) {return;}
 
-                if (HTTPSend.HTTPCode.get() != 200) {
-                    Output.webhookPrinttemptest(this,"Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
-                            "\n\tError message: " + response, Output.RED);
+                        // Store image URL to prevent duplicates
+                        FileIO.writeList(mediaURL, name.toLowerCase(), false);
 
-                    // Blacklist image URL permanently, as it is likely corrupted
-                    FileIO.writeList(mediaURL, name.toLowerCase(), true);
+                        long timestamp = System.currentTimeMillis();
+                        usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
-                    continue;
-                } else {
-                    if (AUTO_POST_MODE) {
-                        Output.webhookPrinttemptest(this,redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
-                    } else {
-                        Output.webhookPrinttemptest(this,redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
+                        if (!Sleep.safeSleep(sleepTime)) break; // Sleep
+                        countAttempt = 0;
                     }
-
-                    countAttempt = 0;
-
-                    // Store image URL to prevent duplicates
-                    FileIO.writeList(mediaURL, name.toLowerCase(), false);
-
-                    long timestamp = System.currentTimeMillis();
-                    usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
-
-                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Success)
                 }
 
                 if (!Sleep.safeSleep(1500)) return; // Sleep 1.5 secs
@@ -245,7 +235,7 @@ public abstract class Services extends Thread {
             Output.webhookPrinttemptest(this,"Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
 
         } finally { // Crash/Stop handling
-            Output.webhookPrinttemptest(this,"[SYS] " + name + " stopped");
+            Output.webhookPrinttemptest(this, "Stopped");
 
             // Set status running false here
         }
@@ -287,7 +277,7 @@ public abstract class Services extends Thread {
                 Output.debugPrinttest(this, "Reddit post data successfully retrieved");
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (checkValidity(response, countAttempt, usedURLs, true, name.toLowerCase())) {
+                switch (checkValidity()) {
                     case 0: // Image valid
                         return 0;
                     case 1: // General failed validation
@@ -386,14 +376,12 @@ public abstract class Services extends Thread {
         return true; // Success
     }
 
-    public int checkValidity(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
+    /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
+    public int checkValidity() {
         Output.debugPrinttest(this, "Validating image");
-        caption = StringToJson.getData(response, "title");
-        mediaURL = StringToJson.getData(response, "url");
-        nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-
-        // Download image & check aspect ratio
-        if (testSize) {
+        
+        // Download image & check aspect ratio if needed
+        if (doSizeTest) {
             Output.debugPrinttest(this, "Attempting to download image to verify aspect ratio validity");
             Image image;
 
@@ -420,7 +408,7 @@ public abstract class Services extends Thread {
         // Test image validity
         Output.debugPrinttest(this, "Testing if image is gif");
         if (mediaURL.contains(".gif")) { // Ensure image is not gif
-            Output.printtest(this, "Image is gif - x" + countattempt + " attempts", Output.RED, true);
+            Output.printtest(this, "Image is gif - x" + countAttempt + " attempts", Output.RED, true);
 
             return 1;
         }
@@ -429,7 +417,7 @@ public abstract class Services extends Thread {
         Output.debugPrinttest(this, "Testing if image caption contains blacklisted string");
         for (String word : BLACKLIST) {
             if (caption.toLowerCase().contains(word.toLowerCase())) {
-                Output.printtest(this, "Caption contains blacklisted string - x" + countattempt + " attempts", Output.RED, true);
+                Output.printtest(this, "Caption contains blacklisted string - x" + countAttempt + " attempts", Output.RED, true);
 
                 return 1;
             }
@@ -445,7 +433,7 @@ public abstract class Services extends Thread {
 
             if (DUPLICATES_ALLOWED || ((System.currentTimeMillis() - timestamp) < HOURS_BEFORE_DUPLICATES_REMOVED * 3600000)) { // Test if cached url is too old to be considered duplicate
                 if (mediaURL.equalsIgnoreCase(usedUrl)) {
-                    Output.printtest(this, "Duplicate URL - x" + countattempt + " attempts", Output.RED, true);
+                    Output.printtest(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
 
                     return 1;
                 }
@@ -454,7 +442,7 @@ public abstract class Services extends Thread {
 
         Output.debugPrinttest(this, "Testing if image is marked as NSFW");
         if (!NSFW_ALLOWED && nsfw) { // If post is marked as NSFW and NSFW is disallowed
-            Output.printtest(this, "Image is marked as NSFW - x" + countattempt + " attempts", Output.RED, true);
+            Output.printtest(this, "Image is marked as NSFW - x" + countAttempt + " attempts", Output.RED, true);
 
             return 1;
         }
@@ -462,7 +450,7 @@ public abstract class Services extends Thread {
         Output.debugPrinttest(this, "Testing if caption contains blacklisted strings to use preset caption");
         for (String word : CAPTION_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
             if (caption.toLowerCase().contains(word.toLowerCase())) {
-                Output.printtest(this, "Using fallback caption (\"" + word + "\" found) - x" + countattempt + " attempts", Output.RED, true);
+                Output.printtest(this, "Using fallback caption (\"" + word + "\" found) - x" + countAttempt + " attempts", Output.RED, true);
 
                 return 2;
             }

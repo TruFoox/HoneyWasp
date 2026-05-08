@@ -270,22 +270,6 @@ public class Instagram implements Runnable {
                         FileIO.writeList(mediaURL, "instagram", true);
 
                         continue;
-                    } else {
-                        if (AUTO_POST_MODE) {
-                            Output.webhookPrint("[INSTA] " + redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
-                        } else {
-                            Output.webhookPrint("[INSTA] " + redditURL + " uploaded to Instagram - x" + countAttempt + " attempt(s)", Output.GREEN);
-                        }
-
-                        countAttempt = 0;
-
-                        // Store image URL to prevent duplicates
-                        FileIO.writeList(mediaURL, "instagram", false);
-
-                        long timestamp = System.currentTimeMillis();
-                        usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
-
-                        if (!Sleep.safeSleep(sleepTime)) break; // Sleep
                     }
                 }
 

@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import config.Config;
 import config.YoutubeSettings;
 import org.json.JSONObject;
-import utils.HTTPSend;
-import utils.Output;
-import utils.StringToJson;
+import utils.*;
 
 import java.awt.*;
 import java.net.URI;
@@ -14,8 +12,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static services.YouTube.postYouTubeVideo;
 
 public class Yt  extends Services implements HasRefreshToken{
     private final String CLIENT_ID, SECRET;
@@ -29,6 +25,7 @@ public class Yt  extends Services implements HasRefreshToken{
         CLIENT_ID = yt.getClient_id();
         REFRESH_TOKEN = yt.getRefresh_token();
         VIDEO_MODE = true; // YouTube only supports videos
+        doSizeTest = false; // Youtube generally doesnt care about media dimensions
 
     }
 
@@ -118,11 +115,37 @@ public class Yt  extends Services implements HasRefreshToken{
         String metadataJson = new ObjectMapper().writeValueAsString(metadata);
 
         // Publish YouTube video
-        String strResponse = postYouTubeVideo("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status", Path.of(fileDir), metadataJson, TOKEN);
+        String strResponse = HTTPSend.postYouTubeVideo("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status", Path.of(fileDir), metadataJson, TOKEN);
 
         JSONObject response = StringToJson.getJSON(strResponse); // Convert to json for check
 
-        return false;
+        if (HTTPSend.HTTPCode.get() != 200) { // Error handling
+            String reason = "";
+            if (response.has("error")) {
+                reason = response.getJSONObject("error").getJSONArray("errors").getJSONObject(0).getString("reason");
+            }
+
+            /* Error handling */
+            if (reason.equals("uploadLimitExceeded") || reason.equals("rateLimitExceeded") || reason.equals("quotaExceeded")) {
+                Output.webhookPrint("Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Skipping this attempt..."
+                        + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
+
+                if (!Sleep.safeSleep(sleepTime)) return false; // Sleep
+
+                return false;
+
+            } else { // General error handling
+                Output.webhookPrint("Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Trying again, and marking this URL as invalid..."
+                        + "\n\tError message: " + response, Output.RED);
+
+                // Blacklist image URL permanently, as it is likely corrupted
+                FileIO.writeList(mediaURL, "youtube", true);
+
+                if (!Sleep.safeSleep(1000)) return false;
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

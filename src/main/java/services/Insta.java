@@ -19,6 +19,7 @@ public class Insta extends Services implements HasUserID {
         InstagramSettings ig = Config.getInstance().Instagram(); // Set instance-specific named stuff
         TOKEN = ig.getApi_key();
         VIDEO_MODE = ig.isVideo_mode();
+        use0x0 = true; // Instagram only supports URL filehosting
 
     }
     public boolean fetchUserID() {
@@ -65,8 +66,7 @@ public class Insta extends Services implements HasUserID {
         return true; // Success
     }
     protected boolean upload() throws Exception {
-
-        String jsonData, uploadURL, response; // Store json data & URL to be used with POST
+        String uploadURL, response; // Store json data & URL to be used with POST
 
         if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
             caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
@@ -160,10 +160,51 @@ public class Insta extends Services implements HasUserID {
 
         response = HTTPSend.postForm("https://graph.facebook.com/v23.0/" + USERID + "/media_publish", formData); // Send post for publish to Instagram
 
+        if (HTTPSend.HTTPCode.get() != 200) {
+            Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
+                    "\n\tError message: " + response, Output.RED);
+
+            // Blacklist image URL permanently, as it is likely corrupted
+            FileIO.writeList(mediaURL, "instagram", true);
+
+            return false;
+        }
+
         return true;
     }
-    protected boolean fetchUserToken() {
+protected boolean fetchUserToken() {
+        try {
+            Output.debugPrint("Attempting to fetch User ID");
 
-        return false;
+            Output.debugPrinttest(this, "Attempting to fetch access token (Step 1)");
+            String response = HTTPSend.get("https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
+
+            String facebookID;
+            JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
+            JSONObject dataObj = data.getJSONObject(0);
+
+            facebookID = dataObj.getString("id"); // Temporarily store facebook ID
+
+            Output.debugPrinttest(this, "Attempting to fetching User ID from token (Step 2)");
+            // Get Instagram ID
+            response = HTTPSend.get("https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
+
+            if (!response.contains("instagram_business_account")) { // Ensure account is business account
+                Output.webhookPrinttemptest(this,"Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
+
+                return false;
+            }
+            dataObj = StringToJson.getJSON(response);
+
+            dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
+            USERID = dataObj.getLong("id");
+
+        } catch (Exception e) {
+            Output.webhookPrinttemptest(this,"Failed to retrieve Instagram User ID. Your Access token may be invalid. Quitting..."
+                    + "\n\tError message: " + e, Output.RED);
+            return false;
+        }
+
+        return true; // Success
     }
 }
