@@ -66,17 +66,35 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
 
-        Output.print(null, "[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         final String BOTTOKEN = config.General().getDiscordBotToken().trim();
 
         final List<String> AUTOSTART = config.General().getAutostart();
 
+        // Check for new version
+        try {
+            Output.debugPrint(null, "Checking for new version");
+            String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
+
+            // Fetch latest version, remove "v" (e.g. v4), then parse as double
+            double version =  Double.parseDouble(StringToJson.getData(responseString, "tag_name").replace("v", ""));
+
+            if (version > currentVersion) {
+                Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
+            }
+
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
         JDA jda = null; // Init JDA object to prevent uninitialized error
 
         // Login to bot
         try {
-            Output.print(null, "[SYS] Logging in to Discord bot...", Output.YELLOW, false, false);
+            Output.print(null, "Logging in to Discord bot...", Output.YELLOW, false, false);
             jda = JDABuilder.createDefault(
                             BOTTOKEN,
                             EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
@@ -89,35 +107,17 @@ public class HoneyWasp extends ListenerAdapter {
             // Wait until the bot is fully logged in
             jda.awaitReady();
 
-            Output.print(null, "[SYS] Bot connected successfully!", Output.YELLOW, false, false);
+            Output.print(null, "Bot connected successfully!\n\n", Output.YELLOW, false, false);
         } catch (InvalidTokenException e) {
-            Output.print(null, "[SYS] Discord bot token is invalid. Please verify you copied the full token from the developer portal");
+            Output.print(null, "Discord bot token is invalid. Please verify you copied the full token from the developer portal");
             ErrorHandling.exitProgram();
         } catch (Exception e) { // Handles login failures and interruptions
             e.printStackTrace();
-            Output.print(null, "[SYS] Bot failed to log in. Quitting...");
+            Output.print(null, "Bot failed to log in. Quitting...");
             ErrorHandling.exitProgram();
         }
 
         assert jda != null;
-
-        // Check for new version
-        try {
-            Output.debugPrint(null, "Checking for new version");
-            String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
-
-            // Fetch latest version, remove "v" (e.g. v4), then parse as double
-            double version =  Double.parseDouble(StringToJson.getData(responseString, "tag_name").replace("v", ""));
-
-            if (version > currentVersion) {
-                Output.webhookPrint(null, "[SYS] A new version is available! : v" + version + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
-            }
-
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
 
         // Register commands (global)
         jda.updateCommands()
@@ -141,8 +141,6 @@ public class HoneyWasp extends ListenerAdapter {
                 ).queue();
 
 
-        Output.print(null, "\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
-
         // Automatic starting of services
         for(String item : AUTOSTART) {
             Output.debugPrint(null, "Checking autostart token: " + item);
@@ -157,12 +155,12 @@ public class HoneyWasp extends ListenerAdapter {
                 services.put("youtube", bot);
             }
             else if (item.equalsIgnoreCase("twitter")) {
-                bot = new Twitter();
-                services.put("twitter", bot);
+                //bot = new Twitter();
+                //services.put("twitter", bot);
             }
 
             if (bot != null) {
-                Output.webhookPrint(null, "[SYS] Autostarting " + item, Output.YELLOW, false);
+                Output.webhookPrint(null, "Autostarting " + item, Output.YELLOW, false);
                 new Thread(bot).start();
             }
         }
@@ -196,7 +194,7 @@ public class HoneyWasp extends ListenerAdapter {
                         services.put("youtube", bot);
                         new Thread(bot).start();
 
-                        bot = new Twitter();
+                        //bot = new Twitter();
                         services.put("twitter", bot);
                         new Thread(bot).start();
 
@@ -249,7 +247,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        bot = new Twitter();
+                        //bot = new Twitter();
                         services.put("twitter", bot);
                         new Thread(bot).start();
 

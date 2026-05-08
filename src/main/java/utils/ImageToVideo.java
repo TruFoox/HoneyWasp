@@ -35,7 +35,7 @@ public class ImageToVideo {
             g2d.drawImage(image, 0, 0, null);
             g2d.dispose();
 
-            Output.debugPrint("Filling transparencies and drawing image from data");
+            Output.debugPrint(null, "Filling transparencies and drawing image from data");
             // Fill extra pixels with transparent background
             g2d.setComposite(AlphaComposite.Clear);
             g2d.fillRect(0, 0, width, height);
@@ -45,7 +45,7 @@ public class ImageToVideo {
             g2d.drawImage(image, 0, 0, image.getWidth(null), image.getHeight(null), null);
             g2d.dispose();
 
-            Output.debugPrint("Attempting to write image to temp file");
+            Output.debugPrint(null, "Attempting to write image to temp file");
             // Write temp PNG
             File tmpImage = new File(path + ".png");
             ImageIO.write(bufferedImage, "png", tmpImage);
@@ -53,14 +53,14 @@ public class ImageToVideo {
             // Force flush to disk
             bufferedImage.flush();
 
-            Output.debugPrint("Locating FFmpeg");
+            Output.debugPrint(null, "Locating FFmpeg");
             File ffmpegFile = new File("./ffmpeg/win/bin/ffmpeg.exe");
 
             String ffmpegPath;
             if (ffmpegFile.exists() && System.getProperty("os.name").toLowerCase().contains("win")) {
                 ffmpegPath = ffmpegFile.getAbsolutePath();
             } else {
-                Output.debugPrint("FFmpeg not found. Must be added to system path if not already");
+                Output.debugPrint(null, "FFmpeg not found. Must be added to system path if not already");
                 ffmpegPath = "ffmpeg"; // fallback
             }
 
@@ -106,7 +106,7 @@ public class ImageToVideo {
             pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
             pb.redirectError(ProcessBuilder.Redirect.PIPE);
 
-            Output.debugPrint("Running FFmpeg");
+            Output.debugPrint(null, "Running FFmpeg");
             // Start process
             Process process = pb.start();
 

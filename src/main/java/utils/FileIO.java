@@ -1,5 +1,7 @@
 package utils;
 
+import services.Services;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,12 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileIO {
-    public static void writeList(String in, String service, boolean permanent) {
+    public static void writeList(String in, Services service, boolean permanent) {
         try {
             long timestamp = System.currentTimeMillis();
             // Generate filepath "./cache/[Service]/cache.txt" for given OS & write to file
-            Path cachePath = Paths.get(".", "cache", service, "cache.txt");
-            Output.debugPrint("Attempting to write to " + cachePath);
+            Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
+            Output.debugPrint(null, "Attempting to write to " + cachePath);
 
             if (permanent) {
                 Files.write(cachePath, (in + ",9999999999999999" + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -24,13 +26,13 @@ public class FileIO {
             }
 
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
         }
 
     }
-    public static List<String[]> readList(String service) {
-        Path cachePath = Paths.get(".", "cache", service, "cache.txt");
-        Output.debugPrint("Attempting to read from " + cachePath);
+    public static List<String[]> readList(Services service) {
+        Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
+        Output.debugPrint(null, "Attempting to read from " + cachePath);
 
         try {
             List<String> temp = Files.readAllLines(cachePath);
@@ -44,18 +46,18 @@ public class FileIO {
             return splitList;
 
         } catch (IOException e) {
-            Output.webhookPrint("No /cache/" + service + "/cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
             return null;
         }
     }
 
-    public static void clearList(String service) {
+    public static void clearList(Services service) {
         try {
-            Path cachePath = Paths.get(".", "cache", service, "cache.txt");
-            Output.debugPrint("Attempting to clear cache at " + cachePath);
+            Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
+            Output.debugPrint(null,"Attempting to clear cache at " + cachePath);
             BufferedWriter writer = Files.newBufferedWriter(cachePath, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            Output.webhookPrint("No /cache/" + service + "/cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
         }
     }
 

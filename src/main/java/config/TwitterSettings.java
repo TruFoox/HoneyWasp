@@ -3,7 +3,7 @@ package config;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.List;
-
+/*
 @JsonPropertyOrder({ // Force this order when writing
         "refresh_token",
         "consumer_key",
@@ -98,3 +98,4 @@ public class TwitterSettings implements PlatformSettings {
     public void setHashtags(String hashtags) { this.hashtags = hashtags; }
 
 }
+*/

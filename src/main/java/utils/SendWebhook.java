@@ -33,7 +33,7 @@ public class SendWebhook {
     }
     // Send message
     public void sendMessage(String content) {
-        Output.debugPrint("Attempting to send webhook");
+        Output.debugPrint(null, "Attempting to send webhook");
         WebhookMessageBuilder message = new WebhookMessageBuilder();
         message.setContent(content);
         client.send(message.build());

@@ -3,6 +3,7 @@ package config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -28,14 +29,17 @@ public class Config {
     @JsonProperty("Youtube_Settings")
     private YoutubeSettings Youtube_Settings;
 
-    @JsonProperty("Twitter_Settings")
-    private TwitterSettings Twitter_Settings;
+    //@JsonProperty("Twitter_Settings")
+    //private TwitterSettings Twitter_Settings;
 
     private Config() {}
 
     public static Config getInstance() {
         if (instance == null) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper().configure(
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                    false
+            );
             mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
             try {
@@ -81,15 +85,13 @@ public class Config {
         return Youtube_Settings;
     }
 
-    public TwitterSettings Twitter() {
-        return Twitter_Settings;
-    }
+    //public TwitterSettings Twitter() {return Twitter_Settings;}
 
     public PlatformSettings Platform(String platform) {
         return switch (platform.toLowerCase()) {
             case "instagram" -> Instagram_Settings;
             case "youtube" -> Youtube_Settings;
-            case "twitter" -> Twitter_Settings;
+            //case "twitter" -> Twitter_Settings;
             default -> throw new IllegalArgumentException(
                     "Unknown platform: " + platform
             );

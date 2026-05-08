@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
+import services.Services;
 
 // Reminder:
 // Header: Metadata about request
@@ -37,8 +38,8 @@ public class HTTPSend {
     // ThreadLocal.withInitial(() -> 0L) = "Start with value
 
 
-    public static String get(String url) throws Exception {
-        Output.debugPrint("Starting GET on " + url);
+    public static String get(Services service, String url) throws Exception {
+        Output.debugPrint(service, "Starting GET on " + url);
         HttpClient client = HttpClient.newHttpClient();
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -51,16 +52,16 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
         // Returns response & status code
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
         return String.valueOf(response.body());  // Return response body to caller
     }
 
-    public static String get(String url, Map<String, String> headers) throws Exception {
+    public static String get(Services service, String url, Map<String, String> headers) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        Output.debugPrint("Starting GET on " + url + "\nWith headers: " + headers);
+        Output.debugPrint(service, "Starting GET on " + url + "\nWith headers: " + headers);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -79,15 +80,15 @@ public class HTTPSend {
 
         HttpRequest request = builder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
 
         HTTPCode.set((long) response.statusCode());
         return response.body();
     }
 
-    public static String postFile(String url, Path filePath) throws Exception { // DESIGNED FOR USE WITH 0x0 ONLY
+    public static String postFile(Services service, String url, Path filePath) throws Exception { // DESIGNED FOR USE WITH 0x0 ONLY
         HttpClient client = HttpClient.newHttpClient();
-        Output.debugPrint("Starting post on " + url + "\nWith file: " + filePath);
+        Output.debugPrint(service, "Starting post on " + url + "\nWith file: " + filePath);
 
         String boundary = UUID.randomUUID().toString();
         byte[] fileBytes = Files.readAllBytes(filePath);
@@ -127,15 +128,15 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode());
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
 
         return response.body();
     }
 
 
-    public static String postForm(String url, Map<String, String> data) throws Exception {
+    public static String postForm(Services service, String url, Map<String, String> data) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        Output.debugPrint("Starting post on " + url + "\n\tWith form: " + data.toString().replace("\n", ""));
+        Output.debugPrint(service, "Starting post on " + url + "\n\tWith form: " + data.toString().replace("\n", ""));
 
         StringBuilder form = new StringBuilder();
         for (Map.Entry<String, String> entry : data.entrySet()) {
@@ -155,11 +156,11 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
-        Output.debugPrint("Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
         return response.body();
     }
     /* I put this in a separate class because it's not my code (YouTube uploading is annoyingly specific) */
-    public static String postYouTubeVideo(String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
+    public static String postYouTubeVideo(Services service, String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
 
         HttpClient client = HttpClient.newHttpClient();
 
