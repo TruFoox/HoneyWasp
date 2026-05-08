@@ -20,7 +20,7 @@ import java.util.List;
         "hours_before_duplicate_removed",
         "audio_enabled",
         "caption",
-        "description"
+        "hashtags"
 })
 
 public class YoutubeSettings implements PlatformSettings,Refreshable {
@@ -38,8 +38,8 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     private boolean use_reddit_caption;
     private long hours_before_duplicate_removed;
     private List<String> caption_blacklist;
-    private String title;
-    private String description;
+    private String caption;
+    private String hashtags;
 
     public YoutubeSettings() {}
 
@@ -86,9 +86,9 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     public List<String> getCaption_blacklist() { return caption_blacklist; }
     public void setCaption_blacklist(List<String> caption_blacklist) { this.caption_blacklist = caption_blacklist; }
 
-    public String getCaption() { return title; }
-    public void setCaption(String title) { this.title = title; }
+    public String getCaption() { return caption; }
+    public void setCaption(String caption) { this.caption = caption; }
 
-    public String getHashtags() { return description; }
-    public void getHashtags(String description) { this.description = description; }
+    public String getHashtags() { return hashtags; }
+    public void getHashtags(String hashtags) { this.hashtags = hashtags; }
 }

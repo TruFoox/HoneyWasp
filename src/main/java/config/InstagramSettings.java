@@ -1,6 +1,7 @@
 package config;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import services.HasUserID;
 
 import java.util.List;
 

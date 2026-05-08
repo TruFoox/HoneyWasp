@@ -40,7 +40,7 @@ public class Output {
             if (!useTimestamp) {
                 System.out.print(color + "     [" + service.getShortname() + "]" +  outputLine + RESET);
             } else {
-                System.out.print(color + "     [" + DateTime.time() + "] - " + outputLine + RESET);
+                System.out.print(color + "     [" + DateTime.time() + "] - [" + service.getShortname() + "] " + outputLine + RESET);
             }
             lastOutputWasNewline = true;
 
@@ -61,7 +61,21 @@ public class Output {
             System.err.print(e);
         }
     }
+    public static synchronized void  debugPrinttest(Services service, String message) {
+        if (config.General().isDebug_mode()) { // Only print if debug mode is enabled
+            if (lastOutputWasNewline) {System.out.println();}
 
+            // Replaces /t with spacing required to line up with previous outputs
+            String prefix = "     [" + DateTime.time() + "] - ";
+            String spacing = " ".repeat(prefix.length());
+
+            String outputLine= message.replaceAll("\t", spacing);
+
+            System.out.print(YELLOW + "     [" + DateTime.time() + "] - [" + service.getShortname() + "] " + outputLine + RESET);
+            lastOutputWasNewline = true;
+
+        }
+    }
     // \t not used, instead use "     " - avoids the fact that \t can be different lengths depending on environment & break formatting
     public static synchronized void webhookPrint(String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
             try {

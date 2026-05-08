@@ -31,8 +31,7 @@ public abstract class Services extends Thread {
     
     abstract boolean upload();
     abstract boolean publish();
-    abstract boolean
-    getUserToken();
+    abstract boolean fetchUserToken();
     
     Random rand = new Random(); // Generate seed for random number generation
 
@@ -50,9 +49,9 @@ public abstract class Services extends Thread {
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION;
     protected int sleepTime, ATTEMPTS_BEFORE_TIMEOUT, TIME_BETWEEN_POSTS;
 
-    public void run(String service) {
+    public void run() {
         try {
-            settings = Config.getInstance().Platform(service);
+            settings = Config.getInstance().Platform(name.toLowerCase());
 
             AUTO_POST_MODE = settings.isAuto_post_mode();
             TIME_BETWEEN_POSTS = settings.getTime_between_posts();
@@ -67,7 +66,7 @@ public abstract class Services extends Thread {
             // Start bot
             while (run) {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
-                Output.debugPrint("Attempt " + countAttempt + " started");
+                Output.debugPrinttest(this, "Attempt " + countAttempt + " started");
 
                 if (countAttempt == 1) { // Print first attempt message
                     Output.print("Attempting new post", Output.YELLOW, true,true);
@@ -91,13 +90,13 @@ public abstract class Services extends Thread {
                             return;
 
                     }
-                    Output.debugPrint("Successfully fetched URL " + mediaURL);
+                    Output.debugPrinttest(this, "Successfully fetched URL " + mediaURL);
 
                     /* If format is video, convert image to video */
                     if (VIDEO_MODE) {
                         Image image; // Holds image data
 
-                        Output.debugPrint("Attempting to retrieve image data");
+                        Output.debugPrinttest(this, "Attempting to retrieve image data");
                         try {
                             // Download image from Reddit
                             URL url = new URL(mediaURL);
@@ -121,7 +120,7 @@ public abstract class Services extends Thread {
                         String audioDir = null; // Default value
 
                         if (AUDIO_ENABLED) {
-                            Output.debugPrint("Attempting to select audio file for use");
+                            Output.debugPrinttest(this, "Attempting to select audio file for use");
                             randIndex = rand.nextInt(audio.length); // Select random audio file
                             audioDir = String.valueOf(audio[randIndex]);
                         }
@@ -204,7 +203,7 @@ public abstract class Services extends Thread {
 
         String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
 
-        Output.debugPrint("[this.] Fetching media URL from " + URL);
+        Output.debugPrinttest(this, "Fetching media URL from " + URL);
         try {
             response = HTTPSend.get(URL);
         } catch (ConnectException e) {
@@ -228,7 +227,7 @@ public abstract class Services extends Thread {
                 nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
                 tempDisableCaption = false;
 
-                Output.debugPrint("Reddit post data successfully retrieved");
+                Output.debugPrinttest(this, "Reddit post data successfully retrieved");
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
                 switch (ImageValidity.check(response, countAttempt, usedURLs, true, name.toLowerCase())) {
@@ -272,14 +271,14 @@ public abstract class Services extends Thread {
     boolean getMediaSource() {
         try {
             if (AUTO_POST_MODE) {
-                Output.debugPrint("Reading automatic cache");
+                Output.debugPrinttest(this, "Reading automatic cache");
                 usedURLs = FileIO.readList(name.toLowerCase()); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
                 if (usedURLs == null) {return false;}
 
             } else { // Log manual media
                 String format = (VIDEO_MODE) ? "videos" : "images";
                 File directory = Paths.get(".", format).toFile(); // Generate filepath "./{Format}"
-                Output.debugPrint("Media source set to " + directory);
+                Output.debugPrinttest(this, "Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrinttemptest(this,String.format("/%s directory does not exist. Please create it or set post_mode to auto. Quitting...", format), Output.RED);
@@ -293,7 +292,7 @@ public abstract class Services extends Thread {
                     return false;
                 }
 
-                Output.debugPrint("Logging media from manual directory");
+                Output.debugPrinttest(this, "Logging media from manual directory");
 
                 // Start logging media
                 media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
@@ -302,7 +301,7 @@ public abstract class Services extends Thread {
             // Get audio
             if (AUDIO_ENABLED && VIDEO_MODE) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
-                Output.debugPrint("Audio source set to " + directory);
+                Output.debugPrinttest(this, "Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
                     Output.webhookPrinttemptest(this,"/audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [" + name + "_Settings] in config.json. Quitting...", Output.RED);
@@ -316,7 +315,7 @@ public abstract class Services extends Thread {
                     return false;
                 }
 
-                Output.debugPrint("Logging audio from manual directory");
+                Output.debugPrinttest(this, "Logging audio from manual directory");
                 audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
             }
         } catch (Exception e) {
@@ -330,30 +329,4 @@ public abstract class Services extends Thread {
         return true; // Success
     }
 
-}
-
-class Insta extends Services {
-    Config config;
-
-    public Insta() {
-        super("Instagram","INSTA",Config.getInstance());
-        this.settings = config.Platform("instagram"); // Establish settings\
-
-        InstagramSettings ig = Config.getInstance().Instagram();
-        TOKEN = ig.getApi_key();
-        DESCRIPTION = ig.getCaption();
-
-    }
-    boolean upload() {
-
-        return false;
-    }
-    boolean publish() {
-
-        return false;
-    }
-    public boolean getUserToken() {
-
-        return false;
-    }
 }

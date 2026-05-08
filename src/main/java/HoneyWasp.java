@@ -148,7 +148,7 @@ public class HoneyWasp extends ListenerAdapter {
         for(String item : AUTOSTART) {
             Output.debugPrint("Checking autostart token: " + item);
 
-            if (item.equalsIgnoreCase("instagram")) bot = new Instagram();
+            if (item.equalsIgnoreCase("instagram")) bot = new Insta();
             else if (item.equalsIgnoreCase("youtube")) bot = new YouTube();
             else if (item.equalsIgnoreCase("twitter")) bot = new Twitter();
 
