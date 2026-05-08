@@ -4,19 +4,21 @@ import config.Config;
 import config.InstagramSettings;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import services.Services;
 import utils.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Insta extends Services implements HasUserID {
+    private long USERID;
+
     public Insta() {
         super("Instagram","INSTA",Config.getInstance());
         settings = config.Platform("instagram"); // Establish settings
         
         InstagramSettings ig = Config.getInstance().Instagram(); // Set instance-specific named stuff
         TOKEN = ig.getApi_key();
+        VIDEO_MODE = ig.isVideo_mode();
 
     }
     public boolean fetchUserID() {
@@ -34,7 +36,6 @@ public class Insta extends Services implements HasUserID {
                 facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
                 Output.debugPrinttest(this, "Attempting to fetching User ID from token (Step 2)");
-                // Get Instagram ID
                 response = HTTPSend.get("https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
                 if (!response.contains("instagram_business_account")) { // Ensure account is business account

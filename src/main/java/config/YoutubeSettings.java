@@ -90,5 +90,5 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     public void setCaption(String caption) { this.caption = caption; }
 
     public String getHashtags() { return hashtags; }
-    public void getHashtags(String hashtags) { this.hashtags = hashtags; }
+    public void setHashtags(String hashtags) { this.hashtags = hashtags; }
 }

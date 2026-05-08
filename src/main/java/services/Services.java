@@ -20,36 +20,35 @@ import java.util.List;
 
 public abstract class Services extends Thread {
     private final String shortName, name;
-    public String getShortname() {return shortName;}
+
     protected Config config;
     protected PlatformSettings settings;
+
+    Scanner scanner = new Scanner(System.in); // Input scanner
+    Random rand = new Random(); // Generate seed for random number generation
 
     public Services(String name, String shortName, Config config) {
         this.name = name;
         this.shortName = shortName;
         this.config = config;
     }
-
+    public String getShortname() {return shortName;}
     abstract boolean upload() throws Exception;
     abstract boolean publish() throws Exception;
     abstract boolean fetchUserToken();
 
-    Random rand = new Random(); // Generate seed for random number generation
-
-    // Empty global variables
+    // Empty global/commonly used variables
     protected java.util.List<String[]> usedURLs = new ArrayList<>();
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
-    protected boolean run = true;
-    protected boolean nsfw, tempDisableCaption;
-    protected int randIndex, countAttempt = 0;
-    protected long USERID;
+    protected boolean nsfw, tempDisableCaption, run = true;
+    protected int randIndex, sleepTime, countAttempt = 0;
     protected File[] media, audio;
 
     // Config
-    protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS;
+    protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
-    protected int sleepTime, ATTEMPTS_BEFORE_TIMEOUT, TIME_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
+    protected int ATTEMPTS_BEFORE_TIMEOUT, MINS_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
 
     public void run() {
         try {
@@ -57,7 +56,7 @@ public abstract class Services extends Thread {
 
             // Initialize settings
             AUTO_POST_MODE = settings.isAuto_post_mode();
-            TIME_BETWEEN_POSTS = settings.getTime_between_posts();
+            MINS_BETWEEN_POSTS = settings.getTime_between_posts();
             ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
             SUBREDDITS = settings.getSubreddits();
             AUDIO_ENABLED = settings.isAudio_enabled();
@@ -69,12 +68,24 @@ public abstract class Services extends Thread {
             CAPTION_BLACKLIST = settings.getCaption_blacklist();
             HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
             CAPTION = settings.getCaption();
+            HASHTAGS = settings.getHashtags();
 
-            if (this instanceof HasUserID) {((HasUserID) this).fetchUserID();} // Check if current instance contains hasUserID and run it if it does
+            sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
 
-            if (this instanceof HasRefreshToken) {((HasRefreshToken) this).fetchRefreshToken();} // Check if current instance contains refreshToken and run it if it does
+            if (this instanceof HasUserID) {  // Check if current instance contains fetchUserID and run it if it does (Quit if failed)
+                if (!((HasUserID) this).fetchUserID()) {return;}
+            }
 
-            getMediaSource(); // Fetch media source
+            if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
+                Output.debugPrint("Testing if refresh_token is empty");
+                if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
+                    if (!((HasRefreshToken) this).fetchRefreshToken()) {return;} // Fetch token
+                } else {
+                    Output.debugPrint("refresh_token was found to contain data");
+                }
+            }
+
+            if (!getMediaSource()) {return;} // Fetch media source (Quit if failed)
 
             // Start bot
             while (run) {
@@ -188,13 +199,13 @@ public abstract class Services extends Thread {
                     Output.printtest(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
                 }
 
-                fetchUserToken();
+                if (!fetchUserToken()) {return;}
 
-                upload();
+                if (!upload()) {return;}
 
                 if (!Sleep.safeSleep(2000)) return; // Sleep 2 seconds to allow server time to process
 
-                publish();
+                if (!publish()) {return;}
 
                 if (HTTPSend.HTTPCode.get() != 200) {
                     Output.webhookPrinttemptest(this,"Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
