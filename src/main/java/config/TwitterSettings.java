@@ -23,7 +23,7 @@ import java.util.List;
         "hashtags"
 })
 
-public class TwitterSettings {
+public class TwitterSettings implements PlatformSettings {
     private String consumer_key;
     private boolean auto_post_mode;
     private boolean video_mode;

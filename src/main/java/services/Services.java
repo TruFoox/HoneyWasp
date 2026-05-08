@@ -1,6 +1,8 @@
 package services;
 
 import config.Config;
+import config.InstagramSettings;
+import config.PlatformSettings;
 import utils.*;
 
 import javax.imageio.ImageIO;
@@ -18,8 +20,9 @@ import java.util.List;
 public abstract class Services extends Thread {
     private final String shortName, name;
     public String getShortname() {return shortName;}
-    Config config;
-    
+    protected Config config;
+    protected PlatformSettings settings;
+
     public Services(String name, String shortName, Config config) {
         this.name = name;
         this.shortName = shortName;
@@ -34,29 +37,33 @@ public abstract class Services extends Thread {
     Random rand = new Random(); // Generate seed for random number generation
 
     // Empty global variables
-    private java.util.List<String[]> usedURLs = new ArrayList<>();
-    private String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
-    private boolean run = true;
-    private boolean nsfw, tempDisableCaption;
-    private int randIndex, USERID, countAttempt = 0;
-    private File[] media, audio;
+    protected java.util.List<String[]> usedURLs = new ArrayList<>();
+    protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
+    protected boolean run = true;
+    protected boolean nsfw, tempDisableCaption;
+    protected int randIndex, USERID, countAttempt = 0;
+    protected File[] media, audio;
 
     // Load config - make these grab whatever service is fed
-    private final String TOKEN
-    private final boolean AUTO_POST_MODE
-    private final int TIME_BETWEEN_POSTS
-    private final int sleepTime =
-    private final int ATTEMPTS_BEFORE_TIMEOUT =
-    private final List<String> SUBREDDITS =
-    private final boolean VIDEO_MODE =
-    private final boolean AUDIO_ENABLED =
-    private final boolean USE_REDDIT_CAPTION =
-    private final String FALLBACK_CAPTION =
-    private final String HASHTAGS =
+    protected String TOKEN, FALLBACK_CAPTION, DESCRIPTION;
+    protected List<String> SUBREDDITS;
+    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION;
+    protected int sleepTime, ATTEMPTS_BEFORE_TIMEOUT, TIME_BETWEEN_POSTS;
 
-
-    public void run() {
+    public void run(String service) {
         try {
+            settings = Config.getInstance().Platform(service);
+
+            AUTO_POST_MODE = settings.isAuto_post_mode();
+            TIME_BETWEEN_POSTS = settings.getTime_between_posts();
+            ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
+            SUBREDDITS = settings.getSubreddits();
+            AUDIO_ENABLED = settings.isAudio_enabled();
+            USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
+            FALLBACK_CAPTION = settings.getCaption();
+
+            // VIDEO_MODE and DESCRIPTION are platform-specific & thus set seperately
+
             // Start bot
             while (run) {
                 countAttempt++; // Iterate count for number of attempts to post that have been made
@@ -330,6 +337,11 @@ class Insta extends Services {
 
     public Insta() {
         super("Instagram","INSTA",Config.getInstance());
+        this.settings = config.Platform("instagram"); // Establish settings\
+
+        InstagramSettings ig = Config.getInstance().Instagram();
+        TOKEN = ig.getApi_key();
+        DESCRIPTION = ig.getCaption();
 
     }
     boolean upload() {

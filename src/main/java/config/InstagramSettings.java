@@ -21,7 +21,7 @@ import java.util.List;
         "caption",
         "hashtags"
 })
-public class InstagramSettings {
+public class InstagramSettings implements PlatformSettings {
     private String api_key;
     private boolean auto_post_mode;
     private boolean video_mode;

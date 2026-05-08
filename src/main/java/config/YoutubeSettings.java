@@ -23,7 +23,7 @@ import java.util.List;
         "description"
 })
 
-public class YoutubeSettings {
+public class YoutubeSettings implements PlatformSettings,Refreshable {
     private String refresh_token;
     private String client_secret;
     private String client_id;
@@ -86,9 +86,9 @@ public class YoutubeSettings {
     public List<String> getCaption_blacklist() { return caption_blacklist; }
     public void setCaption_blacklist(List<String> caption_blacklist) { this.caption_blacklist = caption_blacklist; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getCaption() { return title; }
+    public void setCaption(String title) { this.title = title; }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getHashtags() { return description; }
+    public void getHashtags(String description) { this.description = description; }
 }

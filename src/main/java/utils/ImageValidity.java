@@ -18,6 +18,7 @@ public class ImageValidity { // Need to break into individual classes
         List<String> BLACKLIST;
         boolean NSFW_ALLOWED;
         String caption;
+        boolean duplicates_allowed;
         long hours_before_duplicate_removed;
         List<String> CAPTION_BLACKLIST;
         String mediaURL;
@@ -35,6 +36,7 @@ public class ImageValidity { // Need to break into individual classes
             case "instagram" -> {
                 BLACKLIST = config.Instagram().getBlacklist();
                 NSFW_ALLOWED = config.Instagram().isNsfw_allowed();
+                duplicates_allowed = config.Twitter().isDuplicates_allowed();
                 hours_before_duplicate_removed = config.Instagram().getHours_before_duplicate_removed();
                 CAPTION_BLACKLIST = config.Instagram().getCaption_blacklist();
                 mediaURL = StringToJson.getData(response, "url");
@@ -44,6 +46,7 @@ public class ImageValidity { // Need to break into individual classes
             case "youtube" -> {
                 BLACKLIST = config.Youtube().getBlacklist();
                 NSFW_ALLOWED = config.Youtube().isNsfw_allowed();
+                duplicates_allowed = config.Twitter().isDuplicates_allowed();
                 hours_before_duplicate_removed = config.Youtube().getHours_before_duplicate_removed();
                 CAPTION_BLACKLIST = config.Youtube().getCaption_blacklist();
                 mediaURL = StringToJson.getData(response, "url");
@@ -54,6 +57,7 @@ public class ImageValidity { // Need to break into individual classes
                 BLACKLIST = config.Twitter().getBlacklist();
                 NSFW_ALLOWED = config.Twitter().isNsfw_allowed();
                 hours_before_duplicate_removed = config.Twitter().getHours_before_duplicate_removed();
+                duplicates_allowed = config.Twitter().isDuplicates_allowed();
                 CAPTION_BLACKLIST = config.Twitter().getCaption_blacklist();
                 mediaURL = StringToJson.getData(response, "url");
                 caption = StringToJson.getData(response, "title");
@@ -115,7 +119,7 @@ public class ImageValidity { // Need to break into individual classes
 
             long timestamp = Long.parseLong(timestampStr);
 
-            if ((System.currentTimeMillis() - timestamp) < hours_before_duplicate_removed * 3600000) { // Test if cached url is too old to be considered duplicate
+            if (duplicates_allowed || ((System.currentTimeMillis() - timestamp) < hours_before_duplicate_removed * 3600000)) { // Test if cached url is too old to be considered duplicate
                 if (mediaURL.equalsIgnoreCase(usedUrl)) {
                     Output.print("Duplicate URL - x" + countattempt + " attempts", Output.RED, true);
 
