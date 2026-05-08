@@ -14,7 +14,9 @@ import services.*;
 import utils.*;
 import java.awt.*;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /* Main
@@ -22,16 +24,17 @@ import java.util.List;
  * Manages interactions with different services such as Instagram and YouTube.
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
+    static Map<String, Services> services = new HashMap<>();
+    static double currentVersion = 4.0; // Current version number
+    static Services bot = null;
+
     public static void main(String[] args) {
-        double currentVersion = 4.0; // Current version number
-
-
         Config config = Config.getInstance(); // Get config
 
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
 
         // Print logo
-        Output.print("\n" +
+        System.out.print(Output.YELLOW + "\n" +
                 "       @@@@@                      @@@@@@\n" +
                 "           @@@                  @@@\n" +
                 "              @@              @@\n" +
@@ -54,16 +57,16 @@ public class HoneyWasp extends ListenerAdapter {
                 "                        @@@@      @@   @@   @@@@   @@   @@ @@@@@  @@        @@ @@   @@   @@ @@@@@  @@  v" + currentVersion + "\n" +
                 "                         @@\n" +
                 " \n" +
-                "     -------------------------------------------------------------------------------------------------------------\n", Output.YELLOW, false, false);
+                "     -------------------------------------------------------------------------------------------------------------\n" + Output.RESET);
         if (config == null) {
-            Output.print("[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
+            Output.print(null, "[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
             ErrorHandling.exitProgram();
 
             return; // Unnecessary but the compiler whines
         }
 
 
-        Output.print("[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+        Output.print(null, "[SYS] HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         final String BOTTOKEN = config.General().getDiscordBotToken().trim();
 
@@ -73,7 +76,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         // Login to bot
         try {
-            Output.print("[SYS] Logging in to Discord bot...", Output.YELLOW, false, false);
+            Output.print(null, "[SYS] Logging in to Discord bot...", Output.YELLOW, false, false);
             jda = JDABuilder.createDefault(
                             BOTTOKEN,
                             EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
@@ -82,17 +85,17 @@ public class HoneyWasp extends ListenerAdapter {
                     .addEventListeners(new HoneyWasp())
                     .build();
 
-            Output.debugPrint("Waiting for JDA to connect");
+            Output.debugPrint(null, "Waiting for JDA to connect");
             // Wait until the bot is fully logged in
             jda.awaitReady();
 
-            Output.print("[SYS] Bot connected successfully!", Output.YELLOW, false, false);
+            Output.print(null, "[SYS] Bot connected successfully!", Output.YELLOW, false, false);
         } catch (InvalidTokenException e) {
-            Output.print("[SYS] Discord bot token is invalid. Please verify you copied the full token from the developer portal");
+            Output.print(null, "[SYS] Discord bot token is invalid. Please verify you copied the full token from the developer portal");
             ErrorHandling.exitProgram();
         } catch (Exception e) { // Handles login failures and interruptions
             e.printStackTrace();
-            Output.print("[SYS] Bot failed to log in. Quitting...");
+            Output.print(null, "[SYS] Bot failed to log in. Quitting...");
             ErrorHandling.exitProgram();
         }
 
@@ -100,14 +103,14 @@ public class HoneyWasp extends ListenerAdapter {
 
         // Check for new version
         try {
-            Output.debugPrint("Checking for new version");
-            String responseString = HTTPSend.get("https://api.github.com/repos/trufoox/honeywasp/releases/latest");
+            Output.debugPrint(null, "Checking for new version");
+            String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
 
             // Fetch latest version, remove "v" (e.g. v4), then parse as double
             double version =  Double.parseDouble(StringToJson.getData(responseString, "tag_name").replace("v", ""));
 
             if (version > currentVersion) {
-                Output.webhookPrint("[SYS] A new version is available! : v" + version + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
+                Output.webhookPrint(null, "[SYS] A new version is available! : v" + version + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
             }
 
 
@@ -123,37 +126,43 @@ public class HoneyWasp extends ListenerAdapter {
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")
-                                        .addChoice("Twitter", "twitter")),
+                                        .addChoice("Youtube", "youtube")),
                         Commands.slash("stop", "Stops the specified HoneyWasp service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")
-                                        .addChoice("Twitter", "twitter")),
+                                        .addChoice("Youtube", "youtube")),
                         Commands.slash("clear", "Clear HoneyWasp cache of specific service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")
-                                        .addChoice("Twitter", "twitter"))
+                                        .addChoice("Youtube", "youtube"))
 
                 ).queue();
 
-        Runnable bot = null; // Stores autostart bot objects
 
-        Output.print("\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
+        Output.print(null, "\n", Output.YELLOW, false, false); // Spacing to create distinction between bot running and setup
 
         // Automatic starting of services
         for(String item : AUTOSTART) {
-            Output.debugPrint("Checking autostart token: " + item);
+            Output.debugPrint(null, "Checking autostart token: " + item);
 
-            if (item.equalsIgnoreCase("instagram")) bot = new Insta();
-            else if (item.equalsIgnoreCase("youtube")) bot = new Yt();
-            else if (item.equalsIgnoreCase("twitter")) bot = new Twitter();
+
+            if (item.equalsIgnoreCase("instagram")) {
+                bot = new Instagram();
+                services.put("instagram", bot);
+            }
+            else if (item.equalsIgnoreCase("youtube")) {
+                bot = new YouTube();
+                services.put("youtube", bot);
+            }
+            else if (item.equalsIgnoreCase("twitter")) {
+                bot = new Twitter();
+                services.put("twitter", bot);
+            }
 
             if (bot != null) {
-                Output.webhookPrint("[SYS] Autostarting " + item, Output.YELLOW, false);
+                Output.webhookPrint(null, "[SYS] Autostarting " + item, Output.YELLOW, false);
                 new Thread(bot).start();
             }
         }
@@ -163,7 +172,7 @@ public class HoneyWasp extends ListenerAdapter {
     // Slash commands
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String service = event.getOption("service").getAsString();
-        Output.debugPrint("Command /" + event.getName() + " used on service " + service);
+        Output.debugPrint(null, "Command /" + event.getName() + " used on service " + service);
 
         switch (event.getName()) {
             case "start": {
@@ -179,12 +188,17 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         // Threads
-                        Thread i  = new Thread(new Instagram()); // Start Instagram
-                        Thread y = new Thread(new YouTube()); // Start YouTube
-                        Thread t = new Thread(new Twitter()); // Start Twitter
-                        i.start();
-                        y.start();
-                        t.start();
+                        bot = new Instagram();
+                        services.put("instagram", bot);
+                        new Thread(bot).start();
+
+                        bot = new YouTube();
+                        services.put("youtube", bot);
+                        new Thread(bot).start();
+
+                        bot = new Twitter();
+                        services.put("twitter", bot);
+                        new Thread(bot).start();
 
                         break;
                     }
@@ -200,8 +214,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Thread i = new Thread(new Instagram()); // Start Instagram
-                        i.start();
+                        bot = new Instagram();
+                        services.put("instagram", bot);
+                        new Thread(bot).start();
 
                         break;
                     }
@@ -217,8 +232,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Thread y = new Thread(new YouTube()); // Start YouTube
-                        y.start();
+                        bot = new YouTube();
+                        services.put("youtube", bot);
+                        new Thread(bot).start();
 
                         break;
                     }
@@ -233,8 +249,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Thread t = new Thread(new Twitter()); // Start Twitter
-                        t.start();
+                        bot = new Twitter();
+                        services.put("twitter", bot);
+                        new Thread(bot).start();
 
                         break;
                     }
@@ -253,9 +270,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Instagram.stop();
-                        YouTube.stop();
-                        Twitter.stop();
+                        services.get("instagram").halt();
+                        services.get("youtube").halt();
+                        services.get("twitter").halt();
 
                         break;
                     }
@@ -271,7 +288,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Instagram.stop();
+                        services.get("instagram").halt();
 
                         break;
                     }
@@ -287,7 +304,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        YouTube.stop();
+                        services.get("youtube").halt();
 
                         break;
                     }
@@ -302,7 +319,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Twitter.stop();
+                        services.get("twitter").halt();
 
                         break;
                     }
@@ -321,9 +338,10 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Instagram.clear();
-                        YouTube.clear();
-                        Twitter.clear();
+                        services.get("instagram").clear();
+                        services.get("youtube").clear();
+                        services.get("twitter").clear();
+
                         break;
                     }
 
@@ -338,7 +356,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Instagram.clear();
+                        services.get("instagram").clear();
                         break;
                     }
 
@@ -353,7 +371,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        YouTube.clear();
+                        services.get("youtube").clear();
                         break;
                     }
                     case "twitter": {
@@ -367,7 +385,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        Twitter.clear();
+                        services.get("twitter").clear();
                         break;
                     }
                 }

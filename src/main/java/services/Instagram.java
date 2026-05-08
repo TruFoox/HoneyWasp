@@ -1,304 +1,34 @@
 package services;
 
-import java.awt.Image;
-import java.io.File;
-import java.net.ConnectException;
-import java.net.SocketException;
-import java.net.URL;
-import javax.imageio.ImageIO;
-import config.*;
-import org.json.*;
+import config.Config;
+import config.InstagramSettings;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import utils.*;
 
-import java.nio.file.*;
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Instagram extends Services implements HasUserID {
+    private long USERID;
+
+    public Instagram() {
+        super("Instagram","INSTA",Config.getInstance());
+        settings = config.Platform("instagram"); // Establish settings
+        
+        InstagramSettings ig = Config.getInstance().Instagram(); // Set instance-specific named stuff
+        TOKEN = ig.getApi_key();
+        VIDEO_MODE = ig.isVideo_mode();
+        use0x0 = true; // Instagram only supports URL filehosting
 
-
-public class Instagram implements Runnable {
-    Config config = Config.getInstance(); // Get config
-    Random rand = new Random(); // Generate seed for random number generation
-
-    // Empty global variables
-    long USERID, countAttempt = 0;
-    List<String[]> usedURLs = new ArrayList<>();
-    String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
-    static boolean run = true;
-    boolean nsfw;
-    boolean tempDisableCaption;
-    int randIndex;
-    File[] media, audio;
-
-    // Load config
-    final String TOKEN = config.Instagram().getApi_key().trim();
-    final boolean AUTO_POST_MODE = config.Instagram().isAuto_post_mode();
-    final int TIME_BETWEEN_POSTS = config.Instagram().getTime_between_posts();
-    final int sleepTime = TIME_BETWEEN_POSTS * 60000; // Generate time to sleep between posts in milliseconds
-    final int ATTEMPTS_BEFORE_TIMEOUT = config.Instagram().getAttempts_before_timeout();
-    final List<String> SUBREDDITS = config.Instagram().getSubreddits();
-    final boolean VIDEO_MODE = config.Instagram().isVideo_mode();
-    final boolean AUDIO_ENABLED = config.Instagram().isAudio_enabled();
-    final boolean USE_REDDIT_CAPTION = config.Instagram().isUse_reddit_caption();
-    final String FALLBACK_CAPTION = config.Instagram().getCaption();
-    final String HASHTAGS = config.Instagram().getHashtags();
-
-
-    public void run() {
-        if (!getUserID()) {return;} // 1 Get Instagram User ID (Quit if failed)
-
-        if (!getMediaSource()) {return;} // 2 Gets media location, cache files (Quit if failed)
-
-        Output.webhookPrint("[SYS] Bot successfully started on Instagram");
-
-        Status.instagramRunning = true;
-
-        try {
-            // Start bot
-            while (run) {
-                countAttempt++; // Iterate count for number of attempts to post that have been made
-                Output.debugPrint("[INSTA] Attempt " + countAttempt + " started");
-
-                if (countAttempt == 1) { // Print first attempt message
-                    Output.print("[INSTA] Attempting new post", Output.YELLOW, true,true);
-                }
-
-                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
-                    Output.webhookPrint("[INSTA] Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
-
-                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
-                    countAttempt = 1;
-                }
-
-                /* Fetch media */
-                if (AUTO_POST_MODE) {
-                    switch (getMemeAPI()) {
-                        case 0: // Success
-                            break;
-                        case 1: // Soft fail (retry)
-                            continue;
-                        case 2: // Fail (quit)
-                            return;
-
-                    }
-                    Output.debugPrint("[INSTA] Successfully fetched URL " + mediaURL);
-
-                    /* If format is video, convert image to video */
-                    if (VIDEO_MODE) {
-                        Image image; // Holds image data (not usually needed unless converting to video as instagram takes image url as input)
-
-                        Output.debugPrint("[INSTA] Attempting to retrieve image data");
-                        try {
-                            // Download image from Reddit
-                            URL url = new URL(mediaURL);
-                            image = ImageIO.read(url);
-
-                        } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
-                            Output.webhookPrint("[INSTA] Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid...");
-
-                            // Blacklist image URL permanently, as it is likely corrupted
-                            FileIO.writeList(mediaURL, "instagram", true);
-                            continue;
-                        } catch (IOException e) {
-                            Output.webhookPrint("[INSTA] Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
-                                    + "\n\tError message: " + e, Output.RED);
-
-                            if (!Sleep.safeSleep(7200000)) break;
-                            continue;
-                        }
-
-                        /* Select mp4 for audio if audio enabled */
-                        String audioDir = null; // Default value
-
-                        if (AUDIO_ENABLED) {
-                            Output.debugPrint("[INSTA] Attempting to select audio file for use");
-                            randIndex = rand.nextInt(audio.length); // Select random audio file
-                            audioDir = String.valueOf(audio[randIndex]);
-                        }
-
-                        Output.print("[INSTA] Converting image to video...", Output.YELLOW, true);
-
-                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", "instagram", "temp")), image, audioDir)) { // Convert image to video
-                            Output.print("[INSTA] Successfully converted image to video", Output.YELLOW, true);
-                        } else {
-                            Output.print("[INSTA] Failed to convert image to video for upload. Skipping attempt...", Output.RED);
-
-                            if (!Sleep.safeSleep(sleepTime)) break;
-                            continue;
-                        }
-                        fileDir = "./cache/instagram/temp.mp4";
-                    }
-                } else {
-                    randIndex = rand.nextInt(media.length); // Select random image
-                    fileDir = String.valueOf(media[randIndex]);
-                }
-
-                /* Upload manual media/generated video to temp file hoster */
-                if (!AUTO_POST_MODE || VIDEO_MODE) {
-                    // Upload media to 0x0
-                    Output.print("[INSTA] Uploading media to temp file hoster...", Output.YELLOW, true);
-
-                    String response = HTTPSend.postFile("https://0x0.st", Path.of(fileDir)); // Send file to 0x0
-
-                    // Error handling
-                    if (HTTPSend.HTTPCode.get() == 403) {
-                        Output.webhookPrint("[INSTA] 0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
-                                "\n\tYour IP should be cycled and unblocked in a few months." +
-                                "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [Instagram Settings]" +
-                                "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
-                                "\n\n\tError message: " + response, Output.RED);
-
-                        return;
-                    } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
-                        Output.webhookPrint("Error uploading file to 0x0.su (temp storage provider). Quitting..." +
-                                "\n\tError message: " + response, Output.RED);
-
-                        return;
-                    }
-
-                    mediaURL = response;
-
-                    if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
-                        mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
-                    }
-
-                    // Success message
-                    Output.print("Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
-                }
-
-
-                /* Upload & publish media */
-                {
-                    String jsonData, uploadURL, response; // Store json data & URL to be used with POST
-
-                    if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
-                        caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
-                    }
-
-                    caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
-
-                    // Build upload data
-                    Map<String, String> formData = new HashMap<>();
-
-                    if (!VIDEO_MODE) {
-                        formData.put("image_url", mediaURL);
-                        formData.put("caption", caption);
-                        formData.put("access_token", TOKEN);
-                        uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media";
-
-                    } else {
-                        formData.put("video_url", mediaURL);
-                        formData.put("caption", caption);
-                        formData.put("media_type", "REELS");
-                        formData.put("access_token", TOKEN);
-                        uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media?media_type=VIDEO";
-                    }
-
-                    response = HTTPSend.postForm(uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
-
-
-                    if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
-                        if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
-                            Output.webhookPrint("[INSTA] Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
-                        } else {
-                            Output.webhookPrint("[INSTA] Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
-                                    "\n\tError message: " + response, Output.RED);
-
-                        }
-
-                        // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeList(mediaURL, "instagram", true);
-                        if (!Sleep.safeSleep(1000)) break;
-                        continue;
-                    } else {
-                        Output.print("[INSTA] Upload step success (1/2)", Output.YELLOW, true);
-                    }
-
-                    String postID = StringToJson.getData(response, "id"); // Get post ID from previous HTTP step
-
-                    Thread.sleep(500); // Sleep for 0.5s - gives Instagram time to get ready
-
-
-                    /* Instagram needs time to render videos - this loop has the bot wait until it is finished */
-                    String postStatus = "";
-                    if (VIDEO_MODE) {
-                        do {
-                            Output.print("[INSTA] Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
-
-                            HTTPSend.get("https://graph.facebook.com/v23.0/" + postID +
-                                    "?fields=status_code,status&access_token=" + TOKEN); // Send status check request
-
-                            if (HTTPSend.HTTPCode.get() != 200) { // Error handling
-                                Output.print("Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
-
-                                Thread.sleep(30000); // Wait 30s and break
-                                break;
-                            }
-
-                            Output.webhookPrint(response);
-
-                            postStatus = StringToJson.getData(response, "status_code");
-
-                            if (postStatus.equals("ERROR")) {
-                                Output.webhookPrint("Video processing failed. Video is likely corrupted. Attempting to post again..." +
-                                        "\n\tError Message: " + response, Output.RED);
-                                break;
-                            }
-
-                        } while (!postStatus.equals("FINISHED"));
-                    }
-
-                    if (postStatus.equals("ERROR")) { // If there was an error, retry attempt
-                        continue;
-                    }
-
-                    if (!Sleep.safeSleep(1500)) break; // Sleep 1.5 seconds to allow instagram time to upload media
-
-                    /* Publish post */
-                    formData.clear(); // Clear formData hashmap for publish
-
-                    formData.put("creation_id", postID);
-                    formData.put("access_token", TOKEN);
-                    uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media_publish";
-
-                    response = HTTPSend.postForm(uploadURL, formData); // Send post for publish to Instagram
-
-                    if (HTTPSend.HTTPCode.get() != 200) {
-                        Output.webhookPrint("[INSTA] Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
-                                "\n\tError message: " + response, Output.RED);
-
-                        // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeList(mediaURL, "instagram", true);
-
-                        continue;
-                    }
-                }
-
-                Thread.sleep(1500); // Sleep 1.5 sec to prevent spam
-            }
-        } catch (InterruptedException e) { // When the thread's stop flag is thrown while it is busy
-            Output.webhookPrint("[INSTA] Unexpected error during sleep: " + e.getMessage(), Output.RED);
-        } catch (SocketException e) {
-            Output.webhookPrint("[INSTA] Bot crashed: Connection likely dropped", Output.RED);
-        } catch (IOException e) {
-            Output.webhookPrint("[INSTA] Bot crashed: IO issue occurred", Output.RED);
-        } catch (Exception e) { // General error handling
-            Output.webhookPrint("[INSTA] Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
-
-        } finally { // Crash/Stop handling
-        Output.webhookPrint("[SYS] Instagram stopped");
-
-            Status.instagramRunning = false;
-        }
     }
-
-    // Get Facebook ID & use it to retrieve Instagram ID
-    private boolean getUserID() {
+    public boolean fetchUserID() {
         try {
             try {
-                Output.debugPrint("[INSTA] Attempting to fetch User ID");
+                Output.debugPrint(this, "Attempting to fetch User ID");
 
-                Output.debugPrint("[INSTA] Attempting to fetch access token (Step 1)");
-                String response = HTTPSend.get("https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
+                Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
+                String response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
 
                 String facebookID;
                 JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
@@ -306,12 +36,11 @@ public class Instagram implements Runnable {
 
                 facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
-                Output.debugPrint("[INSTA] Attempting to fetching User ID from token (Step 2)");
-                // Get Instagram ID
-                response = HTTPSend.get("https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
+                Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
+                response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
                 if (!response.contains("instagram_business_account")) { // Ensure account is business account
-                    Output.webhookPrint("Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
+                    Output.webhookPrint(this, "Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
 
                     return false;
                 }
@@ -321,13 +50,13 @@ public class Instagram implements Runnable {
                 USERID = dataObj.getLong("id");
 
             } catch (Exception e) {
-                Output.webhookPrint("[INSTA] Failed to retrieve Instagram User ID. Your Access token may be invalid. Quitting..."
+                Output.webhookPrint(this, "Failed to retrieve Instagram User ID. Your Access token may be invalid. Quitting..."
                         + "\n\tError message: " + e, Output.RED);
                 return false;
             }
         } catch (Exception e) {
             try {
-                Output.webhookPrint(String.valueOf(e), Output.RED);
+                Output.webhookPrint(this, String.valueOf(e), Output.RED);
             } catch (Exception ex) {
                 throw new RuntimeException(e);
             }
@@ -336,149 +65,146 @@ public class Instagram implements Runnable {
 
         return true; // Success
     }
+    protected boolean upload() throws Exception {
+        String uploadURL, response; // Store json data & URL to be used with POST
 
-    public int getMemeAPI() throws Exception {
-        String response;
+        if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
+            caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
+        }
 
-        randIndex = rand.nextInt(SUBREDDITS.size()); // Generate random subreddit index
+        caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
 
-        chosenSubreddit = SUBREDDITS.get(randIndex);
+        // Build upload data
+        Map<String, String> formData = new HashMap<>();
 
-        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
+        if (!VIDEO_MODE) {
+            formData.put("image_url", mediaURL);
+            formData.put("caption", caption);
+            formData.put("access_token", TOKEN);
+            uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media";
 
-        Output.debugPrint("[INSTA] Fetching media URL from " + URL);
+        } else {
+            formData.put("video_url", mediaURL);
+            formData.put("caption", caption);
+            formData.put("media_type", "REELS");
+            formData.put("access_token", TOKEN);
+            uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media?media_type=VIDEO";
+        }
+
+        response = HTTPSend.postForm(this, uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
+
+
+        if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
+            if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
+                Output.webhookPrint(this, "Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
+            } else {
+                Output.webhookPrint(this, "Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
+                        "\n\tError message: " + response, Output.RED);
+
+            }
+
+            // Blacklist image URL permanently, as it is likely corrupted
+            FileIO.writeList(mediaURL, this, true);
+            Sleep.safeSleep(1000);
+            return false;
+        } else {
+            Output.print(this, "Upload step success (1/2)", Output.YELLOW, true);
+        }
+
+        postID = StringToJson.getData(response, "id"); // Get post ID from previous HTTP step
+
+        Thread.sleep(500); // Sleep for 0.5s - gives Instagram time to get ready
+
+
+        /* Instagram needs time to render videos - this loop has the bot wait until it is finished */
+        String postStatus = "";
+        if (VIDEO_MODE) {
+            do {
+                Output.print(this, "Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
+
+                HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + postID +
+                        "?fields=status_code,status&access_token=" + TOKEN); // Send status check request
+
+                if (HTTPSend.HTTPCode.get() != 200) { // Error handling
+                    Output.print(this, "Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
+
+
+                    if (!Sleep.safeSleep(30000)) return false;
+                    break;
+                }
+
+                Output.webhookPrint(this, response);
+
+                postStatus = StringToJson.getData(response, "status_code");
+
+                if (postStatus.equals("ERROR")) {
+                    Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
+                            "\n\tError Message: " + response, Output.RED);
+                    break;
+                }
+
+            } while (!postStatus.equals("FINISHED"));
+        }
+
+        if (postStatus.equals("ERROR")) { // If there was an error, retry attempt
+            return false;
+        }
+
+        return true;
+    }
+    protected boolean publish() throws Exception {
+        Map<String, String> formData = new HashMap<>();
+        
+        formData.put("creation_id", postID);
+        formData.put("access_token", TOKEN);
+
+        response = HTTPSend.postForm(this,"https://graph.facebook.com/v23.0/" + USERID + "/media_publish", formData); // Send post for publish to Instagram
+
+        if (HTTPSend.HTTPCode.get() != 200) {
+            Output.webhookPrint(this, "Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
+                    "\n\tError message: " + response, Output.RED);
+
+            // Blacklist image URL permanently, as it is likely corrupted
+            FileIO.writeList(mediaURL, this, true);
+
+            return false;
+        }
+
+        return true;
+    }
+protected boolean fetchUserToken() {
         try {
-            response = HTTPSend.get(URL);
-        } catch (ConnectException e) {
-            Output.print("[INSTA] Connection drop detected. Trying again in 10 seconds...");
+            Output.debugPrint(this,"Attempting to fetch User ID");
 
-            if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
-            return 1;
+            Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
+            String response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
+
+            String facebookID;
+            JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
+            JSONObject dataObj = data.getJSONObject(0);
+
+            facebookID = dataObj.getString("id"); // Temporarily store facebook ID
+
+            Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
+            // Get Instagram ID
+            response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
+
+            if (!response.contains("instagram_business_account")) { // Ensure account is business account
+                Output.webhookPrint(this,"Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
+
+                return false;
+            }
+            dataObj = StringToJson.getJSON(response);
+
+            dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
+            USERID = dataObj.getLong("id");
+
         } catch (Exception e) {
-            Output.webhookPrint("[INSTA] Failed to fetch image from meme-api.com"
+            Output.webhookPrint(this,"Failed to retrieve Instagram User ID. Your Access token may be invalid. Quitting..."
                     + "\n\tError message: " + e, Output.RED);
-            return 2;
-        }
-
-        /* Status code handling */
-        switch (HTTPSend.HTTPCode.get().intValue()) {
-            case 200: // Success
-                // Parse JSON data
-                mediaURL = StringToJson.getData(response, "url");
-                redditURL = StringToJson.getData(response, "postLink");
-                caption = StringToJson.getData(response, "title");
-                nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-                tempDisableCaption = false;
-
-                Output.debugPrint("[INSTA] Reddit post data successfully retrieved");
-
-                /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs, true, "instagram")) {
-                    case 0: // Image valid
-                        return 0;
-                    case 1: // General failed validation
-                        return 1;
-                    case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
-                        tempDisableCaption = true;
-                        return 0;
-                }
-
-            case 503: // Cloudflare error
-                Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
-
-                if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
-                return 1;
-            case 502: // Cloudflare error 2
-                Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
-
-                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time
-                return 1;
-            case 530: // Cloudflare error 3
-                Output.webhookPrint("[INSTA] Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
-                        + "\n\tThere is nothing that can be done to fix this but wait, but it shouldn't take too long. Skipping attempt...", Output.RED);
-
-                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time + 6 hours
-                return 1;
-            default: // General error handling
-                Output.webhookPrint("[INSTA] Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
-                        + "\n\tError message: " + response, Output.RED);
-
-                return 2;
-        }
-        return 2; // Isn't possible but the compiler whines
-    }
-
-    // Get media location (based on POSTMODE & selected media format)
-    private boolean getMediaSource() {
-        try {
-            if (AUTO_POST_MODE) {
-                Output.debugPrint("[INSTA] Reading automatic cache");
-                usedURLs = FileIO.readList("instagram"); // Generate filepath "./cache/[Instagram]/cache.txt" for given OS & read file
-                if (usedURLs == null) {return false;}
-
-            } else { // Log manual media
-                String format = (VIDEO_MODE) ? "videos" : "images";
-                File directory = Paths.get(".", format).toFile(); // Generate filepath "./{Format}"
-                Output.debugPrint("[INSTA] Media source set to " + directory);
-
-                if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint(String.format("[INSTA] /%s directory does not exist. Please create it or set post_mode to auto. Quitting...", format), Output.RED);
-                    return false;
-                }
-
-                // Ensure there is at least 1 file in directory
-                int fileCount = Objects.requireNonNull(directory.list()).length;
-                if (fileCount == 0) {
-                    Output.webhookPrint(String.format("[INSTA] No %s found in /%s directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
-                    return false;
-                }
-
-                Output.debugPrint("[INSTA] Logging media from manual directory");
-
-                // Start logging media
-                media = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp4")); // Gets all relevant files in the directory
-            }
-
-            // Get audio
-            if (AUDIO_ENABLED && VIDEO_MODE) {
-                File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
-                Output.debugPrint("[INSTA] Audio source set to " + directory);
-
-                if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint("[INSTA] /audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
-                    return false;
-                }
-
-                // Ensure there is at least 1 file in directory
-                int fileCount = Objects.requireNonNull(directory.list()).length;
-                if (fileCount == 0) {
-                    Output.webhookPrint("[INSTA] No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [Instagram_Settings] in config.json. Quitting...", Output.RED);
-                    return false;
-                }
-
-                Output.debugPrint("[INSTA] Logging audio from manual directory");
-                audio = directory.listFiles((_, name) -> name.toLowerCase().endsWith(".mp3")); // Gets all relevant files in the directory
-            }
-        } catch (Exception e) {
-            try {
-                Output.webhookPrint(String.valueOf(e), Output.RED);
-            } catch (Exception ex) {
-                throw new RuntimeException(e);
-            }
             return false;
         }
+
         return true; // Success
-    }
-
-    public static void stop() { // Stop bot
-        run = false;
-        Output.webhookPrint("Instagram successfully stopped");
-    }
-
-    public static void clear() { // Clear cache
-        FileIO.clearList("instagram");
-        Output.webhookPrint("Instagram cache successfully cleared");
     }
 }
