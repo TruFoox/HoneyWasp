@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
+// This makes the old separate classes, ImageValidity redundant
+
 public abstract class Services extends Thread {
     private final String shortName, name;
     public String getShortname() {return shortName;}
@@ -28,11 +30,11 @@ public abstract class Services extends Thread {
         this.shortName = shortName;
         this.config = config;
     }
-    
+
     abstract boolean upload();
     abstract boolean publish();
     abstract boolean fetchUserToken();
-    
+
     Random rand = new Random(); // Generate seed for random number generation
 
     // Empty global variables
@@ -40,19 +42,21 @@ public abstract class Services extends Thread {
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
     protected boolean run = true;
     protected boolean nsfw, tempDisableCaption;
-    protected int randIndex, USERID, countAttempt = 0;
+    protected int randIndex, countAttempt = 0;
+    protected long USERID;
     protected File[] media, audio;
 
     // Load config - make these grab whatever service is fed
     protected String TOKEN, FALLBACK_CAPTION, DESCRIPTION;
-    protected List<String> SUBREDDITS;
-    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION;
-    protected int sleepTime, ATTEMPTS_BEFORE_TIMEOUT, TIME_BETWEEN_POSTS;
+    protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
+    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
+    protected int sleepTime, ATTEMPTS_BEFORE_TIMEOUT, TIME_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
 
     public void run() {
         try {
             settings = Config.getInstance().Platform(name.toLowerCase());
 
+            // Initialize settings
             AUTO_POST_MODE = settings.isAuto_post_mode();
             TIME_BETWEEN_POSTS = settings.getTime_between_posts();
             ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
@@ -60,8 +64,17 @@ public abstract class Services extends Thread {
             AUDIO_ENABLED = settings.isAudio_enabled();
             USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
             FALLBACK_CAPTION = settings.getCaption();
+            NSFW_ALLOWED = settings.isNsfw_allowed();
+            DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
+            BLACKLIST = settings.getBlacklist();
+            CAPTION_BLACKLIST = settings.getCaption_blacklist();
+            HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
 
-            // VIDEO_MODE and DESCRIPTION are platform-specific & thus set seperately
+            if (this instanceof HasUserID) {((HasUserID) this).fetchUserID();} // Check if current instance contains hasUserID and run it if it does
+
+            if (this instanceof HasRefreshToken) {((HasRefreshToken) this).fetchRefreshToken();} // Check if current instance contains refreshToken and run it if it does
+
+            getMediaSource(); // Fetch media source
 
             // Start bot
             while (run) {
@@ -69,7 +82,7 @@ public abstract class Services extends Thread {
                 Output.debugPrinttest(this, "Attempt " + countAttempt + " started");
 
                 if (countAttempt == 1) { // Print first attempt message
-                    Output.print("Attempting new post", Output.YELLOW, true,true);
+                    Output.printtest(this, "Attempting new post", Output.YELLOW, true,true);
                 }
 
                 if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
@@ -125,12 +138,12 @@ public abstract class Services extends Thread {
                             audioDir = String.valueOf(audio[randIndex]);
                         }
 
-                        Output.print("Converting image to video...", Output.YELLOW, true);
+                        Output.printtest(this, "Converting image to video...", Output.YELLOW, true);
 
                         if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", name.toLowerCase(), "temp")), image, audioDir)) { // Convert image to video
-                            Output.print("Successfully converted image to video", Output.YELLOW, true);
+                            Output.printtest(this, "Successfully converted image to video", Output.YELLOW, true);
                         } else {
-                            Output.print("Failed to convert image to video for upload. Skipping attempt...", Output.RED);
+                            Output.printtest(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
 
                             if (!Sleep.safeSleep(sleepTime)) break;
                             continue;
@@ -145,7 +158,7 @@ public abstract class Services extends Thread {
                 /* Upload manual media/generated video to temp file hoster */
                 if (!AUTO_POST_MODE || VIDEO_MODE) {
                     // Upload media to 0x0
-                    Output.print("Uploading media to temp file hoster...", Output.YELLOW, true);
+                    Output.printtest(this, "Uploading media to temp file hoster...", Output.YELLOW, true);
 
                     String response = HTTPSend.postFile("https://0x0.st", Path.of(fileDir)); // Send file to 0x0
 
@@ -172,11 +185,17 @@ public abstract class Services extends Thread {
                     }
 
                     // Success message
-                    Output.print("Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
-                }
-                
+                    Output.printtest(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
 
-                Thread.sleep(1500); // Sleep 1.5 sec to prevent spam
+                    fetchUserToken();
+
+                    upload();
+
+                    publish();
+
+                }
+
+                if (!Sleep.safeSleep(1500)) return; // Sleep 1.5 secs
             }
         } catch (InterruptedException e) { // When the thread's stop flag is thrown while it is busy
             Output.webhookPrinttemptest(this,"Unexpected error during sleep: " + e.getMessage(), Output.RED);
@@ -207,7 +226,7 @@ public abstract class Services extends Thread {
         try {
             response = HTTPSend.get(URL);
         } catch (ConnectException e) {
-            Output.print("Connection drop detected. Trying again in 10 seconds...");
+            Output.printtest(this, "Connection drop detected. Trying again in 10 seconds...");
 
             if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
             return 1;
@@ -230,7 +249,7 @@ public abstract class Services extends Thread {
                 Output.debugPrinttest(this, "Reddit post data successfully retrieved");
 
                 /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (ImageValidity.check(response, countAttempt, usedURLs, true, name.toLowerCase())) {
+                switch (checkValidity(response, countAttempt, usedURLs, true, name.toLowerCase())) {
                     case 0: // Image valid
                         return 0;
                     case 1: // General failed validation
@@ -327,6 +346,101 @@ public abstract class Services extends Thread {
             return false;
         }
         return true; // Success
+    }
+
+    public int checkValidity(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
+        Output.debugPrinttest(this, "Validating image");
+        String caption = StringToJson.getData(response, "title");
+        String mediaURL = StringToJson.getData(response, "url");
+        boolean nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+
+        // Download image & check aspect ratio
+        if (testSize) {
+            Output.debugPrinttest(this, "Attempting to download image to verify aspect ratio validity");
+            Image image;
+
+            try {
+                URL url = new URL(mediaURL);
+                image = ImageIO.read(url);
+            } catch(IOException e)  {
+                Output.webhookPrinttemptest(this, "[INSTA] Failed to download image from Reddit to check aspect ratio..."
+                        + "\n\tError message: " + e, Output.RED);
+
+                return 1;
+            }
+
+            float ratio = (float) image.getWidth(null) / image.getHeight(null);
+
+            Output.debugPrinttest(this, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
+            if (ratio < 0.82 || ratio > 1.70) {
+                Output.printtest(this, "Image has invalid aspect ratio", Output.RED, true);
+                return 1;
+            }
+
+        }
+
+        // Test image validity
+        Output.debugPrinttest(this, "Testing if image is gif");
+        if (mediaURL.contains(".gif")) { // Ensure image is not gif
+            Output.printtest(this, "Image is gif - x" + countattempt + " attempts", Output.RED, true);
+
+            return 1;
+        }
+
+        // Ensure no blacklisted string in post caption
+        Output.debugPrinttest(this, "Testing if image caption contains blacklisted string");
+        for (String word : BLACKLIST) {
+            if (caption.toLowerCase().contains(word.toLowerCase())) {
+                Output.printtest(this, "Caption contains blacklisted string - x" + countattempt + " attempts", Output.RED, true);
+
+                return 1;
+            }
+        }
+
+        // Ensure post is not duplicate
+        Output.debugPrinttest(this, "Testing if image url is duplicate");
+        for (String[] row : usedURLs) {
+            String usedUrl = row[0];
+            String timestampStr = row[1];
+
+            long timestamp = Long.parseLong(timestampStr);
+
+            if (DUPLICATES_ALLOWED || ((System.currentTimeMillis() - timestamp) < HOURS_BEFORE_DUPLICATES_REMOVED * 3600000)) { // Test if cached url is too old to be considered duplicate
+                if (mediaURL.equalsIgnoreCase(usedUrl)) {
+                    Output.printtest(this, "Duplicate URL - x" + countattempt + " attempts", Output.RED, true);
+
+                    return 1;
+                }
+            }
+        }
+
+        Output.debugPrinttest(this, "Testing if image is marked as NSFW");
+        if (!NSFW_ALLOWED && nsfw) { // If post is marked as NSFW and NSFW is disallowed
+            Output.printtest(this, "Image is marked as NSFW - x" + countattempt + " attempts", Output.RED, true);
+
+            return 1;
+        }
+
+        Output.debugPrinttest(this, "Testing if caption contains blacklisted strings to use preset caption");
+        for (String word : CAPTION_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
+            if (caption.toLowerCase().contains(word.toLowerCase())) {
+                Output.printtest(this, "Using fallback caption (\"" + word + "\" found) - x" + countattempt + " attempts", Output.RED, true);
+
+                return 2;
+            }
+        }
+
+        return 0;
+    }
+
+    public void halt() { // Stop bot
+        run = false;
+        Output.webhookPrinttemptest(this, "Successfully stopped");
+    }
+
+    public void clear() { // Clear cache
+        FileIO.clearList(name.toLowerCase());
+        Output.webhookPrinttemptest(this, "Cache successfully cleared");
     }
 
 }

@@ -38,9 +38,9 @@ public class Output {
             String outputLine= message.replaceAll("\t", spacing);
 
             if (!useTimestamp) {
-                System.out.print(color + "     [" + service.getShortname() + "]" +  outputLine + RESET);
+                System.out.print(color + "     [" + service.getShortname() + "] " +  outputLine + RESET);
             } else {
-                System.out.print(color + "     [" + DateTime.time() + "] - [" + service.getShortname() + "] " + outputLine + RESET);
+                System.out.print(color + prefix + "[" + service.getShortname() + "] " + outputLine + RESET);
             }
             lastOutputWasNewline = true;
 
@@ -61,6 +61,32 @@ public class Output {
             System.err.print(e);
         }
     }
+    public static synchronized void printtest(Services service, String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
+        boolean debug = config.General().isDebug_mode();
+        if (lastOutputWasNewline || debug) {System.out.println();} else {System.out.print("\r\033[2K");}
+
+        if (!useTimestamp) {
+            if (overwriteThisLine && !debug) {
+                System.out.print("\r\033[2K");
+                System.out.print(color + "     "  + "[" + service.getShortname() + "] " +  message + RESET + "\r");
+                lastOutputWasNewline = false;
+            } else {
+                System.out.print(color + "     "  + "[" + service.getShortname() + "] " +  message + RESET);
+                lastOutputWasNewline = true;
+            }
+        } else {
+            if (overwriteThisLine && !debug) {
+                System.out.print("\r\033[2K");
+                System.out.print(color + "     [" + DateTime.time() + "] - " + "[" + service.getShortname() + "] " + message + RESET+ "\r");
+                lastOutputWasNewline = false;
+            } else {
+
+                System.out.print(color + "     [" + DateTime.time() + "] - "  + "[" + service.getShortname() + "] " +  message + RESET);
+                lastOutputWasNewline = true;
+            }
+        }
+
+    }
     public static synchronized void  debugPrinttest(Services service, String message) {
         if (config.General().isDebug_mode()) { // Only print if debug mode is enabled
             if (lastOutputWasNewline) {System.out.println();}
@@ -71,7 +97,7 @@ public class Output {
 
             String outputLine= message.replaceAll("\t", spacing);
 
-            System.out.print(YELLOW + "     [" + DateTime.time() + "] - [" + service.getShortname() + "] " + outputLine + RESET);
+            System.out.print(YELLOW + prefix + "[" + service.getShortname() + "] " + outputLine + RESET);
             lastOutputWasNewline = true;
 
         }
@@ -90,7 +116,7 @@ public class Output {
             if (!useTimestamp) {
                 System.out.print(color + "     " + outputLine + RESET);
             } else {
-                System.out.print(color + "     [" + DateTime.time() + "] - " + outputLine + RESET);
+                System.out.print(color + prefix + outputLine + RESET);
             }
             lastOutputWasNewline = true;
 
@@ -148,7 +174,7 @@ public class Output {
 
             String outputLine= message.replaceAll("\t", spacing);
 
-            System.out.print(YELLOW + "     [" + DateTime.time() + "] - " + outputLine + RESET);
+            System.out.print(YELLOW + prefix + outputLine + RESET);
             lastOutputWasNewline = true;
 
         }
@@ -159,6 +185,10 @@ public class Output {
     public static synchronized void webhookPrinttemptest(Services service, String message) {webhookPrinttemptest(service, message, YELLOW, true);}
     public static void webhookPrint(String message) {webhookPrint(message, YELLOW, true);}
     public static void webhookPrint(String message, String color) {webhookPrint(message, color, true);}
+
+    public static void printtest(Services service, String message) {printtest(service, message, YELLOW, false, true);}
+    public static void printtest(Services service, String message, String color) {printtest(service, message, color, false, true);}
+    public static void printtest(Services service, String message, String color, boolean overwriteThisLine) {printtest(service, message, color, overwriteThisLine, true);}
 
     public static void print(String message) {print(message, YELLOW, false, true);}
     public static void print(String message, String color) {print(message, color, false, true);}

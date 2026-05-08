@@ -12,7 +12,7 @@ public interface PlatformSettings {
     boolean isNsfw_allowed();
     boolean isUse_reddit_caption();
     List<String> getCaption_blacklist();
-    long getHours_before_duplicate_removed();
+    int getHours_before_duplicate_removed();
     boolean isAudio_enabled();
     String getCaption();
     String getHashtags();
