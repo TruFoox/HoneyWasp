@@ -1,7 +1,6 @@
 package services;
 
 import config.Config;
-import config.InstagramSettings;
 import config.PlatformSettings;
 import utils.*;
 
@@ -31,23 +30,23 @@ public abstract class Services extends Thread {
         this.config = config;
     }
 
-    abstract boolean upload();
-    abstract boolean publish();
+    abstract boolean upload() throws Exception;
+    abstract boolean publish() throws Exception;
     abstract boolean fetchUserToken();
 
     Random rand = new Random(); // Generate seed for random number generation
 
     // Empty global variables
     protected java.util.List<String[]> usedURLs = new ArrayList<>();
-    protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir;
+    protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     protected boolean run = true;
     protected boolean nsfw, tempDisableCaption;
     protected int randIndex, countAttempt = 0;
     protected long USERID;
     protected File[] media, audio;
 
-    // Load config - make these grab whatever service is fed
-    protected String TOKEN, FALLBACK_CAPTION, DESCRIPTION;
+    // Config
+    protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
     protected int sleepTime, ATTEMPTS_BEFORE_TIMEOUT, TIME_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
@@ -69,6 +68,7 @@ public abstract class Services extends Thread {
             BLACKLIST = settings.getBlacklist();
             CAPTION_BLACKLIST = settings.getCaption_blacklist();
             HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
+            CAPTION = settings.getCaption();
 
             if (this instanceof HasUserID) {((HasUserID) this).fetchUserID();} // Check if current instance contains hasUserID and run it if it does
 
@@ -186,13 +186,40 @@ public abstract class Services extends Thread {
 
                     // Success message
                     Output.printtest(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
+                }
 
-                    fetchUserToken();
+                fetchUserToken();
 
-                    upload();
+                upload();
 
-                    publish();
+                if (!Sleep.safeSleep(2000)) return; // Sleep 2 seconds to allow server time to process
 
+                publish();
+
+                if (HTTPSend.HTTPCode.get() != 200) {
+                    Output.webhookPrinttemptest(this,"Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
+                            "\n\tError message: " + response, Output.RED);
+
+                    // Blacklist image URL permanently, as it is likely corrupted
+                    FileIO.writeList(mediaURL, name.toLowerCase(), true);
+
+                    continue;
+                } else {
+                    if (AUTO_POST_MODE) {
+                        Output.webhookPrinttemptest(this,redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
+                    } else {
+                        Output.webhookPrinttemptest(this,redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
+                    }
+
+                    countAttempt = 0;
+
+                    // Store image URL to prevent duplicates
+                    FileIO.writeList(mediaURL, name.toLowerCase(), false);
+
+                    long timestamp = System.currentTimeMillis();
+                    usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
+
+                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Success)
                 }
 
                 if (!Sleep.safeSleep(1500)) return; // Sleep 1.5 secs
@@ -350,9 +377,9 @@ public abstract class Services extends Thread {
 
     public int checkValidity(String response, long countattempt, List<String[]> usedURLs, boolean testSize, String platform) {
         Output.debugPrinttest(this, "Validating image");
-        String caption = StringToJson.getData(response, "title");
-        String mediaURL = StringToJson.getData(response, "url");
-        boolean nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
+        caption = StringToJson.getData(response, "title");
+        mediaURL = StringToJson.getData(response, "url");
+        nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
 
         // Download image & check aspect ratio
         if (testSize) {
@@ -363,7 +390,7 @@ public abstract class Services extends Thread {
                 URL url = new URL(mediaURL);
                 image = ImageIO.read(url);
             } catch(IOException e)  {
-                Output.webhookPrinttemptest(this, "[INSTA] Failed to download image from Reddit to check aspect ratio..."
+                Output.webhookPrinttemptest(this, "Failed to download image from Reddit to check aspect ratio..."
                         + "\n\tError message: " + e, Output.RED);
 
                 return 1;
