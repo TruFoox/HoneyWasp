@@ -50,205 +50,223 @@ public abstract class Services extends Thread {
     protected static boolean RESTART;
 
     public void run() {
-        try {
-            settings = Config.getInstance().Platform(name.toLowerCase());
+        RESTART = config.General().isRestart();
 
-            // Initialize settings
-            AUTO_POST_MODE = settings.isAuto_post_mode();
-            MINS_BETWEEN_POSTS = settings.getTime_between_posts();
-            ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
-            SUBREDDITS = settings.getSubreddits();
-            AUDIO_ENABLED = settings.isAudio_enabled();
-            USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
-            FALLBACK_CAPTION = settings.getCaption();
-            NSFW_ALLOWED = settings.isNsfw_allowed();
-            DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
-            BLACKLIST = settings.getBlacklist();
-            CAPTION_BLACKLIST = settings.getCaption_blacklist();
-            HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
-            CAPTION = settings.getCaption();
-            HASHTAGS = settings.getHashtags();
-            RESTART = config.General().isRestart();
+        do { // Loop if restart enabled
+            run = true;
+            try {
+                settings = Config.getInstance().Platform(name.toLowerCase());
 
-            sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
+                // Initialize settings
+                AUTO_POST_MODE = settings.isAuto_post_mode();
+                MINS_BETWEEN_POSTS = settings.getTime_between_posts();
+                ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
+                SUBREDDITS = settings.getSubreddits();
+                AUDIO_ENABLED = settings.isAudio_enabled();
+                USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
+                FALLBACK_CAPTION = settings.getCaption();
+                NSFW_ALLOWED = settings.isNsfw_allowed();
+                DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
+                BLACKLIST = settings.getBlacklist();
+                CAPTION_BLACKLIST = settings.getCaption_blacklist();
+                HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
+                CAPTION = settings.getCaption();
+                HASHTAGS = settings.getHashtags();
 
-            if (this instanceof HasUserID) {  // Check if current instance contains fetchUserID and run it if it does (Quit if failed)
-                if (!((HasUserID) this).fetchUserID()) {return;}
-            }
+                sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
 
-            if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
-                Output.debugPrint(this,"Testing if refresh_token is empty");
-                if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
-                    if (!((HasRefreshToken) this).fetchRefreshToken()) {return;} // Fetch token
-                } else {
-                    Output.debugPrint(this,"refresh_token was found to contain data");
-                }
-            }
-
-            if (!getMediaSource()) {return;} // Fetch media source (Quit if failed)
-
-            // Start bot
-            while (run) {
-                countAttempt++; // Iterate count for number of attempts to post that have been made
-                Output.debugPrint(this, "Attempt " + countAttempt + " started");
-
-                if (countAttempt == 1) { // Print first attempt message
-                    Output.print(this, "Attempting new post", Output.YELLOW, true,true);
+                if (this instanceof HasUserID) {  // Check if current instance contains fetchUserID and run it if it does (Quit if failed)
+                    if (!((HasUserID) this).fetchUserID()) {
+                        return;
+                    }
                 }
 
-                if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
-                    Output.webhookPrint(this,"Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
-
-                    if (!Sleep.safeSleep(sleepTime)) break; // Sleep (Easy way to fake a "skipped attempt")
-                    countAttempt = 1;
-                }
-
-                /* Fetch media */
-                if (AUTO_POST_MODE) {
-                    switch (getMemeAPI()) {
-                        case 0: // Success
-                            break;
-                        case 1: // Soft fail (retry)
-                            continue;
-                        case 2: // Fail (quit)
+                if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
+                    Output.debugPrint(this, "Testing if refresh_token is empty");
+                    if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
+                        if (!((HasRefreshToken) this).fetchRefreshToken()) {
                             return;
-
+                        } // Fetch token
+                    } else {
+                        Output.debugPrint(this, "refresh_token was found to contain data");
                     }
-                    Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
-
-                    /* If format is video, convert image to video */
-                    if (VIDEO_MODE) {
-                        Image image; // Holds image data
-
-                        Output.debugPrint(this, "Attempting to retrieve image data");
-                        try {
-                            // Download image from Reddit
-                            URL url = new URL(mediaURL);
-                            image = ImageIO.read(url);
-
-                        } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
-                            Output.webhookPrint(this,"Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid..." +
-                                    "\n\tError message: " + e, Output.RED);
-
-                            // Blacklist image URL permanently, as it is likely corrupted
-                            FileIO.writeList(mediaURL, this, true);
-
-                            if (!Sleep.safeSleep(5000)) break; // Sleep 3 seconds in case it is a temporary error
-                            continue;
-                        } catch (IOException e) {
-                            Output.webhookPrint(this,"Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
-                                    + "\n\tError message: " + e, Output.RED);
-
-                            if (!Sleep.safeSleep(7200000)) break;
-                            continue;
-                        }
-
-                        /* Select mp4 for audio if audio enabled */
-                        String audioDir = null; // Default value
-
-                        if (AUDIO_ENABLED) {
-                            Output.debugPrint(this, "Attempting to select audio file for use");
-                            randIndex = rand.nextInt(audio.length); // Select random audio file
-                            audioDir = String.valueOf(audio[randIndex]);
-                        }
-
-                        Output.print(this, "Converting image to video...", Output.YELLOW, true);
-
-                        if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", name.toLowerCase(), "temp")), image, audioDir)) { // Convert image to video
-                            Output.print(this, "Successfully converted image to video", Output.YELLOW, true);
-                        } else {
-                            Output.print(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
-
-                            if (!Sleep.safeSleep(sleepTime)) break;
-                            continue;
-                        }
-                        fileDir = "./cache/" + name.toLowerCase() + "/temp.mp4";
-                    }
-                } else {
-                    randIndex = rand.nextInt(media.length); // Select random image
-                    fileDir = String.valueOf(media[randIndex]);
                 }
 
-                if (use0x0) { // If enabled for this service, upload manual media/generated video to temp file hoster (0x0.st)
-                    if (!AUTO_POST_MODE || VIDEO_MODE) {
-                        Output.print(this, "Uploading media to temp file hoster...", Output.YELLOW, true);
+                if (!getMediaSource()) {
+                    return;
+                } // Fetch media source (Quit if failed)
 
-                        String response = HTTPSend.postFile(this,"https://0x0.st", Path.of(fileDir)); // Send file to 0x0
+                // Start bot
+                while (run) {
+                    countAttempt++; // Iterate count for number of attempts to post that have been made
+                    Output.debugPrint(this, "Attempt " + countAttempt + " started");
 
-                        // Error handling
-                        if (HTTPSend.HTTPCode.get() == 403) {
-                            Output.webhookPrint(this, "0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
-                                    "\n\tYour IP should be cycled and unblocked in a few months." +
-                                    "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [" + name + " Settings]" +
-                                    "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
-                                    "\n\n\tError message: " + response, Output.RED);
+                    if (countAttempt == 1) { // Print first attempt message
+                        Output.print(this, "Attempting new post", Output.YELLOW, true, true);
+                    }
 
+                    if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
+                        Output.webhookPrint(this, "Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
+
+                        Thread.sleep(sleepTime); // Sleep (Easy way to fake a "skipped attempt")
+                        countAttempt = 1;
+                    }
+
+                    /* Fetch media */
+                    if (AUTO_POST_MODE) {
+                        switch (getMemeAPI()) {
+                            case 0: // Success
+                                break;
+                            case 1: // Soft fail (retry)
+                                continue;
+                            case 2: // Fail (quit)
+                                return;
+
+                        }
+                        Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
+
+                        /* If format is video, convert image to video */
+                        if (VIDEO_MODE) {
+                            Image image; // Holds image data
+
+                            Output.debugPrint(this, "Attempting to retrieve image data");
+                            try {
+                                // Download image from Reddit
+                                URL url = new URL(mediaURL);
+                                image = ImageIO.read(url);
+
+                            } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
+                                Output.webhookPrint(this, "Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid..." +
+                                        "\n\tError message: " + e, Output.RED);
+
+                                // Blacklist image URL permanently, as it is likely corrupted
+                                FileIO.writeList(mediaURL, this, true);
+
+                                Thread.sleep(5000); // Sleep 3 seconds in case it is a temporary error
+                                continue;
+                            } catch (IOException e) {
+                                Output.webhookPrint(this, "Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
+                                        + "\n\tError message: " + e, Output.RED);
+
+                                Thread.sleep(7200000);
+                                continue;
+                            }
+
+                            /* Select mp4 for audio if audio enabled */
+                            String audioDir = null; // Default value
+
+                            if (AUDIO_ENABLED) {
+                                Output.debugPrint(this, "Attempting to select audio file for use");
+                                randIndex = rand.nextInt(audio.length); // Select random audio file
+                                audioDir = String.valueOf(audio[randIndex]);
+                            }
+
+                            Output.print(this, "Converting image to video...", Output.YELLOW, true);
+
+                            if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", name.toLowerCase(), "temp")), image, audioDir)) { // Convert image to video
+                                Output.print(this, "Successfully converted image to video", Output.YELLOW, true);
+                            } else {
+                                Output.print(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
+
+                                Thread.sleep(sleepTime);
+                                continue;
+                            }
+                            fileDir = "./cache/" + name.toLowerCase() + "/temp.mp4";
+                        }
+                    } else {
+                        randIndex = rand.nextInt(media.length); // Select random image
+                        fileDir = String.valueOf(media[randIndex]);
+                    }
+
+                    if (use0x0) { // If enabled for this service, upload manual media/generated video to temp file hoster (0x0.st)
+                        if (!AUTO_POST_MODE || VIDEO_MODE) {
+                            Output.print(this, "Uploading media to temp file hoster...", Output.YELLOW, true);
+
+                            String response = HTTPSend.postFile(this, "https://0x0.st", Path.of(fileDir)); // Send file to 0x0
+
+                            // Error handling
+                            if (HTTPSend.HTTPCode.get() == 403) {
+                                Output.webhookPrint(this, "0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
+                                        "\n\tYour IP should be cycled and unblocked in a few months." +
+                                        "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [" + name + " Settings]" +
+                                        "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
+                                        "\n\n\tError message: " + response, Output.RED);
+
+                                return;
+                            } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
+                                Output.webhookPrint(this, "Error uploading file to 0x0.su (temp storage provider). Quitting..." +
+                                        "\n\tError message: " + response, Output.RED);
+
+                                return;
+                            }
+
+                            mediaURL = response;
+
+                            if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
+                                mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
+                            }
+
+                            // Success message
+                            Output.print(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
+                        }
+                    }
+
+                    /* Fetch token, upload, then publish media */
+
+                    // Lots of if (!run) to combat /stop not working, especially on poor internet connections
+                    if (!run) {
+                        return;
+                    }
+
+                    if (!fetchUserToken()) {
+                        return;
+                    } // Attempt to fetch access token (Quit if failed)
+
+                    if (!run) {
+                        return;
+                    }
+
+                    if (upload()) {
+                        Thread.sleep(2000); // Sleep 2 seconds to allow server time to process
+
+                        if (!run) {
                             return;
-                        } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
-                            Output.webhookPrint(this, "Error uploading file to 0x0.su (temp storage provider). Quitting..." +
-                                    "\n\tError message: " + response, Output.RED);
-
-                            return;
                         }
 
-                        mediaURL = response;
+                        if (publish()) {
+                            if (AUTO_POST_MODE) {
+                                Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
+                            } else {
+                                Output.webhookPrint(this, redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
+                            }
 
-                        if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
-                            mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
+                            // Store image URL to prevent duplicates
+                            FileIO.writeList(mediaURL, this, false);
+
+                            long timestamp = System.currentTimeMillis();
+                            usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
+
+                            if (run) {
+                                Thread.sleep(sleepTime);
+                            } // Sleep if /stop not used
+                            countAttempt = 0;
                         }
-
-                        // Success message
-                        Output.print(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
                     }
+                    Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 }
-
-                /* Fetch token, upload, then publish media */
-
-                // Lots of if (!run) to combat /stop not working, especially on poor internet connections
-                if (!run) {return;}
-
-                if (!fetchUserToken()) {return;} // Attempt to fetch access token (Quit if failed)
-
-                if (!run) {return;}
-
-                if (upload()) {
-                    if (!Sleep.safeSleep(2000)) return; // Sleep 2 seconds to allow server time to process
-
-                    if (!run) {return;}
-
-                    if (publish()) {
-                        if (AUTO_POST_MODE) {
-                            Output.webhookPrint(this,redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
-                        } else {
-                            Output.webhookPrint(this,redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
-                        }
-
-                        // Store image URL to prevent duplicates
-                        FileIO.writeList(mediaURL, this, false);
-
-                        long timestamp = System.currentTimeMillis();
-                        usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
-
-                        if (run) {if (!Sleep.safeSleep(sleepTime)) return;} // Sleep if /stop not used
-                        countAttempt = 0;
-                    }
-                }
-
-                if (!Sleep.safeSleep(sleepTime)) return;; // Sleep 1.5s to prevent spam
+            } catch (
+                    InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
+                Output.debugPrint(this, "Error during sleep: " + e.getMessage());
+            } catch (SocketException e) {
+                Output.webhookPrint(this, "Bot crashed: Connection likely dropped", Output.RED);
+            } catch (IOException e) {
+                Output.webhookPrint(this, "Bot crashed: IO issue occurred", Output.RED);
+            } catch (Exception e) { // General error handling
+                Output.webhookPrint(this, "Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+            } finally { // Crash/Stop handling
+                Output.webhookPrint(this, "Stopped");
             }
-        } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
-            Output.debugPrint(this,"Error during sleep: " + e.getMessage());
-        } catch (SocketException e) {
-            Output.webhookPrint(this,"Bot crashed: Connection likely dropped", Output.RED);
-        } catch (IOException e) {
-            Output.webhookPrint(this,"Bot crashed: IO issue occurred", Output.RED);
-        } catch (Exception e) { // General error handling
-            Output.webhookPrint(this,"Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
-        } finally { // Crash/Stop handling
-            Output.webhookPrint(this, "Stopped");
-
-            if (RESTART && run) {run();} // If restart enabled and /stop wasn't used, restart
-        }
+        } while (RESTART);
     }
 
     private int getMemeAPI() throws Exception {
@@ -266,7 +284,7 @@ public abstract class Services extends Thread {
         } catch (ConnectException e) {
             Output.print(this, "Connection drop detected. Trying again in 10 seconds...");
 
-            if (!Sleep.safeSleep(10000)) return 2; // Sleep 10 secs
+            Thread.sleep(10000);
             return 1;
         } catch (Exception e) {
             Output.webhookPrint(this,"Failed to fetch image from meme-api.com"
@@ -301,19 +319,19 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
-                if (!Sleep.safeSleep(sleepTime + 21600000)) break; // Sleep normal time + 6 hours
+                Thread.sleep(sleepTime + 21600000); // Sleep normal time + 6 hours
                 return 1;
             case 502: // Cloudflare error 2
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time
+                Thread.sleep(sleepTime); // Sleep normal time
                 return 1;
             case 530: // Cloudflare error 3
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
                         + "\n\tThere is nothing that can be done to fix this but wait, but it shouldn't take too long. Skipping attempt...", Output.RED);
 
-                if (!Sleep.safeSleep(sleepTime)) break; // Sleep normal time + 6 hours
+                Thread.sleep(sleepTime); // Sleep normal time + 6 hours
                 return 1;
             default: // General error handling
                 Output.webhookPrint(this,"Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
@@ -321,7 +339,6 @@ public abstract class Services extends Thread {
 
                 return 2;
         }
-        return 2; // Isn't possible but the compiler whines
     }
 
     // Get media location (based on POSTMODE & selected media format)
@@ -392,7 +409,7 @@ public abstract class Services extends Thread {
         
         // Download image & check aspect ratio if needed
         if (doSizeTest) {
-            Output.debugPrint(this, "Attempting to download image to verify aspect ratio validity");
+            Output.debugPrint(this, "Attempting to download image to verify aspect ratio");
             Image image;
 
             try {
@@ -441,7 +458,7 @@ public abstract class Services extends Thread {
 
             long timestamp = Long.parseLong(timestampStr);
 
-            if (DUPLICATES_ALLOWED || ((System.currentTimeMillis() - timestamp) < HOURS_BEFORE_DUPLICATES_REMOVED * 3600000)) { // Test if cached url is too old to be considered duplicate
+            if (DUPLICATES_ALLOWED || ((System.currentTimeMillis() - timestamp) < HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L)) { // Test if cached url is too old to be considered duplicate
                 if (mediaURL.equalsIgnoreCase(usedUrl)) {
                     Output.print(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
 

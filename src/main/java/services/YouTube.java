@@ -38,7 +38,7 @@ public class YouTube extends Services implements HasRefreshToken {
         Output.webhookPrint(this, "BEFORE YOU CAN POST TO YOUTUBE, YOU MUST RETRIEVE YOUR ACCESS TOKEN." +
                 "\n\tATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (OR GO TO " + oauthURL + ")", Output.RED);
 
-        Output.debugPrint(this, "[YT] Attempting redirect");
+        Output.debugPrint(this, "Attempting redirect");
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
             try {
                 Desktop.getDesktop().browse(new URI(oauthURL));
@@ -50,9 +50,9 @@ public class YouTube extends Services implements HasRefreshToken {
         Output.webhookPrint(this, "[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#youtube-setup FOR HELP):", Output.YELLOW);
         String redirectUrl = scanner.nextLine(); // Read user input
 
-        Output.debugPrint(this, "[YT] Extracting code from user input");
+        Output.debugPrint(this, "Extracting code from user input");
         String authCode = redirectUrl.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
-        Output.debugPrint(this, "[YT] Code: " + authCode);
+        Output.debugPrint(this, "Code: " + authCode);
 
         // Build upload data
         Map<String, String> formData = new HashMap<>();
@@ -68,7 +68,7 @@ public class YouTube extends Services implements HasRefreshToken {
         try {
             response = HTTPSend.postForm(this,"https://oauth2.googleapis.com/token", formData);
         } catch (Exception e) {
-            Output.webhookPrint(this, "[YT] Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
             return false;
@@ -82,7 +82,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
             return true;  // Success
         } else {
-            Output.webhookPrint(this, "[YT] Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return false;
@@ -132,7 +132,7 @@ public class YouTube extends Services implements HasRefreshToken {
                 Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
                         + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
-                if (run) {if (!Sleep.safeSleep(sleepTime)) return false;}
+                Thread.sleep(sleepTime);
 
                 return false;
 
@@ -143,7 +143,7 @@ public class YouTube extends Services implements HasRefreshToken {
                 // Blacklist image URL permanently, as it is likely corrupted
                 FileIO.writeList(mediaURL, this, true);
 
-                if (!Sleep.safeSleep(5000)) return false;
+                Thread.sleep(5000);
                 return false;
             }
         }
@@ -170,7 +170,7 @@ public class YouTube extends Services implements HasRefreshToken {
         try {
             response = HTTPSend.postForm(this,"https://oauth2.googleapis.com/token", formData);
         } catch (Exception e) {
-            Output.webhookPrint(this, "[YT] Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "Failed to fetch user token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
             return false;
@@ -182,7 +182,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
             return true;  // Success
         } else {
-            Output.webhookPrint(this, "[YT] Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return false;

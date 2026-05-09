@@ -170,7 +170,7 @@ public class HoneyWasp extends ListenerAdapter {
     @Override
     // Slash commands
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        event.deferReply().queue(); // Tells discord event has been noticed
+        event.deferReply().queue(hook -> { // Tells discord event has been noticed
         String service = event.getOption("service").getAsString();
         Output.debugPrint(null, "Command /" + event.getName() + " used on service " + service);
 
@@ -423,6 +423,7 @@ public class HoneyWasp extends ListenerAdapter {
 
             default:
                 event.reply("Unknown command.").setEphemeral(true).queue();
-        }
+            }
+        });
     }
 }

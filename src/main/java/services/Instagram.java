@@ -105,7 +105,7 @@ public class Instagram extends Services implements HasUserID {
 
             // Blacklist image URL permanently, as it is likely corrupted
             FileIO.writeList(mediaURL, this, true);
-            Sleep.safeSleep(1000);
+            Thread.sleep(1000);
             return false;
         } else {
             Output.print(this, "Upload step success (1/2)", Output.YELLOW, true);
@@ -128,8 +128,7 @@ public class Instagram extends Services implements HasUserID {
                 if (HTTPSend.HTTPCode.get() != 200) { // Error handling
                     Output.print(this, "Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
 
-
-                    if (!Sleep.safeSleep(30000)) return false;
+                    Thread.sleep(30000);
                     break;
                 }
 
