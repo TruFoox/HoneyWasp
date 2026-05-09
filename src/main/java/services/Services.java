@@ -118,6 +118,7 @@ public abstract class Services extends Thread {
                             case 0: // Success
                                 break;
                             case 1: // Soft fail (retry)
+                                Thread.sleep(1500); // Sleep 1.5s to prevent spam
                                 continue;
                             case 2: // Fail (quit)
                                 return;
@@ -252,7 +253,7 @@ public abstract class Services extends Thread {
                             countAttempt = 0;
                         }
                     }
-                    Thread.sleep(1500); // Sleep 1.5s to prevent spam
+                    Thread.sleep(3000); // Sleep 3s to prevent spam
                 }
             } catch (
                     InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
