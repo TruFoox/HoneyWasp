@@ -160,7 +160,7 @@ public class HoneyWasp extends ListenerAdapter {
             }
 
             if (bot != null) {
-                Output.webhookPrint(null, "Autostarting " + item, Output.YELLOW, false);
+                Output.webhookPrint(null, "Autostarting " + item, Output.YELLOW);
                 new Thread(bot).start();
             }
         }
@@ -338,7 +338,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         services.get("instagram").clear();
                         services.get("youtube").clear();
-                        services.get("twitter").clear();
+                        //services.get("twitter").clear();
 
                         break;
                     }

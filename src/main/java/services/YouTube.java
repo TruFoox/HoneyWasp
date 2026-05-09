@@ -127,7 +127,7 @@ public class YouTube extends Services implements HasRefreshToken{
 
             /* Error handling */
             if (reason.equals("uploadLimitExceeded") || reason.equals("rateLimitExceeded") || reason.equals("quotaExceeded")) {
-                Output.webhookPrint(this, "Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Skipping this attempt..."
+                Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
                         + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
                 if (!Sleep.safeSleep(sleepTime)) return false; // Sleep
@@ -135,13 +135,13 @@ public class YouTube extends Services implements HasRefreshToken{
                 return false;
 
             } else { // General error handling
-                Output.webhookPrint(this, "Failed to post " + fileDir.substring(fileDir.lastIndexOf("/") + 1) + ". Trying again, and marking this URL as invalid..."
+                Output.webhookPrint(this, "Failed to post. Trying again, and marking this URL as invalid..."
                         + "\n\tError message: " + response, Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
                 FileIO.writeList(mediaURL, this, true);
 
-                if (!Sleep.safeSleep(1000)) return false;
+                if (!Sleep.safeSleep(5000)) return false;
                 return false;
             }
         }

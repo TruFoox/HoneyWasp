@@ -54,8 +54,8 @@ public class FileIO {
     public static void clearList(Services service) {
         try {
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
-            Output.debugPrint(null,"Attempting to clear cache at " + cachePath);
-            BufferedWriter writer = Files.newBufferedWriter(cachePath, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(cachePath, "");
+            Output.webhookPrint(service, "Cache successfully cleared");
         } catch (IOException e) {
             Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
         }

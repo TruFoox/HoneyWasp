@@ -467,7 +467,6 @@ public abstract class Services extends Thread {
 
     public void clear() { // Clear cache
         FileIO.clearList(this);
-        Output.webhookPrint(this, "Cache successfully cleared");
     }
 
 }
