@@ -9,7 +9,7 @@ import utils.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Instagram extends Services implements HasUserID {
+public class Instagram extends Services {
     private long USERID;
 
     public Instagram() {
@@ -21,49 +21,6 @@ public class Instagram extends Services implements HasUserID {
         VIDEO_MODE = ig.isVideo_mode();
         use0x0 = true; // Instagram only supports URL filehosting
 
-    }
-    public boolean fetchUserID() {
-        try {
-            try {
-                Output.debugPrint(this, "Attempting to fetch User ID");
-
-                Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
-                String response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
-
-                String facebookID;
-                JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
-                JSONObject dataObj = data.getJSONObject(0);
-
-                facebookID = dataObj.getString("id"); // Temporarily store facebook ID
-
-                Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
-                response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
-
-                if (!response.contains("instagram_business_account")) { // Ensure account is business account
-                    Output.webhookPrint(this, "Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
-
-                    return false;
-                }
-                dataObj = StringToJson.getJSON(response);
-
-                dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
-                USERID = dataObj.getLong("id");
-
-            } catch (Exception e) {
-                Output.webhookPrint(this, "Failed to retrieve Instagram User ID. Your Access token may be invalid. Quitting..."
-                        + "\n\tError message: " + e, Output.RED);
-                return false;
-            }
-        } catch (Exception e) {
-            try {
-                Output.webhookPrint(this, String.valueOf(e), Output.RED);
-            } catch (Exception ex) {
-                throw new RuntimeException(e);
-            }
-            return false;
-        }
-
-        return true; // Success
     }
     protected boolean upload() throws Exception {
         String uploadURL, response; // Store json data & URL to be used with POST
@@ -171,7 +128,7 @@ public class Instagram extends Services implements HasUserID {
 
         return true;
     }
-protected boolean fetchUserToken() {
+    protected boolean fetchUserToken() {
         try {
             Output.debugPrint(this,"Attempting to fetch User ID");
 

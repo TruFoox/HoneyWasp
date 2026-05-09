@@ -31,9 +31,9 @@ public abstract class Services extends Thread {
         this.config = config;
     }
 
-    abstract boolean upload() throws Exception;
-    abstract boolean publish() throws Exception;
-    abstract boolean fetchUserToken();
+    protected abstract boolean upload() throws Exception;
+    protected abstract boolean publish() throws Exception;
+    protected abstract boolean fetchUserToken();
 
     // Empty global/commonly used variables
     protected java.util.List<String[]> usedURLs = new ArrayList<>();
@@ -50,37 +50,35 @@ public abstract class Services extends Thread {
     protected static boolean RESTART;
 
     public void run() {
-        RESTART = config.General().isRestart();
+        // Initialize settings
+        try {
+            settings = Config.getInstance().Platform(name.toLowerCase());
+
+            AUTO_POST_MODE = settings.isAuto_post_mode();
+            MINS_BETWEEN_POSTS = settings.getTime_between_posts();
+            ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
+            SUBREDDITS = settings.getSubreddits();
+            AUDIO_ENABLED = settings.isAudio_enabled();
+            USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
+            FALLBACK_CAPTION = settings.getCaption();
+            NSFW_ALLOWED = settings.isNsfw_allowed();
+            DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
+            BLACKLIST = settings.getBlacklist();
+            CAPTION_BLACKLIST = settings.getCaption_blacklist();
+            HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
+            CAPTION = settings.getCaption();
+            HASHTAGS = settings.getHashtags();
+            RESTART = config.General().isRestart();
+
+            sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
+        } catch (Exception e) {
+            Output.webhookPrint(this,"Failed to fetch settings" +
+                    "\n\tError: " + e);
+        }
 
         do { // Loop if restart enabled
             run = true;
             try {
-                settings = Config.getInstance().Platform(name.toLowerCase());
-
-                // Initialize settings
-                AUTO_POST_MODE = settings.isAuto_post_mode();
-                MINS_BETWEEN_POSTS = settings.getTime_between_posts();
-                ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
-                SUBREDDITS = settings.getSubreddits();
-                AUDIO_ENABLED = settings.isAudio_enabled();
-                USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
-                FALLBACK_CAPTION = settings.getCaption();
-                NSFW_ALLOWED = settings.isNsfw_allowed();
-                DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
-                BLACKLIST = settings.getBlacklist();
-                CAPTION_BLACKLIST = settings.getCaption_blacklist();
-                HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
-                CAPTION = settings.getCaption();
-                HASHTAGS = settings.getHashtags();
-
-                sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
-
-                if (this instanceof HasUserID) {  // Check if current instance contains fetchUserID and run it if it does (Quit if failed)
-                    if (!((HasUserID) this).fetchUserID()) {
-                        return;
-                    }
-                }
-
                 if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
                     Output.debugPrint(this, "Testing if refresh_token is empty");
                     if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
@@ -118,7 +116,7 @@ public abstract class Services extends Thread {
                             case 0: // Success
                                 break;
                             case 1: // Soft fail (retry)
-                                Thread.sleep(1500); // Sleep 1.5s to prevent spam
+                                Thread.sleep(1000); // Sleep 1s to prevent spam
                                 continue;
                             case 2: // Fail (quit)
                                 return;
@@ -215,24 +213,16 @@ public abstract class Services extends Thread {
                     /* Fetch token, upload, then publish media */
 
                     // Lots of if (!run) to combat /stop not working, especially on poor internet connections
-                    if (!run) {
-                        return;
-                    }
+                    if (!run) {return;}
 
-                    if (!fetchUserToken()) {
-                        return;
-                    } // Attempt to fetch access token (Quit if failed)
+                    if (!fetchUserToken()) {return;} // Attempt to fetch access token (Quit if failed)
 
-                    if (!run) {
-                        return;
-                    }
+                    if (!run) {return;}
 
                     if (upload()) {
                         Thread.sleep(2000); // Sleep 2 seconds to allow server time to process
 
-                        if (!run) {
-                            return;
-                        }
+                        if (!run) {return;}
 
                         if (publish()) {
                             if (AUTO_POST_MODE) {
@@ -247,21 +237,19 @@ public abstract class Services extends Thread {
                             long timestamp = System.currentTimeMillis();
                             usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
-                            if (run) {
-                                Thread.sleep(sleepTime);
-                            } // Sleep if /stop not used
+                            if (run) {Thread.sleep(sleepTime);} // Sleep if /stop not used
                             countAttempt = 0;
                         }
                     }
-                    Thread.sleep(3000); // Sleep 3s to prevent spam
+                    Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 }
             } catch (
                     InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
-                Output.webhookPrint(this, "Bot crashed: Connection likely dropped", Output.RED);
+                Output.webhookPrint(this, "Bot crashed: Connection likely dropped: " + e.getMessage(), Output.RED);
             } catch (IOException e) {
-                Output.webhookPrint(this, "Bot crashed: IO issue occurred", Output.RED);
+                Output.webhookPrint(this, "Bot crashed: IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
                 Output.webhookPrint(this, "Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
             } finally { // Crash/Stop handling
@@ -414,7 +402,7 @@ public abstract class Services extends Thread {
             Image image;
 
             try {
-                URL url = new URL(mediaURL);
+                URL url = java.net.URI.create(mediaURL).toURL();
                 image = ImageIO.read(url);
             } catch(IOException e)  {
                 Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio..."
