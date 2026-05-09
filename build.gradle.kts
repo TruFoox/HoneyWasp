@@ -13,7 +13,7 @@ repositories {
 
 
 dependencies {
-    implementation("net.dv8tion:JDA:6.1.0")
+    implementation("net.dv8tion:JDA:6.4.1")
 	implementation("org.json:json:20240303")
     implementation("club.minnced:discord-webhooks:0.8.4")
     implementation("org.slf4j:slf4j-simple:2.0.9")

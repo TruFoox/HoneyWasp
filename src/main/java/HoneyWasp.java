@@ -102,6 +102,7 @@ public class HoneyWasp extends ListenerAdapter {
                     )
                     .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
                     .addEventListeners(new HoneyWasp())
+                    .disableCache(CacheFlag.SOUNDBOARD_SOUNDS)
                     .build();
 
             Output.debugPrint(null, "Waiting for JDA to connect");
