@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class YouTube extends Services implements HasRefreshToken{
+public class YouTube extends Services implements HasRefreshToken {
     private final String CLIENT_ID, SECRET;
 
     public YouTube() {
@@ -119,6 +119,8 @@ public class YouTube extends Services implements HasRefreshToken{
 
         JSONObject response = StringToJson.getJSON(strResponse); // Convert to json for check
 
+        if (!run) {return false;}
+
         if (HTTPSend.HTTPCode.get() != 200) { // Error handling
             String reason = "";
             if (response.has("error")) {
@@ -130,7 +132,7 @@ public class YouTube extends Services implements HasRefreshToken{
                 Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
                         + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
-                if (!Sleep.safeSleep(sleepTime)) return false; // Sleep
+                if (run) {if (!Sleep.safeSleep(sleepTime)) return false;}
 
                 return false;
 

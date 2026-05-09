@@ -170,6 +170,7 @@ public class HoneyWasp extends ListenerAdapter {
     @Override
     // Slash commands
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        event.deferReply().queue(); // Tells discord event has been noticed
         String service = event.getOption("service").getAsString();
         Output.debugPrint(null, "Command /" + event.getName() + " used on service " + service);
 
@@ -184,7 +185,7 @@ public class HoneyWasp extends ListenerAdapter {
                                         iconURL)
                                 .addField("Starting bot on all services", "Use /stop to stop", false);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         // Threads
                         if (services.containsKey("instagram")) {
@@ -219,7 +220,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
                         if (services.containsKey("instagram")) {
                             Output.webhookPrint(null, "Instagram is already running. Stop it first.");
                         } else {
@@ -240,7 +241,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         if (services.containsKey("youtube")) {
                             Output.webhookPrint(null, "YouTube is already running. Stop it first.");
@@ -260,7 +261,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         //bot = new Twitter();
                         services.put("twitter", bot);
@@ -281,11 +282,17 @@ public class HoneyWasp extends ListenerAdapter {
                                         iconURL)
                                 .setDescription("Stopping all services");
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("instagram").halt();
-                        services.get("youtube").halt();
+                        if (services.containsKey("instagram")) {
+                            services.get("instagram").halt();
+                        }
+                        if (services.containsKey("youtube")) {
+                            services.get("youtube").halt();
+                        }
                         //services.get("twitter").halt();
+                        services.remove("youtube");
+                        services.remove("instagram");
 
                         break;
                     }
@@ -299,9 +306,12 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                                 .setDescription("Stopping " + service);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("instagram").halt();
+                        if (services.containsKey("instagram")) {
+                            services.get("instagram").halt();
+                        }
+                        services.remove("instagram");
 
                         break;
                     }
@@ -315,9 +325,12 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                                 .setDescription("Stopping " + service);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("youtube").halt();
+                        if (services.containsKey("youtube")) {
+                            services.get("youtube").halt();
+                        }
+                        services.remove("youtube");
 
                         break;
                     }
@@ -330,9 +343,12 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
                                 .setDescription("Stopping " + service);
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("twitter").halt();
+                        if (services.containsKey("twitter")) {
+                            services.get("twitter").halt();
+                        }
+                        services.remove("twitter");
 
                         break;
                     }
@@ -349,7 +365,7 @@ public class HoneyWasp extends ListenerAdapter {
                                         iconURL)
                                 .setDescription("All caches cleared");
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         services.get("instagram").clear();
                         services.get("youtube").clear();
@@ -367,7 +383,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                                 .setDescription(service + " cache cleared");
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         services.get("instagram").clear();
                         break;
@@ -382,7 +398,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                                 .setDescription(service + " cache cleared");
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         services.get("youtube").clear();
                         break;
@@ -396,7 +412,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
                                 .setDescription(service + " cache cleared");
 
-                        event.replyEmbeds(embed.build()).queue();
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         services.get("twitter").clear();
                         break;

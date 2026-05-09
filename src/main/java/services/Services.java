@@ -47,6 +47,7 @@ public abstract class Services extends Thread {
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
     protected int ATTEMPTS_BEFORE_TIMEOUT, MINS_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
+    protected static boolean RESTART;
 
     public void run() {
         try {
@@ -67,6 +68,7 @@ public abstract class Services extends Thread {
             HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
             CAPTION = settings.getCaption();
             HASHTAGS = settings.getHashtags();
+            RESTART = config.General().isRestart();
 
             sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
 
@@ -227,12 +229,12 @@ public abstract class Services extends Thread {
                         long timestamp = System.currentTimeMillis();
                         usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
-                        if (run) {Sleep.safeSleep(sleepTime);} // Sleep if /stop not used
+                        if (run) {if (!Sleep.safeSleep(sleepTime)) return;} // Sleep if /stop not used
                         countAttempt = 0;
                     }
                 }
 
-                if (run) {Sleep.safeSleep(1500);} // Sleep 1.5s to prevent spam
+                if (!Sleep.safeSleep(sleepTime)) return;; // Sleep 1.5s to prevent spam
             }
         } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
             Output.debugPrint(this,"Error during sleep: " + e.getMessage());
@@ -244,6 +246,8 @@ public abstract class Services extends Thread {
             Output.webhookPrint(this,"Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
         } finally { // Crash/Stop handling
             Output.webhookPrint(this, "Stopped");
+
+            if (RESTART && run) {run();} // If restart enabled and /stop wasn't used, restart
         }
     }
 

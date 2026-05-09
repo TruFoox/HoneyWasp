@@ -185,6 +185,8 @@ protected boolean fetchUserToken() {
 
             facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
+            if (!run) {return false;}
+
             Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
             // Get Instagram ID
             response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
