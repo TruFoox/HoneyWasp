@@ -58,7 +58,7 @@ public class Output {
                     String webhookMessage = message.replace("\t", "")
                             .replace("\r", "");
 
-                    webhook.sendMessage(webhookMessage);
+                    webhook.sendMessage("[" + shortName + "] " + webhookMessage);
                 }
             }
         } catch (HttpException e) { // Webhook error

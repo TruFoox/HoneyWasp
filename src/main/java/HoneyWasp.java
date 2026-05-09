@@ -187,17 +187,25 @@ public class HoneyWasp extends ListenerAdapter {
                         event.replyEmbeds(embed.build()).queue();
 
                         // Threads
-                        bot = new Instagram();
-                        services.put("instagram", bot);
-                        new Thread(bot).start();
+                        if (services.containsKey("instagram")) {
+                            Output.webhookPrint(null, "Instagram is already running.");
+                        } else {
+                            bot = new Instagram();
+                            services.put("instagram", bot);
+                            new Thread(bot).start();
+                        }
 
-                        bot = new YouTube();
-                        services.put("youtube", bot);
-                        new Thread(bot).start();
+                        if (services.containsKey("youtube")) {
+                            Output.webhookPrint(null, "YouTube is already running.");
+                        } else {
+                            bot = new YouTube();
+                            services.put("youtube", bot);
+                            new Thread(bot).start();
+                        }
 
                         //bot = new Twitter();
-                        services.put("twitter", bot);
-                        new Thread(bot).start();
+                        //services.put("twitter", bot);
+                        //new Thread(bot).start();
 
                         break;
                     }
@@ -212,10 +220,13 @@ public class HoneyWasp extends ListenerAdapter {
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
                         event.replyEmbeds(embed.build()).queue();
-
-                        bot = new Instagram();
-                        services.put("instagram", bot);
-                        new Thread(bot).start();
+                        if (services.containsKey("instagram")) {
+                            Output.webhookPrint(null, "Instagram is already running. Stop it first.");
+                        } else {
+                            bot = new Instagram();
+                            services.put("instagram", bot);
+                            new Thread(bot).start();
+                        }
 
                         break;
                     }
@@ -231,10 +242,13 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.replyEmbeds(embed.build()).queue();
 
-                        bot = new YouTube();
-                        services.put("youtube", bot);
-                        new Thread(bot).start();
-
+                        if (services.containsKey("youtube")) {
+                            Output.webhookPrint(null, "YouTube is already running. Stop it first.");
+                        } else {
+                            bot = new YouTube();
+                            services.put("youtube", bot);
+                            new Thread(bot).start();
+                        }
                         break;
                     }
                     case "twitter": {

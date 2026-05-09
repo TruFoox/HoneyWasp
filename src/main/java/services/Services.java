@@ -200,10 +200,19 @@ public abstract class Services extends Thread {
                     }
                 }
 
-                if (!fetchUserToken()) {return;}
+                /* Fetch token, upload, then publish media */
+
+                // Lots of if (!run) to combat /stop not working, especially on poor internet connections
+                if (!run) {return;}
+
+                if (!fetchUserToken()) {return;} // Attempt to fetch access token (Quit if failed)
+
+                if (!run) {return;}
 
                 if (upload()) {
                     if (!Sleep.safeSleep(2000)) return; // Sleep 2 seconds to allow server time to process
+
+                    if (!run) {return;}
 
                     if (publish()) {
                         if (AUTO_POST_MODE) {
@@ -212,33 +221,29 @@ public abstract class Services extends Thread {
                             Output.webhookPrint(this,redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
                         }
 
-
                         // Store image URL to prevent duplicates
                         FileIO.writeList(mediaURL, this, false);
 
                         long timestamp = System.currentTimeMillis();
                         usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
-                        if (run) {if (!Sleep.safeSleep(sleepTime)) break;} // Sleep if /stop not used
+                        if (run) {Sleep.safeSleep(sleepTime);} // Sleep if /stop not used
                         countAttempt = 0;
                     }
                 }
 
-                if (!Sleep.safeSleep(1500)) return; // Sleep 1.5 secs
+                if (run) {Sleep.safeSleep(1500);} // Sleep 1.5s to prevent spam
             }
-        } catch (InterruptedException e) { // When the thread's stop flag is thrown while it is busy
-            Output.webhookPrint(this,"Unexpected error during sleep: " + e.getMessage(), Output.RED);
+        } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
+            Output.debugPrint(this,"Error during sleep: " + e.getMessage());
         } catch (SocketException e) {
             Output.webhookPrint(this,"Bot crashed: Connection likely dropped", Output.RED);
         } catch (IOException e) {
             Output.webhookPrint(this,"Bot crashed: IO issue occurred", Output.RED);
         } catch (Exception e) { // General error handling
             Output.webhookPrint(this,"Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
-
         } finally { // Crash/Stop handling
             Output.webhookPrint(this, "Stopped");
-
-            // Set status running false here
         }
     }
 
