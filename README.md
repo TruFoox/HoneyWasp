@@ -37,12 +37,11 @@
 
 This is a simple, lightweight, yet powerful bot for Instagram, YouTube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
-All data handling, keys, tokens, and processing is handled **client side** - Your information is **YOURS**
+All data handling, keys, tokens, and processing is handled **client side** - Your information is **YOURS** and is never seen by a 3rd party
 
-Currently, the bot is not very polymorphic, but I plan to eventually address that and consolidate it
-
+It is programmed with a polymorphic implementation to allow for easier contributions, so if you want to propose an edit, feel free to [make a pull request!](#creating-a-pull-request)
 <p align="center">
-  <img src="https://i.postimg.cc/44ct5bQk/image.png" alt="HoneyWasp" width="850" height="680" /> 
+  <img src="https://i.postimg.cc/pLxRMv7B/Screenshot-2026-05-09-160559.png" alt="HoneyWasp" width="785" height="565" /> 
 </p>
 
 # Getting Started
@@ -184,7 +183,6 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 5. When prompted to allow access to your YouTube account, press **Continue**
 6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
-7. Assuming your url was valid, the console will now give you a new token to put in `refresh_token` under `[Youtube_Settings]` of Config.json
 
 # Usage
 Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)
@@ -206,51 +204,52 @@ Below you can find documentation on every configuration option
 
 
 ### General_Settings
-| Key                 | Description                                                                |
-|---------------------|----------------------------------------------------------------------------|
-| `discord_bot_token` | Your bot's token for logging in to Discord                                 |
-| `webhook_url`       | Optional Discord webhook URL for notifications                             |
-| `autostart`         | List of services to launch automatically (e.g., `["instagram","youtube"]`) |
-| `debug_mode`        | Enables verbose logging and debug output                                   |
+| Key                 | Description                                                                                     |
+|---------------------|-------------------------------------------------------------------------------------------------|
+| `discord_bot_token` | Your bot's token for logging in to Discord                                                      |
+| `webhook_url`       | Optional Discord webhook URL for notifications                                                  |
+| `autostart`         | List of services to launch automatically (e.g., `["instagram","youtube"]`)                      |
+| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`) |
+| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                     |
 
 ### Instagram_Settings
-| Key                              | Description                                                                                                                               |
-|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| `api_key`                        | Instagram API key                                                                                                                         |
-| `post_mode`                      | Set to `auto` or `manual` (`auto` → grab posts from Reddit \| `manual` → post from `/images` or `/videos` based on `format`)              |
-| `format`                         | Determines how content is posted (`video` or `image`)                                                                                     |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                         |
-| `time_between_posts`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                              |
-| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                               |
-| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again                                                                                 |
-| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                                                   |
-| `blacklist`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                                                               |
-| `duplicates_allowed`             | Whether to allow duplicate posts                                                                                                          |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**)                                                                              |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption                                                                                           |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit post caption (auto `post_mode` & true `use_reddit_caption` only) |
-| `caption`                        | Default post caption                                                                                                                      |
-| `hashtags`                       | Hashtags appended to each Instagram post                                                                                                  |
+| Key                              | Description                                                                                                                                |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| `api_key`                        | Instagram API key                                                                                                                          |
+| `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)               |
+| `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                            |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                          |
+| `time_between_posts`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                               |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`autopost_mode: true` only)                                                     |
+| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**) (`autopost_mode: true` only)                                       |
+| `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                             |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`true` or `false`)                                                                                       |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**) (`autopost_mode: true` only) (`true` or `false`)                              |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`true` or `false`)                                                                        |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit caption (`autopost_mode: true` & `use_reddit_caption: true` only) |
+| `caption`                        | Default post caption                                                                                                                       |
+| `hashtags`                       | Hashtags appended to each Instagram post                                                                                                   |
 
 ### YouTube_Settings
-| Key                              | Description                                                                                                                             |
-|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| `refresh_token`                  | Token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                       |
-| `client_secret`                  | YouTube API key for posting                                                                                                             |
-| `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                 |
-| `post_mode`                      | Set to `auto` or `manual` (`auto` → grab posts from Reddit \| `manual` → post from `/videos`)                                           |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                       |  
-| `time_between_posts`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                               |
-| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                             |
-| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again                                                                               |
-| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**)                                                                 |
-| `blacklist`                      | Words that trigger this post to be discarded entirely (auto post_mode only)                                                             |
-| `duplicates_allowed`             | Whether to allow duplicate posts                                                                                                        |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**)                                                                            |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption                                                                                         |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (auto `post_mode` & true `use_reddit_caption` only) |
-| `caption`                        | Default post caption                                                                                                                    |
-| `description`                    | Post description                                                                                                                        |
+| Key                              | Description                                                                                                                                   |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `refresh_token`                  | Refresh token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                     |
+| `client_secret`                  | YouTube API key for posting                                                                                                                   |
+| `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                       |
+| `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)                  |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                             |  
+| `time_between_posts`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                     |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                   |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`autopost_mode: true` only)                                                        |
+| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**) (`autopost_mode: true` only)                                          |
+| `blacklist`                      | Words that trigger this post to be discarded entirely (`autopost_mode: true` only)                                                            |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`true` or `false`)                                                                                          |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**) (`autopost_mode: true` only) (`true` or `false`)                                 |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`true` or `false`)                                                                           |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (`autopost_mode: true` & `use_reddit_caption: true` only) |
+| `caption`                        | Default post caption                                                                                                                          |
+| `description`                    | Post description                                                                                                                              |
 
 ## Starting and Interacting with the bot
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
@@ -284,11 +283,10 @@ Programmed with Java 23 in [IntelliJ IDEA](https://www.jetbrains.com/idea/), see
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-* If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
+Contributions are what make the open source community such an amazing place to learn and create. Any contributions you make are **greatly appreciated**.
+* If you have suggestions, feel free to [open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
 * Please make sure you check your spelling and grammar.
-* Create individual PR for each suggestion.
-* Please be a decent human being with your edits
+* [Create individual pull request](#creating-a-pull-request) for each suggestion.
 
 ### Creating A Pull Request
 

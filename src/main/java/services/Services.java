@@ -109,7 +109,7 @@ public abstract class Services extends Thread {
                         Output.webhookPrint(this, "Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
                         Thread.sleep(sleepTime); // Sleep (Easy way to fake a "skipped attempt")
-                        countAttempt = 1;
+                        countAttempt = 0;
                     }
 
                     /* Fetch media */
