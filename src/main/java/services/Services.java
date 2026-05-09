@@ -219,7 +219,7 @@ public abstract class Services extends Thread {
                         long timestamp = System.currentTimeMillis();
                         usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
 
-                        if (!Sleep.safeSleep(sleepTime)) break; // Sleep
+                        if (run) {if (!Sleep.safeSleep(sleepTime)) break;} // Sleep if /stop not used
                         countAttempt = 0;
                     }
                 }
@@ -460,9 +460,9 @@ public abstract class Services extends Thread {
         return 0;
     }
 
-    public void halt() { // Stop bot
+    public void halt() { // Stop bot (not called stop because Java doesn't like it)
         run = false;
-        Output.webhookPrint(this, "Successfully stopped");
+        this.interrupt(); // Throw the thread out of sleep
     }
 
     public void clear() { // Clear cache

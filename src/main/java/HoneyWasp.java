@@ -27,6 +27,7 @@ public class HoneyWasp extends ListenerAdapter {
     static Map<String, Services> services = new HashMap<>();
     static double currentVersion = 4.0; // Current version number
     static Services bot = null;
+    static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
 
     public static void main(String[] args) {
         Config config = Config.getInstance(); // Get config
@@ -180,7 +181,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .addField("Starting bot on all services", "Use /stop to stop", false);
 
                         event.replyEmbeds(embed.build()).queue();
@@ -206,7 +207,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
@@ -224,7 +225,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
@@ -241,7 +242,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
@@ -263,14 +264,14 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setDescription("Stopping all services");
 
                         event.replyEmbeds(embed.build()).queue();
 
                         services.get("instagram").halt();
                         services.get("youtube").halt();
-                        services.get("twitter").halt();
+                        //services.get("twitter").halt();
 
                         break;
                     }
@@ -280,7 +281,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                                 .setDescription("Stopping " + service);
 
@@ -296,7 +297,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                                 .setDescription("Stopping " + service);
 
@@ -311,7 +312,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
                                 .setDescription("Stopping " + service);
 
@@ -331,7 +332,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setDescription("All caches cleared");
 
                         event.replyEmbeds(embed.build()).queue();
@@ -348,7 +349,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
                                 .setDescription(service + " cache cleared");
 
@@ -363,7 +364,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
                                 .setDescription(service + " cache cleared");
 
@@ -377,7 +378,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setColor(new Color(0xFFA500))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
-                                        "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg")
+                                        iconURL)
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
                                 .setDescription(service + " cache cleared");
 
