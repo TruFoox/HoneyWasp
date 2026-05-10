@@ -14,15 +14,18 @@ import java.util.List;
 public class FileIO {
     public static void writeList(String in, Services service, boolean permanent) {
         try {
+
             long timestamp = System.currentTimeMillis();
             // Generate filepath "./cache/[Service]/cache.txt" for given OS & write to file
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
             Output.debugPrint(null, "Attempting to write to " + cachePath);
 
-            if (permanent) {
+            if (permanent) { // will break on November 20, 2286, so make sure to increase this by then
                 Files.write(cachePath, (in + ",9999999999999999" + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                service.usedURLs.add(new String[]{in, String.valueOf(9999999999999999L)});
             } else {
                 Files.write(cachePath, (in + "," + timestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                service.usedURLs.add(new String[]{in, String.valueOf(timestamp)});
             }
 
         } catch (IOException ex) {

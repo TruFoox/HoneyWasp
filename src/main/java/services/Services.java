@@ -36,7 +36,7 @@ public abstract class Services extends Thread {
     protected abstract boolean fetchUserToken();
 
     // Empty global/commonly used variables
-    protected java.util.List<String[]> usedURLs = new ArrayList<>();
+    public java.util.List<String[]> usedURLs = new ArrayList<>();
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     protected boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
     protected int randIndex, sleepTime, countAttempt = 0;
@@ -235,7 +235,8 @@ public abstract class Services extends Thread {
                             FileIO.writeList(mediaURL, this, false);
 
                             long timestamp = System.currentTimeMillis();
-                            usedURLs.add(new String[]{mediaURL, String.valueOf(timestamp)});
+                            // Blacklist image URL permanently, as it is likely corrupted
+                            FileIO.writeList(mediaURL, this, true);
 
                             if (run) {Thread.sleep(sleepTime);} // Sleep if /stop not used
                             countAttempt = 0;
@@ -405,8 +406,11 @@ public abstract class Services extends Thread {
                 URL url = java.net.URI.create(mediaURL).toURL();
                 image = ImageIO.read(url);
             } catch(IOException e)  {
-                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio..."
+                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. This image is probably invalid..."
                         + "\n\tError message: " + e, Output.RED);
+
+                // Blacklist image URL permanently, as it is likely corrupted
+                FileIO.writeList(mediaURL, this, true);
 
                 return 1;
             }
