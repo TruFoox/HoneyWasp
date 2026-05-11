@@ -25,7 +25,7 @@ import java.util.Map;
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
     static Map<String, Services> services = new HashMap<>();
-    static double currentVersion = 4.0; // Current version number
+    static float currentVersion = 4.0f; // Current version number
     static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
 
@@ -78,11 +78,12 @@ public class HoneyWasp extends ListenerAdapter {
             Output.debugPrint(null, "Checking for new version");
             String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
 
-            // Fetch latest version, remove "v" (e.g. v4), then parse as double
-            double version =  Double.parseDouble(StringToJson.getData(responseString, "tag_name").replace("v", ""));
+            // Fetch latest version, remove "v" (e.g. v2), then parse as float
+            float version =  Float.parseFloat(StringToJson.getData(responseString, "tag_name").replace("v", ""));
 
             if (version > currentVersion) {
-                Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + currentVersion + ")\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
+                Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + currentVersion + ")" +
+                        "\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
             }
 
 

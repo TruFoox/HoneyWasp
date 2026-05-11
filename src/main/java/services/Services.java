@@ -234,7 +234,6 @@ public abstract class Services extends Thread {
                             // Store image URL to prevent duplicates
                             FileIO.writeList(mediaURL, this, false);
 
-                            long timestamp = System.currentTimeMillis();
                             // Blacklist image URL permanently, as it is likely corrupted
                             FileIO.writeList(mediaURL, this, true);
 
