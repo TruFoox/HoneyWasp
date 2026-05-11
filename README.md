@@ -249,7 +249,7 @@ Below you can find documentation on every configuration option
 | `use_reddit_caption`             | Whether to use Reddit post title as the caption (`true` or `false`)                                                                           |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (`autopost_mode: true` & `use_reddit_caption: true` only) |
 | `caption`                        | Default post caption                                                                                                                          |
-| `description`                    | Post description                                                                                                                              |
+| `hashtags`                       | Post description/hashtags                                                                                                                     |
 
 ## Starting and Interacting with the bot
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.

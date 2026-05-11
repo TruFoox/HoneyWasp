@@ -33,10 +33,11 @@ public class Output {
             String shortName;
 
             if (service == null) {
-                shortName = "SYS";
+                shortName = "[SYS] ";
             } else {
-                shortName = service.shortName;
+                shortName = "[" + service.shortName + "] ";
             }
+
             // Replaces /t with spacing required to line up with previous outputs
             String prefix = "     [" + DateTime.time() + "] - ";
             String spacing = " ".repeat(prefix.length());
@@ -44,9 +45,9 @@ public class Output {
             String outputLine= message.replaceAll("\t", spacing);
 
             if (!useTimestamp) {
-                System.out.print(color + "     [" + shortName + "] " +  outputLine + RESET);
+                System.out.print(color + "     " + shortName +  message + RESET); // Not outputLine because lacks prefix
             } else {
-                System.out.print(color + prefix + "[" + shortName + "] " + outputLine + RESET);
+                System.out.print(color + prefix + shortName + outputLine + RESET);
             }
             lastOutputWasNewline = true;
 
@@ -58,7 +59,7 @@ public class Output {
                     String webhookMessage = message.replace("\t", "")
                             .replace("\r", "");
 
-                    webhook.sendMessage("[" + shortName + "] " + webhookMessage);
+                    webhook.sendMessage(shortName + webhookMessage);
                 }
             }
         } catch (HttpException e) { // Webhook error
@@ -73,28 +74,33 @@ public class Output {
         String shortName;
 
         if (service == null) {
-            shortName = "SYS";
+            shortName = "[SYS] ";
         } else {
-            shortName = service.shortName;
+            shortName = "[" + service.shortName + "] ";
         }
+
+        String prefix = "     [" + DateTime.time() + "] - ";
+        String spacing = " ".repeat(prefix.length());
+
+        String outputLine= message.replaceAll("\t", spacing);
 
         if (!useTimestamp) {
             if (overwriteThisLine && !debug) {
                 System.out.print("\r\033[2K");
-                System.out.print(color + "     "  + "[" + shortName + "] " +  message + RESET + "\r");
+                System.out.print(color + "     "  + shortName +  message + RESET + "\r");
                 lastOutputWasNewline = false;
             } else {
-                System.out.print(color + "     "  + "[" + shortName + "] " +  message + RESET);
+                System.out.print(color + "     "  + shortName +  message + RESET);
                 lastOutputWasNewline = true;
             }
         } else {
             if (overwriteThisLine && !debug) {
                 System.out.print("\r\033[2K");
-                System.out.print(color + "     [" + DateTime.time() + "] - " + "[" + shortName + "] " + message + RESET+ "\r");
+                System.out.print(color + prefix + shortName + outputLine + RESET+ "\r");
                 lastOutputWasNewline = false;
             } else {
 
-                System.out.print(color + "     [" + DateTime.time() + "] - "  + "[" + shortName + "] " +  message + RESET);
+                System.out.print(color + prefix  + shortName +  outputLine + RESET);
                 lastOutputWasNewline = true;
             }
         }
@@ -106,9 +112,9 @@ public class Output {
             String shortName;
 
             if (service == null) {
-                shortName = "SYS";
+                shortName = "[SYS] ";
             } else {
-                shortName = service.shortName;
+                shortName = "[" + service.shortName + "] ";
             }
 
             // Replaces /t with spacing required to line up with previous outputs
@@ -117,7 +123,7 @@ public class Output {
 
             String outputLine= message.replaceAll("\t", spacing);
 
-            System.out.print(YELLOW + prefix + "[" + shortName + "] " + outputLine + RESET);
+            System.out.print(YELLOW + prefix + shortName + outputLine + RESET);
             lastOutputWasNewline = true;
 
         }
