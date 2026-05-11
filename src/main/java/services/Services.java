@@ -39,7 +39,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     protected boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
-    protected int randIndex, sleepTime, countAttempt = 0;
+    protected int randIndex, sleepTime, countAttempt, connectionDropWait;
     protected File[] media, audio;
 
     // Config
@@ -269,13 +269,16 @@ public abstract class Services extends Thread {
 
         Output.debugPrint(this, "Fetching media URL from " + URL);
         try {
+            connectionDropWait = 0; // Reset connection drop wait on success
             response = HTTPSend.get(this, URL);
         } catch (ConnectException e) {
-            Output.print(this, "Connection drop detected. Trying again in 10 seconds...");
+            Output.print(this, "Connection drop detected. Trying again in " + ((connectionDropWait == 0) ? "1" : connectionDropWait + " minute(s)..."); // Starting at 1, increase # of minutes to wait each time by 5
+            connectionDropWait += 5;
 
             Thread.sleep(10000);
             return 1;
         } catch (Exception e) {
+            connectionDropWait = 0;
             Output.webhookPrint(this,"Failed to fetch image from meme-api.com"
                     + "\n\tError message: " + e, Output.RED);
             return 2;
