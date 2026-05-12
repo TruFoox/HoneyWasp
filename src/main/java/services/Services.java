@@ -23,11 +23,6 @@ public abstract class Services extends Thread {
     protected Scanner scanner = new Scanner(System.in); // Input scanner
     protected static Random rand = new Random(); // Generate seed for random number generation
 
-    public Services(String name, String shortName) {
-        this.name = name;
-        this.shortName = shortName;
-    }
-
     protected abstract boolean upload() throws Exception;
     protected abstract boolean publish() throws Exception;
     protected abstract boolean fetchUserToken();
@@ -42,34 +37,38 @@ public abstract class Services extends Thread {
     // Config
     protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
-    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, RESTART;
+    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
+    protected static boolean RESTART; // Not service-specific
     protected int ATTEMPTS_BEFORE_TIMEOUT, MINS_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
+
+    public Services(String name, String shortName) { // Constructor
+        this.name = name;
+        this.shortName = shortName;
+
+        // Initialize settings
+        settings = HoneyWasp.config.Platform(name.toLowerCase()); // Select config for this platform
+
+        AUTO_POST_MODE = settings.isAuto_post_mode();
+        MINS_BETWEEN_POSTS = settings.getTime_between_posts();
+        ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
+        SUBREDDITS = settings.getSubreddits();
+        AUDIO_ENABLED = settings.isAudio_enabled();
+        USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
+        FALLBACK_CAPTION = settings.getCaption();
+        NSFW_ALLOWED = settings.isNsfw_allowed();
+        DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
+        BLACKLIST = settings.getBlacklist();
+        CAPTION_BLACKLIST = settings.getCaption_blacklist();
+        HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
+        CAPTION = settings.getCaption();
+        HASHTAGS = settings.getHashtags();
+        RESTART = HoneyWasp.config.General().isRestart();
+
+        sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
+    }
 
     public void run() {
         // Initialize settings
-        try {
-            settings = Config.getInstance().Platform(name.toLowerCase());
-
-            AUTO_POST_MODE = settings.isAuto_post_mode();
-            MINS_BETWEEN_POSTS = settings.getTime_between_posts();
-            ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
-            SUBREDDITS = settings.getSubreddits();
-            AUDIO_ENABLED = settings.isAudio_enabled();
-            USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
-            FALLBACK_CAPTION = settings.getCaption();
-            NSFW_ALLOWED = settings.isNsfw_allowed();
-            DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
-            BLACKLIST = settings.getBlacklist();
-            CAPTION_BLACKLIST = settings.getCaption_blacklist();
-            HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
-            CAPTION = settings.getCaption();
-            HASHTAGS = settings.getHashtags();
-            RESTART = HoneyWasp.config.General().isRestart(); // Restart is handled here as to not need multiple config copies
-            sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
-        } catch (Exception e) {
-            Output.webhookPrint(this,"Failed to fetch settings" +
-                    "\n\tError: " + e);
-        }
 
         do { // Loop if restart enabled
             run = true;

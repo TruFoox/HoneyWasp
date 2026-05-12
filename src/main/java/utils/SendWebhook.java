@@ -4,6 +4,7 @@ import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import config.Config;
+import main.HoneyWasp;
 
 // SendWebhook
 //
@@ -15,8 +16,7 @@ public class SendWebhook {
     private final WebhookClient client;
 
     public SendWebhook() {
-        Config config = Config.getInstance(); // Get singleton config
-        String webhookUrl = config.General().getDiscordWebhook();
+        String webhookUrl = HoneyWasp.config.General().getDiscordWebhook();
 
         // Build the webhook
         WebhookClientBuilder builder = new WebhookClientBuilder(webhookUrl);

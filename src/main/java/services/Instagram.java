@@ -15,11 +15,9 @@ public class Instagram extends Services {
 
     public Instagram() {
         super("Instagram","INSTA");
-        settings = HoneyWasp.config.Platform("instagram"); // Establish settings
-        
-        InstagramSettings ig = Config.getInstance().Instagram(); // Set instance-specific named stuff
-        TOKEN = ig.getApi_key();
-        VIDEO_MODE = ig.isVideo_mode();
+
+        TOKEN = HoneyWasp.config.Instagram().getApi_key();
+        VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
         use0x0 = true; // Instagram only supports URL file hosting
 
     }
@@ -129,7 +127,7 @@ public class Instagram extends Services {
 
         return true;
     }
-    protected boolean fetchUserToken() {
+    protected boolean fetchUserToken() { // Fetches user ID
         try {
             Output.debugPrint(this,"Attempting to fetch User ID");
 

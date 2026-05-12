@@ -2,6 +2,7 @@ package services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.Config;
+import config.InstagramSettings;
 import config.YoutubeSettings;
 import main.HoneyWasp;
 import org.json.JSONObject;
@@ -19,12 +20,10 @@ public class YouTube extends Services implements HasRefreshToken {
 
     public YouTube() {
         super("YouTube","YT");
-        settings = HoneyWasp.config.Platform("youtube"); // Establish settings
 
-        YoutubeSettings yt = Config.getInstance().Youtube(); // Set service-specific stuff
-        SECRET = yt.getClient_secret();
-        CLIENT_ID = yt.getClient_id();
-        REFRESH_TOKEN = yt.getRefresh_token();
+        SECRET = HoneyWasp.config.Youtube().getClient_secret();
+        CLIENT_ID = HoneyWasp.config.Youtube().getClient_id();
+        REFRESH_TOKEN = HoneyWasp.config.Youtube().getRefresh_token();
         VIDEO_MODE = true; // YouTube only supports videos
         doSizeTest = false; // Youtube generally doesnt care about media dimensions
 
