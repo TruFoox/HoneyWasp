@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class ErrorHandling {
     public static void exitProgram() {
-        System.out.println("\nPress Enter to exit...");
+        Output.print(null, "Press Enter to Exit...", Output.RESET, false, false); // .RESET just breaks my code and forces console white
 
         Scanner scanner = new Scanner(System.in);
 

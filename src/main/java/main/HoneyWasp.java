@@ -27,26 +27,17 @@ import java.util.Map;
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
     public static final HoneyWasp Instance = new HoneyWasp(); // Stores instance to allow for other classes to access config
-    public static final Config config = Config.getInstance(); // Get config
+    public static Config config; // Universal config handler for the bot
 
     static Map<String, Services> services = new HashMap<>();
     static float currentVersion = 4.2f; // Current version number
     static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
-    protected static String BOTTOKEN = config.General().getDiscordBotToken().trim();
-    static List<String> AUTOSTART = config.General().getAutostart();
+    protected static String BOTTOKEN;
+    static List<String> AUTOSTART;
+    public static boolean DEBUG_MODE; // Used in output, here to ensure config validity
 
     public static void main(String[] args) {
-        if (config == null) {
-            Output.print(null, "[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
-            ErrorHandling.exitProgram();
-
-            return; // Unnecessary but the compiler whines
-        } else {
-            BOTTOKEN = config.General().getDiscordBotToken().trim();
-            AUTOSTART = config.General().getAutostart();
-        }
-
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
 
         // Print logo
@@ -74,9 +65,19 @@ public class HoneyWasp extends ListenerAdapter {
                 "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n" + Output.RESET);
+        try { // Init config
+            config = Config.getInstance(); // Get config
+        } catch (Exception e) {}
 
-
-        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+        if (config == null) {
+            Output.print(null, "Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
+            ErrorHandling.exitProgram();
+        } else {
+            Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+            BOTTOKEN = config.General().getDiscordBotToken().trim();
+            AUTOSTART = config.General().getAutostart();
+            DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
+        }
 
         // Check for new version
         try {

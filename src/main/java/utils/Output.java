@@ -23,13 +23,12 @@ public class Output {
     public static final String PURPLE = "\u001B[35m";
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
-
-    static boolean DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
     
+
     static boolean lastOutputWasNewline = true;
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
         try {
-            if (lastOutputWasNewline ||  DEBUG_MODE) {System.out.println();} else {System.out.print("\r\033[2K");}
+            if (lastOutputWasNewline ||  HoneyWasp.DEBUG_MODE) {System.out.println();} else {System.out.print("\r\033[2K");}
             String shortName;
 
             if (service == null) {
@@ -68,7 +67,7 @@ public class Output {
         }
     }
     public static synchronized void print(Services service, String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
-        if (lastOutputWasNewline || DEBUG_MODE) {System.out.println();} else {System.out.print("\r\033[2K");}
+        if (lastOutputWasNewline || HoneyWasp.DEBUG_MODE) {System.out.println();} else {System.out.print("\r\033[2K");}
         String shortName;
 
         if (service == null) {
@@ -83,7 +82,7 @@ public class Output {
         String outputLine= message.replaceAll("\t", spacing);
 
         if (!useTimestamp) {
-            if (overwriteThisLine && !DEBUG_MODE) {
+            if (overwriteThisLine && !HoneyWasp.DEBUG_MODE) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + "     "  + shortName +  message + RESET + "\r");
                 lastOutputWasNewline = false;
@@ -92,7 +91,7 @@ public class Output {
                 lastOutputWasNewline = true;
             }
         } else {
-            if (overwriteThisLine && !DEBUG_MODE) {
+            if (overwriteThisLine && !HoneyWasp.DEBUG_MODE) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + prefix + shortName + outputLine + RESET+ "\r");
                 lastOutputWasNewline = false;
@@ -105,7 +104,7 @@ public class Output {
 
     }
     public static synchronized void  debugPrint(Services service, String message) {
-        if (DEBUG_MODE) { // Only print if DEBUG_MODE mode is enabled
+        if (HoneyWasp.DEBUG_MODE) { // Only print if DEBUG_MODE mode is enabled
             if (lastOutputWasNewline) {System.out.println();}
             String shortName;
 

@@ -34,24 +34,20 @@ public class Config {
 
     private Config() {}
 
-    public static Config getInstance() {
+    public static Config getInstance() throws Exception {
+
         if (instance == null) {
             ObjectMapper mapper = new ObjectMapper().configure(
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                    false
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false
             );
             mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
-            try {
-                instance = mapper.readValue(
-                        new File("config.json"),
-                        Config.class
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
+            instance = mapper.readValue(
+                    new File("config.json"),
+                    Config.class
+            );
+        }
         return instance;
     }
 
