@@ -76,7 +76,7 @@ public class HoneyWasp extends ListenerAdapter {
                 "     -------------------------------------------------------------------------------------------------------------\n" + Output.RESET);
 
 
-        Output.print(null, "main.HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         // Check for new version
         try {
@@ -130,17 +130,17 @@ public class HoneyWasp extends ListenerAdapter {
         // Register commands (global)
         jda.updateCommands()
                 .addCommands(
-                        Commands.slash("start", "Start running main.HoneyWasp")
-                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run main.HoneyWasp on", true)
+                        Commands.slash("start", "Start running HoneyWasp")
+                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("stop", "Stops the specified main.HoneyWasp service")
+                        Commands.slash("stop", "Stops the specified HoneyWasp service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("clear", "Clear main.HoneyWasp cache of specific service")
+                        Commands.slash("clear", "Clear HoneyWasp cache of specific service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")

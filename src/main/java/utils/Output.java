@@ -1,7 +1,6 @@
 package utils;
 
 import club.minnced.discord.webhook.exception.HttpException;
-import config.Config;
 import main.HoneyWasp;
 import services.Services;
 
