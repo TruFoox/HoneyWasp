@@ -1,9 +1,8 @@
 package services;
-
 import config.Config;
 import config.PlatformSettings;
+import main.HoneyWasp;
 import utils.*;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
@@ -19,16 +18,14 @@ import java.util.List;
 public abstract class Services extends Thread {
     public final String shortName, name;
 
-    protected Config config;
     protected PlatformSettings settings;
 
-    Scanner scanner = new Scanner(System.in); // Input scanner
-    Random rand = new Random(); // Generate seed for random number generation
+    protected Scanner scanner = new Scanner(System.in); // Input scanner
+    protected static Random rand = new Random(); // Generate seed for random number generation
 
-    public Services(String name, String shortName, Config config) {
+    public Services(String name, String shortName) {
         this.name = name;
         this.shortName = shortName;
-        this.config = config;
     }
 
     protected abstract boolean upload() throws Exception;
@@ -45,9 +42,8 @@ public abstract class Services extends Thread {
     // Config
     protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
-    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
+    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, RESTART;
     protected int ATTEMPTS_BEFORE_TIMEOUT, MINS_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
-    protected static boolean RESTART;
 
     public void run() {
         // Initialize settings
@@ -68,8 +64,7 @@ public abstract class Services extends Thread {
             HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
             CAPTION = settings.getCaption();
             HASHTAGS = settings.getHashtags();
-            RESTART = config.General().isRestart();
-
+            RESTART = HoneyWasp.config.General().isRestart(); // Restart is handled here as to not need multiple config copies
             sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
         } catch (Exception e) {
             Output.webhookPrint(this,"Failed to fetch settings" +
@@ -272,10 +267,14 @@ public abstract class Services extends Thread {
             connectionDropWait = 0; // Reset connection drop wait on success
             response = HTTPSend.get(this, URL);
         } catch (ConnectException e) {
-            Output.print(this, "Connection drop detected. Trying again in " + ((connectionDropWait == 0) ? "1" : connectionDropWait + " minute(s)..."); // Starting at 1, increase # of minutes to wait each time by 5
+            // ConnectionDropWait = Pre-processing time, waitTime = Post-processed time
+            int waitTime = (connectionDropWait == 0) ? 1 : connectionDropWait; // Forces first wait to be 1, and allows sequential waits to be 5n minutes
+
+
+            Output.print(this, "Connection drop detected. Trying again in " + waitTime + " minute(s)...");
             connectionDropWait += 5;
 
-            Thread.sleep(10000);
+            Thread.sleep(waitTime * 60000L);
             return 1;
         } catch (Exception e) {
             connectionDropWait = 0;

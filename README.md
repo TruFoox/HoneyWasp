@@ -1,18 +1,18 @@
 <p align="center">
-  <a href="https://github.com/TruFoox/HoneyWasp">
-    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="HoneyWasp Logo" width="200" height="200" /> 
+  <a href="https://github.com/TruFoox/main.HoneyWasp">
+    <img src="https://i.postimg.cc/Nj0gNW45/IMG-1599.png" alt="main.HoneyWasp Logo" width="200" height="200" /> 
   </a>
   <br /><br />
-  <strong>HoneyWasp</strong>
+  <strong>main.HoneyWasp</strong>
   <br /><br />
   A Java-based bot for automating uploads to various social media services
   <br /><br />
-  <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Report Bug</a> · 
-  <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
+  <a href="https://github.com/TruFoox/main.HoneyWasp/issues/new">Report Bug</a> · 
+  <a href="https://github.com/TruFoox/main.HoneyWasp/issues/new">Request Feature</a>
   <br /><br />
-  <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
-  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
-  <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
+  <img src="https://img.shields.io/github/downloads/TruFoox/main.HoneyWasp/total" alt="Downloads" />
+  <img src="https://img.shields.io/github/stars/TruFoox/main.HoneyWasp?style=social" alt="Stars" />
+  <img src="https://img.shields.io/github/issues/TruFoox/main.HoneyWasp" alt="Issues" />
 </p>
 
 
@@ -41,7 +41,7 @@ All data handling, keys, tokens, and processing is handled **client side** - You
 
 It is programmed with a polymorphic implementation to allow for easier contributions, so if you want to propose an edit, feel free to [make a pull request!](#creating-a-pull-request)
 <p align="center">
-  <img src="https://i.postimg.cc/pLxRMv7B/Screenshot-2026-05-09-160559.png" alt="HoneyWasp" width="785" height="565" /> 
+  <img src="https://i.postimg.cc/pLxRMv7B/Screenshot-2026-05-09-160559.png" alt="main.HoneyWasp" width="785" height="565" /> 
 </p>
 
 # Getting Started
@@ -54,8 +54,8 @@ Before you can run the bot, you’ll need **Java 23 or higher** installed.
 - If you are running the bot on Mac or Linux, video support requires ffmpeg installed to your system PATH.
   - You can do this on linux with `sudo apt install ffmpeg`
 
-After you have successfully confirmed you have Java 23+ installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
-- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
+After you have successfully confirmed you have Java 23+ installed, download the latest main.HoneyWasp .zip from [here](https://github.com/TruFoox/main.HoneyWasp/releases/latest). You can launch main.HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
+- Alternatively, you can run the bot by running the command `java -jar main.HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 **You must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot in any capacity**
 
@@ -191,7 +191,7 @@ Before launching the bot, make sure `Config.json` is set up correctly.
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
-[An example config has been provided here](https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json). If you are having issues, make sure your config has identical formatting to the example.
+[An example config has been provided here](https://github.com/TruFoox/main.HoneyWasp/blob/master/example_config.json). If you are having issues, make sure your config has identical formatting to the example.
 
 Below you can find documentation on every configuration option
 
@@ -253,7 +253,7 @@ Below you can find documentation on every configuration option
 
 ## Starting and Interacting with the bot
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
-- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
+- Alternatively, you can run the bot by running the command `java -jar main.HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 You can interact with the bot using Discord /slash commands. A list of commands can be found below:
 - `/start [SERVICE/ALL]` - Start the bot on the specified service
@@ -262,7 +262,7 @@ You can interact with the bot using Discord /slash commands. A list of commands 
 
 # Help
 
-Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
+Please [Open an issue](https://github.com/TruFoox/main.HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
 
 ## Windows Defender Note
 This app might get flagged by Windows Defender because automated programs that call apis can resemble certain types of malware, despite being safe.
@@ -284,7 +284,7 @@ Programmed with Java 23 in [IntelliJ IDEA](https://www.jetbrains.com/idea/), see
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn and create. Any contributions you make are **greatly appreciated**.
-* If you have suggestions, feel free to [open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
+* If you have suggestions, feel free to [open an issue](https://github.com/TruFoox/main.HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
 * Please make sure you check your spelling and grammar.
 * [Create individual pull request](#creating-a-pull-request) for each suggestion.
 

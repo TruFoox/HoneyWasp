@@ -3,6 +3,7 @@ package services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.Config;
 import config.YoutubeSettings;
+import main.HoneyWasp;
 import org.json.JSONObject;
 import utils.*;
 
@@ -17,8 +18,8 @@ public class YouTube extends Services implements HasRefreshToken {
     private final String CLIENT_ID, SECRET;
 
     public YouTube() {
-        super("YouTube","YT",Config.getInstance());
-        settings = config.Platform("youtube"); // Establish settings
+        super("YouTube","YT");
+        settings = HoneyWasp.config.Platform("youtube"); // Establish settings
 
         YoutubeSettings yt = Config.getInstance().Youtube(); // Set service-specific stuff
         SECRET = yt.getClient_secret();
@@ -77,8 +78,8 @@ public class YouTube extends Services implements HasRefreshToken {
         if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
             REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
 
-            config.Youtube().setRefresh_token(REFRESH_TOKEN);
-            config.saveConfig(); // Write to file
+            HoneyWasp.config.Youtube().setRefresh_token(REFRESH_TOKEN);
+            HoneyWasp.config.saveConfig(); // Write to file
 
             return true;  // Success
         } else {

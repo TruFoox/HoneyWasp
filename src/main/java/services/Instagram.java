@@ -2,6 +2,7 @@ package services;
 
 import config.Config;
 import config.InstagramSettings;
+import main.HoneyWasp;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.*;
@@ -13,13 +14,13 @@ public class Instagram extends Services {
     private long USERID;
 
     public Instagram() {
-        super("Instagram","INSTA",Config.getInstance());
-        settings = config.Platform("instagram"); // Establish settings
+        super("Instagram","INSTA");
+        settings = HoneyWasp.config.Platform("instagram"); // Establish settings
         
         InstagramSettings ig = Config.getInstance().Instagram(); // Set instance-specific named stuff
         TOKEN = ig.getApi_key();
         VIDEO_MODE = ig.isVideo_mode();
-        use0x0 = true; // Instagram only supports URL filehosting
+        use0x0 = true; // Instagram only supports URL file hosting
 
     }
     protected boolean upload() throws Exception {

@@ -1,3 +1,5 @@
+package main;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,13 +26,26 @@ import java.util.Map;
  * Manages interactions with different services such as Instagram and YouTube.
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
+    public static final HoneyWasp Instance = new HoneyWasp(); // Stores instance to allow for other classes to access config
+    public static final Config config = Config.getInstance(); // Get config
+
     static Map<String, Services> services = new HashMap<>();
-    static float currentVersion = 4.0f; // Current version number
+    static float currentVersion = 4.2f; // Current version number
     static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
+    protected static String BOTTOKEN = config.General().getDiscordBotToken().trim();
+    static List<String> AUTOSTART = config.General().getAutostart();
 
     public static void main(String[] args) {
-        Config config = Config.getInstance(); // Get config
+        if (config == null) {
+            Output.print(null, "[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
+            ErrorHandling.exitProgram();
+
+            return; // Unnecessary but the compiler whines
+        } else {
+            BOTTOKEN = config.General().getDiscordBotToken().trim();
+            AUTOSTART = config.General().getAutostart();
+        }
 
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
 
@@ -59,19 +74,9 @@ public class HoneyWasp extends ListenerAdapter {
                 "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n" + Output.RESET);
-        if (config == null) {
-            Output.print(null, "[ERR] Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
-            ErrorHandling.exitProgram();
-
-            return; // Unnecessary but the compiler whines
-        }
 
 
-        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
-
-        final String BOTTOKEN = config.General().getDiscordBotToken().trim();
-
-        final List<String> AUTOSTART = config.General().getAutostart();
+        Output.print(null, "main.HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         // Check for new version
         try {
@@ -102,7 +107,7 @@ public class HoneyWasp extends ListenerAdapter {
                             EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                     )
                     .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
-                    .addEventListeners(new HoneyWasp())
+                    .addEventListeners(Instance)
                     .disableCache(CacheFlag.SOUNDBOARD_SOUNDS)
                     .build();
 
@@ -125,17 +130,17 @@ public class HoneyWasp extends ListenerAdapter {
         // Register commands (global)
         jda.updateCommands()
                 .addCommands(
-                        Commands.slash("start", "Start running HoneyWasp")
-                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
+                        Commands.slash("start", "Start running main.HoneyWasp")
+                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run main.HoneyWasp on", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("stop", "Stops the specified HoneyWasp service")
+                        Commands.slash("stop", "Stops the specified main.HoneyWasp service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("clear", "Clear HoneyWasp cache of specific service")
+                        Commands.slash("clear", "Clear main.HoneyWasp cache of specific service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")

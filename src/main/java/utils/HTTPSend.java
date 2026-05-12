@@ -119,7 +119,7 @@ public class HTTPSend {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("User-Agent", "HoneyWasp/3.0")
+                .header("User-Agent", "main.HoneyWasp/3.0")
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
                 .header("Accept-Language", "en-US,en;q=0.9")
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)

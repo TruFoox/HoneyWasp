@@ -2,6 +2,7 @@ package utils;
 
 import club.minnced.discord.webhook.exception.HttpException;
 import config.Config;
+import main.HoneyWasp;
 import services.Services;
 
 // Output
@@ -12,7 +13,6 @@ import services.Services;
 // Void Output.print  ; Print message to console, no webhook
 // Inputs : Message to print, color to print as (Default white), whether to mark this line with \r as overridable (default false), whether to use timestamp (Default true)
 public class Output {
-    static Config config = Config.getInstance();
 
     // Use Output.[COLOR]
     public static final String RESET = "\u001B[0m";
@@ -25,11 +25,12 @@ public class Output {
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
 
+    static boolean DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
+    
     static boolean lastOutputWasNewline = true;
-
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
         try {
-            if (lastOutputWasNewline || config.General().isDebug_mode()) {System.out.println();} else {System.out.print("\r\033[2K");}
+            if (lastOutputWasNewline ||  DEBUG_MODE) {System.out.println();} else {System.out.print("\r\033[2K");}
             String shortName;
 
             if (service == null) {
@@ -51,13 +52,12 @@ public class Output {
             }
             lastOutputWasNewline = true;
 
-            if (config != null && config.General() != null) {
-                String webhook_url = config.General().getDiscordWebhook();
+            if (HoneyWasp.config.General() != null) {
+                String webhook_url = HoneyWasp.config.General().getDiscordWebhook();
                 if (webhook_url != null && !webhook_url.isEmpty()) {
                     SendWebhook webhook = new SendWebhook();
 
-                    String webhookMessage = message.replace("\t", "")
-                            .replace("\r", "");
+                    String webhookMessage = message.replace("\t", "");
 
                     webhook.sendMessage(shortName + webhookMessage);
                 }
@@ -69,8 +69,7 @@ public class Output {
         }
     }
     public static synchronized void print(Services service, String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
-        boolean debug = config.General().isDebug_mode();
-        if (lastOutputWasNewline || debug) {System.out.println();} else {System.out.print("\r\033[2K");}
+        if (lastOutputWasNewline || DEBUG_MODE) {System.out.println();} else {System.out.print("\r\033[2K");}
         String shortName;
 
         if (service == null) {
@@ -85,7 +84,7 @@ public class Output {
         String outputLine= message.replaceAll("\t", spacing);
 
         if (!useTimestamp) {
-            if (overwriteThisLine && !debug) {
+            if (overwriteThisLine && !DEBUG_MODE) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + "     "  + shortName +  message + RESET + "\r");
                 lastOutputWasNewline = false;
@@ -94,7 +93,7 @@ public class Output {
                 lastOutputWasNewline = true;
             }
         } else {
-            if (overwriteThisLine && !debug) {
+            if (overwriteThisLine && !DEBUG_MODE) {
                 System.out.print("\r\033[2K");
                 System.out.print(color + prefix + shortName + outputLine + RESET+ "\r");
                 lastOutputWasNewline = false;
@@ -107,7 +106,7 @@ public class Output {
 
     }
     public static synchronized void  debugPrint(Services service, String message) {
-        if (config.General().isDebug_mode()) { // Only print if debug mode is enabled
+        if (DEBUG_MODE) { // Only print if DEBUG_MODE mode is enabled
             if (lastOutputWasNewline) {System.out.println();}
             String shortName;
 
