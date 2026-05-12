@@ -28,7 +28,7 @@ dependencies {
 
 application {
     
-    mainClass = "HoneyWasp"
+    mainClass = "main.HoneyWasp"
 }
 
 java {

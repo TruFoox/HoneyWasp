@@ -168,8 +168,8 @@ public class HoneyWasp extends ListenerAdapter {
             }
 
             if (bot != null) {
-                Output.webhookPrint(null, "Autostarting " + item, Output.YELLOW);
                 new Thread(bot).start();
+                Output.webhookPrint(null, "Autostarting " + bot.name, Output.YELLOW);
             }
         }
     }
