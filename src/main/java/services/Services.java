@@ -1,5 +1,4 @@
 package services;
-import config.Config;
 import config.PlatformSettings;
 import main.HoneyWasp;
 import utils.*;
@@ -20,8 +19,8 @@ public abstract class Services extends Thread {
 
     protected PlatformSettings settings;
 
-    protected Scanner scanner = new Scanner(System.in); // Input scanner
-    protected static Random rand = new Random(); // Generate seed for random number generation
+    protected static final Scanner scanner = new Scanner(System.in); // Input scanner
+    protected static final Random rand = new Random(); // Generate seed for random number generation
 
     protected abstract boolean upload() throws Exception;
     protected abstract boolean publish() throws Exception;

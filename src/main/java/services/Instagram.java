@@ -1,7 +1,5 @@
 package services;
 
-import config.Config;
-import config.InstagramSettings;
 import main.HoneyWasp;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,7 +14,7 @@ public class Instagram extends Services {
     public Instagram() {
         super("Instagram","INSTA");
 
-        TOKEN = HoneyWasp.config.Instagram().getApi_key();
+        TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
         VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
         use0x0 = true; // Instagram only supports URL file hosting
 

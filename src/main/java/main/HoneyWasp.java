@@ -35,7 +35,7 @@ public class HoneyWasp extends ListenerAdapter {
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
     static List<String> AUTOSTART;
-    public static boolean DEBUG_MODE, RESTART; // Used in Output.java, here to ensure config validity
+    public static boolean DEBUG_MODE, RESTART; // General config items used by threads
 
 
     public static void main(String[] args) {

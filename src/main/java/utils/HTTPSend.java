@@ -159,6 +159,7 @@ public class HTTPSend {
         Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
         return response.body();
     }
+
     /* I put this in a separate class because it's not my code (YouTube uploading is annoyingly specific) */
     public static String postYouTubeVideo(Services service, String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
 
