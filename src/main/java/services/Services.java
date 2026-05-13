@@ -221,9 +221,6 @@ public abstract class Services extends Thread {
                             // Store image URL to prevent duplicates
                             FileIO.writeList(mediaURL, this, false);
 
-                            // Blacklist image URL permanently, as it is likely corrupted
-                            FileIO.writeList(mediaURL, this, true);
-
                             System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(sleepTime);} // Sleep if /stop not used
                             countAttempt = 0;
@@ -400,12 +397,11 @@ public abstract class Services extends Thread {
                 URL url = java.net.URI.create(mediaURL).toURL();
                 image = ImageIO.read(url);
             } catch(IOException e)  {
-                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. This image is probably invalid..."
+                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. Marking this URL as invalid..."
                         + "\n\tError message: " + e, Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
                 FileIO.writeList(mediaURL, this, true);
-
                 return 1;
             }
 
