@@ -20,7 +20,7 @@ public class Instagram extends Services {
 
     }
     protected boolean upload() throws Exception {
-        String uploadURL, response; // Store json data & URL to be used with POST
+        String response; // Store json data & URL to be used with POST
 
         if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
             caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
@@ -35,17 +35,15 @@ public class Instagram extends Services {
             formData.put("image_url", mediaURL);
             formData.put("caption", caption);
             formData.put("access_token", TOKEN);
-            uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media";
 
         } else {
             formData.put("video_url", mediaURL);
             formData.put("caption", caption);
             formData.put("media_type", "REELS");
             formData.put("access_token", TOKEN);
-            uploadURL = "https://graph.facebook.com/v23.0/" + USERID + "/media?media_type=VIDEO";
         }
 
-        response = HTTPSend.postForm(this, uploadURL, formData); // Send JSON data for upload (Step 1/2 - next is publish)
+        response = HTTPSend.postForm(this,"https://graph.facebook.com/v23.0/" + USERID + "/media", formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
 
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
@@ -76,14 +74,15 @@ public class Instagram extends Services {
             do {
                 Output.print(this, "Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
 
-                HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + postID +
-                        "?fields=status_code,status&access_token=" + TOKEN); // Send status check request
+                // Corrected Instagram API polling request
+                response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/" + postID + "?fields=status_code&access_token=" + TOKEN);
 
                 if (HTTPSend.HTTPCode.get() != 200) { // Error handling
-                    Output.print(this, "Failed to get post upload status, waiting 30 seconds before attempting upload...", Output.YELLOW, true);
+                    Output.print(this, "Failed to get post upload status, waiting 1 minute before attempting upload..." +
+                            "Error message: " + response, Output.RED, true);
 
-                    Thread.sleep(30000);
-                    break;
+                    Thread.sleep(60000);
+                    continue;
                 }
 
                 Output.webhookPrint(this, response);
@@ -96,14 +95,11 @@ public class Instagram extends Services {
                     break;
                 }
 
+                Thread.sleep(5000); // Wait 5s to prevent spam
             } while (!postStatus.equals("FINISHED"));
         }
 
-        if (postStatus.equals("ERROR")) { // If there was an error, retry attempt
-            return false;
-        }
-
-        return true;
+        return postStatus.equals("FINISHED"); // If there was an error, retry attempt, else continue
     }
     protected boolean publish() throws Exception {
         Map<String, String> formData = new HashMap<>();

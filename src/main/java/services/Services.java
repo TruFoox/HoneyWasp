@@ -73,17 +73,13 @@ public abstract class Services extends Thread {
                 if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
                     Output.debugPrint(this, "Testing if refresh_token is empty");
                     if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
-                        if (!((HasRefreshToken) this).fetchRefreshToken()) {
-                            return;
-                        } // Fetch token
+                        if (!((HasRefreshToken) this).fetchRefreshToken()) {return;} // Fetch token
                     } else {
                         Output.debugPrint(this, "refresh_token was found to contain data");
                     }
                 }
 
-                if (!getMediaSource()) {
-                    return;
-                } // Fetch media source (Quit if failed)
+                if (!getMediaSource()) {return;} // Fetch media source (Quit if failed)
 
                 // Start bot
                 while (run) {
