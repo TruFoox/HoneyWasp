@@ -38,7 +38,6 @@ public abstract class Services extends Thread {
     protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
-    protected static boolean RESTART; // Not service-specific
     protected int ATTEMPTS_BEFORE_TIMEOUT, MINS_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
 
     public Services(String name, String shortName) { // Constructor
@@ -62,7 +61,6 @@ public abstract class Services extends Thread {
         HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();
-        RESTART = HoneyWasp.config.General().isRestart();
 
         sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
     }
@@ -231,6 +229,7 @@ public abstract class Services extends Thread {
                             // Blacklist image URL permanently, as it is likely corrupted
                             FileIO.writeList(mediaURL, this, true);
 
+                            System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(sleepTime);} // Sleep if /stop not used
                             countAttempt = 0;
                         }
@@ -249,7 +248,7 @@ public abstract class Services extends Thread {
             } finally { // Crash/Stop handling
                 Output.webhookPrint(this, "Stopped");
             }
-        } while (RESTART);
+        } while (HoneyWasp.RESTART);
     }
 
     private int getMemeAPI() throws Exception {
