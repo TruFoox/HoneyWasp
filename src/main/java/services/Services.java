@@ -207,7 +207,7 @@ public abstract class Services extends Thread {
                     if (!run) {return;}
 
                     if (upload()) {
-                        Thread.sleep(2000); // Sleep 2 seconds to allow server time to process
+                        Thread.sleep(2000); // Sleep 2 seconds to allow server time to process (A complete waste of time 99% of the time, but better be safe)
 
                         if (!run) {return;}
 
@@ -223,11 +223,12 @@ public abstract class Services extends Thread {
 
                             System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(sleepTime);} // Sleep if /stop not used
-                            countAttempt = 0;
-                        }
-                    }
+                            countAttempt = 0; // Reset count attempt
+                        } else {Output.debugPrint(this, "Publish failed");}
+                    } else {Output.debugPrint(this, "Upload failed");}
+
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
-                }
+                } // Main loop end
             } catch (
                     InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Error during sleep: " + e.getMessage());
@@ -473,7 +474,6 @@ public abstract class Services extends Thread {
         run = false;
         this.interrupt(); // Throw the thread out of sleep
     }
-
     public void clear() { // Clear cache
         FileIO.clearList(this);
     }

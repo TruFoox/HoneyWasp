@@ -131,17 +131,22 @@ public class HoneyWasp extends ListenerAdapter {
         // Register commands (global)
         jda.updateCommands()
                 .addCommands(
-                        Commands.slash("start", "Start running HoneyWasp")
+                        Commands.slash("start", "Start running HoneyWasp on a service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("stop", "Stops the specified HoneyWasp service")
+                        Commands.slash("stop", "Stops the specified service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("clear", "Clear HoneyWasp cache of specific service")
+                        Commands.slash("status", "Fetch status of specified service")
+                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to fetch the status of", true)
+                                        .addChoice("All", "all")
+                                        .addChoice("Instagram", "instagram")
+                                        .addChoice("Youtube", "youtube")),
+                        Commands.slash("clear", "Clear HoneyWasp cache of specified service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
@@ -363,6 +368,58 @@ public class HoneyWasp extends ListenerAdapter {
                 }
                 break;
             }
+            case "status": {
+                switch (service) {
+                    case "all": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        iconURL)
+                                .setTitle("Service Status")
+                                .addField("Instagram", services.containsKey("instagram") ? "Running" : "Stopped", true)
+                                .addField("YouTube", services.containsKey("youtube") ? "Running" : "Stopped", true);
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+                        break;
+                    }
+
+                    case "instagram": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        iconURL)
+                                .setTitle("Instagram status")
+                                .addField("Running", Boolean.toString(services.containsKey("instagram")), true);
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+                        break;
+                    }
+
+                    case "youtube": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        iconURL)
+                                .setTitle("YouTube status")
+                                .addField("Running", Boolean.toString(services.containsKey("youtube")), true);
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+                        break;
+                    }
+                    case "twitter": {
+                        EmbedBuilder embed = new EmbedBuilder()
+                                .setAuthor("Honeywasp",
+                                        "https://github.com/TruFoox/HoneyWasp",
+                                        iconURL)
+                                .setTitle("Twitter status")
+                                .addField("Running", Boolean.toString(services.containsKey("twitter")), true);
+                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+                        break;
+                    }
+                }
+                break;
+            }
             case "clear": {
                 switch (service) {
                     case "all": {
@@ -375,8 +432,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("instagram").clear();
-                        services.get("youtube").clear();
+                        if (services.containsKey("instagram")) {services.get("instagram").clear();} // Do for all
+                        if (services.containsKey("youtube")) {services.get("youtube").clear();}
+
                         //services.get("twitter").clear();
 
                         break;

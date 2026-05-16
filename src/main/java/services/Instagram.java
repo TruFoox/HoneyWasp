@@ -92,14 +92,14 @@ public class Instagram extends Services {
                 if (postStatus.equals("ERROR")) {
                     Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
                             "\n\tError Message: " + response, Output.RED);
-                    break;
+                    return false;
                 }
 
                 Thread.sleep(5000); // Wait 5s to prevent spam
             } while (!postStatus.equals("FINISHED"));
         }
 
-        return postStatus.equals("FINISHED"); // If there was an error, retry attempt, else continue
+        return true;
     }
     protected boolean publish() throws Exception {
         Map<String, String> formData = new HashMap<>();
