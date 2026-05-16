@@ -223,7 +223,6 @@ public class HoneyWasp extends ListenerAdapter {
 
                         break;
                     }
-
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
                                 .setColor(new Color(0xFFA500))
@@ -299,13 +298,13 @@ public class HoneyWasp extends ListenerAdapter {
 
                         if (services.containsKey("instagram")) {
                             services.get("instagram").halt();
-                        }
+                            services.remove("instagram");
+                        } else {Output.webhookPrint(null, "Instagram not running");}
                         if (services.containsKey("youtube")) {
                             services.get("youtube").halt();
-                        }
+                            services.remove("youtube");
+                        } else {Output.webhookPrint(null, "Youtube not running");}
                         //services.get("twitter").halt();
-                        services.remove("youtube");
-                        services.remove("instagram");
 
                         break;
                     }
@@ -323,8 +322,8 @@ public class HoneyWasp extends ListenerAdapter {
 
                         if (services.containsKey("instagram")) {
                             services.get("instagram").halt();
-                        }
-                        services.remove("instagram");
+                            services.remove("instagram");
+                        } else {Output.webhookPrint(null, "Instagram not running");}
 
                         break;
                     }
@@ -342,8 +341,8 @@ public class HoneyWasp extends ListenerAdapter {
 
                         if (services.containsKey("youtube")) {
                             services.get("youtube").halt();
-                        }
-                        services.remove("youtube");
+                            services.remove("youtube");
+                        } else {Output.webhookPrint(null, "Youtube not running");}
 
                         break;
                     }
@@ -360,8 +359,8 @@ public class HoneyWasp extends ListenerAdapter {
 
                         if (services.containsKey("twitter")) {
                             services.get("twitter").halt();
-                        }
-                        services.remove("twitter");
+                            services.remove("twitter");
+                        } else {Output.webhookPrint(null, "Twitter not running");}
 
                         break;
                     }
@@ -432,8 +431,8 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("instagram")) {services.get("instagram").clear();} // Do for all
-                        if (services.containsKey("youtube")) {services.get("youtube").clear();}
+                        if (services.containsKey("instagram")) {services.get("instagram").clear();} else {Output.webhookPrint(null, "Instagram not running");}
+                        if (services.containsKey("youtube")) {services.get("youtube").clear();} else {Output.webhookPrint(null, "Youtube not running");}
 
                         //services.get("twitter").clear();
 
@@ -451,7 +450,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("instagram").clear();
+                        if (services.containsKey("instagram")) {services.get("instagram").clear();} else {Output.webhookPrint(null, "Instagram not running");}
                         break;
                     }
 
@@ -466,7 +465,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("youtube").clear();
+                        if (services.containsKey("youtube")) {services.get("youtube").clear();} else {Output.webhookPrint(null, "Youtube not running");}
                         break;
                     }
                     case "twitter": {
@@ -480,7 +479,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        services.get("twitter").clear();
+                        if (services.containsKey("twitter")) {services.get("twitter").clear();} else {Output.webhookPrint(null, "Twitter not running");}
                         break;
                     }
                 }
