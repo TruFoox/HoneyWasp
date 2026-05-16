@@ -54,13 +54,13 @@ public class FileIO {
         }
     }
 
-    public static void clearList(Services service) {
+    public static void clearList(String service) {
         try {
-            Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
+            Path cachePath = Paths.get(".", "cache", service.toLowerCase(), "cache.txt");
             Files.writeString(cachePath, "");
-            Output.webhookPrint(service, "Cache successfully cleared");
+            Output.webhookPrint(null, service + " cache successfully cleared");
         } catch (IOException e) {
-            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(null,"No /cache/" + service.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
         }
     }
 

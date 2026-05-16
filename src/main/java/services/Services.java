@@ -474,8 +474,5 @@ public abstract class Services extends Thread {
         run = false;
         this.interrupt(); // Throw the thread out of sleep
     }
-    public void clear() { // Clear cache
-        FileIO.clearList(this);
-    }
 
 }

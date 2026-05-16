@@ -127,7 +127,7 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
         assert jda != null;
-
+        
         // Register commands (global)
         jda.updateCommands()
                 .addCommands(
@@ -146,7 +146,7 @@ public class HoneyWasp extends ListenerAdapter {
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
                                         .addChoice("Youtube", "youtube")),
-                        Commands.slash("clear", "Clear HoneyWasp cache of specified service")
+                        Commands.slash("clear", "Clear cache of specified service")
                                 .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                         .addChoice("All", "all")
                                         .addChoice("Instagram", "instagram")
@@ -387,7 +387,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
-                                .setTitle("Instagram status")
+                                .setTitle("Instagram Status")
                                 .addField("Running", Boolean.toString(services.containsKey("instagram")), true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -399,7 +399,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
-                                .setTitle("YouTube status")
+                                .setTitle("YouTube Status")
                                 .addField("Running", Boolean.toString(services.containsKey("youtube")), true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -410,7 +410,7 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
-                                .setTitle("Twitter status")
+                                .setTitle("Twitter Status")
                                 .addField("Running", Boolean.toString(services.containsKey("twitter")), true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -427,12 +427,12 @@ public class HoneyWasp extends ListenerAdapter {
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
-                                .setDescription("All caches cleared");
+                                .setDescription("Attempting to clear all caches");
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("instagram")) {services.get("instagram").clear();} else {Output.webhookPrint(null, "Instagram not running");}
-                        if (services.containsKey("youtube")) {services.get("youtube").clear();} else {Output.webhookPrint(null, "Youtube not running");}
+                        FileIO.clearList("Instagram");
+                        FileIO.clearList("YouTube");
 
                         //services.get("twitter").clear();
 
@@ -446,11 +446,12 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
-                                .setDescription(service + " cache cleared");
+                                .setDescription("Attempting to clear " + service + " cache");
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("instagram")) {services.get("instagram").clear();} else {Output.webhookPrint(null, "Instagram not running");}
+                        FileIO.clearList("Instagram");
+
                         break;
                     }
 
@@ -461,11 +462,12 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
-                                .setDescription(service + " cache cleared");
+                                .setDescription("Attempting to clear " + service + " cache");
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("youtube")) {services.get("youtube").clear();} else {Output.webhookPrint(null, "Youtube not running");}
+                        FileIO.clearList("YouTube");
+
                         break;
                     }
                     case "twitter": {
@@ -475,11 +477,12 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
-                                .setDescription(service + " cache cleared");
+                                .setDescription("Attempting to clear " + service + " cache");
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("twitter")) {services.get("twitter").clear();} else {Output.webhookPrint(null, "Twitter not running");}
+                        FileIO.clearList("Twitter");
+
                         break;
                     }
                 }
