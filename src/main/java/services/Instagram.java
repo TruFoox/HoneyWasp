@@ -65,7 +65,7 @@ public class Instagram extends Services {
 
         postID = StringToJson.getData(response, "id"); // Get post ID from previous HTTP step
 
-        Thread.sleep(500); // Sleep for 0.5s - gives Instagram time to get ready
+        Thread.sleep(500); // Sleep for 0.5s - gives Instagram a little more time to get ready
 
 
         /* Instagram needs time to render videos - this loop has the bot wait until it is finished */

@@ -26,7 +26,6 @@ import java.util.Map;
  * Manages interactions with different services such as Instagram and YouTube.
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
-    public static final HoneyWasp Instance = new HoneyWasp(); // Stores instance to allow for other classes to access config
     public static Config config; // Universal config handler for the bot
 
     static Map<String, Services> services = new HashMap<>();
@@ -108,7 +107,7 @@ public class HoneyWasp extends ListenerAdapter {
                             EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                     )
                     .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
-                    .addEventListeners(Instance)
+                    .addEventListeners(new HoneyWasp())
                     .disableCache(CacheFlag.SOUNDBOARD_SOUNDS)
                     .build();
 
@@ -174,7 +173,7 @@ public class HoneyWasp extends ListenerAdapter {
             }
 
             if (bot != null) {
-                new Thread(bot).start();
+                bot.start();
                 Output.webhookPrint(null, "Autostarting " + bot.name, Output.YELLOW);
             }
         }
@@ -206,7 +205,7 @@ public class HoneyWasp extends ListenerAdapter {
                         } else {
                             bot = new Instagram();
                             services.put("instagram", bot);
-                            new Thread(bot).start();
+                            bot.start();
                         }
 
                         if (services.containsKey("youtube")) {
@@ -214,12 +213,12 @@ public class HoneyWasp extends ListenerAdapter {
                         } else {
                             bot = new YouTube();
                             services.put("youtube", bot);
-                            new Thread(bot).start();
+                            bot.start();
                         }
 
                         //bot = new Twitter();
                         //services.put("twitter", bot);
-                        //new Thread(bot).start();
+                        //bot.start();
 
                         break;
                     }
@@ -238,7 +237,7 @@ public class HoneyWasp extends ListenerAdapter {
                         } else {
                             bot = new Instagram();
                             services.put("instagram", bot);
-                            new Thread(bot).start();
+                            bot.start();
                         }
 
                         break;
@@ -260,7 +259,7 @@ public class HoneyWasp extends ListenerAdapter {
                         } else {
                             bot = new YouTube();
                             services.put("youtube", bot);
-                            new Thread(bot).start();
+                            bot.start();
                         }
                         break;
                     }
@@ -277,7 +276,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                         //bot = new Twitter();
                         services.put("twitter", bot);
-                        new Thread(bot).start();
+                        bot.start();
 
                         break;
                     }

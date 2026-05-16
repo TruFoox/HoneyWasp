@@ -18,7 +18,6 @@ public abstract class Services extends Thread {
     public final String shortName, name;
 
     protected PlatformSettings settings;
-
     protected static final Scanner scanner = new Scanner(System.in); // Input scanner
     protected static final Random rand = new Random(); // Generate seed for random number generation
 
@@ -61,11 +60,11 @@ public abstract class Services extends Thread {
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();
 
-        sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
+        sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in seconds
     }
 
     public void run() {
-        // Initialize settings
+        Output.debugPrint(this, "New Instance running w/ thread ID " + Thread.currentThread().getId());
 
         do { // Loop if restart enabled
             run = true;
@@ -128,7 +127,7 @@ public abstract class Services extends Thread {
                                 // Blacklist image URL permanently, as it is likely corrupted
                                 FileIO.writeList(mediaURL, this, true);
 
-                                Thread.sleep(5000); // Sleep 3 seconds in case it is a temporary error
+                                Thread.sleep(5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
                             } catch (IOException e) {
                                 Output.webhookPrint(this, "Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
@@ -227,7 +226,7 @@ public abstract class Services extends Thread {
                         } else {Output.debugPrint(this, "Publish failed");}
                     } else {Output.debugPrint(this, "Upload failed");}
 
-                    Thread.sleep(1500); // Sleep 1.5s to prevent spam
+                    Thread.sleep(15000); // Sleep 1.5s to prevent spam
                 } // Main loop end
             } catch (
                     InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
@@ -470,9 +469,13 @@ public abstract class Services extends Thread {
         return 0;
     }
 
-    public void halt() { // Stop bot (not called stop because Java doesn't like it)
+    public void halt() {
+        Output.debugPrint(this,
+                "HALT CALLED ON THREAD ID = " + this.getId()
+        );
+
         run = false;
-        this.interrupt(); // Throw the thread out of sleep
+        this.interrupt();
     }
 
 }

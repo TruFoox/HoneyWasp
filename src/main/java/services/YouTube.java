@@ -130,7 +130,6 @@ public class YouTube extends Services implements HasRefreshToken {
                         + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
                 Thread.sleep(sleepTime);
-
                 return false;
 
             } else { // General error handling
