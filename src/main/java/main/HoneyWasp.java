@@ -191,7 +191,7 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -224,7 +224,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -245,7 +245,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -265,7 +265,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -287,11 +287,11 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
-                                .setDescription("Stopping all services");
+                                .setDescription("Attempting to stop all services");
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -310,12 +310,12 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
-                                .setDescription("Stopping " + service);
+                                .setDescription("Attempting to stop " + service);
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -329,12 +329,12 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
-                                .setDescription("Stopping " + service);
+                                .setDescription("Attempting to stop " + service);
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -347,12 +347,12 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
-                                .setDescription("Stopping " + service);
+                                .setDescription("Attempting to stop " + service);
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -370,10 +370,11 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
-                                .setTitle("Service Status")
+                                .setTitle("Service Statuses")
                                 .addField("Instagram", services.containsKey("instagram") ? "Running" : "Stopped", true)
                                 .addField("YouTube", services.containsKey("youtube") ? "Running" : "Stopped", true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
@@ -383,6 +384,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -395,6 +397,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -406,6 +409,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -422,7 +426,7 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -440,7 +444,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -456,7 +460,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -471,7 +475,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFFA500))
+                                .setColor(new Color(0xFF2596BE))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)

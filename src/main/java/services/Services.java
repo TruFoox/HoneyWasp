@@ -226,10 +226,9 @@ public abstract class Services extends Thread {
                         } else {Output.debugPrint(this, "Publish failed");}
                     } else {Output.debugPrint(this, "Upload failed");}
 
-                    Thread.sleep(15000); // Sleep 1.5s to prevent spam
+                    Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
-            } catch (
-                    InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
+            } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
                 Output.webhookPrint(this, "Bot crashed: Connection likely dropped: " + e.getMessage(), Output.RED);
@@ -300,19 +299,19 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
-                Thread.sleep(sleepTime + 21600000); // Sleep normal time + 6 hours
+                Thread.sleep(sleepTime + 21600000L); // Sleep normal time + 6 hours
                 return 1;
             case 502: // Cloudflare error 2
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                Thread.sleep(sleepTime); // Sleep normal time
+                Thread.sleep(sleepTime); // Sleep
                 return 1;
             case 530: // Cloudflare error 3
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
-                        + "\n\tThere is nothing that can be done to fix this but wait, but it shouldn't take too long. Skipping attempt...", Output.RED);
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
 
-                Thread.sleep(sleepTime); // Sleep normal time + 6 hours
+                Thread.sleep(sleepTime + 7200000L); // Sleep normal time + 2 hours
                 return 1;
             default: // General error handling
                 Output.webhookPrint(this,"Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."
