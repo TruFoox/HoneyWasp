@@ -207,7 +207,7 @@ Below you can find documentation on every configuration option
 | Key                 | Description                                                                                     |
 |---------------------|-------------------------------------------------------------------------------------------------|
 | `discord_bot_token` | Your bot's token for logging in to Discord                                                      |
-| `webhook_url`       | Optional Discord webhook URL for notifications                                                  |
+| `webhook_url`       | Discord webhook URL for notifications (OPTIONAL)                                                |
 | `autostart`         | List of services to launch automatically (e.g., `["instagram","youtube"]`)                      |
 | `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`) |
 | `debug_mode`        | Enables verbose logging (`true` or `false`)                                                     |
@@ -222,14 +222,14 @@ Below you can find documentation on every configuration option
 | `time_between_posts`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                               |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`autopost_mode: true` only)                                                     |
-| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**) (`autopost_mode: true` only)                                       |
+| `subreddits`                     | Subreddits to pull content from (`autopost_mode: true` only, **exclude `r/`**)                                                             |
 | `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                             |
-| `duplicates_allowed`             | Whether to allow duplicate posts (`true` or `false`)                                                                                       |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY recommended**) (`autopost_mode: true` only) (`true` or `false`)                              |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`true` or `false`)                                                                        |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`autopost_mode: true` only, `true` or `false`)                                                           |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `autopost_mode: true` only, `true` or `false`)                                |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`autopost_mode: true` only,`true` or `false`)                                             |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit caption (`autopost_mode: true` & `use_reddit_caption: true` only) |
 | `caption`                        | Default post caption                                                                                                                       |
-| `hashtags`                       | Hashtags appended to each Instagram post                                                                                                   |
+| `hashtags`                       | Hashtags appended to each Instagram post after the caption                                                                                 |
 
 ### YouTube_Settings
 | Key                              | Description                                                                                                                                   |
@@ -242,13 +242,13 @@ Below you can find documentation on every configuration option
 | `time_between_posts`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                     |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                   |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`autopost_mode: true` only)                                                        |
-| `subreddits`                     | Subreddits to pull content from (auto post_mode only, **exclude `r/`**) (`autopost_mode: true` only)                                          |
+| `subreddits`                     | Subreddits to pull content from (`autopost_mode: true` only, **exclude `r/`**)                                                                |
 | `blacklist`                      | Words that trigger this post to be discarded entirely (`autopost_mode: true` only)                                                            |
-| `duplicates_allowed`             | Whether to allow duplicate posts (`true` or `false`)                                                                                          |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**) (`autopost_mode: true` only) (`true` or `false`)                                 |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`true` or `false`)                                                                           |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`autopost_mode: true` only,`true` or `false`)                                                               |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `autopost_mode: true` only, `true` or `false`)                                   |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`autopost_mode: true` only, `true` or `false`)                                               |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (`autopost_mode: true` & `use_reddit_caption: true` only) |
-| `caption`                        | Default post caption                                                                                                                          |
+| `caption`                        | Default post title                                                                                                                            |
 | `hashtags`                       | Post description/hashtags                                                                                                                     |
 
 ## Starting and Interacting with the bot

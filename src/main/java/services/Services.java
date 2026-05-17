@@ -229,7 +229,7 @@ public abstract class Services extends Thread {
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
-                Output.debugPrint(this, "Error during sleep: " + e.getMessage());
+                Output.webhookPrint(this, "Error during sleep: " + e.getMessage()); // Temporary, make debugprint in future (only like this to test for bugs with connection drop handling)
             } catch (SocketException e) {
                 Output.webhookPrint(this, "Bot crashed: Connection likely dropped: " + e.getMessage(), Output.RED);
             } catch (IOException e) {
