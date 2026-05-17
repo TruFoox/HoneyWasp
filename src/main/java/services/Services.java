@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,7 +65,7 @@ public abstract class Services extends Thread {
     }
 
     public void run() {
-        Output.debugPrint(this, "New Instance running w/ thread ID " + Thread.currentThread().getId());
+        Output.debugPrint(this, "New Instance running w/ thread ID " + Thread.currentThread().threadId());
 
         do { // Loop if restart enabled
             run = true;
@@ -117,7 +118,7 @@ public abstract class Services extends Thread {
                             Output.debugPrint(this, "Attempting to retrieve image data");
                             try {
                                 // Download image from Reddit
-                                URL url = new URL(mediaURL);
+                                URL url = new URI(mediaURL).toURL();
                                 image = ImageIO.read(url);
 
                             } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
@@ -229,7 +230,7 @@ public abstract class Services extends Thread {
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
-                Output.webhookPrint(this, "Error during sleep: " + e.getMessage()); // Temporary, make debugprint in future (only like this to test for bugs with connection drop handling)
+                Output.debugPrint(this, "Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
                 Output.webhookPrint(this, "Bot crashed: Connection likely dropped: " + e.getMessage(), Output.RED);
             } catch (IOException e) {
@@ -469,10 +470,6 @@ public abstract class Services extends Thread {
     }
 
     public void halt() {
-        Output.debugPrint(this,
-                "HALT CALLED ON THREAD ID = " + this.getId()
-        );
-
         run = false;
         this.interrupt();
     }
