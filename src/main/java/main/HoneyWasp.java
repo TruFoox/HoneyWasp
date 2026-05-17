@@ -73,7 +73,7 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
-        BOTTOKEN = config.General().getDiscordBotToken().trim();
+        BOTTOKEN = config.General().getDiscordBotToken();
         AUTOSTART = config.General().getAutostart();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
@@ -97,62 +97,67 @@ public class HoneyWasp extends ListenerAdapter {
             e.printStackTrace();
         }
 
-        JDA jda = null; // Init JDA object to prevent uninitialized error
+        // Login to bot if discord bot token was given, else skip to autostart
+        if (BOTTOKEN == null || !BOTTOKEN.isBlank()) {
+            JDA jda = null;
 
-        // Login to bot
-        try {
-            Output.print(null, "Logging in to Discord bot...", Output.YELLOW, false, false);
-            jda = JDABuilder.createDefault(
-                            BOTTOKEN,
-                            EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-                    )
-                    .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
-                    .addEventListeners(new HoneyWasp())
-                    .disableCache(CacheFlag.SOUNDBOARD_SOUNDS)
-                    .build();
+            try {
+                Output.print(null, "Logging in to Discord bot...", Output.YELLOW, false, false);
+                jda = JDABuilder.createDefault(
+                                BOTTOKEN,
+                                EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
+                        )
+                        .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
+                        .addEventListeners(new HoneyWasp())
+                        .disableCache(CacheFlag.SOUNDBOARD_SOUNDS)
+                        .build();
 
-            Output.debugPrint(null, "Waiting for JDA to connect");
-            // Wait until the bot is fully logged in
-            jda.awaitReady();
+                Output.debugPrint(null, "Waiting for JDA to connect");
+                // Wait until the bot is fully logged in
+                jda.awaitReady();
 
-            Output.print(null, "Bot connected successfully!\n\n", Output.YELLOW, false, false);
-        } catch (InvalidTokenException e) {
-            Output.print(null, "Discord bot token is invalid. Please verify you copied the full token from the developer portal");
-            ErrorHandling.exitProgram();
-        } catch (Exception e) { // Handles login failures and interruptions
-            e.printStackTrace();
-            Output.print(null, "Bot failed to log in. Quitting...");
-            ErrorHandling.exitProgram();
+                Output.print(null, "Bot connected successfully!\n\n", Output.YELLOW, false, false);
+            } catch (InvalidTokenException e) {
+                Output.print(null, "Discord bot token is invalid. Please verify you copied the correct token from the developer portal" +
+                        "\n\tBot will continue to run if autostart enabled");
+                ErrorHandling.exitProgram();
+            } catch (Exception e) { // Handles login failures and interruptions
+                e.printStackTrace();
+                Output.print(null, "Bot failed to log in. Quitting...");
+                ErrorHandling.exitProgram();
+            }
+
+            assert jda != null;
+
+
+            // Register commands
+            jda.updateCommands()
+                    .addCommands(
+                            Commands.slash("start", "Start running HoneyWasp on a service")
+                                    .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
+                                            .addChoice("All", "all")
+                                            .addChoice("Instagram", "instagram")
+                                            .addChoice("Youtube", "youtube")),
+                            Commands.slash("stop", "Stops the specified service")
+                                    .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
+                                            .addChoice("All", "all")
+                                            .addChoice("Instagram", "instagram")
+                                            .addChoice("Youtube", "youtube")),
+                            Commands.slash("status", "Fetch status of specified service")
+                                    .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to fetch the status of", true)
+                                            .addChoice("All", "all")
+                                            .addChoice("Instagram", "instagram")
+                                            .addChoice("Youtube", "youtube")),
+                            Commands.slash("clear", "Clear cache of specified service")
+                                    .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
+                                            .addChoice("All", "all")
+                                            .addChoice("Instagram", "instagram")
+                                            .addChoice("Youtube", "youtube"))
+
+                    ).queue();
+        } else {
+            Output.print(null, "No discord bot token supplied. Bot will only be controllable via autostart");
         }
-
-        assert jda != null;
-        
-        // Register commands (global)
-        jda.updateCommands()
-                .addCommands(
-                        Commands.slash("start", "Start running HoneyWasp on a service")
-                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
-                                        .addChoice("All", "all")
-                                        .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")),
-                        Commands.slash("stop", "Stops the specified service")
-                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
-                                        .addChoice("All", "all")
-                                        .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")),
-                        Commands.slash("status", "Fetch status of specified service")
-                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to fetch the status of", true)
-                                        .addChoice("All", "all")
-                                        .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube")),
-                        Commands.slash("clear", "Clear cache of specified service")
-                                .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
-                                        .addChoice("All", "all")
-                                        .addChoice("Instagram", "instagram")
-                                        .addChoice("Youtube", "youtube"))
-
-                ).queue();
-
 
         // Automatic starting of services
         for(String item : AUTOSTART) {
@@ -177,7 +182,7 @@ public class HoneyWasp extends ListenerAdapter {
                 Output.webhookPrint(null, "Autostarting " + bot.name, Output.YELLOW);
             }
         }
-    }
+    } // If no discord token, processing stops here. Otherwise, commands can be invoked
 
     @Override
     // Slash commands
@@ -191,7 +196,7 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -224,7 +229,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -245,7 +250,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -265,7 +270,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -287,7 +292,7 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -310,7 +315,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -329,7 +334,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -347,7 +352,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -370,7 +375,7 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -384,7 +389,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -397,7 +402,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -409,7 +414,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -426,7 +431,7 @@ public class HoneyWasp extends ListenerAdapter {
                 switch (service) {
                     case "all": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -444,7 +449,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "instagram": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -460,7 +465,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     case "youtube": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
@@ -475,7 +480,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     case "twitter": {
                         EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF2596BE))
+                                .setColor(new Color(0xFF8307))
                                 .setAuthor("Honeywasp",
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
