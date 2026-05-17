@@ -185,7 +185,15 @@ To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-s
 6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
 
 # Usage
-Below you can find information regarding [customizing the config](#the-config) and [using the bot](#starting-and-interacting-with-the-bot)
+There are a few specific details about the bot you need to know before you use it.
+* It only officially supports .mp3s for audio, .mp4s for video, and .jpg/png for images
+	* Some other file types may work, but they are not accounted for and will not receive official support
+* Only one instance of each type of service can run at one time
+    * This is likely to change in the future, with multiple bot tokens being allowed
+* Enabling `restart` may cause issues, and the option only exists for servers where crashes are few and far between
+* If you are having issues, you should try enabling `debug_mode` under `General_Settings` in config.ini to help pinpoint the issue
+
+Knowing all this, you can now begin [customizing the config](#the-config), then [using the bot](#starting-and-interacting-with-the-bot)
 ## The Config
 Before launching the bot, make sure `Config.json` is set up correctly.  
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
@@ -218,7 +226,7 @@ Below you can find documentation on every configuration option
 | `api_key`                        | Instagram API key                                                                                                                          |
 | `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)               |
 | `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                            |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                          |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`autopost_mode: true` & `video_mode: true` only, add .MP3s to `/audio`)         |
 | `time_between_posts`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                               |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`autopost_mode: true` only)                                                     |
@@ -237,8 +245,8 @@ Below you can find documentation on every configuration option
 | `refresh_token`                  | Refresh token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                     |
 | `client_secret`                  | YouTube API key for posting                                                                                                                   |
 | `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                       |
-| `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)                  |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (add .MP3s to `/audio`)                                                             |  
+| `autopost_mode`                  | Whether to automatically fetch images from reddit before converting them to videos (set to `false` to post from `/videos`)                    |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`autopost_mode: true` only, add .MP3s to `/audio`)                                 |  
 | `time_between_posts`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                     |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                   |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`autopost_mode: true` only)                                                        |
