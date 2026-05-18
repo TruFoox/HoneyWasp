@@ -28,9 +28,6 @@ public class GeneralSettings {
     public String getDiscordWebhook() { return discordWebhook; }
     public void setDiscordWebhook(String discordWebhook) { this.discordWebhook = discordWebhook; }
 
-    public List<String> getAutostart() { return autostart; }
-    public void setAutostart(List<String> autostart) { this.autostart = autostart; }
-
     public boolean isRestart() { return restart; }
     public void setRestart(boolean restart) { this.restart = restart; }
 

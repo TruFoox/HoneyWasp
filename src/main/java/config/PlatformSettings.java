@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface PlatformSettings {
     boolean isAuto_post_mode();
+    boolean isAutostart();
     int getMinutes_between_posts();
     int getAttempts_before_timeout();
     List<String> getSubreddits();

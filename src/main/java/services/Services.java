@@ -212,7 +212,7 @@ public abstract class Services extends Thread {
                     if (!run) return;
 
                     if (!fetchUserToken()) { // Attempt to fetch access token (Quit if failed)
-                        Output.webhookPrint(this, "Failed to fetch access token. Quitting...");
+                        Output.webhookPrint(this, "Failed to fetch access token. Quitting...", Output.RED);
                         break;
                     }
 
@@ -227,21 +227,24 @@ public abstract class Services extends Thread {
                             if (AUTO_POST_MODE) {
                                 Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                                 FileIO.writeList(mediaURL, this, false); // Store image URL to prevent duplicates
-                            } if (use0x0) {
+                            } else if (use0x0) {
                                 Output.webhookPrint(this, mediaURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             } else {
                                 Output.webhookPrint(this, fileDir + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             }
 
 
-                        System.gc(); // Suggest garbage collection
+                            System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
                             countAttempt = 0; // Reset count attempt
                         } else {
-                            Output.webhookPrint(this, "Failed to publish ");
+                            Output.webhookPrint(this, "Failed to publish", Output.RED);
                             break;
                         }
-                    } else {Output.webhookPrint(this, "Upload failed");}
+                    } else {
+                        Output.webhookPrint(this, "Failed to upload", Output.RED);
+                        break;
+                    }
 
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop end

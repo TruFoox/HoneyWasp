@@ -35,6 +35,7 @@ public class InstagramSettings implements PlatformSettings {
     private List<String> caption_blacklist;
     private int hours_before_duplicate_removed;
     private boolean audio_enabled;
+    private boolean autostart;
     private String caption;
     private String hashtags;
 
@@ -54,6 +55,9 @@ public class InstagramSettings implements PlatformSettings {
 
     public boolean isVideo_mode() { return video_mode; }
     public void setVideo_mode(boolean video_mode) { this.video_mode = video_mode; }
+
+    public boolean isAutostart() { return autostart; }
+    public void setAutostart(boolean autostart) { this.autostart = autostart; }
 
     public int getMinutes_between_posts() { return minutes_between_posts; }
     public void setMinutes_between_posts(int minutes_between_posts) { this.minutes_between_posts = minutes_between_posts; }

@@ -38,6 +38,7 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     private boolean use_reddit_caption;
     private int hours_before_duplicate_removed;
     private List<String> caption_blacklist;
+    private boolean autostart;
     private String caption;
     private String hashtags;
 
@@ -55,6 +56,9 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
 
     public boolean isAuto_post_mode() { return auto_post_mode; }
     public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
+
+    public boolean isAutostart() { return autostart; }
+    public void setAutostart(boolean autostart) { this.autostart = autostart; }
 
     public int getMinutes_between_posts() { return minutes_between_posts; }
     public void setMinutes_between_posts(int minutes_between_posts) { this.minutes_between_posts = minutes_between_posts; }
