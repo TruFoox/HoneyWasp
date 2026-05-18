@@ -116,8 +116,6 @@ public class YouTube extends Services implements HasRefreshToken {
 
         JSONObject response = StringToJson.getJSON(strResponse); // Convert to json for check
 
-        if (!run) {return false;}
-
         if (HTTPSend.HTTPCode.get() != 200) { // Error handling
             String reason = ""; // Stores reason for error
 
@@ -153,7 +151,7 @@ public class YouTube extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean fetchUserToken() {
+    protected boolean fetchUserToken() throws Exception {
         // Build upload data
         Map<String, String> formData = new HashMap<>();
 
@@ -164,14 +162,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
         String response;
 
-        try {
-            response = HTTPSend.postForm(this,"https://oauth2.googleapis.com/token", formData);
-        } catch (Exception e) {
-            Output.webhookPrint(this, "Failed to fetch user token. Quitting..." +
-                    "\n\tError: " + e, Output.RED);
-
-            return false;
-        }
+        response = HTTPSend.postForm(this,"https://oauth2.googleapis.com/token", formData);
 
 
         if (HTTPSend.HTTPCode.get() == 200 && response.contains("access_token")) {

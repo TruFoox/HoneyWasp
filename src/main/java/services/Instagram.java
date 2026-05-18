@@ -120,8 +120,7 @@ public class Instagram extends Services {
 
         return true;
     }
-    protected boolean fetchUserToken() { // Fetches user ID
-        try {
+    protected boolean fetchUserToken() throws Exception { // Fetches user ID
             Output.debugPrint(this,"Attempting to fetch User ID");
 
             Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
@@ -148,13 +147,6 @@ public class Instagram extends Services {
 
             dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
             USERID = dataObj.getLong("id");
-
-        } catch (Exception e) {
-            Output.webhookPrint(this,"Failed to retrieve Instagram User ID. Your Access token may be invalid. Quitting..."
-                    + "\n\tError message: " + e, Output.RED);
-            return false;
-        }
-
         return true; // Success
     }
 }

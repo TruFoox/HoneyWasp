@@ -24,7 +24,7 @@ public abstract class Services extends Thread {
 
     protected abstract boolean upload() throws Exception;
     protected abstract boolean publish() throws Exception;
-    protected abstract boolean fetchUserToken();
+    protected abstract boolean fetchUserToken() throws Exception;
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
@@ -64,8 +64,8 @@ public abstract class Services extends Thread {
 
     }
 
-    public void run() {
-        Output.debugPrint(this, "New Instance running w/ thread ID " + Thread.currentThread().threadId());
+    public void run() { // Remember: Use return to quit service entirely and bypass restart, else use break
+        Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
 
         do { // Loop if restart enabled
             run = true;
@@ -82,7 +82,7 @@ public abstract class Services extends Thread {
                 if (!getMediaSource()) {return;} // Fetch media source (Quit if failed)
 
                 // Start bot
-                while (run) {
+                while (run) { // Main loop
                     countAttempt++; // Iterate count for number of attempts to post that have been made
                     Output.debugPrint(this, "Attempt " + countAttempt + " started");
 
@@ -99,19 +99,21 @@ public abstract class Services extends Thread {
 
                     /* Fetch media */
                     if (AUTO_POST_MODE) {
+                        boolean memeAPIFailed = false;
                         switch (getMemeAPI()) {
                             case 0: // Success
                                 break;
                             case 1: // Soft fail (retry)
                                 Thread.sleep(1000); // Sleep 1s to prevent spam
                                 continue;
-                            case 2: // Fail (quit) - this doesn't use break to exit main loop because that doesn't work in switch
-                                run = false;
-                                continue;
-
+                            case 2: // Fail (quit) - this doesn't use break to exit main loop because that doesn't work in switch statements
+                                memeAPIFailed = true;
+                                break;
                         }
+                        if (memeAPIFailed) break; // Workaround to case 2
 
-                        if (!run) {break;}
+                        if (!run) return;
+
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
                         /* If format is video, convert image to video */
@@ -141,6 +143,8 @@ public abstract class Services extends Thread {
                                 continue;
                             }
 
+                            if (!run) return;
+
                             /* Select mp4 for audio if audio enabled */
                             String audioDir = null; // Default value
 
@@ -166,6 +170,8 @@ public abstract class Services extends Thread {
                         randIndex = rand.nextInt(media.length); // Select random image
                         fileDir = String.valueOf(media[randIndex]);
                     }
+
+                    if (!run) return;
 
                     if (use0x0) { // If enabled for this service, upload manual media/generated video to temp file hoster (0x0.st)
                         if (!AUTO_POST_MODE || VIDEO_MODE) {
@@ -203,32 +209,39 @@ public abstract class Services extends Thread {
                     /* Fetch token, upload, then publish media */
 
                     // Lots of if (!run) to combat /stop not working, especially on poor internet connections
-                    if (!run) {break;}
+                    if (!run) return;
 
-                    if (!fetchUserToken()) {break;} // Attempt to fetch access token (Quit if failed)
+                    if (!fetchUserToken()) { // Attempt to fetch access token (Quit if failed)
+                        Output.webhookPrint(this, "Failed to fetch access token. Quitting...");
+                        break;
+                    }
 
-                    if (!run) {break;}
+                    if (!run) return;
 
                     if (upload()) {
                         Thread.sleep(2000); // Sleep 2 seconds to allow server time to process (A complete waste of time 99% of the time, but better be safe)
 
-                        if (!run) {break;}
+                        if (!run) return;
 
                         if (publish()) {
                             if (AUTO_POST_MODE) {
-                                Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " uploaded - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                FileIO.writeList(mediaURL, this, false); // Store image URL to prevent duplicates
+                            } if (use0x0) {
+                                Output.webhookPrint(this, mediaURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             } else {
-                                Output.webhookPrint(this, redditURL + " uploaded to " + name + " - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                Output.webhookPrint(this, fileDir + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             }
 
-                            // Store image URL to prevent duplicates
-                            FileIO.writeList(mediaURL, this, false);
 
-                            System.gc(); // Suggest garbage collection
+                        System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
                             countAttempt = 0; // Reset count attempt
-                        } else {Output.debugPrint(this, "Publish failed");}
-                    } else {Output.debugPrint(this, "Upload failed");}
+                        } else {
+                            Output.webhookPrint(this, "Failed to publish ");
+                            break;
+                        }
+                    } else {Output.webhookPrint(this, "Upload failed");}
 
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
