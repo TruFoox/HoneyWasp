@@ -19,13 +19,16 @@ public class FileIO {
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
             Output.debugPrint(null, "Attempting to write to " + cachePath);
 
-            if (permanent) { // will break on November 20, 2286, so make sure to increase this by then
-                Files.write(cachePath, (in + ",9999999999999999" + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                service.usedURLs.add(new String[]{in, String.valueOf(9999999999999999L)});
+            long fileTimestamp; // Timestamp to actually be written to file
+
+            if (permanent) {
+                fileTimestamp = 9999999999999999L;
             } else {
-                Files.write(cachePath, (in + "," + timestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                service.usedURLs.add(new String[]{in, String.valueOf(timestamp)});
+                fileTimestamp = timestamp + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L);
             }
+
+            Files.write(cachePath, (in + "," + fileTimestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            service.usedURLs.add(new String[]{in, String.valueOf(fileTimestamp)});
 
         } catch (IOException ex) {
             Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);

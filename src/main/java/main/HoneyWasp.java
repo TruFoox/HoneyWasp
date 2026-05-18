@@ -39,6 +39,7 @@ public class HoneyWasp extends ListenerAdapter {
 
     public static void main(String[] args) {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
+        System.setProperty("org.slf4j.simpleLogger.log.com.neovisionaries.ws.client", "off"); // Hide network errors
 
         // Print logo
         System.out.print(Output.YELLOW + "\n" +

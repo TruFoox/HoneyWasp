@@ -37,7 +37,9 @@ public abstract class Services extends Thread {
     protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
-    protected int ATTEMPTS_BEFORE_TIMEOUT, MINS_BETWEEN_POSTS, HOURS_BEFORE_DUPLICATES_REMOVED;
+    protected int ATTEMPTS_BEFORE_TIMEOUT;
+    protected int MINS_BETWEEN_POSTS;
+    public int HOURS_BEFORE_DUPLICATES_REMOVED; // Used in FileIO.java
 
     public Services(String name, String shortName) { // Constructor
         this.name = name;
@@ -437,12 +439,12 @@ public abstract class Services extends Thread {
         Output.debugPrint(this, "Testing if image url is duplicate");
         for (String[] row : usedURLs) {
             String usedUrl = row[0];
-            String timestampStr = row[1];
+            if (mediaURL.equalsIgnoreCase(usedUrl)) {
+                String timestampStr = row[1];
 
-            long timestamp = Long.parseLong(timestampStr);
+                long timestamp = Long.parseLong(timestampStr);
 
-            if (DUPLICATES_ALLOWED || ((System.currentTimeMillis() - timestamp) < HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L)) { // Test if cached url is too old to be considered duplicate
-                if (mediaURL.equalsIgnoreCase(usedUrl)) {
+                if (DUPLICATES_ALLOWED || timestamp < System.currentTimeMillis() && HOURS_BEFORE_DUPLICATES_REMOVED != 0) { // Test if cached url is too old to be considered duplicate
                     Output.print(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
 
                     return 1;
