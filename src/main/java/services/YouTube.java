@@ -119,7 +119,8 @@ public class YouTube extends Services implements HasRefreshToken {
         if (!run) {return false;}
 
         if (HTTPSend.HTTPCode.get() != 200) { // Error handling
-            String reason = "";
+            String reason = ""; // Stores reason for error
+
             if (response.has("error")) {
                 reason = response.getJSONObject("error").getJSONArray("errors").getJSONObject(0).getString("reason");
             }
@@ -129,7 +130,7 @@ public class YouTube extends Services implements HasRefreshToken {
                 Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
                         + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
-                Thread.sleep(sleepTime);
+                Thread.sleep(SLEEPTIME);
                 return false;
 
             } else { // General error handling

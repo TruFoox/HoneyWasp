@@ -8,7 +8,7 @@ import java.util.List;
         "api_key",
         "auto_post_mode",
         "video_mode",
-        "time_between_posts",
+        "minutes_between_posts",
         "attempts_before_timeout",
         "subreddits",
         "blacklist",
@@ -25,7 +25,7 @@ public class InstagramSettings implements PlatformSettings {
     private String api_key;
     private boolean auto_post_mode;
     private boolean video_mode;
-    private int time_between_posts;
+    private int minutes_between_posts;
     private int attempts_before_timeout;
     private List<String> subreddits;
     private List<String> blacklist;
@@ -55,8 +55,8 @@ public class InstagramSettings implements PlatformSettings {
     public boolean isVideo_mode() { return video_mode; }
     public void setVideo_mode(boolean video_mode) { this.video_mode = video_mode; }
 
-    public int getTime_between_posts() { return time_between_posts; }
-    public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
+    public int getMinutes_between_posts() { return minutes_between_posts; }
+    public void setMinutes_between_posts(int minutes_between_posts) { this.minutes_between_posts = minutes_between_posts; }
 
     public int getAttempts_before_timeout() { return attempts_before_timeout; }
     public void setAttempts_before_timeout(int attempts_before_timeout) { this.attempts_before_timeout = attempts_before_timeout; }

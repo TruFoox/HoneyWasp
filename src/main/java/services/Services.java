@@ -30,15 +30,14 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     protected boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
-    protected int randIndex, sleepTime, countAttempt, connectionDropWait;
+    protected int randIndex, countAttempt, connectionDropWait;
     protected File[] media, audio;
 
     // Config
     protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
-    protected int ATTEMPTS_BEFORE_TIMEOUT;
-    protected int MINS_BETWEEN_POSTS;
+    protected int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME;
     public int HOURS_BEFORE_DUPLICATES_REMOVED; // Used in FileIO.java
 
     public Services(String name, String shortName) { // Constructor
@@ -49,7 +48,7 @@ public abstract class Services extends Thread {
         settings = HoneyWasp.config.Platform(name.toLowerCase()); // Select config for this platform
 
         AUTO_POST_MODE = settings.isAuto_post_mode();
-        MINS_BETWEEN_POSTS = settings.getTime_between_posts();
+        SLEEPTIME = settings.getMinutes_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
         ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
         SUBREDDITS = settings.getSubreddits();
         AUDIO_ENABLED = settings.isAudio_enabled();
@@ -63,7 +62,6 @@ public abstract class Services extends Thread {
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();
 
-        sleepTime = settings.getTime_between_posts() * 60000; // Generate time to sleep between posts in seconds
     }
 
     public void run() {
@@ -95,7 +93,7 @@ public abstract class Services extends Thread {
                     if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                         Output.webhookPrint(this, "Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
-                        Thread.sleep(sleepTime); // Sleep (Easy way to fake a "skipped attempt")
+                        Thread.sleep(SLEEPTIME); // Sleep (Easy way to fake a "skipped attempt")
                         countAttempt = 0;
                     }
 
@@ -107,10 +105,13 @@ public abstract class Services extends Thread {
                             case 1: // Soft fail (retry)
                                 Thread.sleep(1000); // Sleep 1s to prevent spam
                                 continue;
-                            case 2: // Fail (quit)
-                                return;
+                            case 2: // Fail (quit) - this doesn't use break to exit main loop because that doesn't work in switch
+                                run = false;
+                                continue;
 
                         }
+
+                        if (!run) {break;}
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
                         /* If format is video, convert image to video */
@@ -156,7 +157,7 @@ public abstract class Services extends Thread {
                             } else {
                                 Output.print(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
 
-                                Thread.sleep(sleepTime);
+                                Thread.sleep(SLEEPTIME);
                                 continue;
                             }
                             fileDir = "./cache/" + name.toLowerCase() + "/temp.mp4";
@@ -180,12 +181,12 @@ public abstract class Services extends Thread {
                                         "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
                                         "\n\n\tError message: " + response, Output.RED);
 
-                                return;
+                                break;
                             } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
                                 Output.webhookPrint(this, "Error uploading file to 0x0.su (temp storage provider). Quitting..." +
                                         "\n\tError message: " + response, Output.RED);
 
-                                return;
+                                break;
                             }
 
                             mediaURL = response;
@@ -202,16 +203,16 @@ public abstract class Services extends Thread {
                     /* Fetch token, upload, then publish media */
 
                     // Lots of if (!run) to combat /stop not working, especially on poor internet connections
-                    if (!run) {return;}
+                    if (!run) {break;}
 
-                    if (!fetchUserToken()) {return;} // Attempt to fetch access token (Quit if failed)
+                    if (!fetchUserToken()) {break;} // Attempt to fetch access token (Quit if failed)
 
-                    if (!run) {return;}
+                    if (!run) {break;}
 
                     if (upload()) {
                         Thread.sleep(2000); // Sleep 2 seconds to allow server time to process (A complete waste of time 99% of the time, but better be safe)
 
-                        if (!run) {return;}
+                        if (!run) {break;}
 
                         if (publish()) {
                             if (AUTO_POST_MODE) {
@@ -224,7 +225,7 @@ public abstract class Services extends Thread {
                             FileIO.writeList(mediaURL, this, false);
 
                             System.gc(); // Suggest garbage collection
-                            if (run) {Thread.sleep(sleepTime);} // Sleep if /stop not used
+                            if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
                             countAttempt = 0; // Reset count attempt
                         } else {Output.debugPrint(this, "Publish failed");}
                     } else {Output.debugPrint(this, "Upload failed");}
@@ -242,7 +243,7 @@ public abstract class Services extends Thread {
             } finally { // Crash/Stop handling
                 Output.webhookPrint(this, "Stopped");
             }
-        } while (HoneyWasp.RESTART);
+        } while (HoneyWasp.RESTART); // Loop if restart enabled
     }
 
     private int getMemeAPI() throws Exception {
@@ -302,19 +303,19 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
-                Thread.sleep(sleepTime + 21600000L); // Sleep normal time + 6 hours
+                Thread.sleep(SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
                 return 1;
             case 502: // Cloudflare error 2
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                Thread.sleep(sleepTime); // Sleep
+                Thread.sleep(SLEEPTIME); // Sleep
                 return 1;
             case 530: // Cloudflare error 3
                 Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
 
-                Thread.sleep(sleepTime + 7200000L); // Sleep normal time + 2 hours
+                Thread.sleep(SLEEPTIME + 7200000L); // Sleep normal time + 2 hours
                 return 1;
             default: // General error handling
                 Output.webhookPrint(this,"Failed to retrieve image data from meme-api.com with error code " + HTTPSend.HTTPCode.get() + ". Quitting..."

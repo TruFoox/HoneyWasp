@@ -9,7 +9,7 @@ import java.util.List;
         "client_secret",
         "client_id",
         "auto_post_mode",
-        "time_between_posts",
+        "minutes_between_posts",
         "attempts_before_timeout",
         "subreddits",
         "blacklist",
@@ -28,7 +28,7 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     private String client_secret;
     private String client_id;
     private boolean auto_post_mode;
-    private int time_between_posts;
+    private int minutes_between_posts;
     private int attempts_before_timeout;
     private List<String> subreddits;
     private List<String> blacklist;
@@ -56,8 +56,8 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     public boolean isAuto_post_mode() { return auto_post_mode; }
     public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
 
-    public int getTime_between_posts() { return time_between_posts; }
-    public void setTime_between_posts(int time_between_posts) { this.time_between_posts = time_between_posts; }
+    public int getMinutes_between_posts() { return minutes_between_posts; }
+    public void setMinutes_between_posts(int minutes_between_posts) { this.minutes_between_posts = minutes_between_posts; }
 
     public int getHours_before_duplicate_removed() { return hours_before_duplicate_removed; }
     public void setHours_before_duplicate_removed(int hours_before_duplicate_removed) {this.hours_before_duplicate_removed = hours_before_duplicate_removed;}

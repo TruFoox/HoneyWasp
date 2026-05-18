@@ -74,14 +74,13 @@ public class Instagram extends Services {
             do {
                 Output.print(this, "Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
 
-                // Corrected Instagram API polling request
                 response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/" + postID + "?fields=status_code&access_token=" + TOKEN);
 
                 if (HTTPSend.HTTPCode.get() != 200) { // Error handling
-                    Output.print(this, "Failed to get post upload status, waiting 1 minute before attempting upload..." +
+                    Output.print(this, "Failed to get post upload status, waiting 3 minutes before attempting upload to be safe..." +
                             "Error message: " + response, Output.RED, true);
 
-                    Thread.sleep(60000);
+                    Thread.sleep(180000);
                     continue;
                 }
 
