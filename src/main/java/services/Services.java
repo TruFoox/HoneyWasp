@@ -100,6 +100,7 @@ public abstract class Services extends Thread {
                     /* Fetch media */
                     if (AUTO_POST_MODE) {
                         boolean memeAPIFailed = false;
+
                         switch (getMemeAPI()) {
                             case 0: // Success
                                 break;
@@ -249,13 +250,13 @@ public abstract class Services extends Thread {
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
-                Output.debugPrint(this, "Error during sleep: " + e.getMessage());
+                Output.debugPrint(this, "Bot crashed - Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
-                Output.webhookPrint(this, "Bot crashed: Connection likely dropped: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "Bot crashed - Connection likely dropped: " + e.getMessage(), Output.RED);
             } catch (IOException e) {
-                Output.webhookPrint(this, "Bot crashed: IO issue occurred: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
-                Output.webhookPrint(this, "Bot crashed with unexpected error: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "Bot crashed - Unknown error: " + e.getMessage(), Output.RED);
             } finally { // Crash/Stop handling
                 Output.webhookPrint(this, "Stopped");
             }
@@ -411,7 +412,7 @@ public abstract class Services extends Thread {
     /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
     public int checkValidity() {
         Output.debugPrint(this, "Validating image");
-        
+
         // Download image & check aspect ratio if needed
         if (doSizeTest) {
             Output.debugPrint(this, "Attempting to download image to verify aspect ratio");
@@ -462,11 +463,9 @@ public abstract class Services extends Thread {
         for (String[] row : usedURLs) {
             String usedUrl = row[0];
             if (mediaURL.equalsIgnoreCase(usedUrl)) {
-                String timestampStr = row[1];
+                long expireTime = Long.parseLong(row[1]);
 
-                long timestamp = Long.parseLong(timestampStr);
-
-                if (DUPLICATES_ALLOWED || timestamp < System.currentTimeMillis() && HOURS_BEFORE_DUPLICATES_REMOVED != 0) { // Test if cached url is too old to be considered duplicate
+                if (!DUPLICATES_ALLOWED && (expireTime > System.currentTimeMillis() && HOURS_BEFORE_DUPLICATES_REMOVED != 0)) { // Test if cached url is too old to be considered duplicate
                     Output.print(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
 
                     return 1;

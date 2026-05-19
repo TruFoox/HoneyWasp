@@ -1,5 +1,6 @@
 package main;
 
+import config.PlatformSettings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -15,10 +16,8 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
 import java.awt.*;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
 
 /* Main
@@ -28,18 +27,20 @@ import java.util.Map;
 public class HoneyWasp extends ListenerAdapter {
     public static Config config; // Universal config handler for the bot
 
-    static Map<String, Services> services = new HashMap<>();
-    static float currentVersion = 4.2f; // Current version number
+    private static final Map<String, Supplier<Services>> services = Map.of( // List of services and their objects to improve OOP
+            "Instagram", Instagram::new,
+            "YouTube", YouTube::new
+    );
+    static float currentVersion = 4.3f; // Current version number
+
+    static Map<String, Services> runningServices = new HashMap<>();
     static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
-    static List<String> AUTOSTART;
     public static boolean DEBUG_MODE, RESTART; // General config items used by threads
 
 
     public static void main(String[] args) {
-        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
-        System.setProperty("org.slf4j.simpleLogger.log.com.neovisionaries.ws.client", "off"); // Hide network errors
 
         // Print logo
         System.out.print(Output.YELLOW + "\n" +
@@ -75,9 +76,13 @@ public class HoneyWasp extends ListenerAdapter {
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
         BOTTOKEN = config.General().getDiscordBotToken();
-        AUTOSTART = config.General().getAutostart();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
+
+        if (!DEBUG_MODE) { // JDA logging options
+            System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
+            System.setProperty("org.slf4j.simpleLogger.log.com.neovisionaries.ws.client", "off"); // Hide network errors
+        }
 
         // Check for new version
         try {
@@ -150,7 +155,7 @@ public class HoneyWasp extends ListenerAdapter {
                                             .addChoice("Instagram", "instagram")
                                             .addChoice("Youtube", "youtube")),
                             Commands.slash("clear", "Clear cache of specified service")
-                                    .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
+                                    .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to clear the duplicate cache of", true)
                                             .addChoice("All", "all")
                                             .addChoice("Instagram", "instagram")
                                             .addChoice("Youtube", "youtube"))
@@ -161,26 +166,18 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
         // Automatic starting of services
-        for(String item : AUTOSTART) {
-            Output.debugPrint(null, "Checking autostart token: " + item);
+        for(String service : services.keySet()) {
+            Output.debugPrint(null, "Checking potential autostart token: " + service);
+            PlatformSettings serviceSettings = HoneyWasp.config.Platform(service.toLowerCase());
 
-
-            if (item.equalsIgnoreCase("instagram")) {
-                bot = new Instagram();
-                services.put("instagram", bot);
-            }
-            else if (item.equalsIgnoreCase("youtube")) {
-                bot = new YouTube();
-                services.put("youtube", bot);
-            }
-            else if (item.equalsIgnoreCase("twitter")) {
-                //bot = new Twitter();
-                //services.put("twitter", bot);
+            if (serviceSettings.isAutostart()) {
+                bot = services.get(service).get(); // new Instagram, new YouTube, etc
             }
 
             if (bot != null) {
+                runningServices.put(service.toLowerCase(), bot);
                 bot.start();
-                Output.webhookPrint(null, "Autostarting " + bot.name, Output.YELLOW);
+                Output.webhookPrint(null, "Autostarting " + service, Output.YELLOW);
             }
         }
     } // If no discord token, processing stops here. Otherwise, commands can be invoked
@@ -205,26 +202,15 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        // Threads
-                        if (services.containsKey("instagram")) {
-                            Output.webhookPrint(null, "Instagram is already running.");
-                        } else {
-                            bot = new Instagram();
-                            services.put("instagram", bot);
-                            bot.start();
+                        for(String name : services.keySet()) {
+                            if (runningServices.containsKey(service)) {
+                                Output.webhookPrint(null, name + " is already running.");
+                            } else {
+                                bot = services.get(name).get();
+                                runningServices.put(name.toLowerCase(), bot);
+                                bot.start();
+                            }
                         }
-
-                        if (services.containsKey("youtube")) {
-                            Output.webhookPrint(null, "YouTube is already running.");
-                        } else {
-                            bot = new YouTube();
-                            services.put("youtube", bot);
-                            bot.start();
-                        }
-
-                        //bot = new Twitter();
-                        //services.put("twitter", bot);
-                        //bot.start();
 
                         break;
                     }
@@ -238,11 +224,11 @@ public class HoneyWasp extends ListenerAdapter {
                                 .addField("Starting bot on " + service, "Use /stop to stop", false);
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
-                        if (services.containsKey("instagram")) {
+                        if (runningServices.containsKey("instagram")) {
                             Output.webhookPrint(null, "Instagram is already running. Stop it first.");
                         } else {
                             bot = new Instagram();
-                            services.put("instagram", bot);
+                            runningServices.put("instagram", bot);
                             bot.start();
                         }
 
@@ -260,11 +246,11 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("youtube")) {
+                        if (runningServices.containsKey("youtube")) {
                             Output.webhookPrint(null, "YouTube is already running. Stop it first.");
                         } else {
                             bot = new YouTube();
-                            services.put("youtube", bot);
+                            runningServices.put("youtube", bot);
                             bot.start();
                         }
                         break;
@@ -281,7 +267,7 @@ public class HoneyWasp extends ListenerAdapter {
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         //bot = new Twitter();
-                        services.put("twitter", bot);
+                        runningServices.put("twitter", bot);
                         bot.start();
 
                         break;
@@ -301,15 +287,14 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("instagram")) {
-                            services.get("instagram").halt();
-                            services.remove("instagram");
-                        } else {Output.webhookPrint(null, "Instagram not running");}
-                        if (services.containsKey("youtube")) {
-                            services.get("youtube").halt();
-                            services.remove("youtube");
-                        } else {Output.webhookPrint(null, "Youtube not running");}
-                        //services.get("twitter").halt();
+                        for(String name : services.keySet()) {
+                            if (!runningServices.containsKey(service)) {
+                                Output.webhookPrint(null, name + " is not running.");
+                            } else {
+                                runningServices.get(name).halt();
+                                runningServices.remove(name);
+                            }
+                        }
 
                         break;
                     }
@@ -325,9 +310,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("instagram")) {
-                            services.get("instagram").halt();
-                            services.remove("instagram");
+                        if (runningServices.containsKey("instagram")) {
+                            runningServices.get("instagram").halt();
+                            runningServices.remove("instagram");
                         } else {Output.webhookPrint(null, "Instagram not running");}
 
                         break;
@@ -344,9 +329,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("youtube")) {
-                            services.get("youtube").halt();
-                            services.remove("youtube");
+                        if (runningServices.containsKey("youtube")) {
+                            runningServices.get("youtube").halt();
+                            runningServices.remove("youtube");
                         } else {Output.webhookPrint(null, "Youtube not running");}
 
                         break;
@@ -362,9 +347,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        if (services.containsKey("twitter")) {
-                            services.get("twitter").halt();
-                            services.remove("twitter");
+                        if (runningServices.containsKey("twitter")) {
+                            runningServices.get("twitter").halt();
+                            runningServices.remove("twitter");
                         } else {Output.webhookPrint(null, "Twitter not running");}
 
                         break;
@@ -381,8 +366,8 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setTitle("Service Statuses")
-                                .addField("Instagram", services.containsKey("instagram") ? "Running" : "Stopped", true)
-                                .addField("YouTube", services.containsKey("youtube") ? "Running" : "Stopped", true);
+                                .addField("Instagram", runningServices.containsKey("instagram") ? "Running" : "Stopped", true)
+                                .addField("YouTube", runningServices.containsKey("youtube") ? "Running" : "Stopped", true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         break;
@@ -395,7 +380,7 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setTitle("Instagram Status")
-                                .addField("Running", Boolean.toString(services.containsKey("instagram")), true);
+                                .addField("Running", Boolean.toString(runningServices.containsKey("instagram")), true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         break;
@@ -408,7 +393,7 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setTitle("YouTube Status")
-                                .addField("Running", Boolean.toString(services.containsKey("youtube")), true);
+                                .addField("Running", Boolean.toString(runningServices.containsKey("youtube")), true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         break;
@@ -420,7 +405,7 @@ public class HoneyWasp extends ListenerAdapter {
                                         "https://github.com/TruFoox/HoneyWasp",
                                         iconURL)
                                 .setTitle("Twitter Status")
-                                .addField("Running", Boolean.toString(services.containsKey("twitter")), true);
+                                .addField("Running", Boolean.toString(runningServices.containsKey("twitter")), true);
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                         break;
@@ -440,10 +425,9 @@ public class HoneyWasp extends ListenerAdapter {
 
                         event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        FileIO.clearList("Instagram");
-                        FileIO.clearList("YouTube");
-
-                        //services.get("twitter").clear();
+                        for(String name : services.keySet()) {
+                            FileIO.clearList(name);
+                        }
 
                         break;
                     }
