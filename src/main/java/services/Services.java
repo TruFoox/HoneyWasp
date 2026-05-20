@@ -66,6 +66,7 @@ public abstract class Services extends Thread {
 
     public void run() { // Remember: Use return to quit service entirely and bypass restart, else use break
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
+        FileIO.autoClear(this); // Scan cache for posts whose duplicate check has expired
 
         do { // Loop if restart enabled
             run = true;
