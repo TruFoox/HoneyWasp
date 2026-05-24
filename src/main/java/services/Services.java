@@ -66,7 +66,6 @@ public abstract class Services extends Thread {
 
     public void run() { // Remember: Use return to quit service entirely and bypass restart, else use break
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
-        FileIO.autoClear(this); // Scan cache for posts whose duplicate check has expired
 
         do { // Loop if restart enabled
             run = true;
@@ -81,6 +80,8 @@ public abstract class Services extends Thread {
                 }
 
                 if (!getMediaSource()) {return;} // Fetch media source (Quit if failed)
+
+                FileIO.autoClear(this); // Scan cache for posts whose duplicate check has expired
 
                 // Start bot
                 while (run) { // Main loop
@@ -323,19 +324,19 @@ public abstract class Services extends Thread {
                 }
 
             case 503: // Cloudflare error
-                Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
+                Output.webhookPrint(this,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
                 Thread.sleep(SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
                 return 1;
             case 502: // Cloudflare error 2
-                Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
+                Output.webhookPrint(this,"Cloudflare HTTP Status Code 502 - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
                 Thread.sleep(SLEEPTIME); // Sleep
                 return 1;
             case 530: // Cloudflare error 3
-                Output.webhookPrint(this,"Failed. Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
+                Output.webhookPrint(this,"Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
 
                 Thread.sleep(SLEEPTIME + 7200000L); // Sleep normal time + 2 hours

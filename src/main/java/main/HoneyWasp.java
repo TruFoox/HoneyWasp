@@ -26,11 +26,13 @@ import java.util.function.Supplier;
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
     public static Config config; // Universal config handler for the bot
+    public record ServiceData(Supplier<Services> serviceObject, String imageURL, String capsName) {} // Defines data layout of service data
 
-    private static final Map<String, Supplier<Services>> services = Map.of( // List of services and their objects to improve OOP
-            "Instagram", Instagram::new,
-            "YouTube", YouTube::new
+    private static final Map<String, ServiceData> services = Map.of(
+            "instagram", new ServiceData(Instagram::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png", "Instagram"),
+            "youtube", new ServiceData(YouTube::new, "https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png", "YouTube")
     );
+
     static float currentVersion = 4.3f; // Current version number
 
     static Map<String, Services> runningServices = new HashMap<>();
@@ -171,12 +173,10 @@ public class HoneyWasp extends ListenerAdapter {
             PlatformSettings serviceSettings = HoneyWasp.config.Platform(service.toLowerCase());
 
             if (serviceSettings.isAutostart()) {
-                bot = services.get(service).get(); // new Instagram, new YouTube, etc
-            }
-
-            if (bot != null) {
+                bot = services.get(service).serviceObject.get(); // new Instagram, new YouTube, etc
                 runningServices.put(service.toLowerCase(), bot);
                 bot.start();
+
                 Output.webhookPrint(null, "Autostarting " + service, Output.YELLOW);
             }
         }
@@ -191,293 +191,120 @@ public class HoneyWasp extends ListenerAdapter {
 
         switch (event.getName()) {
             case "start": {
-                switch (service) {
-                    case "all": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .addField("Starting bot on all services", "Use /stop to stop", false);
+                if (service.equals("all")) {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .addField("Starting bot on all services", "Use /stop to stop", false);
 
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        for(String name : services.keySet()) {
-                            if (runningServices.containsKey(service)) {
-                                Output.webhookPrint(null, name + " is already running.");
-                            } else {
-                                bot = services.get(name).get();
-                                runningServices.put(name.toLowerCase(), bot);
-                                bot.start();
-                            }
-                        }
-
-                        break;
-                    }
-                    case "instagram": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
-                                .addField("Starting bot on " + service, "Use /stop to stop", false);
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                        if (runningServices.containsKey("instagram")) {
-                            Output.webhookPrint(null, "Instagram is already running. Stop it first.");
+                    for (String name : services.keySet()) {
+                        if (runningServices.containsKey(service)) {
+                            Output.webhookPrint(null, name + " is already running.");
                         } else {
-                            bot = new Instagram();
-                            runningServices.put("instagram", bot);
+                            bot = services.get(name).serviceObject().get();
+                            runningServices.put(name.toLowerCase(), bot);
                             bot.start();
                         }
-
-                        break;
                     }
+                } else {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setThumbnail(services.get(service).imageURL)
+                            .addField("Starting bot on " + services.get(service).capsName, "Use /stop to stop", false);
 
-                    case "youtube": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
-                                .addField("Starting bot on " + service, "Use /stop to stop", false);
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        if (runningServices.containsKey("youtube")) {
-                            Output.webhookPrint(null, "YouTube is already running. Stop it first.");
-                        } else {
-                            bot = new YouTube();
-                            runningServices.put("youtube", bot);
-                            bot.start();
-                        }
-                        break;
-                    }
-                    case "twitter": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
-                                .addField("Starting bot on " + service, "Use /stop to stop", false);
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        //bot = new Twitter();
-                        runningServices.put("twitter", bot);
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
+                    if (runningServices.containsKey(service)) {
+                        Output.webhookPrint(null, services.get(service).capsName + " is already running. Stop it first.");
+                    } else {
+                        bot = services.get(service).serviceObject.get();
+                        runningServices.put(service, bot);
                         bot.start();
-
-                        break;
                     }
                 }
                 break;
             }
             case "stop": {
-                switch (service) {
-                    case "all": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setDescription("Attempting to stop all services");
+                if (service.equals("all")) {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setDescription("Attempting to stop all services");
 
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        for(String name : services.keySet()) {
-                            if (!runningServices.containsKey(service)) {
-                                Output.webhookPrint(null, name + " is not running.");
-                            } else {
-                                runningServices.get(name).halt();
-                                runningServices.remove(name);
-                            }
+                    for (String name : services.keySet()) {
+                        if (!runningServices.containsKey(service)) {
+                            Output.webhookPrint(null, name + " is not running.");
+                        } else {
+                            runningServices.get(name).halt();
+                            runningServices.remove(name);
                         }
-
-                        break;
                     }
+                } else {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setThumbnail(services.get(service).imageURL)
+                            .setDescription("Attempting to stop " + services.get(service).capsName);
 
-                    case "instagram": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
-                                .setDescription("Attempting to stop " + service);
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        if (runningServices.containsKey("instagram")) {
-                            runningServices.get("instagram").halt();
-                            runningServices.remove("instagram");
-                        } else {Output.webhookPrint(null, "Instagram not running");}
-
-                        break;
-                    }
-
-                    case "youtube": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
-                                .setDescription("Attempting to stop " + service);
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        if (runningServices.containsKey("youtube")) {
-                            runningServices.get("youtube").halt();
-                            runningServices.remove("youtube");
-                        } else {Output.webhookPrint(null, "Youtube not running");}
-
-                        break;
-                    }
-                    case "twitter": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
-                                .setDescription("Attempting to stop " + service);
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        if (runningServices.containsKey("twitter")) {
-                            runningServices.get("twitter").halt();
-                            runningServices.remove("twitter");
-                        } else {Output.webhookPrint(null, "Twitter not running");}
-
-                        break;
+                    if (runningServices.containsKey(service)) {
+                        runningServices.get(service).halt();
+                        runningServices.remove(service);
+                    } else {
+                        Output.webhookPrint(null, services.get(service).capsName + " not running");
                     }
                 }
                 break;
             }
             case "status": {
-                switch (service) {
-                    case "all": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setTitle("Service Statuses")
-                                .addField("Instagram", runningServices.containsKey("instagram") ? "Running" : "Stopped", true)
-                                .addField("YouTube", runningServices.containsKey("youtube") ? "Running" : "Stopped", true);
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        break;
-                    }
-
-                    case "instagram": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setTitle("Instagram Status")
-                                .addField("Running", Boolean.toString(runningServices.containsKey("instagram")), true);
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        break;
-                    }
-
-                    case "youtube": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setTitle("YouTube Status")
-                                .addField("Running", Boolean.toString(runningServices.containsKey("youtube")), true);
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        break;
-                    }
-                    case "twitter": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setTitle("Twitter Status")
-                                .addField("Running", Boolean.toString(runningServices.containsKey("twitter")), true);
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        break;
-                    }
+                if (service.equals("all")) {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setThumbnail(services.get(service).imageURL)
+                            .setTitle("Service Statuses")
+                            .addField("Instagram", runningServices.containsKey("instagram") ? "Running" : "Stopped", true)
+                            .addField("YouTube", runningServices.containsKey("youtube") ? "Running" : "Stopped", true);
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
+                } else {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setThumbnail(services.get(service).imageURL)
+                            .setTitle(services.get(service).capsName + " Status")
+                            .addField("Running", Boolean.toString(runningServices.containsKey(service)), true);
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
                 }
                 break;
             }
             case "clear": {
-                switch (service) {
-                    case "all": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setDescription("Attempting to clear all caches");
+                if (service.equals("all")) {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setThumbnail(services.get(service).imageURL)
+                            .setDescription("Attempting to clear all caches");
 
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        for(String name : services.keySet()) {
-                            FileIO.clearList(name);
-                        }
-
-                        break;
+                    for (String name : services.keySet()) {
+                        FileIO.clearList(name);
                     }
+                } else {
+                    EmbedBuilder embed = new EmbedBuilder()
+                            .setColor(new Color(0xFF8307))
+                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
+                            .setThumbnail(services.get(service).imageURL)
+                            .setDescription("Attempting to clear " + services.get(service).capsName + " cache");
 
-                    case "instagram": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png")
-                                .setDescription("Attempting to clear " + service + " cache");
+                    event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        FileIO.clearList("Instagram");
-
-                        break;
-                    }
-
-                    case "youtube": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png")
-                                .setDescription("Attempting to clear " + service + " cache");
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        FileIO.clearList("YouTube");
-
-                        break;
-                    }
-                    case "twitter": {
-                        EmbedBuilder embed = new EmbedBuilder()
-                                .setColor(new Color(0xFF8307))
-                                .setAuthor("Honeywasp",
-                                        "https://github.com/TruFoox/HoneyWasp",
-                                        iconURL)
-                                .setThumbnail("https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg")
-                                .setDescription("Attempting to clear " + service + " cache");
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-
-                        FileIO.clearList("Twitter");
-
-                        break;
-                    }
+                    FileIO.clearList(service);
                 }
                 break;
             }

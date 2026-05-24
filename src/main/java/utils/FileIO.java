@@ -58,14 +58,14 @@ public class FileIO {
     public static void autoClear(Services service) {
         try {
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
-            Output.debugPrint(null, "Attempting to auto-clear cache of " + service.name);
+            Output.debugPrint(service, "Attempting to auto-clear cache");
 
             service.usedURLs.removeIf(row -> Long.parseLong(row[1]) < System.currentTimeMillis());
 
             Files.writeString(cachePath, ""); // Clear file before overriding
 
             for (String[] row : service.usedURLs) { // Override old file
-                Files.writeString(cachePath, row[0] + "," + row[1] + "\n", StandardOpenOption.APPEND);
+                Files.writeString(cachePath, row[0] + "," + row[1] + "\n", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             }
         } catch (IOException e) {
             Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
