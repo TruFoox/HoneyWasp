@@ -268,6 +268,8 @@ public abstract class Services extends Thread {
                 try {Thread.sleep(5000);} catch (Exception _) {return;} // Sleep 5 secs to prevent spam if the crash is repeated
             }
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
+
+        HoneyWasp.runningServices.remove(name.toLowerCase()); // Remove service from list of running ones
     }
 
     private int getMemeAPI() throws Exception {
@@ -414,7 +416,6 @@ public abstract class Services extends Thread {
     /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
     public int checkValidity() {
         Output.debugPrint(this, "Validating image");
-
 
         // Ensure post is not duplicate
         Output.debugPrint(this, "Testing if image url is duplicate");

@@ -35,7 +35,7 @@ public class HoneyWasp extends ListenerAdapter {
 
     static float currentVersion = 4.3f; // Current version number
 
-    static Map<String, Services> runningServices = new HashMap<>();
+    public static Map<String, Services> runningServices = new HashMap<>();
     static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
@@ -240,7 +240,6 @@ public class HoneyWasp extends ListenerAdapter {
                             Output.webhookPrint(null, name + " is not running.");
                         } else {
                             runningServices.get(name).halt();
-                            runningServices.remove(name);
                         }
                     }
                 } else {
@@ -254,7 +253,6 @@ public class HoneyWasp extends ListenerAdapter {
 
                     if (runningServices.containsKey(service)) {
                         runningServices.get(service).halt();
-                        runningServices.remove(service);
                     } else {
                         Output.webhookPrint(null, services.get(service).capsName + " not running");
                     }
