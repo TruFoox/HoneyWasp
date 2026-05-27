@@ -1,9 +1,10 @@
 package utils;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.*;
 import java.net.URI;
@@ -14,12 +15,14 @@ import java.util.Map;
 import java.util.UUID;
 import services.Services;
 
+import javax.imageio.ImageIO;
+
 // Reminder:
 // Header: Metadata about request
 // Body: The data actually being sent
 
 
-// HTTPSend - Most of these I made, but HTTPSend.postFile I didn't make
+// HTTPSend - Some of these I made, but the bigger ones I didn't make
 //
 //
 // String HTTPSend.get  ; Send HTTP GET request
@@ -119,7 +122,7 @@ public class HTTPSend {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("User-Agent", "main.HoneyWasp/3.0")
+                .header("User-Agent", "main.HoneyWasp/3.0") // API forces honesty
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
                 .header("Accept-Language", "en-US,en;q=0.9")
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
@@ -160,7 +163,6 @@ public class HTTPSend {
         return response.body();
     }
 
-    /* I put this in a separate class because it's not my code (YouTube uploading is annoyingly specific) */
     public static String postYouTubeVideo(Services service, String url, Path videoPath, String metadataJson, String oauthToken) throws Exception {
 
         HttpClient client = HttpClient.newHttpClient();
@@ -216,4 +218,31 @@ public class HTTPSend {
         return response.body();
     }
 
+    public static Image getImageData(String imageurl) throws Exception {
+        URL url = java.net.URI.create(imageurl).toURL();
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(10000);
+
+        connection.setInstanceFollowRedirects(true);
+
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode != 200) {
+            throw new IOException("HTTP " + responseCode);
+        }
+
+        BufferedImage image;
+
+        try (InputStream input = connection.getInputStream()) {image = ImageIO.read(input);}
+
+        if (image == null) {throw new IOException("ImageIO could not decode image.");}
+
+        return image;
+    }
 }

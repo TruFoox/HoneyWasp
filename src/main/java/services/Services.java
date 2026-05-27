@@ -415,15 +415,30 @@ public abstract class Services extends Thread {
     public int checkValidity() {
         Output.debugPrint(this, "Validating image");
 
+
+        // Ensure post is not duplicate
+        Output.debugPrint(this, "Testing if image url is duplicate");
+        for (String[] row : usedURLs) {
+            String usedUrl = row[0];
+            if (mediaURL.equalsIgnoreCase(usedUrl)) {
+                long expireTime = Long.parseLong(row[1]);
+
+                if (!DUPLICATES_ALLOWED && (expireTime > System.currentTimeMillis() && HOURS_BEFORE_DUPLICATES_REMOVED != 0)) { // Test if cached url is too old to be considered duplicate
+                    Output.print(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
+
+                    return 1;
+                }
+            }
+        }
+
         // Download image & check aspect ratio if needed
         if (doSizeTest) {
             Output.debugPrint(this, "Attempting to download image to verify aspect ratio");
             Image image;
 
             try {
-                URL url = java.net.URI.create(mediaURL).toURL();
-                image = ImageIO.read(url);
-            } catch(IOException e)  {
+                image = HTTPSend.getImageData(mediaURL);
+            } catch(Exception e)  {
                 Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. Marking this URL as invalid..."
                         + "\n\tError message: " + e, Output.RED);
 
@@ -457,21 +472,6 @@ public abstract class Services extends Thread {
                 Output.print(this, "Caption contains blacklisted string - x" + countAttempt + " attempts", Output.RED, true);
 
                 return 1;
-            }
-        }
-
-        // Ensure post is not duplicate
-        Output.debugPrint(this, "Testing if image url is duplicate");
-        for (String[] row : usedURLs) {
-            String usedUrl = row[0];
-            if (mediaURL.equalsIgnoreCase(usedUrl)) {
-                long expireTime = Long.parseLong(row[1]);
-
-                if (!DUPLICATES_ALLOWED && (expireTime > System.currentTimeMillis() && HOURS_BEFORE_DUPLICATES_REMOVED != 0)) { // Test if cached url is too old to be considered duplicate
-                    Output.print(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
-
-                    return 1;
-                }
             }
         }
 
