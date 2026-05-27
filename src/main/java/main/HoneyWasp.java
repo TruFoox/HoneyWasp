@@ -177,7 +177,7 @@ public class HoneyWasp extends ListenerAdapter {
                 runningServices.put(service.toLowerCase(), bot);
                 bot.start();
 
-                Output.webhookPrint(null, "Autostarting " + service, Output.YELLOW);
+                Output.webhookPrint(null, "Autostarting " + services.get(service).capsName, Output.YELLOW);
             }
         }
     } // If no discord token, processing stops here. Otherwise, commands can be invoked
@@ -201,7 +201,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     for (String name : services.keySet()) {
                         if (runningServices.containsKey(service)) {
-                            Output.webhookPrint(null, name + " is already running.");
+                            Output.webhookPrint(null, services.get(name).capsName + " is already running.");
                         } else {
                             bot = services.get(name).serviceObject().get();
                             runningServices.put(name.toLowerCase(), bot);
@@ -236,10 +236,10 @@ public class HoneyWasp extends ListenerAdapter {
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                     for (String name : services.keySet()) {
-                        if (!runningServices.containsKey(service)) {
-                            Output.webhookPrint(null, name + " is not running.");
-                        } else {
+                        if (runningServices.containsKey(name)) {
                             runningServices.get(name).halt();
+                        } else {
+                            Output.webhookPrint(null, services.get(name).capsName + " is not running.");
                         }
                     }
                 } else {
@@ -254,7 +254,7 @@ public class HoneyWasp extends ListenerAdapter {
                     if (runningServices.containsKey(service)) {
                         runningServices.get(service).halt();
                     } else {
-                        Output.webhookPrint(null, services.get(service).capsName + " not running");
+                        Output.webhookPrint(null, services.get(service).capsName + " is not running");
                     }
                 }
                 break;
@@ -264,7 +264,6 @@ public class HoneyWasp extends ListenerAdapter {
                     EmbedBuilder embed = new EmbedBuilder()
                             .setColor(new Color(0xFF8307))
                             .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setThumbnail(services.get(service).imageURL)
                             .setTitle("Service Statuses")
                             .addField("Instagram", runningServices.containsKey("instagram") ? "Running" : "Stopped", true)
                             .addField("YouTube", runningServices.containsKey("youtube") ? "Running" : "Stopped", true);
@@ -285,7 +284,6 @@ public class HoneyWasp extends ListenerAdapter {
                     EmbedBuilder embed = new EmbedBuilder()
                             .setColor(new Color(0xFF8307))
                             .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setThumbnail(services.get(service).imageURL)
                             .setDescription("Attempting to clear all caches");
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
