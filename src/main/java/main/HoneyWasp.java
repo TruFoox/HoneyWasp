@@ -33,7 +33,7 @@ public class HoneyWasp extends ListenerAdapter {
             "youtube", new ServiceData(YouTube::new, "https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png", "YouTube")
     );
 
-    static float currentVersion = 4.3f; // Current version number
+    static float currentVersion = 4.4f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     static Services bot = null;

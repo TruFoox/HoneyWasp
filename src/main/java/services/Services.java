@@ -222,7 +222,7 @@ public abstract class Services extends Thread {
                     if (!run) return;
 
                     if (upload()) {
-                        Thread.sleep(2000); // Sleep 2 seconds to allow server time to process (A complete waste of time 99% of the time, but better be safe)
+                        Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
                         if (!run) return;
 

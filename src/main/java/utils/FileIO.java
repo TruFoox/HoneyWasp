@@ -22,7 +22,7 @@ public class FileIO {
             long fileTimestamp; // Timestamp to actually be written to file
 
             if (permanent) {
-                fileTimestamp = 9999999999999999L;
+                fileTimestamp = 0L;
             } else {
                 fileTimestamp = timestamp + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L);
             }
@@ -60,7 +60,7 @@ public class FileIO {
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
             Output.debugPrint(service, "Attempting to auto-clear cache");
 
-            service.usedURLs.removeIf(row -> Long.parseLong(row[1]) < System.currentTimeMillis());
+            service.usedURLs.removeIf(row -> (Long.parseLong(row[1]) < System.currentTimeMillis()) && Long.parseLong(row[1]) != 0L); // Remove all w/ duplicate removal time < current time & not set to permanent
 
             Files.writeString(cachePath, ""); // Clear file before overriding
 
