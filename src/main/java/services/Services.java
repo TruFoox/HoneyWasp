@@ -64,7 +64,11 @@ public abstract class Services extends Thread {
 
     }
 
-    public void run() { // Remember: Use return to quit service entirely and bypass restart, else use break
+    // Remember:
+    // Don't use return - it skips removing the service from list of running services
+    // Break to quit loop - keep in mind this will loop again if restart enabled
+    // Continue to re-loop
+    public void run() {
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
 
         do { // Loop if restart enabled
@@ -73,13 +77,13 @@ public abstract class Services extends Thread {
                 if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
                     Output.debugPrint(this, "Testing if refresh_token is empty");
                     if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
-                        if (!((HasRefreshToken) this).fetchRefreshToken()) {return;} // Fetch token
+                        if (!((HasRefreshToken) this).fetchRefreshToken()) {break;} // Fetch token
                     } else {
                         Output.debugPrint(this, "refresh_token was found to contain data");
                     }
                 }
 
-                if (!getMediaSource()) {return;} // Fetch media source (Quit if failed)
+                if (!getMediaSource()) {break;} // Fetch media source (Quit if failed)
 
                 FileIO.autoClear(this); // Scan cache for posts whose duplicate check has expired
 
@@ -115,7 +119,7 @@ public abstract class Services extends Thread {
                         }
                         if (memeAPIFailed) break; // Workaround to case 2
 
-                        if (!run) return;
+                        if (!run) break;
 
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
@@ -146,7 +150,7 @@ public abstract class Services extends Thread {
                                 continue;
                             }
 
-                            if (!run) return;
+                            if (!run) break;
 
                             /* Select mp4 for audio if audio enabled */
                             String audioDir = null; // Default value
@@ -174,7 +178,7 @@ public abstract class Services extends Thread {
                         fileDir = String.valueOf(media[randIndex]);
                     }
 
-                    if (!run) return;
+                    if (!run) break;
 
                     if (use0x0) { // If enabled for this service, upload manual media/generated video to temp file hoster (0x0.st)
                         if (!AUTO_POST_MODE || VIDEO_MODE) {
@@ -212,19 +216,19 @@ public abstract class Services extends Thread {
                     /* Fetch token, upload, then publish media */
 
                     // Lots of if (!run) to combat /stop not working, especially on poor internet connections
-                    if (!run) return;
+                    if (!run) break;
 
                     if (!fetchUserToken()) { // Attempt to fetch access token (Quit if failed)
                         Output.webhookPrint(this, "Failed to fetch access token. Quitting...", Output.RED);
                         break;
                     }
 
-                    if (!run) return;
+                    if (!run) break;
 
                     if (upload()) {
                         Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
-                        if (!run) return;
+                        if (!run) break;
 
                         if (publish()) {
                             if (AUTO_POST_MODE) {
@@ -240,17 +244,11 @@ public abstract class Services extends Thread {
                             System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
                             countAttempt = 0; // Reset count attempt
-                        } else {
-                            Output.webhookPrint(this, "Failed to publish", Output.RED);
-                            break;
-                        }
-                    } else {
-                        Output.webhookPrint(this, "Failed to upload", Output.RED);
-                        break;
-                    }
+                        } else {Output.webhookPrint(this, "Failed to publish", Output.RED);}
+                    } else {Output.webhookPrint(this, "Failed to upload", Output.RED);}
 
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
-                } // Main loop end
+                } // Main loop
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Bot crashed - Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
@@ -265,7 +263,7 @@ public abstract class Services extends Thread {
 
             if (HoneyWasp.RESTART && run) {
                 Output.webhookPrint(null, "It looks like " + name + " crashed. It will be restarted in 5 seconds...");
-                try {Thread.sleep(5000);} catch (Exception _) {return;} // Sleep 5 secs to prevent spam if the crash is repeated
+                try {Thread.sleep(5000);} catch (Exception _) {} // Sleep 5 secs to prevent spam if the crash is repeated
             }
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
 

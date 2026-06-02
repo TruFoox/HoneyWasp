@@ -101,6 +101,8 @@ public class Instagram extends Services {
         return true;
     }
     protected boolean publish() throws Exception {
+        Thread.sleep(5000); // Easiest way to prevent media ID not ready yet error
+
         Map<String, String> formData = new HashMap<>();
         
         formData.put("creation_id", postID);
