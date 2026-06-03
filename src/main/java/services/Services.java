@@ -263,7 +263,7 @@ public abstract class Services extends Thread {
 
             if (HoneyWasp.RESTART && run) {
                 Output.webhookPrint(null, "It looks like " + name + " crashed. It will be restarted in 5 seconds...");
-                try {Thread.sleep(5000);} catch (Exception _) {} // Sleep 5 secs to prevent spam if the crash is repeated
+                try {Thread.sleep(5000);} catch (Exception _) {break;} // Sleep 5 secs to prevent spam if the crash is repeated
             }
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
 

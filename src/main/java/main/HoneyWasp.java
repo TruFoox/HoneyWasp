@@ -1,6 +1,5 @@
 package main;
 
-import config.PlatformSettings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -11,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import config.Config;
+import config.*;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
@@ -75,16 +74,15 @@ public class HoneyWasp extends ListenerAdapter {
             Output.print(null, "Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
             ErrorHandling.exitProgram();
         }
-
-        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
         BOTTOKEN = config.General().getDiscordBotToken();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
 
-        if (!DEBUG_MODE) { // JDA logging options
-            System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error"); // Only show JDA logs for errors
-            System.setProperty("org.slf4j.simpleLogger.log.com.neovisionaries.ws.client", "off"); // Hide network errors
+        if (!DEBUG_MODE) { // JDA Logging options
+            System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda", "error");
         }
+
+        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         // Check for new version
         try {
