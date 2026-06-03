@@ -71,6 +71,7 @@ public abstract class Services extends Thread {
     public void run() {
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
 
+        restartLoop:
         do { // Loop if restart enabled
             run = true;
             try {
@@ -88,7 +89,8 @@ public abstract class Services extends Thread {
                 FileIO.autoClear(this); // Scan cache for posts whose duplicate check has expired
 
                 // Start bot
-                while (run) { // Main loop
+                mainLoop:
+                while (run) {
                     countAttempt++; // Iterate count for number of attempts to post that have been made
                     Output.debugPrint(this, "Attempt " + countAttempt + " started");
 
@@ -105,7 +107,6 @@ public abstract class Services extends Thread {
 
                     /* Fetch media */
                     if (AUTO_POST_MODE) {
-                        boolean memeAPIFailed = false;
 
                         switch (getMemeAPI()) {
                             case 0: // Success
@@ -114,10 +115,8 @@ public abstract class Services extends Thread {
                                 Thread.sleep(1000); // Sleep 1s to prevent spam
                                 continue;
                             case 2: // Fail (quit) - this doesn't use break to exit main loop because that doesn't work in switch statements
-                                memeAPIFailed = true;
-                                break;
+                                break mainLoop;
                         }
-                        if (memeAPIFailed) break; // Workaround to case 2
 
                         if (!run) break;
 
