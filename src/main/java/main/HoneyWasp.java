@@ -78,8 +78,10 @@ public class HoneyWasp extends ListenerAdapter {
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
 
-        if (!DEBUG_MODE) { // JDA Logging options
-            System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda", "error");
+        // JDA Logging options
+        if (!DEBUG_MODE) {
+            System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda", "error"); // Hide non-error JDA logs
+            System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda.internal.requests.WebSocketClient", "off"); // Hide all JDA connection failed logs
         }
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
@@ -99,8 +101,12 @@ public class HoneyWasp extends ListenerAdapter {
 
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            if (DEBUG_MODE) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            } else {
+                Output.print(null, "Failed to check for new version", Output.RED);
+            }
         }
 
         // Login to bot if discord bot token was given, else skip to autostart
@@ -128,8 +134,10 @@ public class HoneyWasp extends ListenerAdapter {
                         "\n\tBot will continue to run if autostart enabled");
                 ErrorHandling.exitProgram();
             } catch (Exception e) { // Handles login failures and interruptions
-                e.printStackTrace();
-                Output.print(null, "Bot failed to log in. Quitting...");
+                if (DEBUG_MODE) {
+                    e.printStackTrace();
+                }
+                Output.print(null, "Bot failed to log in. Quitting...", Output.RED);
                 ErrorHandling.exitProgram();
             }
 
