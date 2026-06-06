@@ -57,8 +57,12 @@ Before you can run the bot, you’ll need **Java 23 or higher** installed.
 After you have successfully confirmed you have Java 23+ installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
-**You must follow the instructions in [Discord Bot Setup](#discord-bot-setup) before you can use the bot in any capacity**
 
+You must follow the instructions in either [Instagram Setup](#instagram-setup) or [YouTube Setup](#youtube-setup) to set up the bot to be able to use the bot in any capacity
+
+It is **HIGHLY** recommended that you first follow the instructions in [Discord Bot Setup](#discord-bot-setup), so you can run the bot via commands
+- If you decide not to use Discord, you **MUST** enable autostart for the services you want to run, and leave `discord_bot_token` under `[General_Settings]` empty
+  - Without Discord, you will not be able to stop the service once it starts
 ## Discord Bot Setup
 
 ### Prerequisites
@@ -74,7 +78,7 @@ After you have successfully confirmed you have Java 23+ installed, download the 
 3. Name it, then click **Create**
 4. Click your new bot to open its settings
 5. In the **Bot** tab in the left panel, → click **Reset Token**, follow the instructions to get your bot's API token
-6. Finally, copy the new token it gives you into ``discord_bot_token`` under `[General_Settings]` in config.json
+6. Finally, copy the new token it gives you into `discord_bot_token` under `[General_Settings]` in config.json
 
 ### Step 2: Set OAuth2 Permissions
 
@@ -91,8 +95,6 @@ Go to **OAuth2 → URL Generator**:
 - `Send Messages`
 
 Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
-
-To use it with Instagram or YouTube, go to either [Instagram Setup](#instagram-setup) or [YouTube Setup](#youtube-setup) for instructions
 
 ## Instagram Setup
 
@@ -213,22 +215,22 @@ Below you can find documentation on every configuration option
 
 
 ### General_Settings
-| Key                 | Description                                                                                     |
-|---------------------|-------------------------------------------------------------------------------------------------|
-| `discord_bot_token` | Your bot's token for logging in to Discord                                                      |
-| `webhook_url`       | Discord webhook URL for notifications (Optional, set to `""` to disable)                        |
-| `autostart`         | List of services to launch automatically (e.g., `["instagram","youtube"]`)                      |
-| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`) |
-| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                     |
+| Key                 | Description                                                                                           |
+|---------------------|-------------------------------------------------------------------------------------------------------|
+| `discord_bot_token` | Your bot's token for logging in to Discord (Optional but recommended, set to `""` to disable Discord) |
+| `webhook_url`       | Discord webhook URL for notifications (Optional, set to `""` to disable)                              |
+| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)       |
+| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                           |
 
 ### Instagram_Settings
 | Key                              | Description                                                                                                                                    |
 |----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `api_key`                        | Instagram API key                                                                                                                              |
+| `autostart`                      | Whether to automatically start this service when HoneyWasp starts (`true` or `false`)                                                          |
 | `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)                   |
 | `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` & `"video_mode": true` only, add .MP3s to `/audio`)         |
-| `time_between_posts`             | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                   |
+| `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                   |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                    |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`"autopost_mode": true` only)                                                       |
 | `subreddits`                     | Subreddits to pull content from (`"autopost_mode": true` only, **exclude `r/`**)                                                               |
@@ -246,9 +248,10 @@ Below you can find documentation on every configuration option
 | `refresh_token`                  | Refresh token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                         |
 | `client_secret`                  | YouTube API key for posting                                                                                                                       |
 | `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                           |
+| `autostart`                      | Whether to automatically start this service when HoneyWasp starts (`true` or `false`)                                                             |
 | `autopost_mode`                  | Whether to automatically fetch images from reddit before converting them to videos (set to `false` to post from `/videos`)                        |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` only, add .MP3s to `/audio`)                                   |  
-| `time_between_posts`             | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                         |
+| `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                         |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                       |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`"autopost_mode": true` only)                                                          |
 | `subreddits`                     | Subreddits to pull content from (`"autopost_mode": true` only, **exclude `r/`**)                                                                  |
@@ -264,10 +267,19 @@ Below you can find documentation on every configuration option
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
-You can interact with the bot using Discord /slash commands. A list of commands can be found below:
+There are two supported methods of running the bot:
+- Enabling `autostart` in the service you want to start
+  - This will automatically start the service when HoneyWasp starts
+  - This option is required if you chose not to use Discord
+- Starting via `/start`
+  - This is only supported if you followed the instructions under [Discord Bot Setup](#discord-bot-setup)
+
+
+If you choose to use Discord, a list of commands can be found below:
 - `/start [SERVICE/ALL]` - Start the bot on the specified service
 - `/clear [SERVICE/ALL]` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
 - `/stop [SERVICE/ALL]` - Stop the bot on the specified service
+- `/status [SERVICE/ALL]` - Gets whether the specified service is running or not
 
 # Help
 

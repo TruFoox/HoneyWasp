@@ -42,7 +42,6 @@ public class HoneyWasp extends ListenerAdapter {
 
 
     public static void main(String[] args) {
-
         // Print logo
         System.out.print(Output.YELLOW + "\n" +
                 "       @@@@@                      @@@@@@\n" +
@@ -68,8 +67,10 @@ public class HoneyWasp extends ListenerAdapter {
                 "                         @@\n" +
                 " \n" +
                 "     -------------------------------------------------------------------------------------------------------------\n" + Output.RESET);
+
+        System.setProperty("org.slf4j.simpleLogger.log.com.fasterxml.jackson", "off"); // Hide jackson error logs before initialization (They are unhelpful and spammy)
         try { // Init config
-            config = Config.getInstance(); // Get config
+            config = Config.getInstance();
         } catch (Exception _) {
             Output.print(null, "Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
             ErrorHandling.exitProgram();
