@@ -33,6 +33,7 @@
 * [Author](#author)
 * [Acknowledgements](#acknowledgements)
 
+---
 # About The Project
 
 This is a simple, lightweight, yet powerful bot for Instagram, YouTube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
@@ -44,27 +45,36 @@ It is programmed with a polymorphic implementation to allow for easier contribut
   <img src="https://i.postimg.cc/Jnqhg1yy/image.png" alt="HoneyWasp" width="720" height="519" /> 
 </p>
 
+---
 # Getting Started
 Before you can run the bot, you’ll need **Java 23 or higher** installed:
 
 - You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build. 
   - On Linux, you can run `sudo apt install openjdk-23-jdk`
-- After installing, verify it’s working by running``java -version`` - It should show version 23 or higher.
+  - On Mac, you can install [Homebrew](https://brew.sh/) and run `brew install openjdk@23`, or use the links above to install manually
+- After installing, verify it’s working by running `java -version` in the console - It should show version 23 or higher.
 
 Next, you will need FFmpeg:
 - If you are running the bot on Mac or Linux, video support requires FFmpeg installed to your system PATH.
-  - You can do this on linux with `sudo apt install ffmpeg`
+  - You can do this on Linux with `sudo apt install ffmpeg`
+  - On Mac w/ [Homebrew](https://brew.sh/): `brew install ffmpeg`
+  - After installing, verify it’s working by running `ffmpeg -version` in the console
 - If you are on Windows, you are already provided with a copy of FFmpeg in the .zip and no further action is needed
 
-After you have successfully confirmed you have Java 23+ and FFmpeg installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
-- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
-
+After you have successfully confirmed you have Java 23+ and FFmpeg installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest).
 
 You must follow the instructions in either [Instagram Setup](#instagram-setup) or [YouTube Setup](#youtube-setup) to set up the bot to be able to use the bot in any capacity
 
 It is **HIGHLY** recommended that you first follow the instructions in [Discord Bot Setup](#discord-bot-setup), so you can run the bot via commands
 - If you decide not to use Discord, you **MUST** enable autostart for the services you want to run, and leave `discord_bot_token` under `[General_Settings]` empty
   - Without Discord, you will not be able to stop the service once it starts
+
+Once you are finished setting up the bot, you can launch it by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
+- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
+
+Help regarding the config can be [found here](#the-config), and more information on how to interact with the bot can be [found here](#starting-and-interacting-with-the-bot). If you are having issues with Windows defender wrongly flagging the bot as malicious, [you can find a fix here](#windows-defender-note).
+
+---
 ## Discord Bot Setup
 
 ### Prerequisites
@@ -98,6 +108,7 @@ Go to **OAuth2 → URL Generator**:
 
 Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
 
+---
 ## Instagram Setup
 
 ### Prerequisites
@@ -142,7 +153,7 @@ Copy the generated **invite URL**, paste it into your browser, and invite the bo
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
 5. Place the result inside the `api_key` under `[Instagram_Settings]` of config.json
-
+---
 ## YouTube Setup
 
 ### Prerequisites
@@ -188,6 +199,7 @@ Copy the generated **invite URL**, paste it into your browser, and invite the bo
 5. When prompted to allow access to your YouTube account, press **Continue**
 6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
 
+---
 # Usage
 There are a few specific details about the bot you need to know before you use it.
 * It only officially supports .mp3s for audio, .mp4s for video, and .jpg/png for images
@@ -198,6 +210,8 @@ There are a few specific details about the bot you need to know before you use i
 * If you are having issues, you should try enabling `debug_mode` under `General_Settings` in config.json to help pinpoint the issue
 
 Knowing all this, you can now begin [customizing the config](#the-config), then [using the bot](#starting-and-interacting-with-the-bot)
+
+
 ## The Config
 Before launching the bot, make sure `Config.json` is set up correctly.  
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
@@ -283,6 +297,7 @@ If you choose to use Discord, a list of commands can be found below:
 - `/stop [SERVICE/ALL]` - Stop the bot on the specified service
 - `/status [SERVICE/ALL]` - Gets whether the specified service is running or not
 
+---
 # Help
 
 Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
@@ -300,6 +315,7 @@ If this happens, to use the bot you must allow it through Windows Defender (Or y
 
 - Find the blocked app and click "Actions" > "Allow"
 
+---
 ## Built With
 
 Programmed with Java 23 in [IntelliJ IDEA](https://www.jetbrains.com/idea/), see [Acknowledgements](#acknowledgements)
@@ -318,6 +334,7 @@ Contributions are what make the open source community such an amazing place to l
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
 
 ## Author
 
