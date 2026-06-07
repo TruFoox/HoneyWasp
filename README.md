@@ -11,7 +11,7 @@
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
   <br /><br />
   <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
-  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp?style=social" alt="Stars" />
+  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp" alt="Stars" />
   <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
 </p>
 
@@ -41,20 +41,22 @@ All data handling, keys, tokens, and processing is handled **client side** - You
 
 It is programmed with a polymorphic implementation to allow for easier contributions, so if you want to propose an edit, feel free to [make a pull request!](#creating-a-pull-request)
 <p align="center">
-  <img src="https://i.postimg.cc/pLxRMv7B/Screenshot-2026-05-09-160559.png" alt="HoneyWasp" width="785" height="565" /> 
+  <img src="https://i.postimg.cc/Jnqhg1yy/image.png" alt="HoneyWasp" width="720" height="519" /> 
 </p>
 
 # Getting Started
-Before you can run the bot, you’ll need **Java 23 or higher** installed.
+Before you can run the bot, you’ll need **Java 23 or higher** installed:
 
 - You can download the latest version of Java from [Oracle’s official site](https://www.oracle.com/java/technologies/downloads/) or use [Adoptium](https://adoptium.net/) for an open-source build. 
   - On Linux, you can run `sudo apt install openjdk-23-jdk`
 - After installing, verify it’s working by running``java -version`` - It should show version 23 or higher.
 
-- If you are running the bot on Mac or Linux, video support requires ffmpeg installed to your system PATH.
+Next, you will need FFmpeg:
+- If you are running the bot on Mac or Linux, video support requires FFmpeg installed to your system PATH.
   - You can do this on linux with `sudo apt install ffmpeg`
+- If you are on Windows, you are already provided with a copy of FFmpeg in the .zip and no further action is needed
 
-After you have successfully confirmed you have Java 23+ installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
+After you have successfully confirmed you have Java 23+ and FFmpeg installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest). You can launch HoneyWasp by opening Launch.bat on Windows, or Launch.sh on Linux/Mac. 
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
 
@@ -226,7 +228,7 @@ Below you can find documentation on every configuration option
 | Key                              | Description                                                                                                                                    |
 |----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `api_key`                        | Instagram API key                                                                                                                              |
-| `autostart`                      | Whether to automatically start this service when HoneyWasp starts (`true` or `false`)                                                          |
+| `autostart`                      | Whether to automatically start Instagram when HoneyWasp starts (`true` or `false`)                                                             |
 | `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)                   |
 | `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` & `"video_mode": true` only, add .MP3s to `/audio`)         |
@@ -248,7 +250,7 @@ Below you can find documentation on every configuration option
 | `refresh_token`                  | Refresh token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                         |
 | `client_secret`                  | YouTube API key for posting                                                                                                                       |
 | `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                           |
-| `autostart`                      | Whether to automatically start this service when HoneyWasp starts (`true` or `false`)                                                             |
+| `autostart`                      | Whether to automatically start YouTube when HoneyWasp starts (`true` or `false`)                                                                  |
 | `autopost_mode`                  | Whether to automatically fetch images from reddit before converting them to videos (set to `false` to post from `/videos`)                        |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` only, add .MP3s to `/audio`)                                   |  
 | `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                         |
@@ -328,5 +330,5 @@ Contributions are what make the open source community such an amazing place to l
 * **[Discord Webhooks](https://github.com/MinnDevelopment/Discord-Webhooks)** - For sending messages via Discord webhooks
 * **[JavaCV](https://github.com/bytedeco/javacv)** - Java wrapper for OpenCV, used to convert photos to video
 * **[Jackson](https://github.com/FasterXML/jackson-databind)** - JSON serialization/deserialization library for configs and API calls
-* **[MemeAPI](https://github.com/D3vd/Meme_Api)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images when the user doesn't choose a source
+* **[MemeAPI](https://github.com/D3vd/Meme_Api)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images from Reddit when `auto_post_mode` enabled
 * **[0x0](https://0x0.st)** - Used to temporarily store videos for the bot to then send the URL to Instagram

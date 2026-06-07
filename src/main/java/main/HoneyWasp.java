@@ -131,9 +131,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                 Output.print(null, "Bot connected successfully!\n\n", Output.YELLOW, false, false);
             } catch (InvalidTokenException e) {
-                Output.print(null, "Discord bot token is invalid. Please verify you copied the correct token from the developer portal" +
-                        "\n\tBot will continue to run if autostart enabled");
-                ErrorHandling.exitProgram();
+                Output.print(null, "Discord bot token is invalid. Please verify you copied the correct token from the developer portal");
             } catch (Exception e) { // Handles login failures and interruptions
                 if (DEBUG_MODE) {
                     e.printStackTrace();
