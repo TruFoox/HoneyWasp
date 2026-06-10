@@ -9,6 +9,7 @@ public class ErrorHandling {
         Scanner scanner = new Scanner(System.in);
 
         scanner.nextLine();
+
         System.exit(0); // Exit program
     }
 }

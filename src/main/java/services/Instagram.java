@@ -22,10 +22,6 @@ public class Instagram extends Services {
     protected boolean upload() throws Exception {
         String response; // Store json data & URL to be used with POST
 
-        if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
-            caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
-        }
-
         caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
 
         // Build upload data

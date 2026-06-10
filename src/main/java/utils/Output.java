@@ -23,7 +23,8 @@ public class Output {
     public static final String PURPLE = "\u001B[35m";
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
-    
+
+    private static final SendWebhook webhookInstance = new SendWebhook(); // Initiate webhook instance
 
     static boolean lastOutputWasNewline = true;
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) { // Needs added replacement of "/n" with "(displacement for timestamp) + /n"
@@ -53,11 +54,10 @@ public class Output {
             if (HoneyWasp.config.General() != null) {
                 String webhook_url = HoneyWasp.config.General().getDiscordWebhook();
                 if (webhook_url != null && !webhook_url.isEmpty()) {
-                    SendWebhook webhook = new SendWebhook();
 
                     String webhookMessage = message.replace("\t", "");
 
-                    webhook.sendMessage(shortName + webhookMessage);
+                    webhookInstance.sendMessage(shortName + webhookMessage);
                 }
             }
         } catch (HttpException e) { // Webhook error

@@ -33,7 +33,6 @@
 * [Author](#author)
 * [Acknowledgements](#acknowledgements)
 
----
 # About The Project
 
 This is a simple, lightweight, yet powerful bot for Instagram, YouTube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
@@ -45,7 +44,6 @@ It is programmed with a polymorphic implementation to allow for easier contribut
   <img src="https://i.postimg.cc/Jnqhg1yy/image.png" alt="HoneyWasp" width="720" height="519" /> 
 </p>
 
----
 # Getting Started
 Before you can run the bot, you’ll need **Java 23 or higher** installed:
 
@@ -74,7 +72,6 @@ Once you are finished setting up the bot, you can launch it by opening Launch.ba
 
 Help regarding the config can be [found here](#the-config), and more information on how to interact with the bot can be [found here](#starting-and-interacting-with-the-bot). If you are having issues with Windows defender wrongly flagging the bot as malicious, [you can find a fix here](#windows-defender-note).
 
----
 ## Discord Bot Setup
 
 ### Prerequisites
@@ -108,7 +105,6 @@ Go to **OAuth2 → URL Generator**:
 
 Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
 
----
 ## Instagram Setup
 
 ### Prerequisites
@@ -153,7 +149,6 @@ Copy the generated **invite URL**, paste it into your browser, and invite the bo
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
 5. Place the result inside the `api_key` under `[Instagram_Settings]` of config.json
----
 ## YouTube Setup
 
 ### Prerequisites
@@ -199,7 +194,6 @@ Copy the generated **invite URL**, paste it into your browser, and invite the bo
 5. When prompted to allow access to your YouTube account, press **Continue**
 6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
 
----
 # Usage
 There are a few specific details about the bot you need to know before you use it.
 * It only officially supports .mp3s for audio, .mp4s for video, and .jpg/png for images
@@ -297,7 +291,6 @@ If you choose to use Discord, a list of commands can be found below:
 - `/stop [SERVICE/ALL]` - Stop the bot on the specified service
 - `/status [SERVICE/ALL]` - Gets whether the specified service is running or not
 
----
 # Help
 
 Please [Open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) or DM me on Discord (@TruFoox) for questions
@@ -315,7 +308,6 @@ If this happens, to use the bot you must allow it through Windows Defender (Or y
 
 - Find the blocked app and click "Actions" > "Allow"
 
----
 ## Built With
 
 Programmed with Java 23 in [IntelliJ IDEA](https://www.jetbrains.com/idea/), see [Acknowledgements](#acknowledgements)

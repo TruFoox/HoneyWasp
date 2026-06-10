@@ -88,10 +88,6 @@ public class YouTube extends Services implements HasRefreshToken {
 
     @Override
     protected boolean upload() throws Exception {
-        if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) { // Set caption depending on settings
-            caption = FALLBACK_CAPTION; // Set caption if no reddit post or if post failed caption validation (avoids needing larger if statement later)
-
-        }
 
         /* Create data to send */
         Map<String, Object> snippet = new HashMap<>(); // Part 1 of data

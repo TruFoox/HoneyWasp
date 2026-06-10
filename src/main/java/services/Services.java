@@ -224,6 +224,11 @@ public abstract class Services extends Thread {
 
                     if (!run) break;
 
+
+                    // Set post caption depending on settings (default is post caption)
+                    if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
+
+
                     Output.webhookPrint(this, "Attempting to upload post");
                     if (upload()) {
                         Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
