@@ -233,24 +233,24 @@ Below you can find documentation on every configuration option
 | `debug_mode`        | Enables verbose logging (`true` or `false`)                                                           |
 
 ### Instagram_Settings
-| Key                              | Description                                                                                                                                    |
-|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| `api_key`                        | Instagram API key                                                                                                                              |
-| `autostart`                      | Whether to automatically start Instagram when HoneyWasp starts (`true` or `false`)                                                             |
-| `autopost_mode`                  | Whether to automatically fetch images from reddit (set to `false` to post from `/images` or `/videos` based on `video_mode`)                   |
-| `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` & `"video_mode": true` only, add .MP3s to `/audio`)         |
-| `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                   |
-| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                    |
-| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`"autopost_mode": true` only)                                                       |
-| `subreddits`                     | Subreddits to pull content from (`"autopost_mode": true` only, **exclude `r/`**)                                                               |
-| `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                                 |
-| `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only, `true` or `false`)                                                             |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                  |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only,`true` or `false`)                                               |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit caption (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
-| `caption`                        | Default post caption                                                                                                                           |
-| `hashtags`                       | Hashtags appended to each Instagram post after the caption                                                                                     |
+| Key                              | Description                                                                                                                                     |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `api_key`                        | Instagram API key                                                                                                                               |
+| `autostart`                      | Whether to automatically start Instagram when HoneyWasp starts (`true` or `false`)                                                              |
+| `autopost_mode`                  | Whether to automatically fetch images from reddit. Set to `false` to post from `/images` or `/videos` based on `video_mode` (`true` or `false`) |
+| `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                 |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` & `"video_mode": true` only, add .MP3s to `/audio`)          |
+| `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                    |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                      |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`"autopost_mode": true` only)                                    |
+| `subreddits`                     | Subreddits to pull content from. (**Exclude `r/`**, `"autopost_mode": true` only)                                                               |
+| `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                                  |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only, `true` or `false`)                                                              |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                   |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only,`true` or `false`)                                                |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit caption (`"autopost_mode": true` & `"use_reddit_caption": true` only)  |
+| `caption`                        | Default post caption                                                                                                                            |
+| `hashtags`                       | Hashtags appended to post after caption                                                                                                         |
 
 ### YouTube_Settings
 | Key                              | Description                                                                                                                                       |
@@ -259,25 +259,26 @@ Below you can find documentation on every configuration option
 | `client_secret`                  | YouTube API key for posting                                                                                                                       |
 | `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                           |
 | `autostart`                      | Whether to automatically start YouTube when HoneyWasp starts (`true` or `false`)                                                                  |
-| `autopost_mode`                  | Whether to automatically fetch images from reddit before converting them to videos (set to `false` to post from `/videos`)                        |
+| `autopost_mode`                  | Whether to automatically fetch images from reddit before converting them to videos. Set to `false` to post from `/videos`                         |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` only, add .MP3s to `/audio`)                                   |  
 | `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                         |
-| `attempts_before_timeout`        | The number of failed post attempts before giving up (Set to 0 for infinite)                                                                       |
-| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again (`"autopost_mode": true` only)                                                          |
-| `subreddits`                     | Subreddits to pull content from (`"autopost_mode": true` only, **exclude `r/`**)                                                                  |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                        |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`"autopost_mode": true` only)                                      |
+| `subreddits`                     | Subreddits to pull content from (**Exclude `r/`**, `"autopost_mode": true` only)                                                                  |
 | `blacklist`                      | Words that trigger this post to be discarded entirely (`"autopost_mode": true` only)                                                              |
 | `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only,`true` or `false`)                                                                 |
 | `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                     |
 | `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
 | `caption`                        | Default post title                                                                                                                                |
-| `hashtags`                       | Post description/hashtags                                                                                                                         |
+| `hashtags`                       | Post description                                                                                                                                  |
 
 ## Starting and Interacting with the bot
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
 
-There are two supported methods of running the bot:
+
+There are two supported methods of running a service:
 - Enabling `autostart` in the service you want to start
   - This will automatically start the service when HoneyWasp starts
   - This option is required if you chose not to use Discord

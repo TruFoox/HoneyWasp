@@ -4,14 +4,14 @@
   "General_Settings": {
     "discord_bot_token": "2M1DEz2MAET3NT5zIMMNOMkAwT.UYGOtF.TpQw7ZDSnHOLRiFMZ7y6_gQvOEDZWo0F2Ljdxc",
     "webhook_url": "https://discord.com/api/webhooks/1301837897882123134/NUoPEicoTI0QoaxirYcWPUJIECWsOtBBGt_b9P2xHWrhaE7Z2jNozINM6IkF13zAKm1S",
-    "autostart": ["instagram", "youtube"],
     "restart": false,
     "debug_mode": false
   },
   "Instagram_Settings": {
     "api_key": "EAALkfA7tsCwDtnJU4kQPOPf1XYDVT7cDyBmFQIGALaaM9j2bkOAvg3pT6mBYLjJQ5vvSBxy9BIduj5jB8MLtPlvHk95ZkwZGTLVaxqEbH5VBpTBZHBh26yu76lbZpBVa0RZNciDBg7xEM9RiLclrB5hfvNrrYzWYXqTeiunkl1ZZ7ErLZKZAIGcaFpwuIjLuBmsJH",
-    "auto_post_mode": true,
-    "video_mode": false,
+    "autostart": true,
+    "auto_post_mode" : true,
+    "video_mode" : false,
     "time_between_posts": 45,
     "attempts_before_timeout": 50,
     "subreddits": ["memes", "meme", "comedyheaven"],
@@ -29,7 +29,8 @@
     "refresh_token": "1//raJFPmWaS9hogpEwIgtMCRL264q4GjLAIYTiyyOx6l6I-YMP_MaLDdPbN7-h0wYAAzLj8TXFNA2taEymvUBJ6RPA0aGXw1KhFgZl",
     "client_secret": "BVjOS7A-g9KP1dpgnHe84xbmzNXGCBsP5At",
     "client_id": "g796i8gqfg092k3kt642n146e75530h63vej37jk-5dp0.apps.googleusercontent.com",
-    "auto_post_mode": true,
+    "autostart": true,
+    "auto_post_mode" : true,
     "time_between_posts": 140,
     "attempts_before_timeout": 50,
     "subreddits": ["memes", "meme", "comedyheaven"],

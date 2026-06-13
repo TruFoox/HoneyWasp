@@ -229,13 +229,13 @@ public abstract class Services extends Thread {
                     if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
 
 
-                    Output.webhookPrint(this, "Attempting to upload post");
+                    Output.debugPrint(this, "Attempting to upload post");
                     if (upload()) {
                         Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
                         if (!run) break;
 
-                        Output.webhookPrint(this, "Attempting to publish post");
+                        Output.debugPrint(this, "Attempting to publish post");
                         if (publish()) {
                             if (AUTO_POST_MODE) {
                                 Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
@@ -245,7 +245,6 @@ public abstract class Services extends Thread {
                             } else {
                                 Output.webhookPrint(this, fileDir + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             }
-
 
                             System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
