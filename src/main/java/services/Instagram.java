@@ -61,6 +61,8 @@ public class Instagram extends Services {
             } else if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
                 Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
+
+                Thread.sleep(SLEEPTIME);
             } else {
                 Output.webhookPrint(this, "Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
@@ -146,7 +148,7 @@ public class Instagram extends Services {
                 FileIO.writeList(mediaURL, this, true);
             }
             return false;
-        } else
+        }
         return true;
     }
 

@@ -254,8 +254,8 @@ public abstract class Services extends Thread {
                             System.gc(); // Suggest garbage collection
                             if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
                             countAttempt = 0; // Reset count attempt
-                        } else {Output.webhookPrint(this, "Failed to publish", Output.RED);}
-                    } else {Output.webhookPrint(this, "Failed to upload", Output.RED);}
+                        } else Output.debugPrint(this, "Failed to publish");
+                    } else Output.debugPrint(this, "Failed to upload");
 
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
                 } // Main loop
