@@ -21,7 +21,6 @@ public class Instagram extends Services {
     }
     protected boolean upload() throws Exception {
         String response; // Store json data & URL to be used with POST
-
         caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
 
         // Build upload data
@@ -41,18 +40,35 @@ public class Instagram extends Services {
 
         response = HTTPSend.postForm(this,"https://graph.facebook.com/v23.0/" + USERID + "/media", formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
+        boolean isTransient;
+        try {
+            isTransient = Boolean.parseBoolean(StringToJson.getData(response, "is_transient"));
+        } catch (Exception _) {
+            isTransient = false;
+        }
 
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
-            if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
+            if (isTransient && uploadAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
+                Output.webhookPrint(this, "Upload step failed! Attempting upload again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
+                        "\n\tError message: " + response, Output.RED);
+
+                uploadAttempts++;
+
+                Thread.sleep(5000);
+                return upload();
+            } if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
                 Output.webhookPrint(this, "Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
+            } else if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
+                Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
+                        "\n\tError message: " + response, Output.RED);
             } else {
                 Output.webhookPrint(this, "Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
+                // Blacklist image URL permanently, as it is likely corrupted
+                FileIO.writeList(mediaURL, this, true);
             }
 
-            // Blacklist image URL permanently, as it is likely corrupted
-            FileIO.writeList(mediaURL, this, true);
             Thread.sleep(1000);
             return false;
         } else {
@@ -106,18 +122,34 @@ public class Instagram extends Services {
 
         response = HTTPSend.postForm(this,"https://graph.facebook.com/v23.0/" + USERID + "/media_publish", formData); // Send post for publish to Instagram
 
-        if (HTTPSend.HTTPCode.get() != 200) {
-            Output.webhookPrint(this, "Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
-                    "\n\tError message: " + response, Output.RED);
-
-            // Blacklist image URL permanently, as it is likely corrupted
-            FileIO.writeList(mediaURL, this, true);
-
-            return false;
+        boolean isTransient;
+        try {
+            isTransient = Boolean.parseBoolean(StringToJson.getData(response, "is_transient"));
+        } catch (Exception _) {
+            isTransient = false;
         }
 
+        if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
+            if (isTransient && uploadAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
+                Output.webhookPrint(this, "Publish step failed! Attempting publish again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
+                        "\n\tError message: " + response, Output.RED);
+
+                uploadAttempts++;
+
+                Thread.sleep(5000);
+                return publish();
+            } else {
+                Output.webhookPrint(this, "Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
+                        "\n\tError message: " + response, Output.RED);
+
+                // Blacklist image URL permanently, as it is likely corrupted
+                FileIO.writeList(mediaURL, this, true);
+            }
+            return false;
+        } else
         return true;
     }
+
     protected boolean fetchUserToken() throws Exception { // Fetches user ID
             Output.debugPrint(this,"Attempting to fetch User ID");
 

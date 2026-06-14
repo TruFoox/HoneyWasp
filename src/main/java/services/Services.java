@@ -30,7 +30,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     protected boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
-    protected int randIndex, countAttempt, connectionDropWait;
+    protected int randIndex, countAttempt, connectionDropWait, uploadAttempts, uploadAttemptTimeout;
     protected File[] media, audio;
 
     // Config
@@ -61,6 +61,8 @@ public abstract class Services extends Thread {
         HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();
+
+        uploadAttemptTimeout = (ATTEMPTS_BEFORE_TIMEOUT/25f < 1) ? Math.round(ATTEMPTS_BEFORE_TIMEOUT/25f) : 1; // Calculate number of upload attempts before timeout
 
     }
 
@@ -228,12 +230,15 @@ public abstract class Services extends Thread {
                     // Set post caption depending on settings (default is post caption)
                     if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
 
+                    uploadAttempts = 0; // Set upload counter to 0 for recursive
 
                     Output.debugPrint(this, "Attempting to upload post");
                     if (upload()) {
                         Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
                         if (!run) break;
+
+                        uploadAttempts = 0; // Set publish counter to 0 for recursive
 
                         Output.debugPrint(this, "Attempting to publish post");
                         if (publish()) {
