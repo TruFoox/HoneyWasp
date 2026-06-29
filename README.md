@@ -11,7 +11,7 @@
   <a href="https://github.com/TruFoox/HoneyWasp/issues/new">Request Feature</a>
   <br /><br />
   <img src="https://img.shields.io/github/downloads/TruFoox/HoneyWasp/total" alt="Downloads" />
-  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWasp" alt="Stars" />
+  <img src="https://img.shields.io/github/stars/TruFoox/HoneyWaspg" alt="Stars" />
   <img src="https://img.shields.io/github/issues/TruFoox/HoneyWasp" alt="Issues" />
 </p>
 

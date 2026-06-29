@@ -15,30 +15,31 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
+
 public abstract class Services extends Thread {
     public final String shortName, name;
 
     protected PlatformSettings settings;
     protected static final Scanner scanner = new Scanner(System.in); // Input scanner
-    protected static final Random rand = new Random(); // Generate seed for random number generation
+    protected static final Random rand = new Random(); // Seed for random number generation
 
+    // Upload & Publish implementations MUST check for error 500 or equivalent api down error, and handle general non-200 errors
     protected abstract boolean upload() throws Exception;
     protected abstract boolean publish() throws Exception;
     protected abstract boolean fetchUserToken() throws Exception;
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
-    protected String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
-    protected boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
-    protected int randIndex, countAttempt, connectionDropWait, uploadAttempts, uploadAttemptTimeout;
-    protected File[] media, audio;
+    public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
+    public boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
+    public int randIndex, countAttempt, connectionDropWait, uploadAttempts, uploadAttemptTimeout;
+    public File[] media, audio;
 
     // Config
-    protected String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
-    protected List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
-    protected boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
-    protected int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME;
-    public int HOURS_BEFORE_DUPLICATES_REMOVED; // Used in FileIO.java
+    public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
+    public List<String> SUBREDDITS, FALLBACK_BLACKLIST, BLACKLIST;
+    public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
+    public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
 
     public Services(String name, String shortName) { // Constructor
         this.name = name;
@@ -57,7 +58,7 @@ public abstract class Services extends Thread {
         NSFW_ALLOWED = settings.isNsfw_allowed();
         DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
         BLACKLIST = settings.getBlacklist();
-        CAPTION_BLACKLIST = settings.getCaption_blacklist();
+        FALLBACK_BLACKLIST = settings.getFallback_Blacklist();
         HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();
@@ -116,7 +117,7 @@ public abstract class Services extends Thread {
                             case 1: // Soft fail (retry)
                                 Thread.sleep(1000); // Sleep 1s to prevent spam
                                 continue;
-                            case 2: // Fail (quit) - this doesn't use break to exit main loop because that doesn't work in switch statements
+                            case 2: // Fail (quit)
                                 break mainLoop;
                         }
 
@@ -493,8 +494,8 @@ public abstract class Services extends Thread {
             return 1;
         }
 
-        Output.debugPrint(this, "Testing if caption contains blacklisted strings to use preset caption");
-        for (String word : CAPTION_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
+        Output.debugPrint(this, "Testing whether to use fallback caption");
+        for (String word : FALLBACK_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
             if (caption.toLowerCase().contains(word.toLowerCase())) {
                 Output.print(this, "Using fallback caption (\"" + word + "\" found) - x" + countAttempt + " attempts", Output.RED, true);
 

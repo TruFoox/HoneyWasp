@@ -69,6 +69,7 @@ public class HoneyWasp extends ListenerAdapter {
                 "     -------------------------------------------------------------------------------------------------------------\n" + Output.RESET);
 
         System.setProperty("org.slf4j.simpleLogger.log.com.fasterxml.jackson", "off"); // Hide jackson error logs before initialization (They are unhelpful and spammy)
+
         try { // Init config
             config = Config.getInstance();
         } catch (Exception _) {

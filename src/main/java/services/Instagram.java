@@ -48,7 +48,12 @@ public class Instagram extends Services {
         }
 
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
-            if (isTransient && uploadAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
+            if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
+                Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
+                        "\n\tError message: " + response, Output.RED);
+
+                Thread.sleep(SLEEPTIME);
+            } else if (isTransient && uploadAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
                 Output.webhookPrint(this, "Upload step failed! Attempting upload again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
@@ -58,11 +63,6 @@ public class Instagram extends Services {
                 return upload();
             } if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
                 Output.webhookPrint(this, "Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
-            } else if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
-                Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
-                        "\n\tError message: " + response, Output.RED);
-
-                Thread.sleep(SLEEPTIME);
             } else {
                 Output.webhookPrint(this, "Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
@@ -82,7 +82,7 @@ public class Instagram extends Services {
         Thread.sleep(500); // Sleep for 0.5s - gives Instagram a little more time to get ready
 
 
-        /* Instagram needs time to render videos - this loop has the bot wait until it is finished */
+        // Instagram needs time to render videos - wait until its finished
         String postStatus = "";
         if (VIDEO_MODE) {
             do {

@@ -86,7 +86,7 @@ public class InstagramSettings implements PlatformSettings {
     public boolean isUse_reddit_caption() { return use_reddit_caption; }
     public void setUse_reddit_caption(boolean use_reddit_caption) { this.use_reddit_caption = use_reddit_caption; }
 
-    public List<String> getCaption_blacklist() { return caption_blacklist; }
+    public List<String> getFallback_Blacklist() { return caption_blacklist; }
     public void setCaption_blacklist(List<String> caption_blacklist) { this.caption_blacklist = caption_blacklist; }
 
     public String getCaption() { return caption; }
