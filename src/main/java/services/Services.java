@@ -311,7 +311,7 @@ public abstract class Services extends Thread {
             return 2;
         }
 
-        /* Status code handling */
+        /* Check meme-api status code */
         int HTTPCode = HTTPSend.HTTPCode.get().intValue();
         switch (HTTPCode) {
             case 200: // Success
@@ -334,21 +334,21 @@ public abstract class Services extends Thread {
                         tempDisableCaption = true;
                         return 0;
                 }
-
-            case 503: // Cloudflare error 1
+            case 503:
                 Output.webhookPrint(this,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
                 Thread.sleep(SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
                 return 1;
-            case 530: // Cloudflare error 2
+            case 500: // General server error
+            case 530:
                 Output.webhookPrint(this,"Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
 
                 Thread.sleep(SLEEPTIME + 7200000L); // Sleep normal time + 2 hours
                 return 1;
-            case 520: // Misc malformed server response error codes (520 - General malformed/null response)
-            case 502: // 502 - Bad gateway
+            case 520: // General malformed/null response
+            case 502: // Bad gateway
                 Output.webhookPrint(this,"Cloudflare HTTP Status Code " + HTTPCode + " - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
