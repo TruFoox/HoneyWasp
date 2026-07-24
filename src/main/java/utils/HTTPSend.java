@@ -3,16 +3,17 @@ package utils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.net.http.*;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.sun.net.httpserver.HttpServer;
 import services.Services;
 
 import javax.imageio.ImageIO;
@@ -244,5 +245,25 @@ public class HTTPSend {
         if (image == null) {throw new IOException("ImageIO could not decode image.");}
 
         return image;
+    }
+
+    public static String awaitResponse() throws Exception { // Used https://gist.github.com/k8nx/3314522 as a reference
+        HttpServer server = HttpServer.create(new InetSocketAddress( 8000), 0);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<String> response = new AtomicReference<>();
+
+        server.createContext("/", exchange -> { // Fetch code
+
+            response.set(exchange.getRequestURI().getQuery());
+
+            latch.countDown(); // We done
+        });
+
+        server.start(); // Start listening on localhost:8000
+
+        latch.await(); // Wait until done before returning
+        
+        return response.get();
     }
 }

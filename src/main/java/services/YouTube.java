@@ -1,6 +1,7 @@
 package services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpServer;
 import main.HoneyWasp;
 import org.json.JSONObject;
 import utils.*;
@@ -28,28 +29,43 @@ public class YouTube extends Services implements HasRefreshToken {
 
     @Override
     public boolean fetchRefreshToken() {
+        String redirectURI = "http://localhost:8000"; // URL to redirect to after authentication
 
         // Generate OAuth URL & prompt user to go there to get token
-        String oauthURL = "https://accounts.google.com/o/oauth2/auth?client_id=" + CLIENT_ID + "&redirect_uri=http://localhost&response_type=code&scope=https://www.googleapis.com/auth/youtube.upload&access_type=offline&prompt=consent";
+        String url = "https://accounts.google.com/o/oauth2/auth?client_id=" + CLIENT_ID +
+                "&redirect_uri=" + redirectURI +
+                "&response_type=code" +
+                "&scope=https://www.googleapis.com/auth/youtube.upload" +
+                "&access_type=offline" +
+                "&prompt=consent";
 
         Output.webhookPrint(this, "BEFORE YOU CAN POST TO YOUTUBE, YOU MUST RETRIEVE YOUR ACCESS TOKEN." +
-                "\n\tATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (OR GO TO " + oauthURL + ")", Output.RED);
+                "\n\tATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (OR GO TO " + url + ")", Output.RED);
 
         Output.debugPrint(this, "Attempting redirect");
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
             try {
-                Desktop.getDesktop().browse(new URI(oauthURL));
+                Desktop.getDesktop().browse(new URI(url));
             } catch (Exception e) {
                 // Ignore
             }
         }
 
-        Output.webhookPrint(this, "[THIS STEP MUST BE DONE IN-CONSOLE] PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO (SEE https://github.com/TruFoox/HoneyWasp/#youtube-setup FOR HELP):", Output.YELLOW);
-        String redirectUrl = scanner.nextLine(); // Read user input
+        String authCode = "";
+        try {
+            response = HTTPSend.awaitResponse(); // Listen for response
 
-        Output.debugPrint(this, "Extracting code from user input");
-        String authCode = redirectUrl.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
-        Output.debugPrint(this, "Code: " + authCode);
+            Output.debugPrint(this, "Extracting code from HTTP response");
+        } catch (Exception E) { // Fallback
+            Output.webhookPrint(this, "[ERROR] Defaulting to fallback authentication retrieval method." +
+                    "\nReason: " + E, Output.RED);
+            Output.webhookPrint(this, "PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO. IT SHOULD CONTAIN \"code=\": ", Output.YELLOW);
+            response = scanner.nextLine(); // Read user input
+
+            Output.debugPrint(this, "Extracting code from user input");
+        }
+        authCode = response.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
+        Output.debugPrint(this, "");
 
         // Build upload data
         Map<String, String> formData = new HashMap<>();
@@ -58,7 +74,7 @@ public class YouTube extends Services implements HasRefreshToken {
         formData.put("client_secret", SECRET);
         formData.put("code", authCode);
         formData.put("grant_type", "authorization_code");
-        formData.put("redirect_uri", "http://localhost");
+        formData.put("redirect_uri", redirectURI);
 
         String response;
 

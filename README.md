@@ -183,10 +183,9 @@ Copy the generated **invite URL**, paste it into your browser, and invite the bo
 4. Under **Create OAuth client ID**, choose **Desktop App**
 5. Name it anything → click **Create**
 6. Copy the **Client ID** and **Client Secret**
-7. Set `Redirect URI` to `http://localhost` in the OAuth 2.0 client settings. This ensures the bot can receive the authorization code when you authorize the app.
-8. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
+7. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
 
-### Step 4: Generate a Refresh Token (One-Time)
+### Step 4: Generate a Refresh Token (One-Time) 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
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
 2. In the Discord Server where you have the bot, use `/start youtube`
 3. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
