@@ -58,7 +58,7 @@ public abstract class Services extends Thread {
         NSFW_ALLOWED = settings.isNsfw_allowed();
         DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
         BLACKLIST = settings.getBlacklist();
-        FALLBACK_BLACKLIST = settings.getFallback_Blacklist();
+        FALLBACK_BLACKLIST = settings.getCaption_Blacklist();
         HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();

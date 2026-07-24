@@ -37,7 +37,7 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     private boolean nsfw_allowed;
     private boolean use_reddit_caption;
     private int hours_before_duplicate_removed;
-    private List<String> fallback_blacklist;
+    private List<String> caption_blacklist;
     private boolean autostart;
     private String caption;
     private String hashtags;
@@ -87,8 +87,8 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
     public boolean isUse_reddit_caption() { return use_reddit_caption; }
     public void setUse_reddit_caption(boolean use_reddit_caption) { this.use_reddit_caption = use_reddit_caption; }
 
-    public List<String> getFallback_Blacklist() { return fallback_blacklist; }
-    public void setFallback_blacklist(List<String> fallback_blacklist) { this.fallback_blacklist = fallback_blacklist; }
+    public List<String> getCaption_Blacklist() { return caption_blacklist; }
+    public void setCaption_Blacklist(List<String> caption_blacklist) { this.caption_blacklist = caption_blacklist; }
 
     public String getCaption() { return caption; }
     public void setCaption(String caption) { this.caption = caption; }
