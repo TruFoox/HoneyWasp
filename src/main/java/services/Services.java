@@ -37,7 +37,7 @@ public abstract class Services extends Thread {
 
     // Config
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
-    public List<String> SUBREDDITS, FALLBACK_BLACKLIST, BLACKLIST;
+    public List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
     public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
 
@@ -58,12 +58,12 @@ public abstract class Services extends Thread {
         NSFW_ALLOWED = settings.isNsfw_allowed();
         DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
         BLACKLIST = settings.getBlacklist();
-        FALLBACK_BLACKLIST = settings.getCaption_Blacklist();
+        CAPTION_BLACKLIST = settings.getCaption_blacklist();
         HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
         CAPTION = settings.getCaption();
         HASHTAGS = settings.getHashtags();
 
-        uploadAttemptTimeout = (ATTEMPTS_BEFORE_TIMEOUT/25f < 1) ? Math.round(ATTEMPTS_BEFORE_TIMEOUT/25f) : 1; // Calculate number of upload attempts before timeout
+        uploadAttemptTimeout = (ATTEMPTS_BEFORE_TIMEOUT/25f < 1) ? Math.round(ATTEMPTS_BEFORE_TIMEOUT/25f) : 1; // Calculate number of upload attempts before timeout (1/25 of ATTEMPTS_BEFORE_TIMEOUT, or 1 - whichever is bigger)
 
     }
 
@@ -231,7 +231,7 @@ public abstract class Services extends Thread {
                     // Set post caption depending on settings (default is post caption)
                     if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
 
-                    uploadAttempts = 0; // Set upload counter to 0 for recursive
+                    uploadAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
 
                     Output.debugPrint(this, "Attempting to upload post");
                     if (upload()) {
@@ -239,7 +239,7 @@ public abstract class Services extends Thread {
 
                         if (!run) break;
 
-                        uploadAttempts = 0; // Set publish counter to 0 for recursive
+                        uploadAttempts = 0; // Set publish counter to 0 - handled recursively in publish()
 
                         Output.debugPrint(this, "Attempting to publish post");
                         if (publish()) {
@@ -253,13 +253,16 @@ public abstract class Services extends Thread {
                             }
 
                             System.gc(); // Suggest garbage collection
+
                             if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
+
                             countAttempt = 0; // Reset count attempt
+
                         } else Output.debugPrint(this, "Failed to publish");
                     } else Output.debugPrint(this, "Failed to upload");
 
                     Thread.sleep(1500); // Sleep 1.5s to prevent spam
-                } // Main loop
+                } // Main loop end
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Bot crashed - Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
@@ -443,7 +446,7 @@ public abstract class Services extends Thread {
             }
         }
 
-        // Download image & check aspect ratio if needed
+        // Download image & check aspect ratio (If relevant)
         if (doSizeTest) {
             Output.debugPrint(this, "Attempting to download image to verify aspect ratio");
             Image image;
@@ -469,10 +472,18 @@ public abstract class Services extends Thread {
 
         }
 
-        // Test image validity
+        // Ensure non-gif
         Output.debugPrint(this, "Testing if image is gif");
         if (mediaURL.contains(".gif")) { // Ensure image is not gif
-            Output.print(this, "Image is gif - x" + countAttempt + " attempts", Output.RED, true);
+            Output.print(this, "Image is .gif - x" + countAttempt + " attempts", Output.RED, true);
+
+            return 1;
+        }
+
+        // Ensure not NSFW
+        Output.debugPrint(this, "Testing if image is marked as NSFW");
+        if (!NSFW_ALLOWED && nsfw) { // If NSFW is disallowed and post is marked as NSFW
+            Output.print(this, "Image is marked as NSFW - x" + countAttempt + " attempts", Output.RED, true);
 
             return 1;
         }
@@ -481,25 +492,21 @@ public abstract class Services extends Thread {
         Output.debugPrint(this, "Testing if image caption contains blacklisted string");
         for (String word : BLACKLIST) {
             if (caption.toLowerCase().contains(word.toLowerCase())) {
-                Output.print(this, "Caption contains blacklisted string - x" + countAttempt + " attempts", Output.RED, true);
+                Output.print(this, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + countAttempt + " attempts", Output.RED, true);
 
                 return 1;
             }
         }
 
-        Output.debugPrint(this, "Testing if image is marked as NSFW");
-        if (!NSFW_ALLOWED && nsfw) { // If post is marked as NSFW and NSFW is disallowed
-            Output.print(this, "Image is marked as NSFW - x" + countAttempt + " attempts", Output.RED, true);
+        // Decide whether to use fallback or post caption (If relevant)
+        if (USE_REDDIT_CAPTION) {
+            Output.debugPrint(this, "Testing whether to use default caption");
+            for (String word : CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
+                if (caption.toLowerCase().contains(word.toLowerCase())) {
+                    Output.print(this, "Using default (Non-Reddit) caption (\"" + word.toLowerCase() + "\" found) - x" + countAttempt + " attempts", Output.RED, true);
 
-            return 1;
-        }
-
-        Output.debugPrint(this, "Testing whether to use fallback caption");
-        for (String word : FALLBACK_BLACKLIST) { // Ensure no semi-blacklisted string in post caption. If found, discard caption but still post
-            if (caption.toLowerCase().contains(word.toLowerCase())) {
-                Output.print(this, "Using fallback caption (\"" + word + "\" found) - x" + countAttempt + " attempts", Output.RED, true);
-
-                return 2;
+                    return 2;
+                }
             }
         }
 
