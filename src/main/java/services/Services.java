@@ -233,7 +233,7 @@ public abstract class Services extends Thread {
 
                     uploadAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
 
-                    Output.debugPrint(this, "Attempting to upload post");
+                    Output.print(this, "Attempting to upload post", Output.YELLOW, true);
                     if (upload()) {
                         Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
@@ -241,7 +241,7 @@ public abstract class Services extends Thread {
 
                         uploadAttempts = 0; // Set publish counter to 0 - handled recursively in publish()
 
-                        Output.debugPrint(this, "Attempting to publish post");
+                        Output.print(this, "Attempting to publish post", Output.YELLOW, true);
                         if (publish()) {
                             if (AUTO_POST_MODE) {
                                 Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
