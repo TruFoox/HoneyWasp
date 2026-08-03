@@ -137,7 +137,7 @@ public class HoneyWasp extends ListenerAdapter {
                 if (DEBUG_MODE) {
                     e.printStackTrace();
                 }
-                Output.print(null, "Bot failed to log in. Quitting...", Output.RED);
+                Output.print(null, "Bot failed to log in to Discord. Check your internet or try again later. Quitting...", Output.RED);
                 ErrorHandling.exitProgram();
             }
 
