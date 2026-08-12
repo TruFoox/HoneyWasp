@@ -512,6 +512,8 @@ public abstract class Services extends Thread {
             }
         }
 
+        Output.print(this, "Valid image found after x" + countAttempt + " attempts", Output.GREEN, true);
+
         return 0;
     }
 
