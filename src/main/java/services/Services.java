@@ -269,7 +269,10 @@ public abstract class Services extends Thread {
             } catch (IOException e) {
                 Output.webhookPrint(this, "Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
-                Output.webhookPrint(this, "Bot crashed - Unknown error: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "Bot crashed - Unknown error: " + e.getMessage() +
+                        "\nPotential Relevant Info:" +
+                        "\nInternet connection: " + HTTPSend.testInternet() +
+                        "\nLast HTTP response: " + response, Output.RED);
             } finally { // Crash/Stop handling
                 Output.webhookPrint(this, "Stopped");
             }

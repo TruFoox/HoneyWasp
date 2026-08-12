@@ -266,4 +266,16 @@ public class HTTPSend {
         
         return response.get();
     }
+
+    public static boolean testInternet() {
+        try {
+             URL url = new URL("http://google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
