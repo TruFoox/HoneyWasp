@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Instagram extends Services {
-    private long USERID;
+    private long USERID = 0;
 
     public Instagram() {
         super("Instagram","INSTA");
@@ -153,10 +153,11 @@ public class Instagram extends Services {
     }
 
     protected boolean fetchUserToken() throws Exception { // Fetches user ID
-            Output.debugPrint(this,"Attempting to fetch User ID");
+        if (USERID == 0) { // If ID not already fetched this session
+            Output.debugPrint(this, "Attempting to fetch User ID");
 
             Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
-            String response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
+            String response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
 
             String facebookID;
             JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
@@ -164,14 +165,16 @@ public class Instagram extends Services {
 
             facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
-            if (!run) {return false;}
+            if (!run) {
+                return false;
+            }
 
             Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
             // Get Instagram ID
-            response = HTTPSend.get(this,"https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
+            response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
             if (!response.contains("instagram_business_account")) { // Ensure account is business account
-                Output.webhookPrint(this,"Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
+                Output.webhookPrint(this, "Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
 
                 return false;
             }
@@ -179,6 +182,7 @@ public class Instagram extends Services {
 
             dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
             USERID = dataObj.getLong("id");
-        return true; // Success
+            return true; // Success
+        }
     }
 }
