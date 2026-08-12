@@ -182,7 +182,7 @@ public class Instagram extends Services {
 
             dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
             USERID = dataObj.getLong("id");
-            return true; // Success
         }
+        return true; // Success
     }
 }

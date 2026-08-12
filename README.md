@@ -132,7 +132,7 @@ Copy the generated **invite URL**, paste it into your browser, and invite the bo
 
 ### Step 3: Get Access Token
 
-1. In your app, go to **Tools → Graph API Explorer**
+1. Go to https://developers.facebook.com/tools/explorer/
 2. Select your app, and under **User or Page** select **Get User Access Token**
 3. Under **Permissions**, add:
     - `instagram_basic`

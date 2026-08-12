@@ -227,7 +227,6 @@ public abstract class Services extends Thread {
 
                     if (!run) break;
 
-
                     // Set post caption depending on settings (default is post caption)
                     if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
 
