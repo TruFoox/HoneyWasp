@@ -53,11 +53,11 @@ public class Instagram extends Services {
                         "\n\tError message: " + response, Output.RED);
 
                 Thread.sleep(SLEEPTIME);
-            } else if (isTransient && uploadAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
+            } else if (isTransient && postAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
                 Output.webhookPrint(this, "Upload step failed! Attempting upload again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
-                uploadAttempts++;
+                postAttempts++;
 
                 Thread.sleep(5000);
                 return upload();
@@ -118,7 +118,7 @@ public class Instagram extends Services {
         Thread.sleep(5000); // Easiest way to prevent media ID not ready yet error
 
         Map<String, String> formData = new HashMap<>();
-        
+
         formData.put("creation_id", postID);
         formData.put("access_token", TOKEN);
 
@@ -132,11 +132,11 @@ public class Instagram extends Services {
         }
 
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
-            if (isTransient && uploadAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
+            if (isTransient && postAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
                 Output.webhookPrint(this, "Publish step failed! Attempting publish again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
-                uploadAttempts++;
+                postAttempts++;
 
                 Thread.sleep(5000);
                 return publish();

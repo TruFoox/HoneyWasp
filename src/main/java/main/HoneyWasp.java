@@ -170,7 +170,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     ).queue();
         } else {
-            Output.print(null, "No discord bot token supplied. Bot will only be controllable via autostart");
+            Output.print(null, "No discord bot token supplied. Headless operation activated");
         }
 
         // Automatic starting of services
@@ -183,8 +183,16 @@ public class HoneyWasp extends ListenerAdapter {
                 runningServices.put(service.toLowerCase(), bot);
                 bot.start();
 
-                Output.webhookPrint(null, "Autostarting " + services.get(service).capsName, Output.YELLOW);
+                Output.webhookPrint(null, "Autostarting " + services.get(service).capsName);
             }
+        }
+
+        if (BOTTOKEN == null || !BOTTOKEN.isBlank()) { // If in headless (No discord) mode, warn user that they need to enable autostart
+            Output.webhookPrint(null, "You need to enable Autostart for least one service in config.json;" +
+                    "\nMake sure you have done all the steps for you chosen services found in https://github.com/TruFoox/HoneyWasp#getting-started" +
+                    "\n" +
+                    "\nThe bot will now close, as it cannot function in headless mode without Autostart. Please enable it, or add a Discord bot token", Output.RED);
+            ErrorHandling.exitProgram();
         }
     } // If no discord token, processing stops here. Otherwise, commands can be invoked
 

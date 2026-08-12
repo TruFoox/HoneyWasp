@@ -32,7 +32,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     public boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
-    public int randIndex, countAttempt, connectionDropWait, uploadAttempts, uploadAttemptTimeout;
+    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout;
     public File[] media, audio;
 
     // Config
@@ -206,9 +206,7 @@ public abstract class Services extends Thread {
 
                             mediaURL = response;
 
-                            if (mediaURL.endsWith("\n")) { // Remove trailing newline 0x0 adds for some reason
-                                mediaURL = mediaURL.substring(0, mediaURL.length() - 1);
-                            }
+                            if (mediaURL.endsWith("\n")) {mediaURL = mediaURL.substring(0, mediaURL.length() - 1);} // Remove trailing newline 0x0 adds for some reason
 
                             // Success message
                             Output.print(this, "Successfully uploaded to temp storage: " + mediaURL, Output.YELLOW, true);
@@ -230,7 +228,7 @@ public abstract class Services extends Thread {
                     // Set post caption depending on settings (default is post caption)
                     if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
 
-                    uploadAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
+                    postAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
 
                     Output.print(this, "Attempting to upload post", Output.YELLOW, true);
                     if (upload()) {
@@ -238,7 +236,7 @@ public abstract class Services extends Thread {
 
                         if (!run) break;
 
-                        uploadAttempts = 0; // Set publish counter to 0 - handled recursively in publish()
+                        postAttempts = 0; // Set publish counter to 0 - handled recursively in publish()
 
                         Output.print(this, "Attempting to publish post", Output.YELLOW, true);
                         if (publish()) {
