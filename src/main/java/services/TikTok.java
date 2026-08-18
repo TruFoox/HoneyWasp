@@ -116,7 +116,29 @@ public class TikTok extends Services implements HasRefreshToken {
 
     @Override
     protected boolean fetchUserToken() throws Exception {
+        // Build upload data
+        Map<String, String> formData = new HashMap<>();
 
-        return true;
+        formData.put("client_key", CLIENT_KEY);
+        formData.put("client_secret", SECRET);
+        formData.put("grant_type", "refresh_token");
+        formData.put("refresh_token", REFRESH_TOKEN);
+
+        String response;
+
+        response = HTTPSend.postForm(this,"https://open.tiktokapis.com/v2/oauth/token/", formData);
+
+
+        if (HTTPSend.HTTPCode.get() == 200 && response.contains("access_token")) {
+            TOKEN = StringToJson.getData(response, "access_token");
+            REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
+
+            return true;  // Success
+        } else {
+            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
+                    "\n\tError message: " + response, Output.RED);
+
+            return false;
+        }
     }
 }
