@@ -316,7 +316,7 @@ If this happens, to use the bot you must allow it through Windows Defender (Or y
 
 - Click "Protection history"
 
-- Find the blocked app and click "Actions" > "Allow"
+- Find the blocked app and click "Actions" → "Allow"
 
 ## Built With
 
