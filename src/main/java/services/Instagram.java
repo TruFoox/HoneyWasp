@@ -17,8 +17,9 @@ public class Instagram extends Services {
         TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
         VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
         use0x0 = true; // Instagram only supports URL file hosting
-
+        supportedAspectRatio = new double[]{0.45, 2.2}; // 1:2.2 to 2.2:1
     }
+
     protected boolean upload() throws Exception {
         String response; // Store json data & URL to be used with POST
         caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption

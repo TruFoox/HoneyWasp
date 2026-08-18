@@ -31,15 +31,16 @@ public abstract class Services extends Thread {
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
-    public boolean nsfw, tempDisableCaption, doSizeTest = true, run = true, use0x0 = false;
+    public boolean nsfw, tempDisableCaption, run = true, use0x0 = false;
     public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout;
     public File[] media, audio;
 
-    // Config
+    // Config & Per-service toggles
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
     public List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
-    public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED;
+    public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, doSizeTest = true;
     public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
+    public double[] supportedAspectRatio = {}; // Width / Height
 
     public Services(String name, String shortName) { // Constructor
         this.name = name;
@@ -462,10 +463,10 @@ public abstract class Services extends Thread {
                 return 1;
             }
 
-            float ratio = (float) image.getWidth(null) / image.getHeight(null);
+            float ratio = (float) image.getWidth(null) / image.getHeight(null); // Eg 0.9 "0.9x as wide as it is tall"
 
             Output.debugPrint(this, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
-            if (ratio < 0.82 || ratio > 1.70) {
+            if (ratio < supportedAspectRatio[1] || ratio > supportedAspectRatio[2]) {
                 Output.print(this, "Image has invalid aspect ratio", Output.RED, true);
                 return 1;
             }

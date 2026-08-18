@@ -1,5 +1,5 @@
 package services;
-/* Commented to avoid errors for now
+/* Commented to avoid errors for now -- Shelved because
 import config.Config;
 import config.TwitterSettings;
 import config.YoutubeSettings;
@@ -27,7 +27,7 @@ public class Twitter extends Services implements HasRefreshToken {
     }
     
     public boolean fetchRefreshToken() {
-        Output.debugPrint(this, "[TWIT] Fetching refresh token");
+        Output.debugPrint(this, "Fetching refresh token");
         if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
             try {
                 String oauthURL = "https://twitter.com/i/oauth2/authorize?response_type=code" +
@@ -76,7 +76,7 @@ public class Twitter extends Services implements HasRefreshToken {
 
                     return true;  // Success
                 } else {
-                    Output.webhookPrint(this, "[TWIT] Failed to fetch refresh token. Quitting..." +
+                    Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
                             "\n\tError message: " + response, Output.RED);
 
                     return false;
@@ -90,13 +90,13 @@ public class Twitter extends Services implements HasRefreshToken {
                 return false;
             }
         }
-        Output.debugPrint(this, "[TWIT] refresh_token was found to contain data");
+        Output.debugPrint(this, "refresh_token was found to contain data");
         return true;
     }
 
     public boolean fetchUserToken() {
         try {
-            Output.debugPrint(this, "[TWIT] Fetching access token");
+            Output.debugPrint(this, "Fetching access token");
             String oauthURL = "https://api.twitter.com/2/oauth2/token";
 
             // Build upload data
@@ -119,14 +119,14 @@ public class Twitter extends Services implements HasRefreshToken {
                 return true;  // Success
 
             } else if (response.contains("token was invalid")) { // If refresh token is invalid
-                Output.webhookPrint(this, "[TWIT] Refresh token appears to be invalid. You need to reauthenticate it.", Output.RED);
+                Output.webhookPrint(this, "Refresh token appears to be invalid. You need to reauthenticate it.", Output.RED);
 
                 REFRESH_TOKEN = "";
 
                 return fetchRefreshToken(); // Attempt to fetch refresh token again
 
             } else {
-                Output.webhookPrint(this, "[TWIT] Failed to fetch token. Quitting..." +
+                Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
                         "\n\tError message: " + response, Output.RED);
 
                 return false;

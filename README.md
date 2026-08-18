@@ -157,7 +157,7 @@ Help regarding the config can be [found here](#the-config), and more information
 2. Paste your access token into the box and press **Debug**
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
-5. Place the result inside the `api_key` under `[Instagram_Settings]` of config.json
+5. Place the result inside `api_key` under `[Instagram_Settings]` of config.json
     - Approximately every 2 months you will need to repeat Steps 3 & 4 when the token expires
 
 
@@ -229,11 +229,11 @@ Below you can find documentation on every configuration option
 - Boolean values (`true` or `false`) need to be lowercase (e.g., `"debug_mode": true`)
 - There MUST be a comma delimiter after every config value, except for the last one
 - ALWAYS surround string (non-numeric, non-boolean) values with quotes (e.g., `"caption": "Enjoy this meme"`)
-- List config values can be disabled by setting to `[""]` (e.g, `"blacklist": [""]` to disable blacklist)
+- List config values can be disabled by leaving them blank (e.g, `"blacklist": [""]` to disable the blacklist)
 - Do not put anything in `"refresh_token"` under `"Youtube_Settings"` until prompted to do so by the bot
 
 
-### General_Settings
+### General Settings
 | Key                 | Description                                                                                           |
 |---------------------|-------------------------------------------------------------------------------------------------------|
 | `discord_bot_token` | Your bot's token for logging in to Discord (Optional but recommended, set to `""` to disable Discord) |
@@ -241,7 +241,7 @@ Below you can find documentation on every configuration option
 | `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)       |
 | `debug_mode`        | Enables verbose logging (`true` or `false`)                                                           |
 
-### Instagram_Settings
+### Instagram Settings
 | Key                              | Description                                                                                                                                     |
 |----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
 | `api_key`                        | Instagram API key                                                                                                                               |
@@ -261,7 +261,7 @@ Below you can find documentation on every configuration option
 | `caption`                        | Default post caption                                                                                                                            |
 | `hashtags`                       | Hashtags appended to post after caption                                                                                                         |
 
-### YouTube_Settings
+### YouTube Settings
 | Key                              | Description                                                                                                                                       |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | `refresh_token`                  | Refresh token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                         |

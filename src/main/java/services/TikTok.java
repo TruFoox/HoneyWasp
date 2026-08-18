@@ -23,10 +23,9 @@ public class TikTok extends Services implements HasRefreshToken {
 
         SECRET = HoneyWasp.config.Tiktok().getClient_secret().trim();
         CLIENT_KEY = HoneyWasp.config.Tiktok().getClient_key().trim();
-        REFRESH_TOKEN = HoneyWasp.config.Youtube().getRefresh_token().trim();
-        VIDEO_MODE = true; // YouTube only supports videos
-        doSizeTest = false; // Youtube generally doesnt care about media dimensions
-
+        REFRESH_TOKEN = HoneyWasp.config.Tiktok().getRefresh_token().trim();
+        VIDEO_MODE = true; // TikTok technically supports images, but I just don't want to bother
+        supportedAspectRatio = new double[]{0.82, 1.70}; // ~4:5 to 17:10
     }
 
     @Override
