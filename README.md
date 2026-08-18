@@ -120,12 +120,12 @@ Help regarding the config can be [found here](#the-config), and more information
 
 - A Facebook (Meta) account
 - A **Facebook Developer** account: https://developers.facebook.com
-- A **Facebook Page**
+- An **Instagram Business Account** linked to your Facebook Account
 
 ### Step 1: Set Up Facebook App
 
 1. Go to the Facebook Developer Portal: https://developers.facebook.com/apps/
-2. Click **“Create App”**
+2. Click **Create App**
 3. Choose an app name (this doesn't matter) → click **Next**
 4. For your **Use Case**, choose **Other**
 5. When asked for the app type, choose **Business**
@@ -139,7 +139,7 @@ Help regarding the config can be [found here](#the-config), and more information
     - IG App → Settings → Account → Switch to Professional
     - Facebook Page → Settings → Link Instagram Account
 
-### Step 3: Get Access Token
+### Step 3: Get Temporary Access Token
 
 1. Go to https://developers.facebook.com/tools/explorer/
 2. Select your app, and under **User or Page** select **Get User Access Token**
@@ -151,19 +151,21 @@ Help regarding the config can be [found here](#the-config), and more information
 4. Click Generate Access Token, then log in with your Facebook account and authorize access
 5. Copy the access token it gives you
 
-### Step 4: Get Long Lived Access Token
+### Step 4: Convert Temporary Token into Long Lived Access Token
 
 1. Go to https://developers.facebook.com/tools/debug/accesstoken
 2. Paste your access token into the box and press **Debug**
 3. Scroll down to the bottom and press "Extend Access Token"
 4. It will give you a different access token, which will expire in 2 months instead of 1 hour.
 5. Place the result inside the `api_key` under `[Instagram_Settings]` of config.json
+    - Approximately every 2 months you will need to repeat Steps 3 & 4 when the token expires
+
+
 ## YouTube Setup
 
 ### Prerequisites
 
 - A **Google Account**
-- Access to the **Google Cloud Console**: https://console.cloud.google.com/
 - A **YouTube Channel** linked to your Google Account
 
 ### Step 1: Create a Project in Google Cloud
@@ -194,13 +196,12 @@ Help regarding the config can be [found here](#the-config), and more information
 6. Copy the **Client ID** and **Client Secret**
 7. Place the Client ID in `client_id` and Client Secret in `client_secret` under `[Youtube_Settings]` of Config.json
 
-### Step 4: Generate a Refresh Token (One-Time) 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
-1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
-2. In the Discord Server where you have the bot, use `/start youtube`
-3. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
-4. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
-5. When prompted to allow access to your YouTube account, press **Continue**
-6. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
+### Step 4: Generate a Refresh Token (One-Time)
+1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac, and run YouTube
+2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
+3. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
+4. When prompted to allow access to your YouTube account, press **Continue**
+5. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
 
 # Usage
 There are a few specific details about the bot you need to know before you use it.
