@@ -29,6 +29,9 @@ public class Config {
     @JsonProperty("Youtube_Settings")
     private YoutubeSettings Youtube_Settings;
 
+    @JsonProperty("Tiktok_Settings")
+    private TiktokSettings Tiktok_Settings;
+
     //@JsonProperty("Twitter_Settings")
     //private TwitterSettings Twitter_Settings;
 
@@ -81,12 +84,17 @@ public class Config {
         return Youtube_Settings;
     }
 
+    public TiktokSettings Tiktok() {
+        return Tiktok_Settings;
+    }
+
     //public TwitterSettings Twitter() {return Twitter_Settings;}
 
-    public PlatformSettings Platform(String platform) {
+    public PlatformSettings Platform(String platform) { // Platform reference swapper
         return switch (platform.toLowerCase()) {
             case "instagram" -> Instagram_Settings;
             case "youtube" -> Youtube_Settings;
+            case "tiktok" -> Tiktok_Settings;
             //case "twitter" -> Twitter_Settings;
             default -> throw new IllegalArgumentException(
                     "Unknown platform: " + platform

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileIO {
-    public static void writeList(String in, Services service, boolean permanent) {
+    public static void writeList(String url, Services service, boolean permanent) {
         try {
 
             long timestamp = System.currentTimeMillis();
@@ -27,8 +27,8 @@ public class FileIO {
                 fileTimestamp = timestamp + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L);
             }
 
-            Files.write(cachePath, (in + "," + fileTimestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            service.usedURLs.add(new String[]{in, String.valueOf(fileTimestamp)});
+            Files.write(cachePath, (url + "," + fileTimestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            service.usedURLs.add(new String[]{url, String.valueOf(fileTimestamp)});
 
         } catch (IOException ex) {
             Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
@@ -55,7 +55,7 @@ public class FileIO {
             return null;
         }
     }
-    public static void autoClear(Services service) {
+    public static void autoClear(Services service) { // Removes outdated cached URLs
         try {
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
             Output.debugPrint(service, "Attempting to auto-clear cache");
@@ -71,7 +71,7 @@ public class FileIO {
             Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
         }
     }
-    public static void clearList(String service) {
+    public static void clearList(String service) { // Not using services object because it must be able to run without any services running
         try {
             Path cachePath = Paths.get(".", "cache", service.toLowerCase(), "cache.txt");
             Files.writeString(cachePath, "");

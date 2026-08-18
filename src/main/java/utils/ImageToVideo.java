@@ -78,6 +78,7 @@ public class ImageToVideo {
                         "-c:v", "libx264",
                         "-loglevel", "error", // only errors
                         "-preset", "fast", // compression speed
+                        "-af", "volume=0.15", // Half volume (Usually too loud)
                         "-crf", "28",
                         "-r", "10", // fps
                         "-pix_fmt", "yuv420p",

@@ -112,7 +112,7 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
         // Login to bot if discord bot token was given, else skip to autostart
-        if (BOTTOKEN == null || !BOTTOKEN.isBlank()) {
+        if (BOTTOKEN != null || !BOTTOKEN.isBlank()) {
             JDA jda = null;
 
             try {
@@ -151,22 +151,26 @@ public class HoneyWasp extends ListenerAdapter {
                                     .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to run HoneyWasp on", true)
                                             .addChoice("All", "all")
                                             .addChoice("Instagram", "instagram")
-                                            .addChoice("Youtube", "youtube")),
+                                            .addChoice("YouTube", "youtube")
+                                            .addChoice("TikTok", "tiktok")),
                             Commands.slash("stop", "Stops the specified service")
                                     .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to stop", true)
                                             .addChoice("All", "all")
                                             .addChoice("Instagram", "instagram")
-                                            .addChoice("Youtube", "youtube")),
+                                            .addChoice("YouTube", "youtube")
+                                            .addChoice("TikTok", "tiktok")),
                             Commands.slash("status", "Fetch status of specified service")
                                     .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to fetch the status of", true)
                                             .addChoice("All", "all")
                                             .addChoice("Instagram", "instagram")
-                                            .addChoice("Youtube", "youtube")),
+                                            .addChoice("YouTube", "youtube")
+                                            .addChoice("TikTok", "tiktok")),
                             Commands.slash("clear", "Clear cache of specified service")
                                     .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to clear the duplicate cache of", true)
                                             .addChoice("All", "all")
                                             .addChoice("Instagram", "instagram")
-                                            .addChoice("Youtube", "youtube"))
+                                            .addChoice("YouTube", "youtube")
+                                            .addChoice("TikTok", "tiktok"))
 
                     ).queue();
         } else {
@@ -187,14 +191,14 @@ public class HoneyWasp extends ListenerAdapter {
             }
         }
 
-        if (BOTTOKEN == null || !BOTTOKEN.isBlank()) { // If in headless (No discord) mode, warn user that they need to enable autostart
+        if (BOTTOKEN == null || BOTTOKEN.isBlank()) { // If in headless (No discord) mode, warn user that they need to enable autostart & Quit
             Output.webhookPrint(null, "You need to enable Autostart for least one service in config.json;" +
                     "\nMake sure you have done all the steps for you chosen services found in https://github.com/TruFoox/HoneyWasp#getting-started" +
                     "\n" +
                     "\nThe bot will now close, as it cannot function in headless mode without Autostart. Please enable it, or add a Discord bot token", Output.RED);
             ErrorHandling.exitProgram();
         }
-    } // If no discord token, processing stops here. Otherwise, commands can be invoked
+    }
 
     @Override
     // Slash commands

@@ -474,7 +474,7 @@ public abstract class Services extends Thread {
 
         // Ensure non-gif
         Output.debugPrint(this, "Testing if image is gif");
-        if (mediaURL.contains(".gif")) { // Ensure image is not gif
+        if (mediaURL.toLowerCase().contains(".gif")) { // Ensure image is not gif
             Output.print(this, "Image is .gif - x" + countAttempt + " attempts", Output.RED, true);
 
             return 1;
