@@ -8,6 +8,7 @@ import java.util.List;
         "refresh_token",
         "client_secret",
         "client_id",
+        "autostart",
         "auto_post_mode",
         "minutes_between_posts",
         "attempts_before_timeout",

@@ -161,6 +161,7 @@ public abstract class Services extends Thread {
 
                             if (AUDIO_ENABLED) {
                                 Output.debugPrint(this, "Attempting to select audio file for use");
+
                                 randIndex = rand.nextInt(audio.length); // Select random audio file
                                 audioDir = String.valueOf(audio[randIndex]);
                             }
@@ -467,7 +468,7 @@ public abstract class Services extends Thread {
             float ratio = (float) image.getWidth(null) / image.getHeight(null); // Eg 0.9 "0.9x as wide as it is tall"
 
             Output.debugPrint(this, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
-            if (ratio < supportedAspectRatio[1] || ratio > supportedAspectRatio[2]) {
+            if (ratio < supportedAspectRatio[0] || ratio > supportedAspectRatio[1]) {
                 Output.print(this, "Image has invalid aspect ratio", Output.RED, true);
                 return 1;
             }

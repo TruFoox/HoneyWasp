@@ -6,6 +6,7 @@ import java.util.List;
 
 @JsonPropertyOrder({
         "api_key",
+        "autostart",
         "auto_post_mode",
         "video_mode",
         "minutes_between_posts",

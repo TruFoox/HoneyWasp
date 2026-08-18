@@ -8,6 +8,7 @@ import java.util.List;
         "refresh_token",
         "client_secret",
         "client_key",
+        "autostart",
         "auto_post_mode",
         "minutes_between_posts",
         "attempts_before_timeout",
@@ -54,11 +55,11 @@ public class TiktokSettings implements PlatformSettings,Refreshable {
     public String getClient_key() { return client_key; }
     public void setClient_key(String client_key) { this.client_key = client_key; }
 
-    public boolean isAuto_post_mode() { return auto_post_mode; }
-    public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
-
     public boolean isAutostart() { return autostart; }
     public void setAutostart(boolean autostart) { this.autostart = autostart; }
+
+    public boolean isAuto_post_mode() { return auto_post_mode; }
+    public void setAuto_post_mode(boolean auto_post_mode) { this.auto_post_mode = auto_post_mode; }
 
     public int getMinutes_between_posts() { return minutes_between_posts; }
     public void setMinutes_between_posts(int minutes_between_posts) { this.minutes_between_posts = minutes_between_posts; }

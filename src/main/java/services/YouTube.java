@@ -29,7 +29,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
     @Override
     public boolean fetchRefreshToken() {
-        String redirectURI = "http://localhost:8000"; // URL to redirect to after authentication
+        String redirectURI = "http://localhost:8000/callback"; // URL to redirect to after authentication
 
         // Generate OAuth URL & prompt user to go there to get token
         String url = "https://accounts.google.com/o/oauth2/auth?client_id=" + CLIENT_ID +
@@ -42,14 +42,7 @@ public class YouTube extends Services implements HasRefreshToken {
         Output.webhookPrint(this, "BEFORE YOU CAN POST TO YOUTUBE, YOU MUST RETRIEVE YOUR ACCESS TOKEN." +
                 "\n\tATTEMPTING TO REDIRECT YOU TO THE AUTHENTICATION SITE NOW (OR GO TO " + url + ")", Output.RED);
 
-        Output.debugPrint(this, "Attempting redirect");
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
-            try {
-                Desktop.getDesktop().browse(new URI(url));
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
+        HoneyWasp.Redirect(this, url);
 
         String authCode = "";
         try {
@@ -57,7 +50,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
             Output.debugPrint(this, "Extracting code from HTTP response");
         } catch (Exception E) { // Fallback
-            Output.webhookPrint(this, "[ERROR] Defaulting to fallback authentication retrieval method." +
+            Output.webhookPrint(this, "Defaulting to fallback authentication retrieval method." +
                     "\nReason: " + E, Output.RED);
             Output.webhookPrint(this, "PLEASE PASTE THE ENTIRE URL YOU WERE JUST REDIRECTED TO. IT SHOULD CONTAIN \"code=\": ", Output.YELLOW);
             response = scanner.nextLine(); // Read user input

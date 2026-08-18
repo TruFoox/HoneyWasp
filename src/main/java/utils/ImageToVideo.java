@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
-// ImageToVideo (I DIDNT MAKE MOST OF THIS)
+// ImageToVideo (I DIDNT MAKE MOST OF THIS. FFMPEG SUCKS BALLS)
 //
 // Bool ImageToVideo.convert  ; Convert a single Image object into a short MP4 video using FFmpeg
 // Inputs : Output file path (without extension), Image object to convert

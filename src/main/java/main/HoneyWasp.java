@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
 import java.awt.*;
+import java.net.URI;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -27,12 +28,13 @@ public class HoneyWasp extends ListenerAdapter {
     public static Config config; // Universal config handler for the bot
     public record ServiceData(Supplier<Services> serviceObject, String imageURL, String capsName) {} // Defines data layout of service data
 
-    private static final Map<String, ServiceData> services = Map.of(
+    private static final Map<String, ServiceData> services = Map.of( // List of all services and misc data about them
             "instagram", new ServiceData(Instagram::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png", "Instagram"),
-            "youtube", new ServiceData(YouTube::new, "https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png", "YouTube")
+            "youtube", new ServiceData(YouTube::new, "https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png", "YouTube"),
+            "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail", "TikTok")
     );
 
-    static float currentVersion = 5.5f; // Current version number
+    static float currentVersion = 5.0f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     static Services bot = null;
@@ -303,5 +305,15 @@ public class HoneyWasp extends ListenerAdapter {
                 event.reply("Unknown command.").setEphemeral(true).queue();
             }
         });
+    }
+    public static void Redirect(Services service, String url) {
+        Output.debugPrint(service, "Attempting redirect");
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
+            try {
+                Desktop.getDesktop().browse(new URI(url));
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
     }
 }
