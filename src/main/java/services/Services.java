@@ -74,6 +74,7 @@ public abstract class Services extends Thread {
     // Continue to re-loop
     public void run() {
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
+        Output.webhookPrint(null, "Starting " + name);
 
         restartLoop:
         do { // Loop if restart enabled

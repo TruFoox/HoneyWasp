@@ -32,7 +32,7 @@ public class HoneyWasp extends ListenerAdapter {
             "youtube", new ServiceData(YouTube::new, "https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png", "YouTube")
     );
 
-    static float currentVersion = 4.4f; // Current version number
+    static float currentVersion = 5.5f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     static Services bot = null;
@@ -186,8 +186,6 @@ public class HoneyWasp extends ListenerAdapter {
                 bot = services.get(service).serviceObject.get(); // new Instagram, new YouTube, etc
                 runningServices.put(service.toLowerCase(), bot);
                 bot.start();
-
-                Output.webhookPrint(null, "Autostarting " + services.get(service).capsName);
             }
         }
 
@@ -207,13 +205,13 @@ public class HoneyWasp extends ListenerAdapter {
         String service = event.getOption("service").getAsString();
         Output.debugPrint(null, "Command /" + event.getName() + " used on service " + service);
 
+        EmbedBuilder embed = new EmbedBuilder()
+                .setColor(new Color(0xFF8307))
+                .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL);
         switch (event.getName()) {
             case "start": {
                 if (service.equals("all")) {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .addField("Starting bot on all services", "Use /stop to stop", false);
+                    embed.addField("Starting bot on all services", "Use /stop to stop", false);
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -227,10 +225,7 @@ public class HoneyWasp extends ListenerAdapter {
                         }
                     }
                 } else {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setThumbnail(services.get(service).imageURL)
+                    embed.setThumbnail(services.get(service).imageURL)
                             .addField("Starting bot on " + services.get(service).capsName, "Use /stop to stop", false);
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
@@ -246,10 +241,7 @@ public class HoneyWasp extends ListenerAdapter {
             }
             case "stop": {
                 if (service.equals("all")) {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setDescription("Attempting to stop all services");
+                    embed.setDescription("Attempting to stop all services");
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -261,11 +253,7 @@ public class HoneyWasp extends ListenerAdapter {
                         }
                     }
                 } else {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setThumbnail(services.get(service).imageURL)
-                            .setDescription("Attempting to stop " + services.get(service).capsName);
+                    embed.setDescription("Attempting to stop " + services.get(service).capsName);
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -279,18 +267,12 @@ public class HoneyWasp extends ListenerAdapter {
             }
             case "status": {
                 if (service.equals("all")) {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setTitle("Service Statuses")
+                    embed.setTitle("Service Statuses")
                             .addField("Instagram", runningServices.containsKey("instagram") ? "Running" : "Stopped", true)
                             .addField("YouTube", runningServices.containsKey("youtube") ? "Running" : "Stopped", true);
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                 } else {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setThumbnail(services.get(service).imageURL)
+                    embed.setThumbnail(services.get(service).imageURL)
                             .setTitle(services.get(service).capsName + " Status")
                             .addField("Running", Boolean.toString(runningServices.containsKey(service)), true);
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
@@ -299,10 +281,7 @@ public class HoneyWasp extends ListenerAdapter {
             }
             case "clear": {
                 if (service.equals("all")) {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setDescription("Attempting to clear all caches");
+                    embed.setDescription("Attempting to clear all caches");
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
@@ -310,10 +289,7 @@ public class HoneyWasp extends ListenerAdapter {
                         FileIO.clearList(name);
                     }
                 } else {
-                    EmbedBuilder embed = new EmbedBuilder()
-                            .setColor(new Color(0xFF8307))
-                            .setAuthor("Honeywasp", "https://github.com/TruFoox/HoneyWasp", iconURL)
-                            .setThumbnail(services.get(service).imageURL)
+                    embed.setThumbnail(services.get(service).imageURL)
                             .setDescription("Attempting to clear " + services.get(service).capsName + " cache");
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
