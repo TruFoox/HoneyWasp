@@ -91,7 +91,7 @@ Help regarding the config can be [found here](#the-config), and more information
 
 ### Step 2: Set OAuth2 Permissions
 
-Go to **OAuth2 → URL Generator**:
+1. Go to **OAuth2 → URL Generator**:
 
 **Scopes** (ADD BOTH OF THESE):
 
@@ -103,7 +103,16 @@ Go to **OAuth2 → URL Generator**:
 - `Use Slash Commands`
 - `Send Messages`
 
-Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
+2. Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
+
+### Step 3: Get the Webhook URL (OPTIONAL)
+
+1. Open the Discord server where you want the bot to send messages.
+2. Go to **Server Settings → Integrations → Webhooks**.
+3. Click **New Webhook**.
+4. Select the channel you want the bot to post in.
+5. Click **Copy Webhook URL**.
+6. Paste the URL into `webhook_url` under `[General_Settings]`
 
 ## Instagram Setup
 
