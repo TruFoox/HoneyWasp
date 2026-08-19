@@ -99,8 +99,6 @@ public class Instagram extends Services {
                     continue;
                 }
 
-                Output.webhookPrint(this, response);
-
                 postStatus = StringToJson.getData(response, "status_code");
 
                 if (postStatus.equals("ERROR")) {

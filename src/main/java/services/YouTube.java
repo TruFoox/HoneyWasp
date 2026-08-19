@@ -7,11 +7,21 @@ import org.json.JSONObject;
 import utils.*;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class YouTube extends Services implements HasRefreshToken {
     private final String CLIENT_ID, SECRET;
@@ -116,16 +126,66 @@ public class YouTube extends Services implements HasRefreshToken {
         /* Convert metadata map to JSON string */
         String metadataJson = new ObjectMapper().writeValueAsString(metadata);
 
-        // Publish YouTube video
-        String strResponse = HTTPSend.postYouTubeVideo(this,"https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status", Path.of(fileDir), metadataJson, TOKEN);
+        Output.debugPrint(this, "Fetching video data for upload");
+        HttpClient client = HttpClient.newHttpClient();
 
-        JSONObject response = StringToJson.getJSON(strResponse); // Convert to json for check
+        String boundary = UUID.randomUUID().toString();
+        String CRLF = "\r\n";
+
+        // Read video bytes
+        byte[] videoBytes = Files.readAllBytes(Path.of(fileDir));
+        String fileName = Path.of(fileDir).getFileName().toString();
+
+        // Determine video content type from extension
+        int dotPos = fileName.lastIndexOf('.');
+        if (dotPos == -1 || dotPos == fileName.length() - 1) {
+            throw new IOException("No file extension found for: " + fileName);
+        }
+        String ext = fileName.substring(dotPos + 1);
+        String videoContentType = "video/" + ext;
+
+        // Build multipart/related body manually
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
+
+        // JSON metadata part
+        writer.write("--" + boundary + CRLF);
+        writer.write("Content-Type: application/json; charset=UTF-8" + CRLF + CRLF);
+        writer.write(metadataJson + CRLF);
+
+        // Video part
+        writer.write("--" + boundary + CRLF);
+        writer.write("Content-Type: " + videoContentType + CRLF + CRLF);
+        writer.flush(); // headers written before video bytes
+
+        baos.write(videoBytes);
+        baos.write(CRLF.getBytes());
+
+        // End boundary
+        writer.write("--" + boundary + "--" + CRLF);
+        writer.flush();
+
+        // Build request
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status"))
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                .header("Authorization", "Bearer " + TOKEN)
+                .header("Content-Type", "multipart/related; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofByteArray(baos.toByteArray()))
+                .build();
+
+        Output.debugPrint(this, "Sending video data to YouTube");
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HTTPSend.HTTPCode.set((long) response.statusCode());
+
+        JSONObject responseJSON = StringToJson.getJSON(response.body()); // Convert to json for check
 
         if (HTTPSend.HTTPCode.get() != 200) { // Error handling
             String reason = ""; // Stores reason for error
 
-            if (response.has("error")) {
-                reason = response.getJSONObject("error").getJSONArray("errors").getJSONObject(0).getString("reason");
+            if (responseJSON.has("error")) {
+                reason = responseJSON.getJSONObject("error").getJSONArray("errors").getJSONObject(0).getString("reason");
             }
 
             /* Error handling */

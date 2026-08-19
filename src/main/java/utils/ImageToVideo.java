@@ -80,7 +80,7 @@ public class ImageToVideo {
                         "-preset", "fast", // compression speed
                         "-af", "volume=0.15", // Half volume (Usually too loud)
                         "-crf", "28",
-                        "-r", "10", // fps
+                        "-r", "24", // fps
                         "-pix_fmt", "yuv420p",
                         "-shortest", // stop when shortest input (audio or video, but input is endless image) ends
                         "-t", "15", // stop at 15s
@@ -95,7 +95,7 @@ public class ImageToVideo {
                         "-i", tmpImage.getAbsolutePath(),
                         "-c:v", "libx264",
                         "-preset", "fast",
-                        "-r", "10", // fps
+                        "-r", "24", // fps
                         "-crf", "28",
                         "-pix_fmt", "yuv420p",
                         "-t", "15",

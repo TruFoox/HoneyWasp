@@ -10,6 +10,10 @@ import utils.StringToJson;
 
 import java.awt.*;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +23,7 @@ public class TikTok extends Services implements HasRefreshToken {
     private final String CLIENT_KEY, SECRET;
     String codeVerifier = "y4kfXj5DRBOWYgKHafscM5alOZ5nyXEO42iL1KjL_6RvkoKU1npwKS6_3iulzGXR";
     String codeChallenge = "38b07f366c70e0726e8a60d2e266bf4ff413f152e54aff22fe2b75f434231090";
+    String publishID;
 
     public TikTok() {
         super("TikTok","TT");
@@ -87,7 +92,7 @@ public class TikTok extends Services implements HasRefreshToken {
             return false;
         }
 
-        if (HTTPSend.HTTPCode.get() == 200 && response.contains("access_token")) {
+        if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
             REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
 
             HoneyWasp.config.Tiktok().setRefresh_token(REFRESH_TOKEN);
@@ -95,7 +100,7 @@ public class TikTok extends Services implements HasRefreshToken {
 
             return true;  // Success
         } else {
-            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return false;
@@ -103,14 +108,108 @@ public class TikTok extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean upload() throws Exception {
+    protected boolean upload() throws Exception {Map<String, Object> postInfo = new HashMap<>();
+        postInfo.put("title", caption);
+        postInfo.put("privacy_level", "SELF_ONLY"); // Make PUBLIC_TO_EVERYONE later
 
-        return true;
+        Map<String, Object> sourceInfo = new HashMap<>();
+        sourceInfo.put("source", "FILE_UPLOAD");
+        sourceInfo.put("video_size", Files.size(Path.of(fileDir)));
+        sourceInfo.put("chunk_size", Files.size(Path.of(fileDir)));
+        sourceInfo.put("total_chunk_count", 1);
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("post_info", postInfo);
+        metadata.put("source_info", sourceInfo);
+
+        String metadataJson = new ObjectMapper().writeValueAsString(metadata);
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        Output.debugPrint(this, "Fetching account info");
+
+        HttpRequest request = HttpRequest.newBuilder() // Get account info
+                .uri(URI.create("https://open.tiktokapis.com/v2/post/publish/creator_info/query/"))
+                .header("User-Agent", "HoneyWasp/5.0")
+                .header("Authorization", "Bearer " + TOKEN)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+
+        Output.debugPrint(this, "Response: " + response);
+
+        Output.debugPrint(this, "Creating post on TikTok");
+
+        request = HttpRequest.newBuilder() // Get account info
+                .uri(URI.create("https://open.tiktokapis.com/v2/post/publish/video/init/"))
+                .header("User-Agent", "HoneyWasp/5.0")
+                .header("Authorization", "Bearer " + TOKEN)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .POST(HttpRequest.BodyPublishers.ofString(metadataJson))
+                .build();
+
+        response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+
+        publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
+
+        Output.debugPrint(null, response);
+
+        byte[] videoBytes = Files.readAllBytes(Path.of(fileDir));
+
+        Output.debugPrint(this, "Uploading video file to TikTok");
+
+        request = HttpRequest.newBuilder() // Get account info
+                .uri(URI.create(StringToJson.getJSON(response).getJSONObject("data").getString("upload_url")))
+                .header("Content-Range", "bytes 0-" + (Files.size(Path.of(fileDir)) - 1) + "/" + Files.size(Path.of(fileDir)))
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .PUT(HttpRequest.BodyPublishers.ofByteArray(videoBytes))
+                .build();
+
+        response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+
+        Output.debugPrint(null, response);
+
+        if (HTTPSend.HTTPCode.get() != 200) {
+            Output.webhookPrint(this, "Failed to upload. Quitting..." +
+                    "\n\tError message: " + response, Output.RED);
+
+            return false;
+        }
+
+        return true;  // Success
     }
 
     @Override
-    protected boolean publish() throws Exception {
+    protected boolean publish() throws Exception { // Doesnt actually publish, just waits for upload to finish
+        String postStatus = "PROCESSING_UPLOAD";
+        do {
+            Output.print(this, "Waiting for TikTok to process media. This may take a while...", Output.YELLOW, true);
 
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpRequest request = HttpRequest.newBuilder() // Get account info
+                    .uri(URI.create("https://open.tiktokapis.com/v2/post/publish/status/fetch/"))
+                    .header("User-Agent", "HoneyWasp/5.0")
+                    .header("Authorization", "Bearer " + TOKEN)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"publish_id\":\"" + publishID + "\"}"))
+                    .build();
+
+            String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            Output.debugPrint(this, response);
+
+            postStatus = StringToJson.getJSON(response).getJSONObject("data").getString("status");
+
+            if (postStatus.equals("FAILED")) {
+                Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
+                        "\n\tError Message: " + response, Output.RED);
+                return false;
+            }
+
+            Thread.sleep(5000); // Wait 5s to prevent spam
+        } while (postStatus.equals("PROCESSING_UPLOAD"));
         return true;
     }
 
