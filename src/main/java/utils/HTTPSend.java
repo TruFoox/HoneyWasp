@@ -36,7 +36,7 @@ import javax.imageio.ImageIO;
 // String HTTPSend.postForm  ; Send HTTP POST request with form fields
 // Inputs : URL to send to, Map<String,String> containing form fields
 public class HTTPSend {
-
+    public static String lastResponse;
     public static ThreadLocal<Long> HTTPCode = ThreadLocal.withInitial(() -> 0L);
     // Reminder:
     // Threadlocal = "Each thread has its own version"
@@ -57,10 +57,11 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        lastResponse = response.body().replace("\n", "").replace("\r", "");
+        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
         // Returns response & status code
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
-
+        
         return String.valueOf(response.body());  // Return response body to caller
     }
 
@@ -85,7 +86,9 @@ public class HTTPSend {
 
         HttpRequest request = builder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        
+        lastResponse = response.body().replace("\n", "").replace("\r", "");
+        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
 
         HTTPCode.set((long) response.statusCode());
         return response.body();
@@ -133,7 +136,9 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode());
-        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+
+        lastResponse = response.body().replace("\n", "").replace("\r", "");
+        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
 
         return response.body();
     }
@@ -161,7 +166,8 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
-        Output.debugPrint(service, "Response: " + response.body().replace("\n", "").replace("\r", "").replace(" ", ""));
+        lastResponse = response.body().replace("\n", "").replace("\r", "");
+        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
         return response.body();
     }
 

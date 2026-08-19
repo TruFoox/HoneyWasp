@@ -182,7 +182,7 @@ public class TikTok extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean publish() throws Exception { // Doesnt actually publish, just waits for upload to finish
+    protected boolean publish() throws Exception { // Doesn't actually publish, just waits for upload to finish
         String postStatus = "PROCESSING_UPLOAD";
         do {
             Output.print(this, "Waiting for TikTok to process media. This may take a while...", Output.YELLOW, true);

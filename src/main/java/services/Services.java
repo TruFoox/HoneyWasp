@@ -273,7 +273,7 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this, "Bot crashed - Unknown error: " + e.getMessage() +
                         "\nPotential Relevant Info:" +
                         "\nInternet connection: " + HTTPSend.testInternet() +
-                        "\nLast HTTP response: " + response, Output.RED);
+                        "\nLast HTTP response: " + HTTPSend.lastResponse, Output.RED);
             } finally { // Crash/Stop handling
                 Output.webhookPrint(this, "Stopped");
             }

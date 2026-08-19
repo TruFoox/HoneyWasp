@@ -158,6 +158,16 @@ public class Instagram extends Services {
             Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
             String response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/me/accounts?access_token=" + TOKEN);
 
+            if (!StringToJson.getJSON(response).has("data")) {
+                try {
+                    Output.webhookPrint(this, "Your access token is likely invalid. Please refresh it using the instructions in https://github.com/TruFoox/HoneyWasp#instagram-setup" +
+                            "Response: " + StringToJson.getJSON(response).getJSONObject("error").get("message"), Output.RED);
+                } catch (Exception e) {
+                    Output.webhookPrint(this, response);
+                }
+                return false;
+            }
+
             String facebookID;
             JSONArray data = StringToJson.getJSON(response).getJSONArray("data"); // Convert to JSON array format
             JSONObject dataObj = data.getJSONObject(0);
