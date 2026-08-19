@@ -31,7 +31,7 @@ public abstract class Services extends Thread {
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
-    public boolean nsfw, tempDisableCaption, run = true, use0x0 = false;
+    public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
     public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout;
     public File[] media, audio;
 
@@ -106,7 +106,7 @@ public abstract class Services extends Thread {
                     if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                         Output.webhookPrint(this, "Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
-                        Thread.sleep(SLEEPTIME); // Sleep (Easy way to fake a "skipped attempt")
+                        Sleep.milliseconds(this, SLEEPTIME); // Sleep (Easy way to fake a "skipped attempt")
                         countAttempt = 0;
                     }
 
@@ -117,7 +117,7 @@ public abstract class Services extends Thread {
                             case 0: // Success
                                 break;
                             case 1: // Soft fail (retry)
-                                Thread.sleep(1000); // Sleep 1s to prevent spam
+                                Sleep.milliseconds(this, 1000); // Sleep 1s to prevent spam
                                 continue;
                             case 2: // Fail (quit)
                                 break mainLoop;
@@ -144,13 +144,13 @@ public abstract class Services extends Thread {
                                 // Blacklist image URL permanently, as it is likely corrupted
                                 FileIO.writeList(mediaURL, this, true);
 
-                                Thread.sleep(5000); // Sleep 5 seconds in case it is a temporary error
+                                Sleep.milliseconds(this, 5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
                             } catch (IOException e) {
                                 Output.webhookPrint(this, "Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
                                         + "\n\tError message: " + e, Output.RED);
 
-                                Thread.sleep(7200000);
+                                Sleep.milliseconds(this, 7200000);
                                 continue;
                             }
 
@@ -173,7 +173,7 @@ public abstract class Services extends Thread {
                             } else {
                                 Output.print(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
 
-                                Thread.sleep(SLEEPTIME);
+                                Sleep.milliseconds(this, SLEEPTIME);
                                 continue;
                             }
                             fileDir = "./cache/" + name.toLowerCase() + "/temp.mp4";
@@ -235,7 +235,7 @@ public abstract class Services extends Thread {
 
                     Output.print(this, "Attempting to upload post", Output.YELLOW, true);
                     if (upload()) {
-                        Thread.sleep(1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
+                        Sleep.milliseconds(this, 1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
                         if (!run) break;
 
@@ -254,14 +254,14 @@ public abstract class Services extends Thread {
 
                             System.gc(); // Suggest garbage collection
 
-                            if (run) {Thread.sleep(SLEEPTIME);} // Sleep if /stop not used
+                            if (run) {Sleep.milliseconds(this, SLEEPTIME);} // Sleep if /stop not used
 
                             countAttempt = 0; // Reset count attempt
 
                         } else Output.debugPrint(this, "Failed to publish");
                     } else Output.debugPrint(this, "Failed to upload");
 
-                    Thread.sleep(1500); // Sleep 1.5s to prevent spam
+                    Sleep.milliseconds(this, 1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Bot crashed - Error during sleep: " + e.getMessage());
@@ -280,7 +280,7 @@ public abstract class Services extends Thread {
 
             if (HoneyWasp.RESTART && run) {
                 Output.webhookPrint(null, "It looks like " + name + " crashed. It will be restarted in 5 seconds...");
-                try {Thread.sleep(5000);} catch (Exception _) {break;} // Sleep 5 secs to prevent spam if the crash is repeated
+                try {Sleep.milliseconds(this, 5000);} catch (Exception _) {break;} // Sleep 5 secs to prevent spam if the crash is repeated
             }
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
 
@@ -308,7 +308,7 @@ public abstract class Services extends Thread {
             Output.print(this, "Connection drop detected. Trying again in " + waitTime + " minute(s)...");
             connectionDropWait += 5;
 
-            Thread.sleep(waitTime * 60000L);
+            Sleep.milliseconds(this, waitTime * 60000L);
             return 1;
         } catch (Exception e) {
             connectionDropWait = 0;
@@ -344,21 +344,21 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
 
-                Thread.sleep(SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
+                Sleep.milliseconds(this, SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
                 return 1;
             case 500: // General server error
             case 530:
                 Output.webhookPrint(this,"Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
 
-                Thread.sleep(SLEEPTIME + 7200000L); // Sleep normal time + 2 hours
+                Sleep.milliseconds(this, SLEEPTIME + 7200000L); // Sleep normal time + 2 hours
                 return 1;
             case 520: // General malformed/null response
             case 502: // Bad gateway
                 Output.webhookPrint(this,"Cloudflare HTTP Status Code " + HTTPCode + " - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                Thread.sleep(SLEEPTIME); // Sleep
+                Sleep.milliseconds(this, SLEEPTIME); // Sleep
                 return 1;
             default: // General error handling
                 Output.webhookPrint(this,"Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."

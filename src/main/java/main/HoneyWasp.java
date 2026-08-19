@@ -218,7 +218,7 @@ public class HoneyWasp extends ListenerAdapter {
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                     for (String name : services.keySet()) {
-                        if (runningServices.containsKey(service)) {
+                        if (runningServices.containsKey(name)) {
                             Output.webhookPrint(null, services.get(name).capsName + " is already running.");
                         } else {
                             bot = services.get(name).serviceObject().get();
@@ -269,14 +269,23 @@ public class HoneyWasp extends ListenerAdapter {
             }
             case "status": {
                 if (service.equals("all")) {
-                    embed.setTitle("Service Statuses")
-                            .addField("Instagram", runningServices.containsKey("instagram") ? "Running" : "Stopped", true)
-                            .addField("YouTube", runningServices.containsKey("youtube") ? "Running" : "Stopped", true);
+                    embed.setTitle("Service Statuses");
+                    for(String name : services.keySet()) { // Automatically scale list of services
+                        String serviceStatus = runningServices.containsKey(name) ? "Running\n" : "Stopped\n";
+
+                        String serviceSleeping;
+                        if (serviceStatus.equals("Running\n")) {
+                            serviceSleeping = runningServices.get(name).sleeping ? "Sleeping" : "Processing";
+                        } else {serviceSleeping = "N/A";}
+
+                        embed.addField(services.get(name).capsName, serviceStatus + serviceSleeping, true);
+                    }
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                 } else {
                     embed.setThumbnail(services.get(service).imageURL)
                             .setTitle(services.get(service).capsName + " Status")
-                            .addField("Running", Boolean.toString(runningServices.containsKey(service)), true);
+                            .addField("Running", Boolean.toString(runningServices.containsKey(service)), true)
+                            .addField("Sleeping", Boolean.toString(runningServices.get(service).sleeping), true);
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                 }
                 break;

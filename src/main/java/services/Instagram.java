@@ -53,14 +53,14 @@ public class Instagram extends Services {
                 Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
-                Thread.sleep(SLEEPTIME);
+                Sleep.milliseconds(this, SLEEPTIME);
             } else if (isTransient && postAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
                 Output.webhookPrint(this, "Upload step failed! Attempting upload again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
                 postAttempts++;
 
-                Thread.sleep(5000);
+                Sleep.milliseconds(this, 5000);
                 return upload();
             } if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
                 Output.webhookPrint(this, "Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
@@ -72,7 +72,7 @@ public class Instagram extends Services {
                 FileIO.writeList(mediaURL, this, true);
             }
 
-            Thread.sleep(1000);
+            Sleep.milliseconds(this, 1000);
             return false;
         } else {
             Output.print(this, "Upload step success (1/2)", Output.YELLOW, true);
@@ -80,7 +80,7 @@ public class Instagram extends Services {
 
         postID = StringToJson.getData(response, "id"); // Get post ID from previous HTTP step
 
-        Thread.sleep(500); // Sleep for 0.5s - gives Instagram a little more time to get ready
+        Sleep.milliseconds(this, 500); // Sleep for 0.5s - gives Instagram a little more time to get ready
 
 
         // Instagram needs time to render videos - wait until its finished
@@ -95,7 +95,7 @@ public class Instagram extends Services {
                     Output.print(this, "Failed to get post upload status, waiting 3 minutes before attempting upload to be safe..." +
                             "Error message: " + response, Output.RED, true);
 
-                    Thread.sleep(180000);
+                    Sleep.milliseconds(this, 180000);
                     continue;
                 }
 
@@ -107,14 +107,14 @@ public class Instagram extends Services {
                     return false;
                 }
 
-                Thread.sleep(5000); // Wait 5s to prevent spam
+                Sleep.milliseconds(this, 5000); // Wait 5s to prevent spam
             } while (!postStatus.equals("FINISHED"));
         }
 
         return true;
     }
     protected boolean publish() throws Exception {
-        Thread.sleep(5000); // Easiest way to prevent media ID not ready yet error
+        Sleep.milliseconds(this, 5000); // Easiest way to prevent media ID not ready yet error
 
         Map<String, String> formData = new HashMap<>();
 
@@ -137,7 +137,7 @@ public class Instagram extends Services {
 
                 postAttempts++;
 
-                Thread.sleep(5000);
+                Sleep.milliseconds(this, 5000);
                 return publish();
             } else {
                 Output.webhookPrint(this, "Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +

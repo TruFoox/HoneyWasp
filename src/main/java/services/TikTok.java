@@ -3,10 +3,7 @@ package services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import main.HoneyWasp;
 import org.json.JSONObject;
-import utils.FileIO;
-import utils.HTTPSend;
-import utils.Output;
-import utils.StringToJson;
+import utils.*;
 
 import java.awt.*;
 import java.net.URI;
@@ -208,7 +205,7 @@ public class TikTok extends Services implements HasRefreshToken {
                 return false;
             }
 
-            Thread.sleep(5000); // Wait 5s to prevent spam
+            Sleep.milliseconds(this, 5000); // Wait 5s to prevent spam
         } while (postStatus.equals("PROCESSING_UPLOAD"));
         return true;
     }
