@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
+import static main.HoneyWasp.USE_PROXIES;
+
 
 public abstract class Services extends Thread {
     public final String shortName, name;
@@ -34,6 +36,7 @@ public abstract class Services extends Thread {
     public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
     public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout;
     public File[] media, audio;
+    public String[] proxy;
 
     // Config & Per-service toggles
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
@@ -108,6 +111,10 @@ public abstract class Services extends Thread {
 
                         Sleep.milliseconds(this, SLEEPTIME); // Sleep (Easy way to fake a "skipped attempt")
                         countAttempt = 0;
+                    }
+
+                    if (USE_PROXIES) { // Pick proxy randomly if enabled
+                        proxy = HoneyWasp.PROXIES.get((int) (Math.random() * HoneyWasp.PROXIES.size()));
                     }
 
                     /* Fetch media */

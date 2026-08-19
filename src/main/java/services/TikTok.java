@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import utils.*;
 
 import java.awt.*;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -121,7 +123,15 @@ public class TikTok extends Services implements HasRefreshToken {
 
         String metadataJson = new ObjectMapper().writeValueAsString(metadata);
 
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client;
+
+        if (HoneyWasp.USE_PROXIES) {
+            client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))))
+                    .build();
+        } else {
+            client = HttpClient.newHttpClient();
+        }
 
         Output.debugPrint(this, "Fetching account info");
 
@@ -184,7 +194,14 @@ public class TikTok extends Services implements HasRefreshToken {
         do {
             Output.print(this, "Waiting for TikTok to process media. This may take a while...", Output.YELLOW, true);
 
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client;
+            if (HoneyWasp.USE_PROXIES) {
+                client = HttpClient.newBuilder()
+                        .proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))))
+                        .build();
+            } else {
+                client = HttpClient.newHttpClient();
+            }
 
             HttpRequest request = HttpRequest.newBuilder() // Get account info
                     .uri(URI.create("https://open.tiktokapis.com/v2/post/publish/status/fetch/"))

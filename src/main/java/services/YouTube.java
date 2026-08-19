@@ -11,6 +11,8 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -127,7 +129,17 @@ public class YouTube extends Services implements HasRefreshToken {
         String metadataJson = new ObjectMapper().writeValueAsString(metadata);
 
         Output.debugPrint(this, "Fetching video data for upload");
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client;
+
+        if (HoneyWasp.USE_PROXIES) {
+            client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(
+                            new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))
+                    ))
+                    .build();
+        } else {
+            client = HttpClient.newHttpClient();
+        }
 
         String boundary = UUID.randomUUID().toString();
         String CRLF = "\r\n";

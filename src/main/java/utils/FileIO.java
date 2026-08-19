@@ -36,7 +36,8 @@ public class FileIO {
 
     }
     public static List<String[]> readList(Services service) {
-        Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
+        Path cachePath;
+        cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
         Output.debugPrint(null, "Attempting to read from " + cachePath);
 
         try {
@@ -52,6 +53,27 @@ public class FileIO {
 
         } catch (IOException e) {
             Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
+            return null;
+        }
+    }
+    public static List<String[]> readProxies() {
+        Path cachePath = Paths.get(".", "proxies.txt");
+
+        Output.debugPrint(null, "Attempting to read proxies");
+
+        try {
+            List<String> temp = Files.readAllLines(cachePath);
+            List<String[]> splitList = new ArrayList<>();
+
+            // Split each line by "," and add to list
+            for (String line : temp) {
+                splitList.add(line.split(":"));
+            }
+
+            return splitList;
+
+        } catch (IOException e) {
+            Output.webhookPrint(null,"No proxies.txt found. Quitting...", Output.RED);
             return null;
         }
     }

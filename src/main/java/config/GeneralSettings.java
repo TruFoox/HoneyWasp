@@ -11,8 +11,8 @@ public class GeneralSettings {
     @JsonProperty("webhook_url")
     private String discordWebhook;
 
-    @JsonProperty("autostart")
-    private List<String> autostart;
+    @JsonProperty("proxies_enabled")
+    private boolean proxies_enabled;
 
     @JsonProperty("restart")
     private boolean restart;
@@ -27,6 +27,9 @@ public class GeneralSettings {
 
     public String getDiscordWebhook() { return discordWebhook; }
     public void setDiscordWebhook(String discordWebhook) { this.discordWebhook = discordWebhook; }
+
+    public boolean isProxies_enabled() { return proxies_enabled; }
+    public void setProxies_enabled(boolean proxies_enabled) { this.proxies_enabled = proxies_enabled; }
 
     public boolean isRestart() { return restart; }
     public void setRestart(boolean restart) { this.restart = restart; }

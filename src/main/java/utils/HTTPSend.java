@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.sun.net.httpserver.HttpServer;
+import main.HoneyWasp;
 import services.Services;
 
 import javax.imageio.ImageIO;
@@ -45,7 +46,14 @@ public class HTTPSend {
 
     public static String get(Services service, String url) throws Exception {
         Output.debugPrint(service, "Starting GET on " + url);
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client;
+        if (HoneyWasp.USE_PROXIES) {
+            client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
+                    .build();
+        } else {
+            client = HttpClient.newHttpClient();
+        }
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -66,7 +74,14 @@ public class HTTPSend {
     }
 
     public static String get(Services service, String url, Map<String, String> headers) throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client;
+        if (HoneyWasp.USE_PROXIES) {
+            client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
+                    .build();
+        } else {
+            client = HttpClient.newHttpClient();
+        }
         Output.debugPrint(service, "Starting GET on " + url + "\nWith headers: " + headers);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -95,7 +110,14 @@ public class HTTPSend {
     }
 
     public static String postFile(Services service, String url, Path filePath) throws Exception { // DESIGNED FOR USE WITH 0x0 ONLY
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client;
+        if (HoneyWasp.USE_PROXIES) {
+            client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
+                    .build();
+        } else {
+            client = HttpClient.newHttpClient();
+        }
         Output.debugPrint(service, "Starting post on " + url + "\nWith file: " + filePath);
 
         String boundary = UUID.randomUUID().toString();
@@ -145,7 +167,14 @@ public class HTTPSend {
 
 
     public static String postForm(Services service, String url, Map<String, String> data) throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client;
+        if (HoneyWasp.USE_PROXIES) {
+            client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
+                    .build();
+        } else {
+            client = HttpClient.newHttpClient();
+        }
         Output.debugPrint(service, "Starting post on " + url + "\n\tWith form: " + data.toString().replace("\n", ""));
 
         StringBuilder form = new StringBuilder();

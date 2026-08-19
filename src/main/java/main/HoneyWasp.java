@@ -15,8 +15,12 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
 import java.awt.*;
+import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.function.Supplier;
 
 
@@ -40,8 +44,8 @@ public class HoneyWasp extends ListenerAdapter {
     static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
-    public static boolean DEBUG_MODE, RESTART; // General config items used by threads
-
+    public static boolean DEBUG_MODE, RESTART, USE_PROXIES; // General config items used by threads
+    public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
         // Print logo
@@ -81,6 +85,18 @@ public class HoneyWasp extends ListenerAdapter {
         BOTTOKEN = config.General().getDiscordBotToken();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
+        USE_PROXIES = HoneyWasp.config.General().isProxies_enabled();
+
+        // Initiate proxies
+        if (USE_PROXIES) {
+            try {
+                PROXIES = FileIO.readProxies();
+            } catch (Exception e) {
+                Output.webhookPrint(null, "Failed to fetch proxies. Quitting..." +  // I could allow it to continue in proxyless mode but i figured anyone using proxies wouldn't want that
+                        "Error: " + e.getMessage());
+                ErrorHandling.exitProgram();
+            }
+        }
 
         // JDA Logging options
         if (!DEBUG_MODE) {
@@ -282,10 +298,15 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                 } else {
+                    String serviceSleeping;
+                    if (runningServices.containsKey(service)) {
+                        serviceSleeping = Boolean.toString(runningServices.get(service).sleeping);
+                    } else {serviceSleeping = "N/A";}
+
                     embed.setThumbnail(services.get(service).imageURL)
                             .setTitle(services.get(service).capsName + " Status")
                             .addField("Running", Boolean.toString(runningServices.containsKey(service)), true)
-                            .addField("Sleeping", Boolean.toString(runningServices.get(service).sleeping), true);
+                            .addField("Sleeping", serviceSleeping, true);
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                 }
                 break;
