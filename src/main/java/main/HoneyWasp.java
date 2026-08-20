@@ -90,10 +90,10 @@ public class HoneyWasp extends ListenerAdapter {
         // Initiate proxies
         if (USE_PROXIES) {
             try {
-                PROXIES = FileIO.readProxies();
+                PROXIES = FileIO.readList(null, Paths.get(".", "proxies.txt"), ":");
             } catch (Exception e) {
                 Output.webhookPrint(null, "Failed to fetch proxies. Quitting..." +  // I could allow it to continue in proxyless mode but i figured anyone using proxies wouldn't want that
-                        "Error: " + e.getMessage());
+                        "Reason: " + e.getMessage());
                 ErrorHandling.exitProgram();
             }
         }

@@ -34,7 +34,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
-    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout;
+    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, restartDelay = 5;
     public File[] media, audio;
     public String[] proxy;
 
@@ -286,8 +286,10 @@ public abstract class Services extends Thread {
             }
 
             if (HoneyWasp.RESTART && run) {
-                Output.webhookPrint(null, "It looks like " + name + " crashed. It will be restarted in 5 seconds...");
-                try {Sleep.milliseconds(this, 5000);} catch (Exception _) {break;} // Sleep 5 secs to prevent spam if the crash is repeated
+                Output.webhookPrint(null, "It looks like " + name + " crashed. It will be restarted in " + restartDelay + " seconds...");
+
+                try {Sleep.milliseconds(this, restartDelay * 1000L);} catch (Exception _) {} // Sleep 5 * 2^(Times restarted + 1) seconds
+                restartDelay *= 2; // Multiply time delay by 2 to prevent spam if crash is recurrent
             }
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
 
@@ -380,7 +382,7 @@ public abstract class Services extends Thread {
         try {
             if (AUTO_POST_MODE) {
                 Output.debugPrint(this, "Reading automatic cache");
-                usedURLs = FileIO.readList(this); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
+                usedURLs = FileIO.readList(this, Paths.get(".", "cache", name.toLowerCase(), "cache.txt"), ","); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
                 if (usedURLs == null) {return false;}
 
             } else { // Log manual media

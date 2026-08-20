@@ -10,10 +10,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileIO {
+public class FileIO { // Currently only readList works for any file
     public static void writeList(String url, Services service, boolean permanent) {
         try {
-
             long timestamp = System.currentTimeMillis();
             // Generate filepath "./cache/[Service]/cache.txt" for given OS & write to file
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
@@ -31,49 +30,26 @@ public class FileIO {
             service.usedURLs.add(new String[]{url, String.valueOf(fileTimestamp)});
 
         } catch (IOException ex) {
-            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED); // Rn doesnt actually quit, function is void
         }
 
     }
-    public static List<String[]> readList(Services service) {
-        Path cachePath;
-        cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
-        Output.debugPrint(null, "Attempting to read from " + cachePath);
+    public static List<String[]> readList(Services service, Path path, String delimiter) {
+        Output.debugPrint(service, "Attempting to read from " + path);
 
         try {
-            List<String> temp = Files.readAllLines(cachePath);
+            List<String> temp = Files.readAllLines(path);
             List<String[]> splitList = new ArrayList<>();
 
-            // Split each line by "," and add to list
+            // Split each line by delimiter and add to list
             for (String line : temp) {
-                splitList.add(line.split(","));
+                splitList.add(line.split(delimiter));
             }
 
             return splitList;
 
         } catch (IOException e) {
-            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
-            return null;
-        }
-    }
-    public static List<String[]> readProxies() {
-        Path cachePath = Paths.get(".", "proxies.txt");
-
-        Output.debugPrint(null, "Attempting to read proxies");
-
-        try {
-            List<String> temp = Files.readAllLines(cachePath);
-            List<String[]> splitList = new ArrayList<>();
-
-            // Split each line by "," and add to list
-            for (String line : temp) {
-                splitList.add(line.split(":"));
-            }
-
-            return splitList;
-
-        } catch (IOException e) {
-            Output.webhookPrint(null,"No proxies.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(service,"No " + path + " found. Quitting...", Output.RED);
             return null;
         }
     }
@@ -99,7 +75,7 @@ public class FileIO {
             Files.writeString(cachePath, "");
             Output.webhookPrint(null, service + " cache successfully cleared");
         } catch (IOException e) {
-            Output.webhookPrint(null,"No /cache/" + service.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(null,"No /cache/" + service.toLowerCase() + "/cache.txt found. Quitting...", Output.RED); // Rn doesnt actually quit, function is void
         }
     }
 
