@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TikTok extends Services implements HasRefreshToken {
+public class TikTok extends Services implements HasRefreshToken { // For some reason TikTok API always returns 200 unless a request was not understood
     private final String CLIENT_KEY, SECRET;
     String codeVerifier = "y4kfXj5DRBOWYgKHafscM5alOZ5nyXEO42iL1KjL_6RvkoKU1npwKS6_3iulzGXR";
     String codeChallenge = "38b07f366c70e0726e8a60d2e266bf4ff413f152e54aff22fe2b75f434231090";
@@ -91,6 +91,7 @@ public class TikTok extends Services implements HasRefreshToken {
             return false;
         }
 
+
         if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
             REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
 
@@ -107,9 +108,9 @@ public class TikTok extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean upload() throws Exception {Map<String, Object> postInfo = new HashMap<>();
+    protected Boolean upload() throws Exception {Map<String, Object> postInfo = new HashMap<>();
         postInfo.put("title", caption);
-        postInfo.put("privacy_level", "SELF_ONLY"); // Make PUBLIC_TO_EVERYONE later
+        postInfo.put("privacy_level", "SELF_ONLY"); // Not EVERYONE because that requires app verification which no one will realistically be able to do, even myself
 
         Map<String, Object> sourceInfo = new HashMap<>();
         sourceInfo.put("source", "FILE_UPLOAD");
@@ -146,6 +147,7 @@ public class TikTok extends Services implements HasRefreshToken {
         String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
 
         Output.debugPrint(this, "Response: " + response);
+        HTTPSend.setLastResponse(response);
 
         Output.debugPrint(this, "Creating post on TikTok");
 
@@ -159,9 +161,23 @@ public class TikTok extends Services implements HasRefreshToken {
 
         response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
 
+        Output.debugPrint(this, "Response: " + response);
+        HTTPSend.setLastResponse(response);
+
+        if (StringToJson.getJSON(response).has("error")) {
+            if (StringToJson.getJSON(response).getJSONObject("error").has("message")) {
+                String message = StringToJson.getJSON(response).getJSONObject("error").get("message").toString();
+                Output.webhookPrint(this, "Failed to upload. Quitting..." +
+                        "\n\tReason: " + message, Output.RED);
+            } else {
+                Output.webhookPrint(this, "Failed to upload. Quitting..." +
+                        "\n\tError message: " + response, Output.RED);
+            }
+            return null;
+        }
         publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
 
-        Output.debugPrint(null, response);
+        Output.webhookPrint(this, publishID);
 
         byte[] videoBytes = Files.readAllBytes(Path.of(fileDir));
 
@@ -176,7 +192,8 @@ public class TikTok extends Services implements HasRefreshToken {
 
         response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
 
-        Output.debugPrint(null, response);
+        Output.debugPrint(this, "Response: " + response);
+        HTTPSend.setLastResponse(response);
 
         if (HTTPSend.HTTPCode.get() != 200) {
             Output.webhookPrint(this, "Failed to upload. Quitting..." +
@@ -189,7 +206,7 @@ public class TikTok extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean publish() throws Exception { // Doesn't actually publish, just waits for upload to finish
+    protected Boolean publish() throws Exception { // Doesn't actually publish, just waits for upload to finish
         String postStatus = "PROCESSING_UPLOAD";
         do {
             Output.print(this, "Waiting for TikTok to process media. This may take a while...", Output.YELLOW, true);
@@ -212,7 +229,9 @@ public class TikTok extends Services implements HasRefreshToken {
                     .build();
 
             String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-            Output.debugPrint(this, response);
+
+            Output.debugPrint(this, "Response: " + response);
+            HTTPSend.setLastResponse(response);
 
             postStatus = StringToJson.getJSON(response).getJSONObject("data").getString("status");
 

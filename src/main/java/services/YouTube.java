@@ -108,7 +108,7 @@ public class YouTube extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean upload() throws Exception {
+    protected Boolean upload() throws Exception {
 
         /* Create data to send */
         Map<String, Object> snippet = new HashMap<>(); // Part 1 of data
@@ -191,6 +191,9 @@ public class YouTube extends Services implements HasRefreshToken {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPSend.HTTPCode.set((long) response.statusCode());
 
+        Output.debugPrint(this, "Response: " + response);
+        HTTPSend.setLastResponse(response.toString());
+
         JSONObject responseJSON = StringToJson.getJSON(response.body()); // Convert to json for check
 
         if (HTTPSend.HTTPCode.get() != 200) { // Error handling
@@ -226,7 +229,7 @@ public class YouTube extends Services implements HasRefreshToken {
     }
 
     @Override
-    protected boolean publish() throws Exception {
+    protected Boolean publish() throws Exception {
         return true; // YouTube is one-step
     }
 

@@ -26,9 +26,10 @@ public abstract class Services extends Thread {
     protected static final Random rand = new Random(); // Seed for random number generation
 
     // Upload & Publish implementations MUST check for error 500 or equivalent api down error, and handle general non-200 errors
-    protected abstract boolean upload() throws Exception;
-    protected abstract boolean publish() throws Exception;
-    protected abstract boolean fetchUserToken() throws Exception;
+    // All HTTP calls not using HTTPSend must use HTTPSend.setLastResponse(response); after calls to log the last HTTP response
+    protected abstract Boolean upload() throws Exception; // True, false, or null (quit)
+    protected abstract Boolean publish() throws Exception; // True, false, or null (quit)
+    protected abstract boolean fetchUserToken() throws Exception; // Doesn't need null, as it always quits if failed
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
@@ -241,7 +242,11 @@ public abstract class Services extends Thread {
                     postAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
 
                     Output.print(this, "Attempting to upload post", Output.YELLOW, true);
-                    if (upload()) {
+
+                    Boolean postSuccess = upload(); // Attempt upload
+                    if (postSuccess == null) {
+                        break;
+                    } else if (postSuccess) {
                         Sleep.milliseconds(this, 1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
                         if (!run) break;
@@ -249,7 +254,11 @@ public abstract class Services extends Thread {
                         postAttempts = 0; // Set publish counter to 0 - handled recursively in publish()
 
                         Output.print(this, "Attempting to publish post", Output.YELLOW, true);
-                        if (publish()) {
+
+                        postSuccess = publish(); // Attempt publish
+                        if (postSuccess == null) {
+                            break;
+                        } else if (postSuccess) {
                             if (AUTO_POST_MODE) {
                                 Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                                 FileIO.writeList(mediaURL, this, false); // Store image URL to prevent duplicates
@@ -265,8 +274,12 @@ public abstract class Services extends Thread {
 
                             countAttempt = 0; // Reset count attempt
 
-                        } else Output.debugPrint(this, "Failed to publish");
-                    } else Output.debugPrint(this, "Failed to upload");
+                        } else if (!postSuccess) {
+                            Output.debugPrint(this, "Failed to publish");
+                        } else {break;}
+                    } else if (!postSuccess) {
+                        Output.debugPrint(this, "Failed to upload");
+                    } else {break;}
 
                     Sleep.milliseconds(this, 1500); // Sleep 1.5s to prevent spam
                 } // Main loop end
@@ -278,9 +291,9 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this, "Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
                 Output.webhookPrint(this, "Bot crashed - Unknown error: " + e.getMessage() +
-                        "\nPotential Relevant Info:" +
-                        "\nInternet connection: " + HTTPSend.testInternet() +
-                        "\nLast HTTP response: " + HTTPSend.lastResponse, Output.RED);
+                        "\n\tPotential Relevant Info:" +
+                        "\n\tInternet connection: " + HTTPSend.testInternet() +
+                        "\n\tLast HTTP response: (Code " + HTTPSend.HTTPCode.get() + ") " + HTTPSend.lastResponse.get(), Output.RED);
             } finally { // Crash/Stop handling
                 Output.webhookPrint(this, "Stopped");
             }
@@ -314,7 +327,7 @@ public abstract class Services extends Thread {
             int waitTime = (connectionDropWait == 0) ? 1 : connectionDropWait; // Forces first wait to be 1, and allows sequential waits to be 5n minutes
 
 
-            Output.print(this, "Connection drop detected. Trying again in " + waitTime + " minute(s)...");
+            Output.print(this, "Connection drop detected. Try disabling Proxies, if enabled. Trying again in " + waitTime + " minute(s)...");
             connectionDropWait += 5;
 
             Sleep.milliseconds(this, waitTime * 60000L);

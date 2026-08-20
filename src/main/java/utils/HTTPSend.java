@@ -37,17 +37,14 @@ import javax.imageio.ImageIO;
 // String HTTPSend.postForm  ; Send HTTP POST request with form fields
 // Inputs : URL to send to, Map<String,String> containing form fields
 public class HTTPSend {
-    public static String lastResponse;
-    public static ThreadLocal<Long> HTTPCode = ThreadLocal.withInitial(() -> 0L);
-    // Reminder:
-    // Threadlocal = "Each thread has its own version"
-    // ThreadLocal.withInitial(() -> 0L) = "Start with value
+    public static ThreadLocal<String> lastResponse = ThreadLocal.withInitial(() -> null); // Stores last HTTP response
+    public static ThreadLocal<Long> HTTPCode = ThreadLocal.withInitial(() -> 0L); // Stores last HTTP response code
 
 
     public static String get(Services service, String url) throws Exception {
         Output.debugPrint(service, "Starting GET on " + url);
         HttpClient client;
-        if (HoneyWasp.USE_PROXIES) {
+        if (HoneyWasp.USE_PROXIES && service != null) {
             client = HttpClient.newBuilder()
                     .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
                     .build();
@@ -65,8 +62,8 @@ public class HTTPSend {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        lastResponse = response.body().replace("\n", "").replace("\r", "");
-        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
+        setLastResponse(response.body());
+        Output.debugPrint(service, "Response: " + lastResponse.get().replace(" ", ""));
         // Returns response & status code
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
         
@@ -75,7 +72,7 @@ public class HTTPSend {
 
     public static String get(Services service, String url, Map<String, String> headers) throws Exception {
         HttpClient client;
-        if (HoneyWasp.USE_PROXIES) {
+        if (HoneyWasp.USE_PROXIES && service != null) {
             client = HttpClient.newBuilder()
                     .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
                     .build();
@@ -101,9 +98,9 @@ public class HTTPSend {
 
         HttpRequest request = builder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        
-        lastResponse = response.body().replace("\n", "").replace("\r", "");
-        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
+
+        setLastResponse(response.body());
+        Output.debugPrint(service, "Response: " + lastResponse.get().replace(" ", ""));
 
         HTTPCode.set((long) response.statusCode());
         return response.body();
@@ -111,7 +108,7 @@ public class HTTPSend {
 
     public static String postFile(Services service, String url, Path filePath) throws Exception { // DESIGNED FOR USE WITH 0x0 ONLY
         HttpClient client;
-        if (HoneyWasp.USE_PROXIES) {
+        if (HoneyWasp.USE_PROXIES && service != null) {
             client = HttpClient.newBuilder()
                     .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
                     .build();
@@ -159,8 +156,8 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode());
 
-        lastResponse = response.body().replace("\n", "").replace("\r", "");
-        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
+        setLastResponse(response.body());
+        Output.debugPrint(service, "Response: " + lastResponse.get().replace(" ", ""));
 
         return response.body();
     }
@@ -168,7 +165,7 @@ public class HTTPSend {
 
     public static String postForm(Services service, String url, Map<String, String> data) throws Exception {
         HttpClient client;
-        if (HoneyWasp.USE_PROXIES) {
+        if (HoneyWasp.USE_PROXIES && service != null) {
             client = HttpClient.newBuilder()
                     .proxy(ProxySelector.of(new InetSocketAddress(service.proxy[0], Integer.parseInt(service.proxy[1]))))
                     .build();
@@ -195,8 +192,8 @@ public class HTTPSend {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         HTTPCode.set((long) response.statusCode()); // Set HTTP code
 
-        lastResponse = response.body().replace("\n", "").replace("\r", "");
-        Output.debugPrint(service, "Response: " + lastResponse.replace(" ", ""));
+        setLastResponse(response.body());
+        Output.debugPrint(service, "Response: " + lastResponse.get().replace(" ", ""));
         return response.body();
     }
 
@@ -259,4 +256,6 @@ public class HTTPSend {
             return false;
         }
     }
+
+    public static void setLastResponse(String response) {lastResponse.set(response.replace("\n", "").replace("\r", ""));}
 }
