@@ -20,7 +20,7 @@ public class Instagram extends Services {
         supportedAspectRatio = new double[]{0.45, 2.2}; // 1:2.2 to 2.2:1
     }
 
-    protected boolean upload() throws Exception {
+    protected Boolean upload() throws Exception {
         String response; // Store json data & URL to be used with POST
         caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
 
@@ -113,7 +113,7 @@ public class Instagram extends Services {
 
         return true;
     }
-    protected boolean publish() throws Exception {
+    protected Boolean publish() throws Exception {
         Sleep.milliseconds(this, 5000); // Easiest way to prevent media ID not ready yet error
 
         Map<String, String> formData = new HashMap<>();

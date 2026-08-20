@@ -70,7 +70,6 @@ public class YouTube extends Services implements HasRefreshToken {
             Output.debugPrint(this, "Extracting code from user input");
         }
         authCode = response.split("code=")[1].split("&")[0]; // split on "code=" and stop at next "&"
-        Output.debugPrint(this, "");
 
         // Build upload data
         Map<String, String> formData = new HashMap<>();

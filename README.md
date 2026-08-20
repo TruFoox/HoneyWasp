@@ -35,7 +35,7 @@
 
 # About The Project
 
-This is a simple, lightweight, yet powerful bot for Instagram, YouTube, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+This is a simple, lightweight, yet powerful bot for Instagram, YouTube, Tiktok, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
 
 All data handling, keys, tokens, and processing is handled **client side** - Your information is **YOURS** and is never seen by a 3rd party
 
@@ -202,6 +202,49 @@ Help regarding the config can be [found here](#the-config), and more information
 3. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 4. When prompted to allow access to your YouTube account, press **Continue**
 5. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
+
+
+## TikTok Setup
+
+### Prerequisites
+
+- A **TikTok Account**
+
+### Step 1: Create a TikTok Developer App
+
+1. Go to the TikTok for Developers portal: https://developers.tiktok.com/
+2. Sign in with your TikTok account
+3. Go to **Manage apps**: https://developers.tiktok.com/apps
+4. Click **Connect an app**, choose an app name, and press **Create App**
+5. Open the app you just created
+
+### Step 2: Switch the App to Sandbox & Configure App Details
+
+1. In the top left, next to your app's name → press **Sandbox** (Next to **Production**)
+2. Open **App Details** in the side panel
+3. Choose an app name, Category, and all other required fields
+4. For **Platforms**→ choose **Desktop**
+
+### Step 3: Configure the Redirect URL and posting permissions
+
+1. Open **Products** in the side panel
+2. Under **Products** → press **Add Products**
+3. Select **Login Kit** → select **Content Posting API**
+4. Under the new **Login Kit** menu of Products → select **Desktop**
+5. Add `http://localhost:8000/callback` as a Redirect URI
+6. Under the new **Content Posting API** menu → enable **Direct Post**
+
+### Step 4: Get the Client Key and Client Secret
+
+1. Open your app’s App Details page
+2. Find the **Client Key** and **Client Secret**
+3. Copy both values
+4. Place them in `client_key` and `client_secret` under `[TikTok_Settings]` of Config.json
+
+### Step 5: Generate a Refresh Token (One-Time)
+1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac, and run YouTube
+2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
+3. In this page, (FINISH HERE)
 
 # Usage
 There are a few specific details about the bot you need to know before you use it.

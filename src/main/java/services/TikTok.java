@@ -2,7 +2,6 @@ package services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import main.HoneyWasp;
-import org.json.JSONObject;
 import utils.*;
 
 import java.awt.*;
@@ -15,7 +14,6 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TikTok extends Services implements HasRefreshToken { // For some reason TikTok API always returns 200 unless a request was not understood
@@ -173,7 +171,6 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 Output.webhookPrint(this, "Failed to upload. Quitting..." +
                         "\n\tError message: " + response, Output.RED);
             }
-            return null;
         }
         publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
 

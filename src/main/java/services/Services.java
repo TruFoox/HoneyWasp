@@ -35,7 +35,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
     public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
-    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, restartDelay = 5;
+    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0;
     public File[] media, audio;
     public String[] proxy;
 
@@ -83,6 +83,7 @@ public abstract class Services extends Thread {
         restartLoop:
         do { // Loop if restart enabled
             run = true;
+            countAttempt = 0;
             try {
                 if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
                     Output.debugPrint(this, "Testing if refresh_token is empty");
@@ -299,10 +300,14 @@ public abstract class Services extends Thread {
             }
 
             if (HoneyWasp.RESTART && run) {
-                Output.webhookPrint(null, "It looks like " + name + " crashed. It will be restarted in " + restartDelay + " seconds...");
+                long restartDelay = (long) (Math.pow(2L, timesRestarted));
 
-                try {Sleep.milliseconds(this, restartDelay * 1000L);} catch (Exception _) {} // Sleep 5 * 2^(Times restarted + 1) seconds
-                restartDelay *= 2; // Multiply time delay by 2 to prevent spam if crash is recurrent
+                Output.webhookPrint(null, name + " crashed. This is crash #" + (timesRestarted + 1) +
+                        "\n\tIt will be restarted in " + (restartDelay * 20) + " seconds...", Output.RED);
+
+                try {Sleep.milliseconds(this, restartDelay * 20000L);} catch (Exception _) {} // Sleep 5 * 2^(# of times restarted + 1) seconds
+
+                timesRestarted++; // Increment counter of number of times bot has restarted
             }
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
 
