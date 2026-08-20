@@ -38,7 +38,7 @@ public class HoneyWasp extends ListenerAdapter {
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail", "TikTok")
     );
 
-    static float currentVersion = 5.01f; // Current version number
+    static float currentVersion = 5.1f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     static Services bot = null;
@@ -87,14 +87,43 @@ public class HoneyWasp extends ListenerAdapter {
         RESTART = HoneyWasp.config.General().isRestart();
         USE_PROXIES = HoneyWasp.config.General().isProxies_enabled();
 
+        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
+
         // Initiate proxies
         if (USE_PROXIES) {
-            try {
-                PROXIES = FileIO.readList(null, Paths.get(".", "proxies.txt"), ":");
-            } catch (Exception e) {
-                Output.webhookPrint(null, "Failed to fetch proxies. Quitting..." +  // I could allow it to continue in proxyless mode but i figured anyone using proxies wouldn't want that
-                        "Reason: " + e.getMessage());
+
+            PROXIES = FileIO.readList(null, Paths.get(".", "proxies.txt"), ":");
+
+            if (PROXIES == null || PROXIES.isEmpty()) {
+                Output.webhookPrint(null, "Proxies are enabled, but no proxies were provided in ./proxies.txt. Quitting...", Output.RED);
+            }
+
+            Output.print(null, "Testing provided proxies", Output.YELLOW, true);
+
+            List<String []> badProxies = new ArrayList<>(); // Stores invalid proxies because java doesn't allow removing an element while iterating over the list
+
+            for (String[] proxy : PROXIES) { // Test each proxy's connectivity
+                if (!HTTPSend.testInternet(proxy)) { // Perform connectivity test
+                    Output.print(null, "Proxy " + proxy[0] + ":" + proxy[1] + " has been ignored for being invalid", Output.RED, true);
+                    badProxies.add(proxy);
+                    try {Thread.sleep(1000);} catch (Exception _) {}
+                } else {
+                    Output.print(null, "Proxy " + proxy[0] + ":" + proxy[1] + " is valid", Output.GREEN, true);
+                }
+            }
+
+            // Alert user of how many proxies were removed
+            if (PROXIES.isEmpty()) { // If all proxies removed
+                Output.print(null, "All provided proxies were found to be unable to connect to the internet." +
+                        "\n\tPlease replace them or disable proxies under [General_Settings] in config.json", Output.RED);
                 ErrorHandling.exitProgram();
+            } else if (!badProxies.isEmpty()) { // If at least one proxy is removed
+                Output.print(null, badProxies.size() + " proxies found to be invalid:");
+                for (String[] proxy : badProxies) {
+                    Output.print(null, proxy[0] + ":" + proxy[1]);
+                }
+            } else {
+                Output.print(null, "All proxies found to be valid");
             }
         }
 
@@ -103,8 +132,6 @@ public class HoneyWasp extends ListenerAdapter {
             System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda", "error"); // Hide non-error JDA logs
             System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda.internal.requests.WebSocketClient", "off"); // Hide all JDA connection failed logs
         }
-
-        Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
         // Check for new version
         try {

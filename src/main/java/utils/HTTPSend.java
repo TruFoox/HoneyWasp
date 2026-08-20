@@ -245,12 +245,21 @@ public class HTTPSend {
         return response.get();
     }
 
-    public static boolean testInternet() {
+    public static boolean testInternet(String[] proxy) {
         try {
-             URL url = new URL("http://google.com");
-            final URLConnection conn = url.openConnection();
-            conn.connect();
-            conn.getInputStream().close();
+            HttpClient client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))))
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://google.com"))
+                    .GET()
+                    .build();
+
+            HttpResponse<Void> response = client.send(
+                    request,
+                    HttpResponse.BodyHandlers.discarding()
+            );
             return true;
         } catch (Exception e) {
             return false;

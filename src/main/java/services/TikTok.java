@@ -162,16 +162,21 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         Output.debugPrint(this, "Response: " + response);
         HTTPSend.setLastResponse(response);
 
-        if (StringToJson.getJSON(response).has("error")) {
-            if (StringToJson.getJSON(response).getJSONObject("error").has("message")) {
-                String message = StringToJson.getJSON(response).getJSONObject("error").get("message").toString();
-                Output.webhookPrint(this, "Failed to upload. Quitting..." +
-                        "\n\tReason: " + message, Output.RED);
-            } else {
-                Output.webhookPrint(this, "Failed to upload. Quitting..." +
-                        "\n\tError message: " + response, Output.RED);
+
+        // Check for error
+        if (!StringToJson.getJSON(response).has("data")) { // All TikTok responses return code 200, and basically all responses contain an error field, so I need to check if the data exists instead
+            if (StringToJson.getJSON(response).has("error")) {
+                if (StringToJson.getJSON(response).getJSONObject("error").has("message")) {
+                    String message = StringToJson.getJSON(response).getJSONObject("error").get("message").toString();
+                    Output.webhookPrint(this, "Failed to upload. Quitting..." +
+                            "\n\tReason: " + message, Output.RED);
+                } else {
+                    Output.webhookPrint(this, "Failed to upload. Quitting..." +
+                            "\n\tError message: " + response, Output.RED);
+                }
             }
         }
+
         publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
 
         Output.webhookPrint(this, publishID);
