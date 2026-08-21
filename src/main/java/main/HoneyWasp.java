@@ -32,7 +32,7 @@ public class HoneyWasp extends ListenerAdapter {
     public static Config config; // Universal config handler for the bot
     public record ServiceData(Supplier<Services> serviceObject, String imageURL, String capsName) {} // Defines data layout of service data
 
-    private static final Map<String, ServiceData> services = Map.of( // List of all services and misc data about them
+    public static final Map<String, ServiceData> services = Map.of( // List of all services and misc data about them
             "instagram", new ServiceData(Instagram::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png", "Instagram"),
             "youtube", new ServiceData(YouTube::new, "https://images.icon-icons.com/2699/PNG/512/youtube_logo_icon_168737.png", "YouTube"),
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail", "TikTok")
@@ -41,13 +41,16 @@ public class HoneyWasp extends ListenerAdapter {
     static float currentVersion = 5.1f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
-    static Services bot = null;
+    public static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
     public static boolean DEBUG_MODE, RESTART, USE_PROXIES; // General config items used by threads
     public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
+        Command command = new Command();
+        command.start(); // Start console
+
         // Print logo
         System.out.print(Output.YELLOW + "\n" +
                 "       @@@@@                      @@@@@@\n" +
@@ -76,6 +79,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         System.setProperty("org.slf4j.simpleLogger.log.com.fasterxml.jackson", "off"); // Hide jackson error logs before initialization (They are unhelpful and spammy)
 
+
         try { // Init config
             config = Config.getInstance();
         } catch (Exception _) {
@@ -85,7 +89,7 @@ public class HoneyWasp extends ListenerAdapter {
         BOTTOKEN = config.General().getDiscordBotToken();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
-        USE_PROXIES = HoneyWasp.config.General().isProxies_enabled();
+        USE_PROXIES = HoneyWasp.config.General().isProxies();
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
