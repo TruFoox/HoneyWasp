@@ -198,11 +198,10 @@ Help regarding the config can be [found here](#the-config), and more information
 
 ### Step 4: Generate a Refresh Token (One-Time)
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac, and run YouTube
-2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
+2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to link the bot with your account
 3. In this page, first select your Google account, then when prompted about the app being unverified → click **Show Advanced** → click **Go to [YOUR APP'S NAME] (unsafe)**
 4. When prompted to allow access to your YouTube account, press **Continue**
-5. You will be redirected to an empty page. Copy the URL of the page, and paste it into the console
-
+5. You can now close the page and return to the console
 
 ## TikTok Setup
 
@@ -243,8 +242,9 @@ Help regarding the config can be [found here](#the-config), and more information
 
 ### Step 5: Generate a Refresh Token (One-Time)
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac, and run YouTube
-2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to retrieve your bot token
-3. In this page, (FINISH HERE)
+2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to link the bot with your account
+3. When prompted to allow access to your YouTube account, press **Continue**
+4. You can now close the page and return to the console
 
 # Usage
 There are a few specific details about the bot you need to know before you use it.
@@ -254,6 +254,7 @@ There are a few specific details about the bot you need to know before you use i
     * This is likely to change in the future, with multiple bot tokens being allowed
 * Enabling `restart` may cause issues, and the option only exists for servers where crashes are few and far between
 * If you are having issues, you should try enabling `debug_mode` under `General_Settings` in config.json to help pinpoint the issue
+* Proxies in proxies.txt **MUST** be in **IP-Authentication** format, **NOT User:Pass**
 
 Knowing all this, you can now begin [customizing the config](#the-config), then [using the bot](#starting-and-interacting-with-the-bot)
 
@@ -281,6 +282,7 @@ Below you can find documentation on every configuration option
 |---------------------|-------------------------------------------------------------------------------------------------------|
 | `discord_bot_token` | Your bot's token for logging in to Discord (Optional but recommended, set to `""` to disable Discord) |
 | `webhook_url`       | Discord webhook URL for notifications (Optional, set to `""` to disable)                              |
+| `proxies`           | Enables use of proxies from `proxies.txt` (Do not enable if you do not know what this is)             |
 | `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)       |
 | `debug_mode`        | Enables verbose logging (`true` or `false`)                                                           |
 
