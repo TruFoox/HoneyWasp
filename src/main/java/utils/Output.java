@@ -2,9 +2,11 @@ package utils;
 
 import club.minnced.discord.webhook.exception.HttpException;
 import main.HoneyWasp;
+import org.jline.utils.AttributedString;
 import services.Services;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +18,7 @@ import java.util.logging.Logger;
 //
 // Void Output.print  ; Print message to console, no webhook
 // Inputs : Message to print, color to print as (Default white), whether to mark this line with \r as overridable (default false), whether to use timestamp (Default true)
-public class Output {
+public class Output { // Uses JLine to output in Command.java
     // Use Output.[COLOR]
     public static final String RESET = "\u001B[0m";
     public static final String BLACK = "\u001B[30m";
@@ -38,7 +40,7 @@ public class Output {
             String shortName;
 
             if (service == null) {
-                shortName = "[SYS] ";
+                shortName ="[SYS] ";
             } else {
                 shortName = "[" + service.shortName + "] ";
             }
@@ -56,30 +58,23 @@ public class Output {
                 finalMessage = color + prefix + shortName + outputLine + RESET;
             }
 
-            // If the previous line was an overwriteable line,
-            // finish that line before printing a permanent message.
+            Command.reader.printAbove(finalMessage);
+            lastOutputWasNewline = true;
 
-            // Print the permanent message above the command prompt.
-            Command.printAbove(finalMessage);
-
+            Command.status.update(List.of(new AttributedString("")));
             if (HoneyWasp.config.General() != null) {
                 String webhookUrl =
                         HoneyWasp.config.General().getDiscordWebhook();
 
                 if (webhookUrl != null && !webhookUrl.isEmpty()) {
-                    String webhookMessage = message.replace("\t", "");
+                    String webhookMessage = message.replace("\t", finalMessage);
                     webhookInstance.sendMessage(shortName + webhookMessage);
                 }
             }
 
         } catch (HttpException e) {
-            System.err.print(
-                    color + "     [" + DateTime.time()
-                            + "] - Discord webhook URL is likely invalid. "
-                            + "Either make the field blank, or replace it with "
-                            + "a valid one. This message will spam until you do."
-                            + RESET
-            );
+            System.err.print(Output.RED + "     [" + DateTime.time() + "] - Discord webhook URL is likely invalid. "
+                                 + "\n     Either make the field blank, or replace it with a valid one. This message will spam until you do." + RESET);
         } catch (Exception e) {
             System.err.print(e);
         }
@@ -107,16 +102,18 @@ public class Output {
         }
 
         if (overwriteThisLine && !HoneyWasp.DEBUG_MODE) {
-            overwrite(finalMessage);
             lastOutputWasNewline = false;
+            Command.status.update(List.of(AttributedString.fromAnsi(finalMessage)));
         } else {
-            Command.printAbove(finalMessage);
+            Command.reader.printAbove(finalMessage);
             lastOutputWasNewline = true;
+
+            Command.status.update(List.of());
         }
     }
     public static synchronized void  debugPrint(Services service, String message) {
         if (HoneyWasp.DEBUG_MODE) { // Only print if DEBUG_MODE mode is enabled
-            if (lastOutputWasNewline) {Command.printAbove("");}
+            if (lastOutputWasNewline) {Command.reader.printAbove("");}
             String shortName;
 
             if (service == null) {
@@ -131,21 +128,12 @@ public class Output {
 
             String outputLine= message.replaceAll("\t", spacing);
 
-            Command.printAbove(YELLOW + prefix + shortName + outputLine + RESET);
+            Command.reader.printAbove(YELLOW + prefix + shortName + outputLine + RESET);
             lastOutputWasNewline = true;
 
         }
     }
 
-    public static synchronized void overwrite(String message) {
-        Command.terminal.writer().print("\033[1A");
-        Command.terminal.writer().print("\033[2K");
-        Command.terminal.writer().print("\r");
-        Command.terminal.writer().print(message);
-        Command.terminal.writer().print("\033[1B");
-        Command.terminal.writer().print("\r");
-        Command.terminal.flush();
-    }
 
     // Default overloads
     public static synchronized void webhookPrint(Services service, String message, String color) {webhookPrint(service, message, color, true);}

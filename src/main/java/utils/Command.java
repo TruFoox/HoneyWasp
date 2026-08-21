@@ -4,16 +4,23 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AttributedString;
+import org.jline.utils.Status;
 
 public class Command extends Thread{
     static Terminal terminal;
     static LineReader reader;
+    static Status status;
 
     public void run() {
         try {
             terminal = TerminalBuilder.builder().system(true).build();
 
-            reader = LineReaderBuilder.builder().terminal(terminal).build();
+            status = Status.getStatus(terminal);
+
+            reader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .build();
 
             // Read lines from the user
             while (true) {
@@ -88,9 +95,5 @@ public class Command extends Thread{
         }
     }
 
-    public static synchronized void printAbove(String message) { // Makes prints leave the bottom line clear
-        if (reader != null) {
-            reader.printAbove(message);
-        }
-    }
+
 }
