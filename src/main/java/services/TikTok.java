@@ -179,7 +179,6 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
         publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
 
-        Output.webhookPrint(this, publishID);
 
         byte[] videoBytes = Files.readAllBytes(Path.of(fileDir));
 

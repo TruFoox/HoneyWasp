@@ -102,32 +102,32 @@ public class HoneyWasp extends ListenerAdapter {
                 Output.webhookPrint(null, "Proxies are enabled, but no proxies were provided in ./proxies.txt. Quitting...", Output.RED);
             }
 
-            Output.print(null, "Testing provided proxies", Output.YELLOW, true);
+            Output.print(null, "Testing provided proxies", Output.YELLOW, true, false);
 
             List<String []> badProxies = new ArrayList<>(); // Stores invalid proxies because java doesn't allow removing an element while iterating over the list
 
             for (String[] proxy : PROXIES) { // Test each proxy's connectivity
                 if (!HTTPSend.testInternet(proxy)) { // Perform connectivity test
-                    Output.print(null, "Proxy " + proxy[0] + ":" + proxy[1] + " has been ignored for being invalid", Output.RED, true);
+                    Output.print(null, "Proxy " + proxy[0] + ":" + proxy[1] + " has been ignored for being invalid", Output.RED, true, false);
                     badProxies.add(proxy);
                     try {Thread.sleep(1000);} catch (Exception _) {}
                 } else {
-                    Output.print(null, "Proxy " + proxy[0] + ":" + proxy[1] + " is valid", Output.GREEN, true);
+                    Output.print(null, "Proxy " + proxy[0] + ":" + proxy[1] + " is valid", Output.GREEN, true, false);
                 }
             }
 
             // Alert user of how many proxies were removed
             if (PROXIES.isEmpty()) { // If all proxies removed
                 Output.print(null, "All provided proxies were found to be unable to connect to the internet." +
-                        "\n\tPlease replace them or disable proxies under [General_Settings] in config.json", Output.RED);
+                        "\n\tPlease replace them or disable proxies under [General_Settings] in config.json", Output.RED, false, false);
                 ErrorHandling.exitProgram();
             } else if (!badProxies.isEmpty()) { // If at least one proxy is removed
-                Output.print(null, badProxies.size() + " proxies found to be invalid:");
+                Output.print(null, badProxies.size() + " proxies found to be invalid:", Output.YELLOW, false, false);
                 for (String[] proxy : badProxies) {
                     Output.print(null, proxy[0] + ":" + proxy[1]);
                 }
             } else {
-                Output.print(null, "All proxies found to be valid");
+                Output.print(null, "All proxies found to be valid", Output.YELLOW, false, false);
             }
         }
 
