@@ -23,6 +23,7 @@
     * [Discord Bot Setup](#discord-bot-setup)
     * [Instagram Setup](#instagram-setup)
     * [YouTube Setup](#youtube-setup)
+    * [TikTok Setup](#tiktok-setup)
 * [Usage](#usage)
     * [The Config](#the-config)
     * [Running the Bot](#starting-and-interacting-with-the-bot)
@@ -243,7 +244,7 @@ Help regarding the config can be [found here](#the-config), and more information
 ### Step 5: Generate a Refresh Token (One-Time)
 1. Run the bot by opening Launch.bat on Windows, or Launch.sh on Linux/Mac, and run YouTube
 2. Assuming `refresh_token` is empty in the config, the bot will attempt to open your web browser to allow you to link the bot with your account
-3. When prompted to allow access to your YouTube account, press **Continue**
+3. When prompted to allow access to your TikTok account, press **Continue**
 4. You can now close the page and return to the console
 
 # Usage
@@ -261,7 +262,7 @@ Knowing all this, you can now begin [customizing the config](#the-config), then 
 
 ## The Config
 Before launching the bot, make sure `Config.json` is set up correctly.  
-All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or both.  
+All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed the instructions for at least one service in [Getting Started](#getting-started).  
 You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
 [An example config has been provided here](https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json). If you are having issues, make sure your config has identical formatting to the example.

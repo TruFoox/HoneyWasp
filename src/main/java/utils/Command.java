@@ -26,19 +26,25 @@ public class Command extends Thread{
             while (true) {
                 String line = reader.readLine("    >");
 
-                int space;
-                try {
-                    space = line.indexOf(' ');
-                } catch (Exception _) {
-                    Output.print(null, "Commands need two fields: A command, and a service (Eg /start Instagram)");
-                    continue;
-                }
+                int space = line.indexOf(' ');
 
-                String command = line.substring(line.indexOf('/') + 1, space).toLowerCase(); // Works both with / & without
-                String service = line.substring(space + 1).toLowerCase();
+                String service = null;
+                String command = line.substring(line.indexOf('/') + 1); // Store whole input after / in case no space
+
+                if (space != -1) { // If a space exists in input fetch command and service, else keep whole input
+                    command = line.substring(line.indexOf('/') + 1, space).toLowerCase(); // Works both with / & without
+                    if (line.length() > space) { // Prevents out of bounds error
+                        service = line.substring(space + 1).toLowerCase();
+                    }
+                }
 
                 switch (command) {
                     case "start": {
+                        if (service == null) {
+                            Output.print(null, "Commands need two fields: A command, and a service. Try /help for help");
+                            continue;
+                        }
+
                         if (service.equals("all")) {
 
                             for (String name : HoneyWasp.services.keySet()) {
@@ -62,6 +68,11 @@ public class Command extends Thread{
                         break;
                     }
                     case "stop": {
+                        if (service == null) {
+                            Output.print(null, "Commands need two fields: A command, and a service. Try /help for help");
+                            continue;
+                        }
+
                         if (service.equals("all")) {
                             for (String name : HoneyWasp.services.keySet()) {
                                 if (HoneyWasp.runningServices.containsKey(name)) {
@@ -80,6 +91,11 @@ public class Command extends Thread{
                         break;
                     }
                     case "clear": {
+                        if (service == null) {
+                        Output.print(null, "Commands need two fields: A command, and a service. Try /help for help");
+                        continue;
+                        }
+
                         if (service.equals("all")) {
                             for (String name : HoneyWasp.services.keySet()) {
                                 FileIO.clearList(name);
@@ -94,8 +110,10 @@ public class Command extends Thread{
                                 "\n\t/start - Start a service" +
                                 "\n\t/stop - Stop a service" +
                                 "\n\t/clear - Clear a service's duplicate cache" +
-                                "\n\tAfter the command, put which service you want to use it on, or \"All\" for all services:" +
+
+                              "\n\n\tAfter the command, put which service you want to use it on, or \"All\" for all services:" +
                                 "\n\tExamples: /start Instagram, /clear Youtube, /stop all");
+                        break;
                     }
                     default: {
                         Output.print(null, "Command not recognized. Try /help for a list of commands");
@@ -104,7 +122,7 @@ public class Command extends Thread{
 
             }
         } catch (Exception e) {
-            Output.webhookPrint(null, "Terminal had failed." +
+            Output.webhookPrint(null, "Input terminal had failed. Reverting to legacy mode." +
                     "\n\tReason: " + e.getMessage());
         }
     }

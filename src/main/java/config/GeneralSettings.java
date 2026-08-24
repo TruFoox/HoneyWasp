@@ -11,7 +11,7 @@ public class GeneralSettings {
     @JsonProperty("webhook_url")
     private String discordWebhook;
 
-    @JsonProperty("proxies_enabled")
+    @JsonProperty("proxies")
     private boolean proxies;
 
     @JsonProperty("restart")

@@ -168,13 +168,17 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             if (StringToJson.getJSON(response).has("error")) {
                 if (StringToJson.getJSON(response).getJSONObject("error").has("message")) {
                     String message = StringToJson.getJSON(response).getJSONObject("error").get("message").toString();
-                    Output.webhookPrint(this, "Failed to upload. Quitting..." +
-                            "\n\tReason: " + message, Output.RED);
+                    Output.webhookPrint(this, "Failed to post. Skipping this attempt..." +
+                            "\n" + message, Output.RED);
+
+                    Sleep.milliseconds(this, SLEEPTIME);
+                    return false;
                 } else {
                     Output.webhookPrint(this, "Failed to upload. Quitting..." +
                             "\n\tError message: " + response, Output.RED);
                 }
             }
+            return null;
         }
 
         publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
@@ -208,10 +212,11 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
     @Override
     protected Boolean publish() throws Exception { // Doesn't actually publish, just waits for upload to finish
-        String postStatus = "PROCESSING_UPLOAD";
-        do {
-            Output.print(this, "Waiting for TikTok to process media. This may take a while...", Output.YELLOW, true);
+        String postStatus;
 
+        int retyCount = 0;
+        do {
+            retyCount++;
             HttpClient client;
             if (HoneyWasp.USE_PROXIES) {
                 client = HttpClient.newBuilder()
@@ -235,8 +240,9 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             HTTPSend.setLastResponse(response);
 
             postStatus = StringToJson.getJSON(response).getJSONObject("data").getString("status");
+            Output.print(this, "Waiting for TikTok to process media. This may take a while (Status: " + postStatus + ")...", Output.YELLOW, true);
 
-            if (postStatus.equals("FAILED")) {
+            if (postStatus.equals("FAILED") || retyCount == 12) { // If processing failed or it takes >60 seconds to process, try again
                 Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
                         "\n\tError Message: " + response, Output.RED);
                 return false;

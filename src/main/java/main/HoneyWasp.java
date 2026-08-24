@@ -38,7 +38,7 @@ public class HoneyWasp extends ListenerAdapter {
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail", "TikTok")
     );
 
-    static float currentVersion = 5.1f; // Current version number
+    static float currentVersion = 5.2f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     public static Services bot = null;
