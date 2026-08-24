@@ -22,7 +22,7 @@ dependencies {
     implementation(platform("org.junit:junit-bom:5.10.0"))
     implementation("org.junit.jupiter:junit-jupiter")
     implementation("org.junit.platform:junit-platform-launcher")
-    implementation("org.jline:jline:3.30.6")
+    implementation("org.jline:jline:3.30.16")
 }
 
 application {
