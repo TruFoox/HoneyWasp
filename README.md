@@ -42,7 +42,7 @@ All data handling, keys, tokens, and processing is handled **client side** - You
 
 It is programmed with a polymorphic implementation to allow for easier contributions, so if you want to propose an edit, feel free to [make a pull request!](#creating-a-pull-request)
 <p align="center">
-  <img src="https://i.postimg.cc/Jnqhg1yy/image.png" alt="HoneyWasp" width="720" height="519" /> 
+  <img src="https://i.postimg.cc/PfZrWD5R/image.png" alt="HoneyWasp" width="720" height="476" /> 
 </p>
 
 # Getting Started
@@ -395,5 +395,5 @@ Contributions are what make the open source community such an amazing place to l
 * **[Discord Webhooks](https://github.com/MinnDevelopment/Discord-Webhooks)** - For sending messages via Discord webhooks
 * **[JavaCV](https://github.com/bytedeco/javacv)** - Java wrapper for OpenCV, used to convert photos to video
 * **[Jackson](https://github.com/FasterXML/jackson-databind)** - JSON serialization/deserialization library for configs and API calls
-* **[MemeAPI](https://github.com/D3vd/Meme_Api)** by [D3vd](https://github.com/D3vd) - Utilized to automatically grab images from Reddit when `auto_post_mode` enabled
+* **[MemeAPI](https://github.com/D3vd/Meme_Api)** - Utilized to automatically grab images from Reddit when `auto_post_mode` enabled
 * **[0x0](https://0x0.st)** - Used to temporarily store videos for the bot to then send the URL to Instagram

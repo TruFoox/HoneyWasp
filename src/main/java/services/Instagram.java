@@ -20,7 +20,7 @@ public class Instagram extends Services {
         supportedAspectRatio = new double[]{0.5, 2}; // 1:2 to 2:1
     }
 
-    protected Boolean upload() throws Exception {
+    protected int upload() throws Exception {
         String response; // Store json data & URL to be used with POST
         caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
 
@@ -73,7 +73,7 @@ public class Instagram extends Services {
             }
 
             Sleep.milliseconds(this, 1000);
-            return false;
+            return 0;
         } else {
             Output.print(this, "Upload step success (1/2)", Output.YELLOW, true);
         }
@@ -104,16 +104,16 @@ public class Instagram extends Services {
                 if (postStatus.equals("ERROR")) {
                     Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
                             "\n\tError Message: " + response, Output.RED);
-                    return false;
+                    return 0;
                 }
 
                 Sleep.milliseconds(this, 5000); // Wait 5s to prevent spam
             } while (!postStatus.equals("FINISHED"));
         }
 
-        return true;
+        return 1;
     }
-    protected Boolean publish() throws Exception {
+    protected int publish() throws Exception {
         Sleep.milliseconds(this, 5000); // Easiest way to prevent media ID not ready yet error
 
         Map<String, String> formData = new HashMap<>();
@@ -146,12 +146,12 @@ public class Instagram extends Services {
                 // Blacklist image URL permanently, as it is likely corrupted
                 FileIO.writeList(mediaURL, this, true);
             }
-            return false;
+            return 0;
         }
-        return true;
+        return 1;
     }
 
-    protected boolean fetchUserToken() throws Exception { // Fetches user ID
+    protected int fetchUserToken() throws Exception { // Fetches user ID
         if (USERID == 0) { // If ID not already fetched this session
             Output.debugPrint(this, "Attempting to fetch User ID");
 
@@ -165,7 +165,7 @@ public class Instagram extends Services {
                 } catch (Exception e) {
                     Output.webhookPrint(this, response);
                 }
-                return false;
+                return 0;
             }
 
             String facebookID;
@@ -175,7 +175,7 @@ public class Instagram extends Services {
             facebookID = dataObj.getString("id"); // Temporarily store facebook ID
 
             if (!run) {
-                return false;
+                return 0;
             }
 
             Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
@@ -185,13 +185,13 @@ public class Instagram extends Services {
             if (!response.contains("instagram_business_account")) { // Ensure account is business account
                 Output.webhookPrint(this, "Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
 
-                return false;
+                return 0;
             }
             dataObj = StringToJson.getJSON(response);
 
             dataObj = dataObj.getJSONObject("instagram_business_account"); // Get JSON["instagram_business_account"]["id"]
             USERID = dataObj.getLong("id");
         }
-        return true; // Success
+        return 1; // Success
     }
 }

@@ -40,7 +40,7 @@ public class YouTube extends Services implements HasRefreshToken {
     }
 
     @Override
-    public boolean fetchRefreshToken() {
+    public int fetchRefreshToken() {
         String redirectURI = "http://localhost:8000/callback"; // URL to redirect to after authentication
 
         // Generate OAuth URL & prompt user to go there to get token
@@ -88,7 +88,7 @@ public class YouTube extends Services implements HasRefreshToken {
             Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
-            return false;
+            return 0;
         }
 
         if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
@@ -97,17 +97,17 @@ public class YouTube extends Services implements HasRefreshToken {
             HoneyWasp.config.Youtube().setRefresh_token(REFRESH_TOKEN);
             HoneyWasp.config.saveConfig(); // Write to file
 
-            return true;  // Success
+            return 1;  // Success
         } else {
             Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
-            return false;
+            return 0;
         }
     }
 
     @Override
-    protected Boolean upload() throws Exception {
+    protected int upload() throws Exception {
 
         /* Create data to send */
         Map<String, Object> snippet = new HashMap<>(); // Part 1 of data
@@ -222,18 +222,18 @@ public class YouTube extends Services implements HasRefreshToken {
 
                 Sleep.milliseconds(this, 5000);
             }
-            return false;
+            return 0;
         }
-        return true;
+        return 1;
     }
 
     @Override
-    protected Boolean publish() throws Exception {
-        return true; // YouTube is one-step
+    protected int publish() throws Exception {
+        return 1; // YouTube is one-step
     }
 
     @Override
-    protected boolean fetchUserToken() throws Exception {
+    protected int fetchUserToken() throws Exception {
         // Build upload data
         Map<String, String> formData = new HashMap<>();
 
@@ -250,12 +250,12 @@ public class YouTube extends Services implements HasRefreshToken {
         if (HTTPSend.HTTPCode.get() == 200 && response.contains("access_token")) {
             TOKEN = StringToJson.getData(response, "access_token");
 
-            return true;  // Success
+            return 1;  // Success
         } else {
             Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
-            return false;
+            return 0;
         }
     }
 }

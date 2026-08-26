@@ -27,9 +27,9 @@ public abstract class Services extends Thread {
 
     // Upload & Publish implementations MUST check for error 500 or equivalent api down error, and handle general non-200 errors
     // All HTTP calls not using HTTPSend must use HTTPSend.setLastResponse(response); after calls to log the last HTTP response
-    protected abstract Boolean upload() throws Exception; // True, false, or null (quit)
-    protected abstract Boolean publish() throws Exception; // True, false, or null (quit)
-    protected abstract boolean fetchUserToken() throws Exception; // Doesn't need null, as it always quits if failed
+    protected abstract int upload() throws Exception; // 1, 0, or -1 (quit)
+    protected abstract int publish() throws Exception; // 1, 0, or -1 (quit)
+    protected abstract int fetchUserToken() throws Exception; // Doesn't need -1, as it always quits if failed
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
@@ -88,7 +88,7 @@ public abstract class Services extends Thread {
                 if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
                     Output.debugPrint(this, "Testing if refresh_token is empty");
                     if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
-                        if (!((HasRefreshToken) this).fetchRefreshToken()) {break;} // Fetch token
+                        if (((HasRefreshToken) this).fetchRefreshToken() == 0) {break;} // Fetch token
                     } else {
                         Output.debugPrint(this, "refresh_token was found to contain data");
                     }
@@ -230,7 +230,7 @@ public abstract class Services extends Thread {
                     // Lots of if (!run) to combat /stop not working, especially on poor internet connections
                     if (!run) break;
 
-                    if (!fetchUserToken()) { // Attempt to fetch access token (Quit if failed)
+                    if (fetchUserToken() == 0) { // Attempt to fetch access token (Quit if failed)
                         Output.webhookPrint(this, "Failed to fetch access token. Quitting...", Output.RED);
                         break;
                     }
@@ -244,10 +244,10 @@ public abstract class Services extends Thread {
 
                     Output.print(this, "Attempting to upload post", Output.YELLOW, true);
 
-                    Boolean postSuccess = upload(); // Attempt upload
-                    if (postSuccess == null) {
+                    int postSuccess = upload(); // Attempt upload
+                    if (postSuccess == -1) {
                         break;
-                    } else if (postSuccess) {
+                    } else if (postSuccess == 1) {
                         Sleep.milliseconds(this, 1500); // Sleep 1.5 sec to allow server time to process (A complete waste of time 99% of the time, but better be safe than sorry)
 
                         if (!run) break;
@@ -257,9 +257,9 @@ public abstract class Services extends Thread {
                         Output.print(this, "Attempting to publish post", Output.YELLOW, true);
 
                         postSuccess = publish(); // Attempt publish
-                        if (postSuccess == null) {
+                        if (postSuccess == -1) {
                             break;
-                        } else if (postSuccess) {
+                        } else if (postSuccess == 1) {
                             if (AUTO_POST_MODE) {
                                 Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                                 FileIO.writeList(mediaURL, this, false); // Store image URL to prevent duplicates
@@ -275,10 +275,10 @@ public abstract class Services extends Thread {
 
                             countAttempt = 0; // Reset count attempt
 
-                        } else if (!postSuccess) {
+                        } else if (postSuccess == 0) {
                             Output.debugPrint(this, "Failed to publish");
                         } else {break;}
-                    } else if (!postSuccess) {
+                    } else if (postSuccess == 0) {
                         Output.debugPrint(this, "Failed to upload");
                     } else {break;}
 

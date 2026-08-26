@@ -33,7 +33,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
     }
 
     @Override
-    public boolean fetchRefreshToken() {
+    public int fetchRefreshToken() {
         String redirectURI = "http://localhost:8000/callback"; // URL to redirect to after authentication
 
         // Generate OAuth URL & prompt user to go there to get token
@@ -86,7 +86,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
-            return false;
+            return 0;
         }
 
 
@@ -96,17 +96,17 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             HoneyWasp.config.Tiktok().setRefresh_token(REFRESH_TOKEN);
             HoneyWasp.config.saveConfig(); // Write to file
 
-            return true;  // Success
+            return 1;  // Success
         } else {
             Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
-            return false;
+            return 0;
         }
     }
 
     @Override
-    protected Boolean upload() throws Exception {Map<String, Object> postInfo = new HashMap<>();
+    protected int upload() throws Exception {Map<String, Object> postInfo = new HashMap<>();
         postInfo.put("title", caption);
         postInfo.put("privacy_level", "SELF_ONLY"); // Not EVERYONE because that requires app verification which no one will realistically be able to do, even myself
 
@@ -172,13 +172,13 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                             "\n" + message, Output.RED);
 
                     Sleep.milliseconds(this, SLEEPTIME);
-                    return false;
+                    return 0;
                 } else {
                     Output.webhookPrint(this, "Failed to upload. Quitting..." +
                             "\n\tError message: " + response, Output.RED);
                 }
             }
-            return null;
+            return -1;
         }
 
         publishID = StringToJson.getJSON(response).getJSONObject("data").getString("publish_id");
@@ -204,14 +204,14 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             Output.webhookPrint(this, "Failed to upload. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
-            return false;
+            return 0;
         }
 
-        return true;  // Success
+        return 1;  // Success
     }
 
     @Override
-    protected Boolean publish() throws Exception { // Doesn't actually publish, just waits for upload to finish
+    protected int publish() throws Exception { // Doesn't actually publish, just waits for upload to finish
         String postStatus;
 
         int retyCount = 0;
@@ -245,16 +245,16 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             if (postStatus.equals("FAILED") || retyCount == 12) { // If processing failed or it takes >60 seconds to process, try again
                 Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
                         "\n\tError Message: " + response, Output.RED);
-                return false;
+                return 0;
             }
 
             Sleep.milliseconds(this, 5000); // Wait 5s to prevent spam
         } while (postStatus.equals("PROCESSING_UPLOAD"));
-        return true;
+        return 1;
     }
 
     @Override
-    protected boolean fetchUserToken() throws Exception {
+    protected int fetchUserToken() throws Exception {
         // Build upload data
         Map<String, String> formData = new HashMap<>();
 
@@ -272,12 +272,12 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             TOKEN = StringToJson.getData(response, "access_token");
             REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
 
-            return true;  // Success
+            return 1;  // Success
         } else {
             Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
-            return false;
+            return 0;
         }
     }
 }
