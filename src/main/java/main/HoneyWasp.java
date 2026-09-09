@@ -17,6 +17,7 @@ import utils.*;
 import java.awt.*;
 import java.io.File;
 import java.net.URI;
+import java.net.http.WebSocket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -38,7 +39,7 @@ public class HoneyWasp extends ListenerAdapter {
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail", "TikTok")
     );
 
-    static float currentVersion = 5.2f; // Current version number
+    public static float currentVersion = 5.2f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     public static Services bot = null;
@@ -131,6 +132,14 @@ public class HoneyWasp extends ListenerAdapter {
             }
         }
 
+        Output.print(null, "Attempting to connect to WebUI...", Output.YELLOW, true, false);
+        WS ws = new WS();
+        try {
+            ws.start(8080);
+        } catch (Exception e) {
+            Output.print(null, "WebSocket failed to start" +
+                    "\n\tReason: " + e.getMessage(), Output.YELLOW, false, false);
+        }
         // JDA Logging options
         if (!DEBUG_MODE) {
             System.setProperty("org.slf4j.simpleLogger.log.net.dv8tion.jda", "error"); // Hide non-error JDA logs

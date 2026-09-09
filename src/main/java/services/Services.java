@@ -44,7 +44,7 @@ public abstract class Services extends Thread {
     public List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, doSizeTest = true;
     public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
-    public double[] supportedAspectRatio = {}; // Width / Height
+    public double[] supportedAspectRatio = {}; // Format: minRatio, maxRatio (w/ Ratio = Width / Height)
 
     public Services(String name, String shortName) { // Constructor
         this.name = name;
@@ -156,10 +156,9 @@ public abstract class Services extends Thread {
                                 Sleep.milliseconds(this, 5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
                             } catch (IOException e) {
-                                Output.webhookPrint(this, "Failed to download image from Reddit to convert to video. Skipping attempt w/ +2 hour delay..."
+                                Output.webhookPrint(this, "Failed to download image from Reddit to convert to video. Skipping attempt..."
                                         + "\n\tError message: " + e, Output.RED);
 
-                                Sleep.milliseconds(this, 7200000);
                                 continue;
                             }
 

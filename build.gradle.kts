@@ -23,6 +23,8 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter")
     implementation("org.junit.platform:junit-platform-launcher")
     implementation("org.jline:jline:3.30.16")
+    implementation("org.eclipse.jetty:jetty-server:12.1.13")
+    implementation("org.eclipse.jetty.websocket:jetty-websocket-jetty-server:12.1.13")
 }
 
 application {
