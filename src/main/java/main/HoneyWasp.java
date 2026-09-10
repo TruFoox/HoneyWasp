@@ -135,10 +135,10 @@ public class HoneyWasp extends ListenerAdapter {
         Output.print(null, "Attempting to connect to WebUI...", Output.YELLOW, true, false);
         WS ws = new WS();
         try {
-            ws.start(8080);
+            ws.start(8020);
         } catch (Exception e) {
             Output.print(null, "WebSocket failed to start" +
-                    "\n\tReason: " + e.getMessage(), Output.YELLOW, false, false);
+                    "\n\tYou probably already have something using localhost:8020", Output.RED, false, false);
         }
         // JDA Logging options
         if (!DEBUG_MODE) {

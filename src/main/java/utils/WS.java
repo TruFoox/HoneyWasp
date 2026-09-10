@@ -54,10 +54,22 @@ public class WS {
         @OnWebSocketMessage
         public void onMessage(Session session, String message) {
             Output.debugPrint(null, "Received: " + message);
-            String command = message.substring(0, message.indexOf("\\"));
-            String data = null;
+            String command = null;
+            String data;
 
-            if (message.contains("/")) {data = message.substring(message.indexOf("\\"));} // Only relevant if contains \
+
+            if (message.contains("\\")) { // Fetch command
+                command = message.substring(0, message.indexOf("\\"));
+            } else {
+                command = message; // If no \, it's a request
+            }
+
+            if (message.contains("\\")) {
+                data = message.substring(message.indexOf("\\"));
+            } else {
+                data = message; // If no \, it's a request
+            }
+
 
             try {
                 switch (command) {
