@@ -39,37 +39,33 @@ public class Config {
 
     public static Config getInstance() throws Exception {
 
-        if (instance == null) {
-            ObjectMapper mapper = new ObjectMapper().configure(
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false
-            );
-            mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        if (instance == null) { // If config not already loaded
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // Create jackson reader, set to not crash immediately if invalid config
 
-
-            instance = mapper.readValue(
-                    new File("config.json"),
-                    Config.class
-            );
+            instance = mapper.readValue(new File("config.json"), Config.class); // read config
         }
         return instance;
     }
 
     public void saveConfig() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(
-                com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
-        );
+        mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
 
         try {
-            mapper.writeValue(
-                    new File("config.json"),
-                    this
-            );
+            mapper.writeValue(new File("config.json"), this);
         } catch (IOException e) {
-            System.err.println(
-                    "Could not save config: " + e.getMessage()
-            );
+            System.err.println("Could not save config: " + e.getMessage());
         }
+    }
+
+    public ConfigSettings get(String setting) {
+        return switch (setting.toLowerCase()) {
+            case "instagram" -> Instagram_Settings;
+            case "youtube" -> Youtube_Settings;
+            case "tiktok" -> Tiktok_Settings;
+            case "general" -> General_Settings;
+            default -> throw new IllegalArgumentException("Unknown setting: " + setting);
+        };
     }
 
     public GeneralSettings General() {
@@ -90,15 +86,4 @@ public class Config {
 
     //public TwitterSettings Twitter() {return Twitter_Settings;}
 
-    public PlatformSettings Platform(String platform) { // Platform reference swapper
-        return switch (platform.toLowerCase()) {
-            case "instagram" -> Instagram_Settings;
-            case "youtube" -> Youtube_Settings;
-            case "tiktok" -> Tiktok_Settings;
-            //case "twitter" -> Twitter_Settings;
-            default -> throw new IllegalArgumentException(
-                    "Unknown platform: " + platform
-            );
-        };
-    }
 }

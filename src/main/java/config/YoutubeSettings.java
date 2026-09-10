@@ -24,7 +24,7 @@ import java.util.List;
         "hashtags"
 })
 
-public class YoutubeSettings implements PlatformSettings,Refreshable {
+public class YoutubeSettings implements ConfigSettings,Refreshable {
     private String refresh_token;
     private String client_secret;
     private String client_id;
@@ -96,4 +96,56 @@ public class YoutubeSettings implements PlatformSettings,Refreshable {
 
     public String getHashtags() { return hashtags; }
     public void setHashtags(String hashtags) { this.hashtags = hashtags; }
+    @Override
+    public Object get(String setting) {
+        return switch (setting.toLowerCase()) {
+            case "refresh_token" -> getRefresh_token();
+            case "client_secret" -> getClient_secret();
+            case "client_id" -> getClient_id();
+            case "auto_post_mode" -> isAuto_post_mode();
+            case "autostart" -> isAutostart();
+            case "minutes_between_posts" -> getMinutes_between_posts();
+            case "hours_before_duplicate_removed" -> getHours_before_duplicate_removed();
+            case "attempts_before_timeout" -> getAttempts_before_timeout();
+            case "subreddits" -> getSubreddits();
+            case "blacklist" -> getBlacklist();
+            case "duplicates_allowed" -> isDuplicates_allowed();
+            case "audio_enabled" -> isAudio_enabled();
+            case "nsfw_allowed" -> isNsfw_allowed();
+            case "use_reddit_caption" -> isUse_reddit_caption();
+            case "caption_blacklist" -> getCaption_blacklist();
+            case "caption" -> getCaption();
+            case "hashtags" -> getHashtags();
+            default ->
+                    throw new IllegalArgumentException(
+                            "Unknown setting: " + setting
+                    );
+        };
+    }
+    @Override
+    public void set(String setting, String newValue) {
+        switch (setting.toLowerCase()) {
+            case "refresh_token" -> setRefresh_token(newValue);
+            case "client_secret" -> setClient_secret(newValue);
+            case "client_id" -> setClient_id(newValue);
+            case "auto_post_mode" -> setAuto_post_mode(Boolean.parseBoolean(newValue));
+            case "autostart" -> setAutostart(Boolean.parseBoolean(newValue));
+            case "minutes_between_posts" -> setMinutes_between_posts(Integer.parseInt(newValue));
+            case "hours_before_duplicate_removed" -> setHours_before_duplicate_removed(Integer.parseInt(newValue));
+            case "attempts_before_timeout" -> setAttempts_before_timeout(Integer.parseInt(newValue));
+            case "subreddits" -> setSubreddits(List.of(newValue.split(",")));
+            case "blacklist" -> setBlacklist(List.of(newValue.split(",")));
+            case "duplicates_allowed" -> setDuplicates_allowed(Boolean.parseBoolean(newValue));
+            case "audio_enabled" -> setAudio_enabled(Boolean.parseBoolean(newValue));
+            case "nsfw_allowed" -> setNsfw_allowed(Boolean.parseBoolean(newValue));
+            case "use_reddit_caption" -> setUse_reddit_caption(Boolean.parseBoolean(newValue));
+            case "caption_blacklist" -> setCaption_blacklist(List.of(newValue.split(",")));
+            case "caption" -> setCaption(newValue);
+            case "hashtags" -> setHashtags(newValue);
+            default ->
+                    throw new IllegalArgumentException(
+                            "Unknown setting: " + setting
+                    );
+        }
+    }
 }

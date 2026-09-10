@@ -3,7 +3,7 @@ package config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-public class GeneralSettings {
+public class GeneralSettings implements ConfigSettings {
 
     @JsonProperty("discord_bot_token")
     private String discordBotToken;
@@ -36,4 +36,34 @@ public class GeneralSettings {
 
     public boolean isDebug_mode() { return debug_mode; }
     public void setDebug_mode(boolean debug_mode) { this.debug_mode = debug_mode; }
+
+
+    @Override
+    public Object get(String setting) {
+        return switch (setting.toLowerCase()) {
+            case "discordbottoken" -> getDiscordBotToken();
+            case "discordwebhook" -> getDiscordWebhook();
+            case "proxies" -> isProxies();
+            case "restart" -> isRestart();
+            case "debug_mode" -> isDebug_mode();
+            default ->
+                    throw new IllegalArgumentException(
+                            "Unknown setting: " + setting
+                    );
+        };
+    }
+    @Override
+    public void set(String setting, String newValue) {
+        switch (setting.toLowerCase()) {
+            case "discordbottoken" -> setDiscordBotToken(newValue);
+            case "discordwebhook" -> setDiscordWebhook(newValue);
+            case "proxies" -> setProxies(Boolean.parseBoolean(newValue));
+            case "restart" -> setRestart(Boolean.parseBoolean(newValue));
+            case "debug_mode" -> setDebug_mode(Boolean.parseBoolean(newValue));
+            default ->
+                    throw new IllegalArgumentException(
+                            "Unknown setting: " + setting
+                    );
+        }
+    }
 }

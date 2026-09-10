@@ -175,10 +175,7 @@ public class HoneyWasp extends ListenerAdapter {
 
             try {
                 Output.print(null, "Logging in to Discord bot...", Output.YELLOW, false, false);
-                jda = JDABuilder.createDefault(
-                                BOTTOKEN,
-                                EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-                        )
+                jda = JDABuilder.createDefault(BOTTOKEN,EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT))
                         .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS) // logging
                         .addEventListeners(new HoneyWasp())
                         .disableCache(CacheFlag.SOUNDBOARD_SOUNDS)
@@ -238,9 +235,9 @@ public class HoneyWasp extends ListenerAdapter {
         // Automatic starting of services
         for(String service : services.keySet()) {
             Output.debugPrint(null, "Checking potential autostart token: " + services.get(service).capsName);
-            PlatformSettings serviceSettings = HoneyWasp.config.Platform(service.toLowerCase());
+            ConfigSettings serviceSettings = HoneyWasp.config.get(service.toLowerCase());
 
-            if (serviceSettings.isAutostart()) {
+            if ((boolean) serviceSettings.get("autostart")) {
                 bot = services.get(service).serviceObject.get(); // new Instagram, new YouTube, etc
                 runningServices.put(service.toLowerCase(), bot);
                 bot.start();

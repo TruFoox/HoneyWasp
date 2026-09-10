@@ -1,5 +1,5 @@
 package services;
-import config.PlatformSettings;
+import config.ConfigSettings;
 import main.HoneyWasp;
 import utils.*;
 import javax.imageio.ImageIO;
@@ -22,7 +22,7 @@ public abstract class Services extends Thread {
     public final String shortName, name;
     public String[] requiredSettings; // Settings to be checked if empty on startup
 
-    protected PlatformSettings settings;
+    protected ConfigSettings settings;
     protected static final Scanner scanner = new Scanner(System.in); // Input scanner
     protected static final Random rand = new Random(); // Seed for random number generation
 
@@ -53,22 +53,22 @@ public abstract class Services extends Thread {
         this.shortName = shortName;
 
         // Initialize settings
-        settings = HoneyWasp.config.Platform(name.toLowerCase()); // Select config for this platform
+        settings = HoneyWasp.config.get(name.toLowerCase()); // Select config for this platform
 
-        AUTO_POST_MODE = settings.isAuto_post_mode();
-        SLEEPTIME = settings.getMinutes_between_posts() * 60000; // Generate time to sleep between posts in milliseconds
-        ATTEMPTS_BEFORE_TIMEOUT = settings.getAttempts_before_timeout();
-        SUBREDDITS = settings.getSubreddits();
-        AUDIO_ENABLED = settings.isAudio_enabled();
-        USE_REDDIT_CAPTION = settings.isUse_reddit_caption();
-        FALLBACK_CAPTION = settings.getCaption();
-        NSFW_ALLOWED = settings.isNsfw_allowed();
-        DUPLICATES_ALLOWED = settings.isDuplicates_allowed();
-        BLACKLIST = settings.getBlacklist();
-        CAPTION_BLACKLIST = settings.getCaption_blacklist();
-        HOURS_BEFORE_DUPLICATES_REMOVED = settings.getHours_before_duplicate_removed();
-        CAPTION = settings.getCaption();
-        HASHTAGS = settings.getHashtags();
+        AUTO_POST_MODE = (boolean) settings.get("auto_post_mode");
+        SLEEPTIME = ((int) settings.get("minutes_between_posts")) * 60000;
+        ATTEMPTS_BEFORE_TIMEOUT = (int) settings.get("attempts_before_timeout");
+        SUBREDDITS = (List<String>) settings.get("subreddits");
+        AUDIO_ENABLED = (boolean) settings.get("audio_enabled");
+        USE_REDDIT_CAPTION = (boolean) settings.get("use_reddit_caption");
+        FALLBACK_CAPTION = (String) settings.get("caption");
+        NSFW_ALLOWED = (boolean) settings.get("nsfw_allowed");
+        DUPLICATES_ALLOWED = (boolean) settings.get("duplicates_allowed");
+        BLACKLIST = (List<String>) settings.get("blacklist");
+        CAPTION_BLACKLIST = (List<String>) settings.get("caption_blacklist");
+        HOURS_BEFORE_DUPLICATES_REMOVED = (int) settings.get("hours_before_duplicate_removed");
+        CAPTION = (String) settings.get("caption");
+        HASHTAGS = (String) settings.get("hashtags");
 
         uploadAttemptTimeout = (ATTEMPTS_BEFORE_TIMEOUT/25f < 1) ? Math.round(ATTEMPTS_BEFORE_TIMEOUT/25f) : 1; // Calculate number of upload attempts before timeout (1/25 of ATTEMPTS_BEFORE_TIMEOUT, or 1 - whichever is bigger)
 
