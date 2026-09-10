@@ -123,7 +123,7 @@ public class Command extends Thread{
             }
         } catch (Exception e) {
             Output.webhookPrint(null, "Input terminal had failed. Reverting to legacy mode." +
-                    "\n\tReason: " + e.getMessage());
+                    "\n\tReason: " + e.getMessage(), Output.RED);
         }
     }
 

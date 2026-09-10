@@ -20,6 +20,7 @@ import static main.HoneyWasp.USE_PROXIES;
 
 public abstract class Services extends Thread {
     public final String shortName, name;
+    public String[] requiredSettings; // Settings to be checked if empty on startup
 
     protected PlatformSettings settings;
     protected static final Scanner scanner = new Scanner(System.in); // Input scanner
@@ -27,6 +28,7 @@ public abstract class Services extends Thread {
 
     // Upload & Publish implementations MUST check for error 500 or equivalent api down error, and handle general non-200 errors
     // All HTTP calls not using HTTPSend must use HTTPSend.setLastResponse(response); after calls to log the last HTTP response
+    // These currently do not follow traditional exit code conventions because it was initially a boolean
     protected abstract int upload() throws Exception; // 1, 0, or -1 (quit)
     protected abstract int publish() throws Exception; // 1, 0, or -1 (quit)
     protected abstract int fetchUserToken() throws Exception; // Doesn't need -1, as it always quits if failed
@@ -40,7 +42,7 @@ public abstract class Services extends Thread {
     public String[] proxy;
 
     // Config & Per-service toggles
-    public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN;
+    public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN; // TOKEN can hold config API Key or fetched temp Access Token
     public List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
     public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, doSizeTest = true;
     public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
@@ -79,6 +81,20 @@ public abstract class Services extends Thread {
     public void run() {
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
         Output.webhookPrint(null, "Starting " + name);
+
+        /*for (String setting : requiredSettings) {
+            try {
+                // If setting is empty, warn user and quit
+                if (this.getClass().getDeclaredField(setting).get(this).equals("")) { // From this class, fetch the variable with name setting, then fetch the value of it
+                    throw new Exception(); // User will get same message regardless of if the setting itself is missing or if the value is empty
+                }
+            } catch (Exception _) {
+                Output.webhookPrint(this, "[ERROR] You are missing at least one required setting for " + this.name +
+                        "\n\tPlease ensure your config matches the example config provided at https://bit.ly/HoneyWasp-Example-Config & followed all of the settings for " + this.name + " in the README" +
+                        "\n\tMissing value (NOT VERBATIM NAME OF SETTING): " +  setting, Output.RED);
+                return;
+            }
+        }*/
 
         restartLoop:
         do { // Loop if restart enabled

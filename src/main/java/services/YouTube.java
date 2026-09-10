@@ -31,6 +31,7 @@ public class YouTube extends Services implements HasRefreshToken {
     public YouTube() {
         super("YouTube","YT");
 
+        requiredSettings = new String[]{"refresh_token", "client_secret", "client_id"};
         SECRET = HoneyWasp.config.Youtube().getClient_secret().trim();
         CLIENT_ID = HoneyWasp.config.Youtube().getClient_id().trim();
         REFRESH_TOKEN = HoneyWasp.config.Youtube().getRefresh_token().trim();

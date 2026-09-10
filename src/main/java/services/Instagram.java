@@ -14,6 +14,7 @@ public class Instagram extends Services {
     public Instagram() {
         super("Instagram","INSTA");
 
+        requiredSettings = new String[]{"TOKEN"};
         TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
         VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
         use0x0 = true; // Instagram only supports URL file hosting
