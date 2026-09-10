@@ -58,13 +58,13 @@ public class Config {
         }
     }
 
-    public ConfigSettings get(String setting) {
-        return switch (setting.toLowerCase()) {
+    public ConfigSettings get(String settingGroup) {
+        return switch (settingGroup.toLowerCase()) {
             case "instagram" -> Instagram_Settings;
             case "youtube" -> Youtube_Settings;
             case "tiktok" -> Tiktok_Settings;
             case "general" -> General_Settings;
-            default -> throw new IllegalArgumentException("Unknown setting: " + setting);
+            default -> throw new IllegalArgumentException("Unknown setting: " + settingGroup);
         };
     }
 

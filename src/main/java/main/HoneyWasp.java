@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * Uses Discord to handles user commands for starting, stopping, and clearing service caches.*/
 public class HoneyWasp extends ListenerAdapter {
     public static Config config; // Universal config handler for the bot
-    public record ServiceData(Supplier<Services> serviceObject, String imageURL, String capsName) {} // Defines data layout of service data
+    public record ServiceData(Supplier<Services> serviceObject, String imageURL, String capsName) {} // Defines data layout of service data - apparently record classes autogenerate getters, toString, etc
 
     public static final Map<String, ServiceData> services = Map.of( // List of all services and misc data about them
             "instagram", new ServiceData(Instagram::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png", "Instagram"),
