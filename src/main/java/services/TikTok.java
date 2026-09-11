@@ -171,7 +171,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 if (StringToJson.getJSON(response).getJSONObject("error").has("message")) {
                     String message = StringToJson.getJSON(response).getJSONObject("error").get("message").toString();
                     Output.webhookPrint(this, "Failed to post. Skipping this attempt..." +
-                            "\n" + message, Output.RED);
+                            "\n\t" + message, Output.RED);
 
                     Sleep.milliseconds(this, SLEEPTIME);
                     return 0;

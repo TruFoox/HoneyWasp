@@ -4,6 +4,7 @@ import club.minnced.discord.webhook.exception.HttpException;
 import main.HoneyWasp;
 import org.jline.utils.AttributedString;
 import services.Services;
+import utils.Webhook;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,12 +32,13 @@ public class Output { // Uses JLine to output in Command.java
     public static final String WHITE = "\u001B[37m";
 
 
-    private static final SendWebhook webhookInstance = new SendWebhook(); // Initiate webhook instance
+    private static final Webhook webhookInstance = new Webhook(); // Initiate webhook instance
 
     static boolean lastOutputWasNewline = true;
 
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) {
         try {
+            String webhookMessage = message.replace("\t", ""); // Somehow moving this way up here fixes an ASCII issue that happens when it's inside the sendMessage() if() statement
             String shortName;
 
             if (service == null) {
@@ -66,8 +68,6 @@ public class Output { // Uses JLine to output in Command.java
                 String webhookUrl = HoneyWasp.config.General().getDiscordWebhook();
 
                 if (webhookUrl != null && !webhookUrl.isEmpty()) {
-                    String webhookMessage = message.replace("\t", " ");
-
                     webhookInstance.sendMessage(shortName + webhookMessage);
                 }
             }
@@ -93,19 +93,19 @@ public class Output { // Uses JLine to output in Command.java
 
         String outputLine = message.replaceAll("\t", spacing);
 
-        String finalMessage;
+        String consoleMessage;
 
         if (!useTimestamp) {
-            finalMessage = color + "     " + shortName + message + RESET;
+            consoleMessage = color + "     " + shortName + message + RESET;
         } else {
-            finalMessage = color + prefix + shortName + outputLine + RESET;
+            consoleMessage = color + prefix + shortName + outputLine + RESET;
         }
 
         if (overwriteThisLine && !HoneyWasp.DEBUG_MODE) {
             lastOutputWasNewline = false;
-            Command.status.update(List.of(AttributedString.fromAnsi(finalMessage)));
+            Command.status.update(List.of(AttributedString.fromAnsi(consoleMessage)));
         } else {
-            Command.reader.printAbove(finalMessage);
+            Command.reader.printAbove(consoleMessage);
             lastOutputWasNewline = true;
 
             Command.status.update(List.of());
