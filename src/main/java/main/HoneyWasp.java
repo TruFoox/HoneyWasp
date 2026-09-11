@@ -138,7 +138,7 @@ public class HoneyWasp extends ListenerAdapter {
             ws.start(8020);
         } catch (Exception e) {
             Output.print(null, "WebSocket failed to start" +
-                    "\n\tYou probably already have something using localhost:8020", Output.RED, false, false);
+                    "\n\tYou probably already have something listening on localhost:8020", Output.RED, false, false);
         }
         // JDA Logging options
         if (!DEBUG_MODE) {
@@ -242,14 +242,6 @@ public class HoneyWasp extends ListenerAdapter {
                 runningServices.put(service.toLowerCase(), bot);
                 bot.start();
             }
-        }
-
-        if (BOTTOKEN == null || BOTTOKEN.isBlank()) { // If in headless (No discord) mode, warn user that they need to enable autostart & Quit
-            Output.webhookPrint(null, "You need to enable Autostart for least one service in config.json;" +
-                    "\nMake sure you have done all the steps for you chosen services found in https://github.com/TruFoox/HoneyWasp#getting-started" +
-                    "\n" +
-                    "\nThe bot will now close, as it cannot function in headless mode without Autostart. Please enable it, or add a Discord bot token", Output.RED);
-            ErrorHandling.exitProgram();
         }
     }
 

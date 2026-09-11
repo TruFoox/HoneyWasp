@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import main.HoneyWasp;
+import utils.Output;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,13 +50,20 @@ public class Config {
     }
 
     public void saveConfig() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT); // Tell jackson to pretty print json
 
         try {
             mapper.writeValue(new File("config.json"), this);
         } catch (IOException e) {
             System.err.println("Could not save config: " + e.getMessage());
+        }
+
+        try {
+            HoneyWasp.config = mapper.readValue(new File("config.json"), Config.class); // Attempt to refresh current config instance
+        } catch (Exception e) {
+            Output.webhookPrint(null, "Failed to update config value" +
+                    "\n\tReason: " + e.getMessage());
         }
     }
 

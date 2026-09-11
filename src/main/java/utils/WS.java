@@ -65,7 +65,7 @@ public class WS {
             }
 
             if (message.contains("\\")) {
-                data = message.substring(message.indexOf("\\"));
+                data = message.substring(message.indexOf("\\") + 1);
             } else {
                 data = message; // If no \, it's a request
             }
@@ -82,13 +82,24 @@ public class WS {
                         session.sendText("config\\" + Files.readString(Path.of("config.json")), null);
                         break;
                     case "set-value": // set-value\{group of setting}\{config option name}\{new config option value} | Sets config value
-                        String settingGroup = data.substring(0, data.indexOf("\\"));
-                        String configOption = data.substring(data.indexOf("\\", data.indexOf("\\") + 1) + 1, data.indexOf("\\", data.indexOf("\\") + 2));
-                        String configValue = data.substring(data.indexOf("\\", data.indexOf("\\") + 2) + 1);
+                        int firstSlash = data.indexOf("\\");
+                        int secondSlash = data.indexOf("\\", firstSlash + 1);
+
+                        String settingGroup = data.substring(0, firstSlash);
+                        String configOption = data.substring(firstSlash + 1, secondSlash);
+                        String configValue = data.substring(secondSlash + 1);
 
                         Output.debugPrint(null, "Setting " + configOption + " to " + configValue + " in " + settingGroup);
 
-                        HoneyWasp.config.get(settingGroup).set(configOption, configValue);
+                        HoneyWasp.config.get(settingGroup).set(configOption, configValue); // Set config value
+
+                        try {
+                            HoneyWasp.config.saveConfig();
+                        } catch (Exception e) {
+                            Output.webhookPrint(null, "Failed to save config", Output.RED);
+                        }
+
+
                         break;
                     case "restart-service": // restart-service\{service} | For after config value is changed
                         Output.debugPrint(null, "Restarting " + data);
@@ -100,6 +111,7 @@ public class WS {
                                 Sleep.milliseconds(null, 1000);
                             } while (HoneyWasp.runningServices.containsKey(data)); // Wait until bot stopped
 
+                            // Start service
                             HoneyWasp.bot = HoneyWasp.services.get(data).serviceObject().get(); // new Instagram, new YouTube, etc
                             HoneyWasp.runningServices.put(data.toLowerCase(), HoneyWasp.bot);
                             HoneyWasp.bot.start();

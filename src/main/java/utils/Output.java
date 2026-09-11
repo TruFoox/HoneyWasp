@@ -63,11 +63,11 @@ public class Output { // Uses JLine to output in Command.java
 
             Command.status.update(List.of(new AttributedString("")));
             if (HoneyWasp.config.General() != null) {
-                String webhookUrl =
-                        HoneyWasp.config.General().getDiscordWebhook();
+                String webhookUrl = HoneyWasp.config.General().getDiscordWebhook();
 
                 if (webhookUrl != null && !webhookUrl.isEmpty()) {
-                    String webhookMessage = message.replace("\t", finalMessage);
+                    String webhookMessage = message.replace("\t", " ");
+
                     webhookInstance.sendMessage(shortName + webhookMessage);
                 }
             }
