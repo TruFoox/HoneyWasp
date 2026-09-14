@@ -11,6 +11,9 @@ public class GeneralSettings implements ConfigSettings {
     @JsonProperty("webhook_url")
     private String discordWebhook;
 
+    @JsonProperty("ping_on_error")
+    private boolean pingOnError;
+
     @JsonProperty("proxies")
     private boolean proxies;
 
@@ -28,6 +31,9 @@ public class GeneralSettings implements ConfigSettings {
     public String getDiscordWebhook() { return discordWebhook; }
     public void setDiscordWebhook(String discordWebhook) { this.discordWebhook = discordWebhook; }
 
+    public boolean isPingOnError() { return pingOnError; }
+    public void setPingOnError(boolean pingOnError) { this.pingOnError = pingOnError; }
+
     public boolean isProxies() { return proxies; }
     public void setProxies(boolean proxies) { this.proxies = proxies; }
 
@@ -43,6 +49,7 @@ public class GeneralSettings implements ConfigSettings {
         return switch (setting.toLowerCase()) {
             case "discordbottoken" -> getDiscordBotToken();
             case "discordwebhook" -> getDiscordWebhook();
+            case "pingOnError" -> isPingOnError();
             case "proxies" -> isProxies();
             case "restart" -> isRestart();
             case "debug_mode" -> isDebug_mode();
@@ -57,6 +64,7 @@ public class GeneralSettings implements ConfigSettings {
         switch (setting.toLowerCase()) {
             case "discordbottoken" -> setDiscordBotToken(newValue);
             case "discordwebhook" -> setDiscordWebhook(newValue);
+            case "pingOnError" -> setPingOnError(Boolean.parseBoolean(newValue));
             case "proxies" -> setProxies(Boolean.parseBoolean(newValue));
             case "restart" -> setRestart(Boolean.parseBoolean(newValue));
             case "debug_mode" -> setDebug_mode(Boolean.parseBoolean(newValue));

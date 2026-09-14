@@ -176,7 +176,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                     Sleep.milliseconds(this, SLEEPTIME);
                     return 0;
                 } else {
-                    Output.webhookPrint(this, "Failed to upload. Quitting..." +
+                    Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
                             "\n\tError message: " + response, Output.RED);
                 }
             }
@@ -203,7 +203,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         HTTPSend.setLastResponse(response);
 
         if (HTTPSend.HTTPCode.get() != 200) {
-            Output.webhookPrint(this, "Failed to upload. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;
@@ -245,8 +245,9 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             Output.print(this, "Waiting for TikTok to process media. This may take a while (Status: " + postStatus + ")...", Output.YELLOW, true);
 
             if (postStatus.equals("FAILED") || retyCount == 12) { // If processing failed or it takes >60 seconds to process, try again
-                Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
+                Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
                         "\n\tError Message: " + response, Output.RED);
+                FileIO.writeList(mediaURL, this, true);
                 return 0;
             }
 
@@ -276,7 +277,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
             return 1;  // Success
         } else {
-            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY]Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;

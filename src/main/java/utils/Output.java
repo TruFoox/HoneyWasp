@@ -38,7 +38,6 @@ public class Output { // Uses JLine to output in Command.java
 
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) {
         try {
-            String webhookMessage = message.replace("\t", ""); // Somehow moving this way up here fixes an ASCII issue that happens when it's inside the sendMessage() if() statement
             String shortName;
 
             if (service == null) {
@@ -50,12 +49,13 @@ public class Output { // Uses JLine to output in Command.java
             String prefix = "     [" + DateTime.time() + "] - ";
             String spacing = " ".repeat(prefix.length());
 
-            String outputLine = message.replaceAll("\t", spacing);
+            String removePing = message.replace("[NOTIFY]", ""); // The console doesn't need pings
+
+            String outputLine = removePing.replaceAll("\t", spacing);
 
             String finalMessage;
-
             if (!useTimestamp) {
-                finalMessage = color + "     " + shortName + message + RESET;
+                finalMessage = color + "     " + shortName + removePing + RESET;
             } else {
                 finalMessage = color + prefix + shortName + outputLine + RESET;
             }
@@ -68,7 +68,15 @@ public class Output { // Uses JLine to output in Command.java
                 String webhookUrl = HoneyWasp.config.General().getDiscordWebhook();
 
                 if (webhookUrl != null && !webhookUrl.isEmpty()) {
-                    webhookInstance.sendMessage(shortName + webhookMessage);
+                    String withPing;
+                    if (HoneyWasp.PING_ON_ERROR) { // If pinging enabled, ping, else dont
+                        withPing = message.replace("[NOTIFY]", "@everyone - ");
+                    } else {
+                        withPing = message.replace("[NOTIFY]", "");
+
+                    }
+
+                    webhookInstance.sendMessage(shortName + withPing.replace("\t", ""));
                 }
             }
 

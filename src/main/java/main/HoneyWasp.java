@@ -39,13 +39,13 @@ public class HoneyWasp extends ListenerAdapter {
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail", "TikTok")
     );
 
-    public static float currentVersion = 5.2f; // Current version number
+    public static float currentVersion = 5.25f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     public static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
-    public static boolean DEBUG_MODE, RESTART, USE_PROXIES; // General config items used by threads
+    public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES; // General config items used by threads
     public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
@@ -91,6 +91,7 @@ public class HoneyWasp extends ListenerAdapter {
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
         USE_PROXIES = HoneyWasp.config.General().isProxies();
+        PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
@@ -234,7 +235,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         // Automatic starting of services
         for(String service : services.keySet()) {
-            Output.debugPrint(null, "Checking potential autostart token: " + services.get(service).capsName);
+            Output.debugPrint(null, "Checking potential autostart token: " + services.get(service).capsName());
             ConfigSettings serviceSettings = HoneyWasp.config.get(service.toLowerCase());
 
             if ((boolean) serviceSettings.get("autostart")) {
@@ -264,7 +265,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     for (String name : services.keySet()) {
                         if (runningServices.containsKey(name)) {
-                            Output.webhookPrint(null, services.get(name).capsName + " is already running.");
+                            Output.webhookPrint(null, services.get(name).capsName() + " is already running.");
                         } else {
                             bot = services.get(name).serviceObject().get();
                             runningServices.put(name.toLowerCase(), bot);
@@ -273,11 +274,11 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                 } else {
                     embed.setThumbnail(services.get(service).imageURL)
-                            .addField("Starting bot on " + services.get(service).capsName, "Use /stop to stop", false);
+                            .addField("Starting bot on " + services.get(service).capsName(), "Use /stop to stop", false);
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                     if (runningServices.containsKey(service)) {
-                        Output.webhookPrint(null, services.get(service).capsName + " is already running. Stop it first.");
+                        Output.webhookPrint(null, services.get(service).capsName() + " is already running. Stop it first.");
                     } else {
                         bot = services.get(service).serviceObject.get();
                         runningServices.put(service, bot);
@@ -296,18 +297,18 @@ public class HoneyWasp extends ListenerAdapter {
                         if (runningServices.containsKey(name)) {
                             runningServices.get(name).halt();
                         } else {
-                            Output.webhookPrint(null, services.get(name).capsName + " is not running.");
+                            Output.webhookPrint(null, services.get(name).capsName() + " is not running.");
                         }
                     }
                 } else {
-                    embed.setDescription("Attempting to stop " + services.get(service).capsName);
+                    embed.setDescription("Attempting to stop " + services.get(service).capsName());
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                     if (runningServices.containsKey(service)) {
                         runningServices.get(service).halt();
                     } else {
-                        Output.webhookPrint(null, services.get(service).capsName + " is not running");
+                        Output.webhookPrint(null, services.get(service).capsName() + " is not running");
                     }
                 }
                 break;
@@ -323,7 +324,7 @@ public class HoneyWasp extends ListenerAdapter {
                             serviceSleeping = runningServices.get(name).sleeping ? "Sleeping" : "Processing";
                         } else {serviceSleeping = "N/A";}
 
-                        embed.addField(services.get(name).capsName, serviceStatus + serviceSleeping, true);
+                        embed.addField(services.get(name).capsName(), serviceStatus + serviceSleeping, true);
                     }
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
                 } else {
@@ -333,7 +334,7 @@ public class HoneyWasp extends ListenerAdapter {
                     } else {serviceSleeping = "N/A";}
 
                     embed.setThumbnail(services.get(service).imageURL)
-                            .setTitle(services.get(service).capsName + " Status")
+                            .setTitle(services.get(service).capsName() + " Status")
                             .addField("Running", Boolean.toString(runningServices.containsKey(service)), true)
                             .addField("Sleeping", serviceSleeping, true);
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
@@ -351,7 +352,7 @@ public class HoneyWasp extends ListenerAdapter {
                     }
                 } else {
                     embed.setThumbnail(services.get(service).imageURL)
-                            .setDescription("Attempting to clear " + services.get(service).capsName + " cache");
+                            .setDescription("Attempting to clear " + services.get(service).capsName() + " cache");
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 

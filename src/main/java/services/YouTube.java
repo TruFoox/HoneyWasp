@@ -86,7 +86,7 @@ public class YouTube extends Services implements HasRefreshToken {
         try {
             response = HTTPSend.postForm(this,"https://oauth2.googleapis.com/token", formData);
         } catch (Exception e) {
-            Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY]Failed to fetch refresh token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
             return 0;
@@ -100,7 +100,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
             return 1;  // Success
         } else {
-            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY]Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;

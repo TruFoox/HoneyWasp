@@ -104,7 +104,17 @@ public class WS {
                     case "restart-service": // restart-service\{service} | For after config value is changed
                         Output.debugPrint(null, "Restarting " + data);
 
-                        if (HoneyWasp.runningServices.containsKey(data)) {
+                        if (data.equals("all")) {
+                            for (String name : HoneyWasp.services.keySet()) {
+                                if (HoneyWasp.runningServices.containsKey(name)) {
+                                    Output.webhookPrint(null, HoneyWasp.services.get(name).capsName() + " is already running.");
+                                } else {
+                                    HoneyWasp.bot = HoneyWasp.services.get(name).serviceObject().get();
+                                    HoneyWasp.runningServices.put(name.toLowerCase(), HoneyWasp.bot);
+                                    HoneyWasp.bot.start();
+                                }
+                            }
+                        } if (HoneyWasp.runningServices.containsKey(data)) { //
                             HoneyWasp.runningServices.get(data).halt();
 
                             do { // Busy waiting, hell yeah
@@ -116,6 +126,7 @@ public class WS {
                             HoneyWasp.runningServices.put(data.toLowerCase(), HoneyWasp.bot);
                             HoneyWasp.bot.start();
                         }
+                        
                         break;
                 }
             } catch (Exception e) {

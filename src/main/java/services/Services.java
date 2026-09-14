@@ -217,7 +217,7 @@ public abstract class Services extends Thread {
 
                             // Error handling
                             if (HTTPSend.HTTPCode.get() == 403) {
-                                Output.webhookPrint(this, "0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
+                                Output.webhookPrint(this, "[NOTIFY]0x0.su (temp storage provider) returned HTTP 403 - Oh no! You've likely been flagged as a bot by the temp storage site!" +
                                         "\n\tYour IP should be cycled and unblocked in a few months." +
                                         "\n\n\tIn the meantime, you should set 'video_mode' to 'false' & 'post_mode' to 'auto' under [" + name + " Settings]" +
                                         "\n\tin config.json to bypass the need for temporary storage. Quitting..." +
@@ -225,7 +225,7 @@ public abstract class Services extends Thread {
 
                                 break;
                             } else if (!(HTTPSend.HTTPCode.get() == 200)) { // Misc error handling
-                                Output.webhookPrint(this, "Error uploading file to 0x0.su (temp storage provider). Quitting..." +
+                                Output.webhookPrint(this, "[NOTIFY]Error uploading file to 0x0.su (temp storage provider). Quitting..." +
                                         "\n\tError message: " + response, Output.RED);
 
                                 break;
@@ -302,11 +302,11 @@ public abstract class Services extends Thread {
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Bot crashed - Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
-                Output.webhookPrint(this, "Bot crashed - Connection likely dropped: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "[NOTIFY]Bot crashed - Connection likely dropped: " + e.getMessage(), Output.RED);
             } catch (IOException e) {
-                Output.webhookPrint(this, "Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "[NOTIFY]Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
-                Output.webhookPrint(this, "Bot crashed - Unknown error: " + e.getMessage() +
+                Output.webhookPrint(this, "[NOTIFY]Bot crashed - Unknown error: " + e.getMessage() +
                         "\n\tPotential Relevant Info:" +
                         "\n\tInternet connection: " + HTTPSend.testInternet(proxy) +
                         "\n\tLast HTTP response: (Code " + HTTPSend.HTTPCode.get() + ") " + HTTPSend.lastResponse.get(), Output.RED);
@@ -354,7 +354,7 @@ public abstract class Services extends Thread {
             return 1;
         } catch (Exception e) {
             connectionDropWait = 0;
-            Output.webhookPrint(this,"Failed to fetch image from meme-api.com"
+            Output.webhookPrint(this,"[NOTIFY]Failed to fetch image from meme-api.com. Quitting..."
                     + "\n\tError message: " + e, Output.RED);
             return 2;
         }
@@ -403,7 +403,7 @@ public abstract class Services extends Thread {
                 Sleep.milliseconds(this, SLEEPTIME); // Sleep
                 return 1;
             default: // General error handling
-                Output.webhookPrint(this,"Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
+                Output.webhookPrint(this,"[NOTIFY]Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
                 return 2;
@@ -424,14 +424,14 @@ public abstract class Services extends Thread {
                 Output.debugPrint(this, "Media source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint(this,String.format("/%s directory does not exist. Please create it or set post_mode to auto. Quitting...", format), Output.RED);
+                    Output.webhookPrint(this,String.format("[NOTIFY]/%s directory does not exist. Please create it or set post_mode to auto. Quitting...", format), Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint(this,String.format("No %s found in /%s directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
+                    Output.webhookPrint(this,String.format("[NOTIFY]No %s found in /%s directory. Add media or set post_mode to auto. Quitting...", format, format), Output.RED);
                     return false;
                 }
 
@@ -447,14 +447,14 @@ public abstract class Services extends Thread {
                 Output.debugPrint(this, "Audio source set to " + directory);
 
                 if (!directory.exists() || !directory.isDirectory()) {
-                    Output.webhookPrint(this,"/audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [" + name + "_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint(this,"[NOTIFY]/audio directory does not exist. Please create it, or set 'audio_enabled' to 'false' under [" + name + "_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
                 // Ensure there is at least 1 file in directory
                 int fileCount = Objects.requireNonNull(directory.list()).length;
                 if (fileCount == 0) {
-                    Output.webhookPrint(this,"No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [" + name + "_Settings] in config.json. Quitting...", Output.RED);
+                    Output.webhookPrint(this,"[NOTIFY]No audio found in /audio directory. Add audio or set 'audio_enabled' to 'false' under [" + name + "_Settings] in config.json. Quitting...", Output.RED);
                     return false;
                 }
 
