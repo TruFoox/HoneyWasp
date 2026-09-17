@@ -7,6 +7,8 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.Status;
 
+import java.lang.foreign.Linker;
+
 public class Command extends Thread{
     static Terminal terminal;
     static LineReader reader;
@@ -14,8 +16,11 @@ public class Command extends Thread{
 
     public void run() {
         try {
-            terminal = TerminalBuilder.builder().system(true).build();
-
+            if (Linker.nativeLinker() != null) { // Apparently this is how you check if native access enabled
+                terminal = TerminalBuilder.builder().system(true).build();
+            } else { // If --enable-native-access=ALL-UNNAMED not used default to legacy terminal
+                terminal = TerminalBuilder.builder().system(true).provider("exec").build();
+            }
             status = Status.getStatus(terminal);
 
             reader = LineReaderBuilder.builder()
