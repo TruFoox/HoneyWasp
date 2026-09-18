@@ -49,18 +49,21 @@ public class HoneyWasp extends ListenerAdapter {
     public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
-        Command command = new Command();
-        command.start(); // Start console
-
         if (args.length == 3) { // If being run with intention of just posting
+            long startTime = System.currentTimeMillis();
             String service = args[0].toLowerCase();
             String VideoOrImage = args[1].toLowerCase();
             String Path = args[2];
 
             new RunTask(service, VideoOrImage, Path); // Run whatever service is needed
 
+            long finishTime = System.currentTimeMillis();
+            System.out.println("Task completed in " + (finishTime - startTime) + "ms");
             return;
         }
+
+        Command command = new Command();
+        command.start(); // Start console
 
         // Print logo
         System.out.print(Output.YELLOW + "\n" +

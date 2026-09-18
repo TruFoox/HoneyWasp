@@ -218,7 +218,6 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
         int retyCount = 0;
         do {
-            retyCount++;
             HttpClient client;
             if (HoneyWasp.USE_PROXIES) {
                 client = HttpClient.newBuilder()
@@ -244,14 +243,18 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             postStatus = StringToJson.getJSON(response).getJSONObject("data").getString("status");
             Output.print(this, "Waiting for TikTok to process media. This may take a while (Status: " + postStatus + ")...", Output.YELLOW, true);
 
-            if (postStatus.equals("FAILED") || retyCount == 12) { // If processing failed or it takes >60 seconds to process, try again
+            if (postStatus.equals("FAILED")) { // If processing failed, or it takes too long to process, try again
                 Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
                         "\n\tError Message: " + response, Output.RED);
                 FileIO.writeList(mediaURL, this, true);
                 return 0;
+            } else if (retyCount >= 24) { // >120 seconds
+                Output.webhookPrint(this, "Video processing took over 90 seconds. Sometimes TikTok just never processes a post. Retrying attempt...", Output.RED);
+                return 0;
             }
 
             Sleep.milliseconds(this, 5000); // Wait 5s to prevent spam
+            retyCount++;
         } while (postStatus.equals("PROCESSING_UPLOAD"));
         return 1;
     }

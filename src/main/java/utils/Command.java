@@ -16,7 +16,7 @@ public class Command extends Thread{
 
     public void run() {
         try {
-            if (Linker.nativeLinker() != null) { // Apparently this is how you check if native access enabled
+            if (Terminal.class.getModule().isNativeAccessEnabled()) { // Apparently this is how you check if native access enabled
                 terminal = TerminalBuilder.builder().system(true).build();
             } else { // If --enable-native-access=ALL-UNNAMED not used default to legacy terminal
                 terminal = TerminalBuilder.builder().system(true).provider("exec").build();
