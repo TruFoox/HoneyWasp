@@ -499,7 +499,7 @@ public abstract class Services extends Thread {
             try {
                 image = HTTPSend.getImageData(mediaURL);
             } catch(Exception e)  {
-                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. Marking this URL as invalid..."
+                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. Marking URL as invalid & retrying..."
                         + "\n\tError message: " + e, Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
@@ -511,16 +511,16 @@ public abstract class Services extends Thread {
 
             Output.debugPrint(this, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
             if (ratio < supportedAspectRatio[0] || ratio > supportedAspectRatio[1]) {
-                Output.print(this, "Image has invalid aspect ratio", Output.RED, true);
+                Output.print(this, "Image has invalid aspect ratio - x" + countAttempt + " attempts", Output.RED, true);
                 return 1;
             }
 
         }
 
-        // Ensure non-gif
-        Output.debugPrint(this, "Testing if image is gif");
-        if (mediaURL.toLowerCase().contains(".gif")) { // Ensure image is not gif
-            Output.print(this, "Image is .gif - x" + countAttempt + " attempts", Output.RED, true);
+        // Ensure non-gif/apng
+        Output.debugPrint(this, "Testing if image is .gif/.apng");
+        if (mediaURL.toLowerCase().contains(".gif") || mediaURL.toLowerCase().contains(".apng")) { // Ensure image is not .gif or .apng
+            Output.print(this, "Image is animated - x" + countAttempt + " attempts", Output.RED, true);
 
             return 1;
         }

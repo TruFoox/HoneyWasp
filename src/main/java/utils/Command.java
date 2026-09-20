@@ -14,7 +14,7 @@ public class Command extends Thread{
     static LineReader reader;
     static Status status;
 
-    public void run() {
+    public void run() { // Commands technically dont require / before it
         try {
             if (Terminal.class.getModule().isNativeAccessEnabled()) { // Apparently this is how you check if native access enabled
                 terminal = TerminalBuilder.builder().system(true).build();
@@ -34,13 +34,11 @@ public class Command extends Thread{
                 int space = line.indexOf(' ');
 
                 String service = null;
-                String command = line.substring(line.indexOf('/') + 1); // Store whole input after / in case no space
+                String command = line.substring(line.indexOf('/') + 1).toLowerCase(); // Store whole input after / in case no space
 
-                if (space != -1) { // If a space exists in input fetch command and service, else keep whole input
+                if (space != -1) { // If a space exists in input fetch command and service, else keep whole input as command
                     command = line.substring(line.indexOf('/') + 1, space).toLowerCase(); // Works both with / & without
-                    if (line.length() > space) { // Prevents out of bounds error
-                        service = line.substring(space + 1).toLowerCase();
-                    }
+                    service = line.substring(space + 1).toLowerCase();
                 }
 
                 switch (command) {
