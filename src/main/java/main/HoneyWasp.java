@@ -239,8 +239,8 @@ public class HoneyWasp extends ListenerAdapter {
                                             .addChoice("All", "all")
                                             .addChoice("Instagram", "instagram")
                                             .addChoice("YouTube", "youtube")
-                                            .addChoice("TikTok", "tiktok"))
-
+                                            .addChoice("TikTok", "tiktok")),
+                            Commands.slash("quit", "Quit HoneyWasp")
                     ).queue();
         } else {
             Output.print(null, "No discord bot token supplied. Headless operation activated");
@@ -263,7 +263,10 @@ public class HoneyWasp extends ListenerAdapter {
     // Slash commands
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         event.deferReply().queue(hook -> { // Tells discord event has been noticed
-        String service = event.getOption("service").getAsString();
+        String service = "";
+
+        try{service = event.getOption("service").getAsString();} catch (Exception e) {} // Get service if relevant to command
+
         Output.debugPrint(null, "Command /" + event.getName() + " used on service " + service);
 
         EmbedBuilder embed = new EmbedBuilder()
@@ -274,7 +277,7 @@ public class HoneyWasp extends ListenerAdapter {
                 if (service.equals("all")) {
                     embed.addField("Starting bot on all services", "Use /stop to stop", false);
 
-                    event.getHook().sendMessageEmbeds(embed.build()).queue();
+                    event.getHook().sendMessageEmbeds(embed.build()).queue(); // Send embed
 
                     for (String name : services.keySet()) {
                         if (runningServices.containsKey(name)) {
@@ -373,13 +376,20 @@ public class HoneyWasp extends ListenerAdapter {
                 }
                 break;
             }
+            case "quit": {
+                embed.setDescription("Quitting HoneyWasp");
 
+                event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+                System.exit(0);
+            }
             default:
                 event.reply("Unknown command.").setEphemeral(true).queue();
             }
         });
     }
-    public static void Redirect(Services service, String url) {
+
+    public static void Redirect(Services service, String url) { // Redirect to webpage (Used in service authentication)
         Output.debugPrint(service, "Attempting redirect");
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) { // Test if browser allows going to URL from here
             try {

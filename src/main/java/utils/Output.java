@@ -4,13 +4,7 @@ import club.minnced.discord.webhook.exception.HttpException;
 import main.HoneyWasp;
 import org.jline.utils.AttributedString;
 import services.Services;
-import utils.Webhook;
-
-import java.io.IOException;
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 // Output
 //
@@ -31,7 +25,7 @@ public class Output { // Uses JLine to output in Command.java
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
 
-
+    private static String webhookUrl;
     private static final Webhook webhookInstance = new Webhook(); // Initiate webhook instance
 
     static boolean lastOutputWasNewline = true;
@@ -60,24 +54,25 @@ public class Output { // Uses JLine to output in Command.java
                 finalMessage = color + prefix + shortName + outputLine + RESET;
             }
 
-            Command.reader.printAbove(finalMessage);
+            Command.reader.printAbove(finalMessage); // Make text appear above the input line
             lastOutputWasNewline = true;
 
-            Command.status.update(List.of(new AttributedString("")));
-            if (HoneyWasp.config.General() != null) {
-                String webhookUrl = HoneyWasp.config.General().getDiscordWebhook();
+            Command.status.update(List.of()); // Clear status line (the one below the input line); list because for some reason it expects a list idfk
 
-                if (webhookUrl != null && !webhookUrl.isEmpty()) {
-                    String withPing;
-                    if (HoneyWasp.PING_ON_ERROR) { // If pinging enabled, ping, else dont
-                        withPing = message.replace("[NOTIFY]", "@everyone - ");
-                    } else {
-                        withPing = message.replace("[NOTIFY]", "");
+            if (HoneyWasp.config.General() != null && webhookUrl == null) { // Ensure only runs once
+                webhookUrl = HoneyWasp.config.General().getDiscordWebhook();
+            }
 
-                    }
+            if (webhookUrl != null && !webhookUrl.isEmpty()) {
+                String pingMessage;
+                if (HoneyWasp.PING_ON_ERROR) { // If pinging enabled, ping, else dont
+                    pingMessage = message.replace("[NOTIFY]", "@everyone - ");
+                } else {
+                    pingMessage = message.replace("[NOTIFY]", "");
 
-                    webhookInstance.sendMessage(shortName + withPing.replace("\t", ""));
                 }
+
+                webhookInstance.sendMessage(shortName + pingMessage.replace("\t", ""));
             }
 
         } catch (HttpException e) {
@@ -111,7 +106,7 @@ public class Output { // Uses JLine to output in Command.java
 
         if (overwriteThisLine && !HoneyWasp.DEBUG_MODE) {
             lastOutputWasNewline = false;
-            Command.status.update(List.of(AttributedString.fromAnsi(consoleMessage)));
+            Command.status.update(List.of(AttributedString.fromAnsi(consoleMessage))); // Replace status, and use the ANSI codes being fed into it
         } else {
             Command.reader.printAbove(consoleMessage);
             lastOutputWasNewline = true;

@@ -96,7 +96,7 @@ public class WS {
                         try {
                             HoneyWasp.config.saveConfig();
                         } catch (Exception e) {
-                            Output.webhookPrint(null, "Failed to save config", Output.RED);
+                            Output.webhookPrint(null, "[NOTIFY]Failed to save config", Output.RED);
                         }
 
 
@@ -141,7 +141,7 @@ public class WS {
                 return;
             }
 
-            Output.print(null, "WebSocket error: " + error.getMessage(), Output.RED);
+            Output.print(null, "[NOTIFY]WebSocket error: " + error.getMessage(), Output.RED);
         }
     }
 }

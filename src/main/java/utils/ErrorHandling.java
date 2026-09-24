@@ -10,6 +10,6 @@ public class ErrorHandling {
 
         scanner.nextLine();
 
-        System.exit(0); // Exit program
+        System.exit(1); // Exit program
     }
 }

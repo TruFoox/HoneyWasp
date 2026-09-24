@@ -196,7 +196,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                     return 0;
                 }
             }
-            Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY]Failed to upload for an unknown reason. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
             return -1;
         }

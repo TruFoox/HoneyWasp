@@ -44,7 +44,7 @@ public class Command extends Thread{
                 switch (command) {
                     case "start": {
                         if (service == null) {
-                            Output.print(null, "Commands need two fields: A command, and a service. Try /help for help");
+                            Output.print(null, "/start need two fields: A command, and a service. Try /help for help");
                             continue;
                         }
 
@@ -72,7 +72,7 @@ public class Command extends Thread{
                     }
                     case "stop": {
                         if (service == null) {
-                            Output.print(null, "Commands need two fields: A command, and a service. Try /help for help");
+                            Output.print(null, "/stop need two fields: A command, and a service. Try /help for help");
                             continue;
                         }
 
@@ -95,7 +95,7 @@ public class Command extends Thread{
                     }
                     case "clear": {
                         if (service == null) {
-                        Output.print(null, "Commands need two fields: A command, and a service. Try /help for help");
+                        Output.print(null, "/clear need two fields: A command, and a service. Try /help for help");
                         continue;
                         }
 
@@ -108,11 +108,15 @@ public class Command extends Thread{
                         }
                         break;
                     }
+                    case "quit": {
+                        System.exit(0);
+                    }
                     case "help": {
                         Output.print(null, "A list of commands can be found below:" +
                                 "\n\t/start - Start a service" +
                                 "\n\t/stop - Stop a service" +
                                 "\n\t/clear - Clear a service's duplicate cache" +
+                                "\n\t/quit - Quit HoneyWasp" +
 
                               "\n\n\tAfter the command, put which service you want to use it on, or \"All\" for all services:" +
                                 "\n\tExamples: /start Instagram, /clear Youtube, /stop all");
@@ -125,8 +129,8 @@ public class Command extends Thread{
 
             }
         } catch (Exception e) {
-            Output.webhookPrint(null, "Input terminal had failed. Reverting to legacy mode." +
-                    "\n\tReason: " + e.getMessage(), Output.RED);
+            Output.webhookPrint(null, "[NOTIFY]Input terminal had failed. Reverting to legacy mode." +
+                    "\n\tReason: " + e, Output.RED);
         }
     }
 
