@@ -2,6 +2,7 @@ package services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import main.HoneyWasp;
+import org.json.JSONObject;
 import utils.*;
 
 import java.awt.*;
@@ -166,20 +167,37 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
 
         // Check for error
-        if (!StringToJson.getJSON(response).has("data")) { // All TikTok responses return code 200, and basically all responses contain an error field, so I need to check if the data exists instead
+        if (!StringToJson.getJSON(response).has("data")) { // For some stupid reasoTh TikTok responses return code 200, and basically all responses contain an error field (even non-errors), so I need to check if the data exists instead
             if (StringToJson.getJSON(response).has("error")) {
-                if (StringToJson.getJSON(response).getJSONObject("error").has("message")) {
-                    String message = StringToJson.getJSON(response).getJSONObject("error").get("message").toString();
-                    Output.webhookPrint(this, "Failed to post. Skipping this attempt..." +
-                            "\n\t" + message, Output.RED);
+                JSONObject error = StringToJson.getJSON(response).getJSONObject("error");
+                if (error.has("message")) {
+                    String message = error.getString("message");
+                    String code = error.getString("code");
 
-                    Sleep.milliseconds(this, SLEEPTIME);
+                    /* Misc Error handling */
+                    if (code.equals("rate_limit_exceeded") || code.equals("spam_risk_too_many_posts")) {
+                        Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
+                                + "\n\tYou are being rate limited. You can only post a few times per day to the TikTok API", Output.RED);
+
+                        Sleep.milliseconds(this, SLEEPTIME);
+                    } else if (code.equals("internal_error")) {
+                        Output.webhookPrint(this, "An error occurred on TikTok's end while uploading. Trying again, and marking this URL as invalid..." +
+                                "\n\tError message: " + message, Output.RED);
+
+                        FileIO.writeList(mediaURL, this, true);
+                    } else {
+                        Output.webhookPrint(this, "Failed to post. Skipping this attempt and marking this URL as invalid..." +
+                                "\n\tError message: " + message, Output.RED);
+
+                        FileIO.writeList(mediaURL, this, true);
+                        Sleep.milliseconds(this, SLEEPTIME);
+                    }
+
                     return 0;
-                } else {
-                    Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
-                            "\n\tError message: " + response, Output.RED);
                 }
             }
+            Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
+                    "\n\tError message: " + response, Output.RED);
             return -1;
         }
 

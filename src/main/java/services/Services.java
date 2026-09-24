@@ -357,7 +357,8 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(this,"[NOTIFY]A connection error occurred " + ATTEMPTS_BEFORE_TIMEOUT + " times in a row. Quitting to prevent spam..."
                         + "\n\tError message: " + e, Output.RED);
             }
-            Sleep.milliseconds(this, waitTime * 60000L);
+
+            Sleep.milliseconds(this, waitTime * 60000L); // 60000 is the conversion factor from minutes to ms
             return 1;
         } catch (Exception e) {
             connectionDropWait = 0;
