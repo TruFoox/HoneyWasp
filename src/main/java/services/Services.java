@@ -3,6 +3,7 @@ import config.ConfigSettings;
 import main.HoneyWasp;
 import utils.*;
 import javax.imageio.ImageIO;
+import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -306,7 +307,7 @@ public abstract class Services extends Thread {
             } catch (IOException e) {
                 Output.webhookPrint(this, "[NOTIFY]Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
-                Output.webhookPrint(this, "[NOTIFY]Bot crashed - Unknown error: " + e.getMessage() +
+                Output.webhookPrint(this, "[NOTIFY]Bot crashed - Unknown error: " + e +
                         "\n\tPotential Relevant Info:" +
                         "\n\tInternet connection: " + HTTPSend.testInternet(proxy) +
                         "\n\tLast HTTP response: (Code " + HTTPSend.HTTPCode.get() + ") " + HTTPSend.lastResponse.get(), Output.RED);
@@ -340,16 +341,22 @@ public abstract class Services extends Thread {
 
         Output.debugPrint(this, "Fetching media URL from " + URL);
         try {
-            connectionDropWait = 0; // Reset connection drop wait on success
             response = HTTPSend.get(this, URL);
-        } catch (ConnectException e) {
+            connectionDropWait = 0; // Reset connection drop wait on success
+        } catch (SSLHandshakeException | ConnectException e) {
             // ConnectionDropWait = Pre-processing time, waitTime = Post-processed time
             int waitTime = (connectionDropWait == 0) ? 1 : connectionDropWait; // Forces first wait to be 1, and allows sequential waits to be 5n minutes
-
-
-            Output.print(this, "Connection drop detected. Try disabling Proxies, if enabled. Trying again in " + waitTime + " minute(s)...");
+            if (e instanceof ConnectException) {
+                Output.print(this, "Connection drop detected. Try disabling Proxies, if enabled. Trying again in " + waitTime + " minute(s)...", Output.RED);
+            } else { //if (e instanceof SSLHandshakeException) { ("if" redundant rn but it may not be in the future)
+                Output.webhookPrint(this, "An error occurred while establishing a connection with meme-api.com. Trying again in " + waitTime + " minute(s)...", Output.RED);
+            }
             connectionDropWait += 5;
 
+            if (connectionDropWait > (5 * ATTEMPTS_BEFORE_TIMEOUT)) {
+                Output.webhookPrint(this,"[NOTIFY]A connection error occurred " + ATTEMPTS_BEFORE_TIMEOUT + " times in a row. Quitting to prevent spam..."
+                        + "\n\tError message: " + e, Output.RED);
+            }
             Sleep.milliseconds(this, waitTime * 60000L);
             return 1;
         } catch (Exception e) {
