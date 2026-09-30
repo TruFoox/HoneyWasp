@@ -118,8 +118,9 @@ public class Command extends Thread{
                                 "\n\t/clear - Clear a service's duplicate cache" +
                                 "\n\t/quit - Quit HoneyWasp" +
 
-                              "\n\n\tAfter the command, put which service you want to use it on, or \"All\" for all services:" +
-                                "\n\tExamples: /start Instagram, /clear Youtube, /stop all");
+                              "\n\n\tAfter per-service commands, put which service you want to use it on, or \"All\" for all services:" +
+                                "\n\tExamples: /start Instagram, /clear Youtube, /stop all" +
+                                "\n\tNote that /quit does not require a service, as it exits HoneyWasp entirely");
                         break;
                     }
                     default: {

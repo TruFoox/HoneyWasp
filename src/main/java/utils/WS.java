@@ -99,22 +99,24 @@ public class WS {
                             Output.webhookPrint(null, "[NOTIFY]Failed to save config", Output.RED);
                         }
 
-
                         break;
                     case "restart-service": // restart-service\{service} | For after config value is changed
                         Output.debugPrint(null, "Restarting " + data);
 
                         if (data.equals("all")) {
                             for (String name : HoneyWasp.services.keySet()) {
-                                if (HoneyWasp.runningServices.containsKey(name)) {
-                                    Output.webhookPrint(null, HoneyWasp.services.get(name).capsName() + " is already running.");
-                                } else {
+                                if (HoneyWasp.runningServices.containsKey(name)) { // Only start services already running
+                                    do { // Busy waiting, hell yeah
+                                        Sleep.milliseconds(null, 1000);
+                                    } while (HoneyWasp.runningServices.containsKey(name)); // Wait until bot stopped
+
+
                                     HoneyWasp.bot = HoneyWasp.services.get(name).serviceObject().get();
                                     HoneyWasp.runningServices.put(name.toLowerCase(), HoneyWasp.bot);
                                     HoneyWasp.bot.start();
                                 }
                             }
-                        } if (HoneyWasp.runningServices.containsKey(data)) { //
+                        } if (HoneyWasp.runningServices.containsKey(data)) {
                             HoneyWasp.runningServices.get(data).halt();
 
                             do { // Busy waiting, hell yeah
