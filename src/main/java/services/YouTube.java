@@ -211,12 +211,12 @@ public class YouTube extends Services implements HasRefreshToken {
                 Sleep.milliseconds(this, SLEEPTIME);
             } else if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
                 Output.webhookPrint(this, "YouTube API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
-                        "\n\tError message: " + response, Output.RED);
+                        "\n\tError message: " + response.body(), Output.RED);
 
                 Sleep.milliseconds(this, SLEEPTIME);
             } else { // General error handling
                 Output.webhookPrint(this, "Failed to post. Trying again, and marking this URL as invalid..."
-                        + "\n\tError message: " + response, Output.RED);
+                        + "\n\tError message: " + response.body(), Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
                 FileIO.writeList(mediaURL, this, true);
