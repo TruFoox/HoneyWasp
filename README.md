@@ -68,22 +68,39 @@ Next, you will need FFmpeg:
 
 After you have successfully confirmed you have Java 23+ and FFmpeg installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest).
 
-You must follow the instructions in either [Instagram Setup](#instagram-setup) or [YouTube Setup](#youtube-setup) to set up the bot to be able to use the bot in any capacity
+You must follow the instructions in [Instagram Setup](#instagram-setup), [YouTube Setup](#youtube-setup), or [TikTok Setup](#tiktok-setup) to set up the bot to be able to use it in any capacity
 - It is recommended that you first follow the instructions in [Discord Bot Setup](#discord-bot-setup), but the bot is still fully usable without Discord
   - If you decide not to use Discord, leave `discord_bot_token` under `[General_Settings]` blank, and interact with the bot using commands directly in the console
 
 Once you are finished setting up the bot, you can launch it by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
-- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
+- Alternatively, you can run the bot by running the command `java --enable-native-access=ALL-UNNAMED -jar HoneyWasp.jar` on any platform, though the terminal will not allow you to input commands.
+- `java -jar HoneyWasp.jar` also works, but you will be unable to type commands directly into the console.
 
 Help regarding the config can be [found here](#the-config), and more information on how to interact with the bot can be [found here](#starting-and-interacting-with-the-bot). If you are having issues with Windows defender wrongly flagging the bot as malicious, [you can find a fix here](#windows-defender-note).
 
 ## Discord Bot Setup
 
+There are two methods for using HoneyWasp with Discord:
+1. Webhook (Allows remote viewing of console output & logging)
+2. Discord bot (Allows remote command usage)
+
+HoneyWasp works best when you do both at the same time but a Webhook is recommended at the bare minimum.
+Either way the bot works perfectly fine without Discord at all and you are free to skip ahead to the service setups.
 ### Prerequisites
 
 - A Discord account
-- A Discord server (with permission to add bots) 
-- [Discord Developer Portal](https://discord.com/developers/applications)
+- A Discord server (with permission to add bots)
+
+### Recommended: Get Webhook URL
+
+1. Open the Discord server where you want the bot to send messages. **You must have admin privileges**
+    - It's recommended you create a separate Discord server specifically for private bots like this.
+    - You can learn [how to create a Discord server here](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server)
+2. Go to **Server Settings → Integrations → Webhooks**.
+3. Click **New Webhook**.
+4. Select the channel you want the bot to post in.
+5. Click **Copy Webhook URL**.
+6. Paste the URL into `webhook_url` under `[General_Settings]`
 
 ### Step 1: Create Your Application
 
@@ -109,15 +126,6 @@ Help regarding the config can be [found here](#the-config), and more information
 - `Send Messages`
 
 2. Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
-
-### EXTRA: Get the Webhook URL (OPTIONAL, DOESN'T REQUIRE PREVIOUS STEPS)
-
-1. Open the Discord server where you want the bot to send messages.
-2. Go to **Server Settings → Integrations → Webhooks**.
-3. Click **New Webhook**.
-4. Select the channel you want the bot to post in.
-5. Click **Copy Webhook URL**.
-6. Paste the URL into `webhook_url` under `[General_Settings]`
 
 ## Instagram Setup
 
@@ -227,7 +235,7 @@ Help regarding the config can be [found here](#the-config), and more information
 1. In the top left, next to your app's name → press **Sandbox** (Next to **Production**)
 2. Open **App Details** in the side panel
 3. Choose an app name, Category, and all other required fields
-4. For **Platforms**→ choose **Desktop**
+4. For **Platforms** → choose **Desktop**
 
 ### Step 3: Configure the Redirect URL and posting permissions
 
