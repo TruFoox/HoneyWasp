@@ -4,6 +4,7 @@
   "General_Settings" : {
     "discord_bot_token" : "2M1DEz2MAET3NT5zIMMNOMkAwT.UYGOtF.TpQw7ZDSnHOLRiFMZ7y6_gQvOEDZWo0F2Ljdxc",
     "webhook_url": "https://discord.com/api/webhooks/1301837897882123134/NUoPEicoTI0QoaxirYcWPUJIECWsOtBBGt_b9P2xHWrhaE7Z2jNozINM6IkF13zAKm1S",
+    "ping_on_error" : true,
     "proxies_enabled" : false,
     "restart" : false,
     "debug_mode" : false

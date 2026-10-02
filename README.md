@@ -26,6 +26,10 @@
     * [TikTok Setup](#tiktok-setup)
 * [Usage](#usage)
     * [The Config](#the-config)
+        * [General Settings](#general-settings)
+        * [Instagram Settings](#instagram-settings)
+        * [YouTube Settings](#youtube-settings)
+        * [TikTok Settings](#tiktok-settings)
     * [Running the Bot](#starting-and-interacting-with-the-bot)
 * [Help](#help)
     * [Windows Defender](#windows-defender-note)
@@ -36,7 +40,9 @@
 
 # About The Project
 
-This is a simple, lightweight, yet powerful bot for Instagram, YouTube, Tiktok, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+This is a simple, lightweight, yet powerful bot for Instagram, YouTube, TikTok, and soon, more! You can automatically post media of your choice, or you can have the bot automatically take an image off reddit to post using D3vd's [Meme API](https://github.com/D3vd/Meme_Api)!
+
+The bot also has a [WebUI](https://trufoox.github.io/HoneyWasp-WebUI/), accessible from any browser on computers running HoneyWasp locally, which is currently a work in progress. All versions, starting at v5.2, will support the WebUI when it fully releases.
 
 All data handling, keys, tokens, and processing is handled **client side** - Your information is **YOURS** and is never seen by a 3rd party
 
@@ -63,10 +69,8 @@ Next, you will need FFmpeg:
 After you have successfully confirmed you have Java 23+ and FFmpeg installed, download the latest HoneyWasp .zip from [here](https://github.com/TruFoox/HoneyWasp/releases/latest).
 
 You must follow the instructions in either [Instagram Setup](#instagram-setup) or [YouTube Setup](#youtube-setup) to set up the bot to be able to use the bot in any capacity
-
-It is **HIGHLY** recommended that you first follow the instructions in [Discord Bot Setup](#discord-bot-setup), so you can run the bot via commands
-- If you decide not to use Discord, you **MUST** enable autostart for the services you want to run, and leave `discord_bot_token` under `[General_Settings]` empty
-  - Without Discord, you will not be able to stop the service once it starts
+- It is recommended that you first follow the instructions in [Discord Bot Setup](#discord-bot-setup), but the bot is still fully usable without Discord
+  - If you decide not to use Discord, leave `discord_bot_token` under `[General_Settings]` blank, and interact with the bot using commands directly in the console
 
 Once you are finished setting up the bot, you can launch it by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
 - Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform (The .bat/sh file just does it automatically).
@@ -106,7 +110,7 @@ Help regarding the config can be [found here](#the-config), and more information
 
 2. Copy the generated **invite URL**, paste it into your browser, and invite the bot to your server. You can now use the bot in its most basic form.
 
-### Step 3: Get the Webhook URL (OPTIONAL)
+### EXTRA: Get the Webhook URL (OPTIONAL, DOESN'T REQUIRE PREVIOUS STEPS)
 
 1. Open the Discord server where you want the bot to send messages.
 2. Go to **Server Settings → Integrations → Webhooks**.
@@ -250,7 +254,7 @@ Help regarding the config can be [found here](#the-config), and more information
 # Usage
 There are a few specific details about the bot you need to know before you use it.
 * It only officially supports .mp3s for audio, .mp4s for video, and .jpg/png for images
-	* Some other file types may work, but they are not accounted for and will not receive official support
+	* Some other file types may work, but they are not accounted for and will not receive guaranteed continued support
 * Only one instance of each type of service can run at one time
     * This is likely to change in the future, with multiple bot tokens being allowed
 * Enabling `restart` may cause issues, and the option only exists for servers where crashes are few and far between
@@ -275,24 +279,25 @@ Below you can find documentation on every configuration option
 - There MUST be a comma delimiter after every config value, except for the last one
 - ALWAYS surround string (non-numeric, non-boolean) values with quotes (e.g., `"caption": "Enjoy this meme"`)
 - List config values can be disabled by leaving them blank (e.g, `"blacklist": [""]` to disable the blacklist)
-- Do not put anything in `"refresh_token"` under `"Youtube_Settings"` until prompted to do so by the bot
+- Do not put anything in any of the `"refresh_token"`. The bot will automatically do so.
 
 
 ### General Settings
-| Key                 | Description                                                                                           |
-|---------------------|-------------------------------------------------------------------------------------------------------|
-| `discord_bot_token` | Your bot's token for logging in to Discord (Optional but recommended, set to `""` to disable Discord) |
-| `webhook_url`       | Discord webhook URL for notifications (Optional, set to `""` to disable)                              |
-| `proxies`           | Enables use of proxies from `proxies.txt` (Do not enable if you do not know what this is)             |
-| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)       |
-| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                           |
+| Key                 | Description                                                                                                      |
+|---------------------|------------------------------------------------------------------------------------------------------------------|
+| `discord_bot_token` | Your bot's token for logging in to Discord (Optional, set to `""` to disable)                                    |
+| `webhook_url`       | Discord webhook URL for notifications (Optional, does not require `discord_bot_token`)                           |
+| `ping_on_error`     | Allows the bot to ping the user when an error occurs that requires the user's attention (Requires `webhook_url`) |
+| `proxies`           | Enables use of proxies from `proxies.txt` (Do not enable if you do not know what this is)                        |
+| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)                  |
+| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                                      |
 
 ### Instagram Settings
 | Key                              | Description                                                                                                                                     |
 |----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
 | `api_key`                        | Instagram API key                                                                                                                               |
 | `autostart`                      | Whether to automatically start Instagram when HoneyWasp starts (`true` or `false`)                                                              |
-| `autopost_mode`                  | Whether to automatically fetch images from reddit. Set to `false` to post from `/images` or `/videos` based on `video_mode` (`true` or `false`) |
+| `autopost_mode`                  | Whether to automatically fetch images from Reddit. Set to `false` to post from `/images` or `/videos` based on `video_mode` (`true` or `false`) |
 | `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                 |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` & `"video_mode": true` only, add .MP3s to `/audio`)          |
 | `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                    |
@@ -303,18 +308,18 @@ Below you can find documentation on every configuration option
 | `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only, `true` or `false`)                                                              |
 | `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                   |
 | `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only,`true` or `false`)                                                |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of reddit caption (`"autopost_mode": true` & `"use_reddit_caption": true` only)  |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of Reddit caption (`"autopost_mode": true` & `"use_reddit_caption": true` only)  |
 | `caption`                        | Default post caption                                                                                                                            |
 | `hashtags`                       | Hashtags appended to post after caption                                                                                                         |
 
 ### YouTube Settings
 | Key                              | Description                                                                                                                                       |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `refresh_token`                  | Refresh token for OAuth (**DO NOT PUT ANYTHING HERE UNTIL PROMPTED TO DO SO BY THE BOT**)                                                         |
+| `refresh_token`                  | Refresh token for OAuth (**DON'T TOUCH**)                                                                                                         |
 | `client_secret`                  | YouTube API key for posting                                                                                                                       |
-| `client_id`                      | YouTube user ID for API access (ends with "apps.googleusercontent.com")                                                                           |
+| `client_id`                      | YouTube User ID for API access (ends with "apps.googleusercontent.com")                                                                           |
 | `autostart`                      | Whether to automatically start YouTube when HoneyWasp starts (`true` or `false`)                                                                  |
-| `autopost_mode`                  | Whether to automatically fetch images from reddit before converting them to videos. Set to `false` to post from `/videos`                         |
+| `autopost_mode`                  | Whether to automatically fetch images from Reddit before converting them to videos. Set to `false` to post from `/videos`                         |
 | `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` only, add .MP3s to `/audio`)                                   |  
 | `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                         |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                        |
@@ -324,9 +329,31 @@ Below you can find documentation on every configuration option
 | `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only,`true` or `false`)                                                                 |
 | `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                     |
 | `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of reddit post (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of Reddit post (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
 | `caption`                        | Default post title                                                                                                                                |
 | `hashtags`                       | Post description                                                                                                                                  |
+
+### TikTok Settings
+| Key                              | Description                                                                                                                                       |
+|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `refresh_token`                  | Refresh token for OAuth (**DON'T TOUCH**)                                                                                                         |
+| `client_secret`                  | TikTok Client Secret for API access                                                                                                               |
+| `client_id`                      | TikTok User ID for API access                                                                                                                     |
+| `autostart`                      | Whether to automatically start TikTok when HoneyWasp starts (`true` or `false`)                                                                   |
+| `autopost_mode`                  | Whether to automatically fetch images from Reddit before converting them to videos. Set to `false` to post from `/videos`                         |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`"autopost_mode": true` only, add .MP3s to `/audio`)                                   |  
+| `minutes_between_posts`          | Time, in minutes, between posts (TikTok rate limits ~15/day, per API key)                                                                         |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                        |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`"autopost_mode": true` only)                                      |
+| `subreddits`                     | Subreddits to pull content from (**Exclude `r/`**, `"autopost_mode": true` only)                                                                  |
+| `blacklist`                      | Words that trigger this post to be discarded entirely (`"autopost_mode": true` only)                                                              |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only,`true` or `false`)                                                                 |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                     |
+| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of Reddit post (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
+| `caption`                        | Default post title                                                                                                                                |
+| `hashtags`                       | Post description                                                                                                                                  |
+
 
 ## Starting and Interacting with the bot
 To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
@@ -335,17 +362,17 @@ To use the bot, open `Launch.bat` on Windows, or `Launch.sh` on Linux/Mac.
 
 There are two supported methods of running a service:
 - Enabling `autostart` in the service you want to start
-  - This will automatically start the service when HoneyWasp starts
-  - This option is required if you chose not to use Discord
+  - This will automatically start the service when HoneyWasp first starts
 - Starting via `/start`
-  - This is only supported if you followed the instructions under [Discord Bot Setup](#discord-bot-setup)
+  - This can be done either directly in the console, or remotely in Discord (assuming you followed the directions in [Discord Bot Setup](#discord-bot-setup))
 
-
-If you choose to use Discord, a list of commands can be found below:
+Both the console and Discord use identical command formatting, though some commands are only supported on either the console or Discord. A list of all commands can be found below:
 - `/start [SERVICE/ALL]` - Start the bot on the specified service
-- `/clear [SERVICE/ALL]` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts)
+- `/clear [SERVICE/ALL]` - Clear the automatic media cache for the specified service (Cache is used to prevent duplicate posts when posting from Reddit)
 - `/stop [SERVICE/ALL]` - Stop the bot on the specified service
-- `/status [SERVICE/ALL]` - Gets whether the specified service is running or not
+- `/quit` - Exits HoneyWasp entirely
+- `/status [SERVICE/ALL]` - **(DISCORD ONLY)** Gets whether the specified service is running or not
+- `/help` - **(CONSOLE ONLY)** Displays a list of all commands
 
 # Help
 
@@ -370,8 +397,7 @@ Programmed with Java 23 in [IntelliJ IDEA](https://www.jetbrains.com/idea/), see
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn and create. Any contributions you make are **greatly appreciated**.
-* If you have suggestions, feel free to [open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
+If you have suggestions, feel free to [open an issue](https://github.com/TruFoox/HoneyWasp/issues/new) to discuss it, or directly create a pull request after you edit the README.md with necessary changes.
 * Please make sure you check your spelling and grammar.
 * [Create individual pull request](#creating-a-pull-request) for each suggestion.
 
@@ -397,3 +423,4 @@ Contributions are what make the open source community such an amazing place to l
 * **[Jackson](https://github.com/FasterXML/jackson-databind)** - JSON serialization/deserialization library for configs and API calls
 * **[MemeAPI](https://github.com/D3vd/Meme_Api)** - Utilized to automatically grab images from Reddit when `auto_post_mode` enabled
 * **[0x0](https://0x0.st)** - Used to temporarily store videos for the bot to then send the URL to Instagram
+* **[JLine](https://github.com/jline/jline3)** - Used to allow command inputs directly into the console
