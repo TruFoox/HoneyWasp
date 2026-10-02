@@ -18,7 +18,7 @@ public class Instagram extends Services {
         TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
         VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
         use0x0 = true; // Instagram only supports URL file hosting
-        supportedAspectRatio = new double[]{0.55, 2}; // 11:20 (Just over 1:2) to 2:1 - Their API says it supports 1:2 but it doesn't
+        supportedAspectRatio = new double[]{0.55, 1.81}; // 11:20 to 20:11 - Their API docs says it supports 1:2 to 2:1 but it doesn't
     }
 
     protected int upload() throws Exception {

@@ -32,7 +32,7 @@ public abstract class Services extends Thread {
     // These currently do not follow traditional exit code conventions because it was initially a boolean
     protected abstract int upload() throws Exception; // 1, 0, or -1 (quit)
     protected abstract int publish() throws Exception; // 1, 0, or -1 (quit)
-    protected abstract int fetchUserToken() throws Exception; // Doesn't need -1, as it always quits if failed
+    protected abstract int fetchUserToken() throws Exception; // Doesn't need -1, as it always quits if failed, still int for consistency
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
@@ -508,7 +508,7 @@ public abstract class Services extends Thread {
                 image = HTTPSend.getImageData(mediaURL);
             } catch(Exception e)  {
                 Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. Marking URL as invalid & retrying..."
-                        + "\n\tError message: " + e, Output.RED);
+                        + "\n\tError message: " + e.getMessage(), Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
                 FileIO.writeList(mediaURL, this, true);
