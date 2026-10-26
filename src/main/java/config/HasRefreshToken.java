@@ -1,4 +1,4 @@
-package services;
+package config;
 
 public interface HasRefreshToken {
     int fetchRefreshToken();

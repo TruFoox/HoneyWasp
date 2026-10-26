@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 
-public class WS {
+public class WS { // WS instead of websocket because it doesnt let me name it websocket
 
     private Server server;
 

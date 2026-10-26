@@ -14,11 +14,12 @@ import config.*;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
+
+import javax.imageio.ImageIO;
+import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
-import java.io.File;
+import java.net.ConnectException;
 import java.net.URI;
-import java.net.http.WebSocket;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
@@ -55,7 +56,7 @@ public class HoneyWasp extends ListenerAdapter {
             String VideoOrImage = args[1].toLowerCase();
             String Path = args[2];
 
-            new RunTask(service, VideoOrImage, Path); // Run whatever service is needed
+            new RunInline(service, VideoOrImage, Path); // Run whatever service is needed
 
             long finishTime = System.currentTimeMillis();
             System.out.println("Task completed in " + (finishTime - startTime) + "ms");
@@ -93,7 +94,6 @@ public class HoneyWasp extends ListenerAdapter {
 
         System.setProperty("org.slf4j.simpleLogger.log.com.fasterxml.jackson", "off"); // Hide jackson error logs before initialization (They are unhelpful and spammy)
 
-
         try { // Init config
             config = Config.getInstance();
         } catch (Exception _) {
@@ -105,6 +105,15 @@ public class HoneyWasp extends ListenerAdapter {
         RESTART = HoneyWasp.config.General().isRestart();
         USE_PROXIES = HoneyWasp.config.General().isProxies();
         PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
+
+        try {
+            String response = HTTPSend.get(null, "https://meme-api.com/gimme");
+            Output.print(null, response);
+            OverlayGenerator.Generate(String.valueOf(Paths.get(".", "cache", "instagram")), ImageIO.read(new URI(StringToJson.getData(response, "url")).toURL()));
+            return;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 

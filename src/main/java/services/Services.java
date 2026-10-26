@@ -1,5 +1,6 @@
 package services;
 import config.ConfigSettings;
+import config.HasRefreshToken;
 import main.HoneyWasp;
 import utils.*;
 import javax.imageio.ImageIO;

@@ -17,7 +17,6 @@ dependencies {
 	implementation("org.json:json:20240303")
     implementation("club.minnced:discord-webhooks:0.8.4")
     implementation("org.slf4j:slf4j-simple:2.0.9")
-    implementation("org.bytedeco:javacv:1.5.12")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
     implementation(platform("org.junit:junit-bom:5.10.0"))
     implementation("org.junit.jupiter:junit-jupiter")

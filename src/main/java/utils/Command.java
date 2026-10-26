@@ -9,7 +9,7 @@ import org.jline.utils.Status;
 
 import java.lang.foreign.Linker;
 
-public class Command extends Thread{
+public class Command extends Thread { // Handles terminal commands
     static Terminal terminal;
     static LineReader reader;
     static Status status;
