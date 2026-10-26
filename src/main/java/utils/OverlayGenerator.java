@@ -37,11 +37,11 @@ public class OverlayGenerator { // Generates fake twitter post overlay using ope
         int size = 150;
         int offset = 75;
 
-        // Draw black circle
+        // Draw black circle (couldn't think of a better way to force alpha to be black)
         g.setColor(Color.BLACK);
         g.fillOval(offset, offset, size, size);
 
-        // Draw logo over circle; couldn't think of a better way to force alpha to be black
+        // Draw logo over circle
         g.setClip(new Ellipse2D.Double(offset, offset, size, size));  // Mask image w/ a circle
 
         // Draw logo inside the circle, preserving alpha transparency

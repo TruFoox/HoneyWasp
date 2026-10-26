@@ -5,24 +5,32 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.*;
 
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Instagram extends Services {
     private long USERID = 0;
-
     public Instagram() {
         super("Instagram","INSTA");
 
         requiredSettings = new String[]{"TOKEN"};
         TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
         VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
-        use0x0 = true; // Instagram only supports URL file hosting
+        use0x0 = false;
         supportedAspectRatio = new double[]{0.55, 1.81}; // 11:20 to 20:11 - Their API docs says it supports 1:2 to 2:1 but it doesn't
     }
 
     protected int upload() throws Exception {
         String response; // Store json data & URL to be used with POST
+        String containerId = ""; // Used for video processing progress check
         caption += "\n\n.\n\n" + HASHTAGS; // Add hashtags to caption
 
         // Build upload data
@@ -34,7 +42,7 @@ public class Instagram extends Services {
             formData.put("access_token", TOKEN);
 
         } else {
-            formData.put("video_url", mediaURL);
+            formData.put("upload_type", "resumable");
             formData.put("caption", caption);
             formData.put("media_type", "REELS");
             formData.put("access_token", TOKEN);
@@ -49,6 +57,43 @@ public class Instagram extends Services {
             isTransient = false;
         }
 
+        if (VIDEO_MODE) {
+            JSONObject container = StringToJson.getJSON(response);
+            containerId = container.getString("id");
+            String uploadUri = container.getString("uri");
+
+            HttpClient client;
+
+            if (HoneyWasp.USE_PROXIES) {
+                client = HttpClient.newBuilder()
+                        .proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))))
+                        .build();
+            } else {
+                client = HttpClient.newHttpClient();
+            }
+
+            // First upload video data itself
+            byte[] videoBytes = Files.readAllBytes(Path.of(fileDir));
+
+            Output.debugPrint(this, "Uploading video file to Instagram");
+
+            long fileSize = videoBytes.length;
+
+            HttpRequest uploadRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(uploadUri))
+                    .header("Authorization", "OAuth " + TOKEN)
+                    .header("offset", "0")
+                    .header("file_size", String.valueOf(fileSize))
+                    .header("Content-Type", "application/octet-stream")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(videoBytes))
+                    .build();
+
+            HttpResponse<String> HTTPresponse = client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
+            HTTPSend.HTTPCode.set((long) HTTPresponse.statusCode());
+
+            response = HTTPresponse.body();
+            HTTPSend.setLastResponse(response);
+        }
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
             if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
                 Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
@@ -69,8 +114,10 @@ public class Instagram extends Services {
                 Output.webhookPrint(this, "Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
-                // Blacklist image URL permanently, as it is likely corrupted
-                FileIO.writeList(mediaURL, this, true);
+                if (!VIDEO_MODE) {
+                    // Blacklist image URL permanently, as it is likely corrupted
+                    FileIO.writeList(mediaURL, this, true);
+                }
             }
 
             Sleep.milliseconds(this, 1000);
@@ -79,20 +126,24 @@ public class Instagram extends Services {
             Output.print(this, "Upload step success (1/2)", Output.YELLOW, true);
         }
 
-        postID = StringToJson.getData(response, "id"); // Get post ID from previous HTTP step
+        if (VIDEO_MODE) { // Get post ID from previous HTTP step
+            postID = containerId;
+        } else {
+            postID = StringToJson.getData(response, "id");
+        }
 
         Sleep.milliseconds(this, 500); // Sleep for 0.5s - gives Instagram a little more time to get ready
 
-
-        // Instagram needs time to render videos - wait until its finished
         String postStatus = "";
         if (VIDEO_MODE) {
             do {
                 Output.print(this, "Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
 
-                response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/" + postID + "?fields=status_code&access_token=" + TOKEN);
+                if (!containerId.isEmpty()) {
+                    response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/" + containerId + "?fields=status_code&access_token=" + TOKEN);
+                }
 
-                if (HTTPSend.HTTPCode.get() != 200) { // Error handling
+                if (HTTPSend.HTTPCode.get() != 200 || containerId.isEmpty()) { // Error handling
                     Output.print(this, "Failed to get post upload status, waiting 3 minutes before attempting upload to be safe..." +
                             "Error message: " + response, Output.RED, true);
 
@@ -144,8 +195,10 @@ public class Instagram extends Services {
                 Output.webhookPrint(this, "Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
-                // Blacklist image URL permanently, as it is likely corrupted
-                FileIO.writeList(mediaURL, this, true);
+                if (!VIDEO_MODE) {
+                    // Blacklist image URL permanently, as it is likely corrupted
+                    FileIO.writeList(mediaURL, this, true);
+                }
             }
             return 0;
         }
@@ -161,7 +214,7 @@ public class Instagram extends Services {
 
             if (!StringToJson.getJSON(response).has("data")) {
                 try {
-                    Output.webhookPrint(this, "Your access token is likely invalid. Please refresh it using the instructions in https://github.com/TruFoox/HoneyWasp#instagram-setup" +
+                    Output.webhookPrint(this, "[NOTIFY]Your access token is likely invalid. Please refresh it using the instructions in https://github.com/TruFoox/HoneyWasp#instagram-setup" +
                             "Response: " + StringToJson.getJSON(response).getJSONObject("error").get("message"), Output.RED);
                 } catch (Exception e) {
                     Output.webhookPrint(this, response);
@@ -184,7 +237,7 @@ public class Instagram extends Services {
             response = HTTPSend.get(this, "https://graph.facebook.com/v23.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
             if (!response.contains("instagram_business_account")) { // Ensure account is business account
-                Output.webhookPrint(this, "Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
+                Output.webhookPrint(this, "[NOTIFY]Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);
 
                 return 0;
             }

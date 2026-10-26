@@ -1,5 +1,4 @@
 package main;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,6 +23,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.function.Supplier;
+
+/* MADE WITH LOVE BY MAN; NOT VIBE CODED*/
 
 
 /* Main
@@ -106,14 +107,14 @@ public class HoneyWasp extends ListenerAdapter {
         USE_PROXIES = HoneyWasp.config.General().isProxies();
         PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
 
-        try {
+        /*try {
             String response = HTTPSend.get(null, "https://meme-api.com/gimme");
             Output.print(null, response);
             OverlayGenerator.Generate(String.valueOf(Paths.get(".", "cache", "instagram")), ImageIO.read(new URI(StringToJson.getData(response, "url")).toURL()));
             return;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-        }
+        }*/
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 

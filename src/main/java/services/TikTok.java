@@ -92,6 +92,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         }
 
 
+
         if (HTTPSend.HTTPCode.get() == 200 && response.contains("refresh_token")) {
             REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
 
@@ -141,7 +142,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 .uri(URI.create("https://open.tiktokapis.com/v2/post/publish/creator_info/query/"))
                 .header("User-Agent", "HoneyWasp/5.0")
                 .header("Authorization", "Bearer " + TOKEN)
-                .header("Content-Type", "application/json; charset=UTF-8")
+                .header("Content-Type", "video/mp4")
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
@@ -156,7 +157,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 .uri(URI.create("https://open.tiktokapis.com/v2/post/publish/video/init/"))
                 .header("User-Agent", "HoneyWasp/5.0")
                 .header("Authorization", "Bearer " + TOKEN)
-                .header("Content-Type", "application/json; charset=UTF-8")
+                .header("Content-Type", "video/mp4")
                 .POST(HttpRequest.BodyPublishers.ofString(metadataJson))
                 .build();
 
@@ -167,7 +168,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
 
         // Check for error
-        if (!StringToJson.getJSON(response).has("data")) { // For some stupid reasoTh TikTok responses return code 200, and basically all responses contain an error field (even non-errors), so I need to check if the data exists instead
+        if (!StringToJson.getJSON(response).has("data")) { // For some stupid reason TikTok responses return code 200, and basically all responses contain an error field (even non-errors), so I need to check if the data exists instead
             if (StringToJson.getJSON(response).has("error")) {
                 JSONObject error = StringToJson.getJSON(response).getJSONObject("error");
                 if (error.has("message")) {
@@ -215,12 +216,14 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 .PUT(HttpRequest.BodyPublishers.ofByteArray(videoBytes))
                 .build();
 
-        response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+        HttpResponse<String> HTTPresponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        response = HTTPresponse.body();
 
         Output.debugPrint(this, "Response: " + response);
-        HTTPSend.setLastResponse(response);
+        HTTPSend.setLastResponse(HTTPresponse.body());
+        HTTPSend.HTTPCode.set((long) HTTPresponse.statusCode());
 
-        if (HTTPSend.HTTPCode.get() != 200) {
+        if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
             Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
@@ -292,7 +295,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         response = HTTPSend.postForm(this,"https://open.tiktokapis.com/v2/oauth/token/", formData);
 
 
-        if (HTTPSend.HTTPCode.get() == 200 && response.contains("access_token")) {
+        if ((HTTPSend.HTTPCode.get() == 200 || HTTPSend.HTTPCode.get() == 201) && response.contains("access_token")) {
             TOKEN = StringToJson.getData(response, "access_token");
             REFRESH_TOKEN = StringToJson.getData(response, "refresh_token");
 
