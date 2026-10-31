@@ -60,7 +60,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
                         "--no-first-run",
                         "--no-default-browser-check",
-                        "https://www.tiktok.com/tag/memes"
+                        "https://www.tiktok.com/tag/" + chosenHashtag
                     ).start();
                 } catch (Exception e) {
                     Output.webhookPrint(service, "Failed to open chrome" +
