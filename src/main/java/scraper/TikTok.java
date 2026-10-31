@@ -41,21 +41,33 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
         try {
             if (service.nonDuplicateTikTokVideos.isEmpty()) {
-                Playwright playwright = Playwright.create();
+                Playwright playwright;
+
+                try {
+                    playwright = Playwright.create();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+
                 Process chrome;
                 try {
                     String chrome_path = getChromePath();
                     if (chrome_path.isBlank()) {return "retry";}
 
+                    Output.debugPrint(service, "Chrome path: " + chrome_path);
+
                     chrome = new ProcessBuilder( // Open chrome such that i can remotely control it with playwright
-                            chrome_path,
-                            "--remote-debugging-port=9222",
-                            "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
-                            "--no-first-run",
-                            "--no-default-browser-check",
-                            "https://www.tiktok.com/tag/memes"
+                        getChromePath(),
+                        "--remote-debugging-port=9222",
+                        "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                        "https://www.tiktok.com/tag/memes"
                     ).start();
-                } catch (Exception _) {
+                } catch (Exception e) {
+                    Output.webhookPrint(service, "Failed to open chrome" +
+                            "\n\tReason: " + e.getMessage(), Output.RED);
                     return "quit";
                 }
 
@@ -66,22 +78,39 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 Page page = browser.newPage();
                 page.navigate("https://www.tiktok.com/tag/memes");*/
 
+                Page page;
                 Browser browser = null;
+                try {
 
-                for (int i = 0; i < 30; i++) { // Wait until chrome opens
-                    try {
-                        browser = playwright.chromium()
-                                .connectOverCDP("http://127.0.0.1:9222");
-                        break;
-                    } catch (Exception e) {
-                        Thread.sleep(500);
+                    for (int i = 0; i < 30; i++) {
+                        try {
+                            if (!chrome.isAlive()) {
+                                Output.webhookPrint(service, "Chrome exited with code: " + chrome.exitValue(), Output.RED);
+                                return "quit";
+                            }
+
+                            browser = playwright.chromium()
+                                    .connectOverCDP("http://127.0.0.1:9222");
+                            break;
+
+                        } catch (Exception _) {
+                            Thread.sleep(1000);
+                        }
                     }
+
+                    if (browser == null) {
+                        Output.webhookPrint(service, "Chrome failed to open in time");
+                        return "quit";
+                    }
+
+                    page = browser.contexts().get(0).pages().get(0);
+                    page.waitForTimeout(5000);
+                } catch (Exception e) {
+                    Output.webhookPrint(service, "Failed to manage chrome" +
+                            "\n\tReason: " + e.getMessage(), Output.RED);
+                    return "quit";
                 }
 
-                Page page = browser.contexts().get(0).pages().get(0);
-                page.waitForTimeout(5000);
-
-                int previousCount = allVideos.size();
 
                 while (allVideos.size() < maxVideos + videosAlreadyScanned) { // Keep scrolling down until we find something new
 
@@ -212,7 +241,8 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             return mediaUrl;
         } catch (Exception e) {
-            Output.debugPrint(service, e.getMessage());
+            Output.webhookPrint(service, "Failed to scrape from TikTok" +
+                    "\n\tReason: " + e.getMessage(), Output.RED);
             return "fail"; // Fat failure
         }
     }
@@ -300,7 +330,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             }
         }
 
-        Output.webhookPrint(null, "Google Chrome could not be located. Reverting to legacy mode (Reddit scraping via meme-api)", Output.RED);
+        Output.webhookPrint(null, "Google Chrome could not be located", Output.RED);
         HoneyWasp.SCRAPE_TIKTOK = false;
         return "";
     }

@@ -11,7 +11,7 @@ import java.util.List;
         "video_mode",
         "minutes_between_posts",
         "attempts_before_timeout",
-        "subreddits",
+        "media_sources",
         "blacklist",
         "duplicates_allowed",
         "nsfw_allowed",
@@ -28,7 +28,7 @@ public class InstagramSettings implements ConfigSettings {
     private boolean video_mode;
     private int minutes_between_posts;
     private int attempts_before_timeout;
-    private List<String> subreddits;
+    private List<String> media_sources;
     private List<String> blacklist;
     private boolean duplicates_allowed;
     private boolean nsfw_allowed;
@@ -70,8 +70,8 @@ public class InstagramSettings implements ConfigSettings {
     public int getHours_before_duplicate_removed() { return hours_before_duplicate_removed; }
     public void setHours_before_duplicate_removed(int hours_before_duplicate_removed) {this.hours_before_duplicate_removed = hours_before_duplicate_removed;}
 
-    public List<String> getSubreddits() { return subreddits; }
-    public void setSubreddits(List<String> subreddits) { this.subreddits = subreddits; }
+    public List<String> getMedia_sources() { return media_sources; }
+    public void setMedia_sources(List<String> media_sources) { this.media_sources = media_sources; }
 
     public List<String> getBlacklist() { return blacklist; }
     public void setBlacklist(List<String> blacklist) { this.blacklist = blacklist; }
@@ -108,7 +108,7 @@ public class InstagramSettings implements ConfigSettings {
             case "minutes_between_posts" -> getMinutes_between_posts();
             case "attempts_before_timeout" -> getAttempts_before_timeout();
             case "hours_before_duplicate_removed" -> getHours_before_duplicate_removed();
-            case "subreddits" -> getSubreddits();
+            case "media_sources" -> getMedia_sources();
             case "blacklist" -> getBlacklist();
             case "duplicates_allowed" -> isDuplicates_allowed();
             case "audio_enabled" -> isAudio_enabled();
@@ -133,7 +133,7 @@ public class InstagramSettings implements ConfigSettings {
             case "minutes_between_posts" -> setMinutes_between_posts(Integer.parseInt(newValue));
             case "attempts_before_timeout" -> setAttempts_before_timeout(Integer.parseInt(newValue));
             case "hours_before_duplicate_removed" -> setHours_before_duplicate_removed(Integer.parseInt(newValue));
-            case "subreddits" -> setSubreddits(List.of(newValue.split(",")));
+            case "media_sources" -> setMedia_sources(List.of(newValue.split(",")));
             case "blacklist" -> setBlacklist(List.of(newValue.split(",")));
             case "duplicates_allowed" -> setDuplicates_allowed(Boolean.parseBoolean(newValue));
             case "audio_enabled" -> setAudio_enabled(Boolean.parseBoolean(newValue));

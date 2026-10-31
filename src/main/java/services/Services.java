@@ -27,7 +27,7 @@ public abstract class Services extends Thread {
 
     protected ConfigSettings settings;
     protected static final Scanner scanner = new Scanner(System.in); // Input scanner
-    protected static final Random rand = new Random(); // Seed for random number generation
+    public static final Random rand = new Random(); // Seed for random number generation
 
     // Upload & Publish implementations MUST check for error 500 or equivalent api down error, and handle general non-200 errors
     // All HTTP calls not using HTTPSend must use HTTPSend.setLastResponse(response); after calls to log the last HTTP response
@@ -38,7 +38,7 @@ public abstract class Services extends Thread {
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
-    public String chosenSubreddit, mediaURL, postURL, caption, fileDir, response, postID;
+    public String chosenSource, mediaURL, postURL, caption, fileDir, response, postID;
     public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
     public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0;
     public File[] media, audio;
@@ -47,7 +47,7 @@ public abstract class Services extends Thread {
 
     // Config & Per-service toggles
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN; // TOKEN can hold config API Key or fetched temp Access Token
-    public List<String> SUBREDDITS, CAPTION_BLACKLIST, BLACKLIST;
+    public List<String> MEDIA_SOURCES, CAPTION_BLACKLIST, BLACKLIST;
     public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, doSizeTest = true;
     public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
     public double[] supportedAspectRatio = {}; // Format: minRatio, maxRatio (w/ Ratio = Width / Height)
@@ -62,7 +62,7 @@ public abstract class Services extends Thread {
         AUTO_POST_MODE = (boolean) settings.get("auto_post_mode");
         SLEEPTIME = ((int) settings.get("minutes_between_posts")) * 60000;
         ATTEMPTS_BEFORE_TIMEOUT = (int) settings.get("attempts_before_timeout");
-        SUBREDDITS = (List<String>) settings.get("subreddits");
+        MEDIA_SOURCES = (List<String>) settings.get("media_sources");
         AUDIO_ENABLED = (boolean) settings.get("audio_enabled");
         USE_REDDIT_CAPTION = (boolean) settings.get("use_reddit_caption");
         FALLBACK_CAPTION = (String) settings.get("caption");
@@ -278,7 +278,7 @@ public abstract class Services extends Thread {
                             break;
                         } else if (postSuccess == 1) {
                             if (AUTO_POST_MODE) {
-                                Output.webhookPrint(this, postURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                                 FileIO.writeList(postURL, this, false); // Store image URL to prevent duplicates
                             } else if (use0x0) {
                                 Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);

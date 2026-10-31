@@ -12,7 +12,7 @@ import java.util.List;
         "auto_post_mode",
         "minutes_between_posts",
         "attempts_before_timeout",
-        "subreddits",
+        "media_sources",
         "blacklist",
         "duplicates_allowed",
         "nsfw_allowed",
@@ -31,7 +31,7 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
     private boolean auto_post_mode;
     private int minutes_between_posts;
     private int attempts_before_timeout;
-    private List<String> subreddits;
+    private List<String> media_sources;
     private List<String> blacklist;
     private boolean duplicates_allowed;
     private boolean audio_enabled;
@@ -70,8 +70,8 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
     public int getAttempts_before_timeout() { return attempts_before_timeout; }
     public void setAttempts_before_timeout(int attempts_before_timeout) { this.attempts_before_timeout = attempts_before_timeout; }
 
-    public List<String> getSubreddits() { return subreddits; }
-    public void setSubreddits(List<String> subreddits) { this.subreddits = subreddits; }
+    public List<String> getMedia_sources() { return media_sources; }
+    public void setMedia_sources(List<String> media_sources) { this.media_sources = media_sources; }
 
     public List<String> getBlacklist() { return blacklist; }
     public void setBlacklist(List<String> blacklist) { this.blacklist = blacklist; }
@@ -106,7 +106,7 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
             case "auto_post_mode" -> isAuto_post_mode();
             case "minutes_between_posts" -> getMinutes_between_posts();
             case "attempts_before_timeout" -> getAttempts_before_timeout();
-            case "subreddits" -> getSubreddits();
+            case "media_sources" -> getMedia_sources();
             case "blacklist" -> getBlacklist();
             case "duplicates_allowed" -> isDuplicates_allowed();
             case "audio_enabled" -> isAudio_enabled();
@@ -133,7 +133,7 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
             case "auto_post_mode" -> setAuto_post_mode(Boolean.parseBoolean(newValue));
             case "minutes_between_posts" -> setMinutes_between_posts(Integer.parseInt(newValue));
             case "attempts_before_timeout" -> setAttempts_before_timeout(Integer.parseInt(newValue));
-            case "subreddits" -> setSubreddits(List.of(newValue.split(",")));
+            case "subreddits" -> setMedia_sources(List.of(newValue.split(",")));
             case "blacklist" -> setBlacklist(List.of(newValue.split(",")));
             case "duplicates_allowed" -> setDuplicates_allowed(Boolean.parseBoolean(newValue));
             case "audio_enabled" -> setAudio_enabled(Boolean.parseBoolean(newValue));
