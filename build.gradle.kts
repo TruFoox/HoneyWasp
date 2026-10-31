@@ -24,6 +24,7 @@ dependencies {
     implementation("org.jline:jline:3.30.16")
     implementation("org.eclipse.jetty:jetty-server:12.1.13")
     implementation("org.eclipse.jetty.websocket:jetty-websocket-jetty-server:12.1.13")
+    implementation("com.microsoft.playwright:playwright:1.55.0")
 }
 
 application {

@@ -146,10 +146,12 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
-        String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+        HttpResponse<String> HTTPresponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        response = HTTPresponse.body();
 
         Output.debugPrint(this, "Response: " + response);
         HTTPSend.setLastResponse(response);
+        HTTPSend.HTTPCode.set((long) HTTPresponse.statusCode());
 
         Output.debugPrint(this, "Creating post on TikTok");
 
@@ -161,14 +163,16 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 .POST(HttpRequest.BodyPublishers.ofString(metadataJson))
                 .build();
 
-        response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+        HTTPresponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        response = HTTPresponse.body();
 
         Output.debugPrint(this, "Response: " + response);
         HTTPSend.setLastResponse(response);
+        HTTPSend.HTTPCode.set((long) HTTPresponse.statusCode());
 
 
         // Check for error
-        if (!StringToJson.getJSON(response).has("data")) { // For some stupid reason TikTok responses return code 200, and basically all responses contain an error field (even non-errors), so I need to check if the data exists instead
+        if (!StringToJson.getJSON(response).has("data")) { // Remnant from when i had messed up the status code shit, should probably be changed to status code check
             if (StringToJson.getJSON(response).has("error")) {
                 JSONObject error = StringToJson.getJSON(response).getJSONObject("error");
                 if (error.has("message")) {
@@ -185,12 +189,12 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                         Output.webhookPrint(this, "An error occurred on TikTok's end while uploading. Trying again, and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
-                        FileIO.writeList(mediaURL, this, true);
+                        FileIO.writeList(postURL, this, true);
                     } else {
                         Output.webhookPrint(this, "Failed to post. Skipping this attempt and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
-                        FileIO.writeList(mediaURL, this, true);
+                        FileIO.writeList(postURL, this, true);
                         Sleep.milliseconds(this, SLEEPTIME);
                     }
 
@@ -216,16 +220,17 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 .PUT(HttpRequest.BodyPublishers.ofByteArray(videoBytes))
                 .build();
 
-        HttpResponse<String> HTTPresponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HTTPresponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         response = HTTPresponse.body();
 
-        Output.debugPrint(this, "Response: " + response);
         HTTPSend.setLastResponse(HTTPresponse.body());
         HTTPSend.HTTPCode.set((long) HTTPresponse.statusCode());
 
-        if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
+        Output.debugPrint(this, "Response: " + response);
+
+        if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201 && HTTPSend.HTTPCode.get() != 206) {
             Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
-                    "\n\tError message: " + response, Output.RED);
+                    "\n\tError message: (Code " + HTTPresponse.statusCode() + ") " + HTTPresponse.body(), Output.RED);
 
             return 0;
         }
@@ -241,9 +246,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         do {
             HttpClient client;
             if (HoneyWasp.USE_PROXIES) {
-                client = HttpClient.newBuilder()
-                        .proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))))
-                        .build();
+                client = HttpClient.newBuilder().proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1])))).build();
             } else {
                 client = HttpClient.newHttpClient();
             }
@@ -256,10 +259,12 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                     .POST(HttpRequest.BodyPublishers.ofString("{\"publish_id\":\"" + publishID + "\"}"))
                     .build();
 
-            String response = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            HttpResponse<String> HTTPresponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            response = HTTPresponse.body();
 
             Output.debugPrint(this, "Response: " + response);
             HTTPSend.setLastResponse(response);
+            HTTPSend.HTTPCode.set((long) HTTPresponse.statusCode());
 
             postStatus = StringToJson.getJSON(response).getJSONObject("data").getString("status");
             Output.print(this, "Waiting for TikTok to process media. This may take a while (Status: " + postStatus + ")...", Output.YELLOW, true);
@@ -267,7 +272,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             if (postStatus.equals("FAILED")) { // If processing failed, or it takes too long to process, try again
                 Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
                         "\n\tError Message: " + response, Output.RED);
-                FileIO.writeList(mediaURL, this, true);
+                FileIO.writeList(postURL, this, true);
                 return 0;
             } else if (retyCount >= 24) { // >120 seconds
                 Output.webhookPrint(this, "Video processing took over 90 seconds. Sometimes TikTok just never processes a post. Retrying attempt...", Output.RED);

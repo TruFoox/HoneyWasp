@@ -3,6 +3,7 @@ import config.ConfigSettings;
 import config.HasRefreshToken;
 import main.HoneyWasp;
 import utils.*;
+import scraper.Fetch;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
@@ -37,11 +38,12 @@ public abstract class Services extends Thread {
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
-    public String chosenSubreddit, mediaURL, redditURL, caption, fileDir, response, postID;
+    public String chosenSubreddit, mediaURL, postURL, caption, fileDir, response, postID;
     public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
     public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0;
     public File[] media, audio;
     public String[] proxy;
+    public List<Map<String, String>> nonDuplicateTikTokVideos = new ArrayList<>();
 
     // Config & Per-service toggles
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN; // TOKEN can hold config API Key or fetched temp Access Token
@@ -139,14 +141,12 @@ public abstract class Services extends Thread {
 
                     /* Fetch media */
                     if (AUTO_POST_MODE) {
-
-                        switch (getMemeAPI()) {
-                            case 0: // Success
-                                break;
-                            case 1: // Soft fail (retry)
+                        mediaURL = Fetch.fetchURL(this);
+                        switch (mediaURL) {
+                            case "retry": // Soft fail (retry)
                                 Sleep.milliseconds(this, 1000); // Sleep 1s to prevent spam
                                 continue;
-                            case 2: // Fail (quit)
+                            case "fail": // Fail (quit)
                                 break mainLoop;
                         }
 
@@ -169,7 +169,7 @@ public abstract class Services extends Thread {
                                         "\n\tError message: " + e, Output.RED);
 
                                 // Blacklist image URL permanently, as it is likely corrupted
-                                FileIO.writeList(mediaURL, this, true);
+                                FileIO.writeList(postURL, this, true);
 
                                 Sleep.milliseconds(this, 5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
@@ -278,10 +278,10 @@ public abstract class Services extends Thread {
                             break;
                         } else if (postSuccess == 1) {
                             if (AUTO_POST_MODE) {
-                                Output.webhookPrint(this, redditURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
-                                FileIO.writeList(mediaURL, this, false); // Store image URL to prevent duplicates
+                                Output.webhookPrint(this, postURL + " from r/" + chosenSubreddit + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                FileIO.writeList(postURL, this, false); // Store image URL to prevent duplicates
                             } else if (use0x0) {
-                                Output.webhookPrint(this, mediaURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             } else {
                                 Output.webhookPrint(this, fileDir + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
                             }
@@ -329,94 +329,6 @@ public abstract class Services extends Thread {
         } while (HoneyWasp.RESTART && run); // Loop if restart enabled & /stop not used
 
         HoneyWasp.runningServices.remove(name.toLowerCase()); // Remove service from list of running ones
-    }
-
-    private int getMemeAPI() throws Exception {
-        String response;
-
-        randIndex = rand.nextInt(SUBREDDITS.size()); // Generate random subreddit index
-
-        chosenSubreddit = SUBREDDITS.get(randIndex);
-
-        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
-
-        Output.debugPrint(this, "Fetching media URL from " + URL);
-        try {
-            response = HTTPSend.get(this, URL);
-            connectionDropWait = 0; // Reset connection drop wait on success
-        } catch (SSLHandshakeException | ConnectException e) {
-            // ConnectionDropWait = Pre-processing time, waitTime = Post-processed time
-            int waitTime = (connectionDropWait == 0) ? 1 : connectionDropWait; // Forces first wait to be 1, and allows sequential waits to be 5n minutes
-            if (e instanceof ConnectException) {
-                Output.print(this, "Connection drop detected. Try disabling Proxies, if enabled. Trying again in " + waitTime + " minute(s)...", Output.RED);
-            } else { //if (e instanceof SSLHandshakeException) { ("if" redundant rn but it may not be in the future)
-                Output.webhookPrint(this, "An error occurred while establishing a connection with meme-api.com. Trying again in " + waitTime + " minute(s)...", Output.RED);
-            }
-            connectionDropWait += 5;
-
-            if (connectionDropWait > (5 * ATTEMPTS_BEFORE_TIMEOUT)) {
-                Output.webhookPrint(this,"[NOTIFY]A connection error occurred " + ATTEMPTS_BEFORE_TIMEOUT + " times in a row. Quitting to prevent spam..."
-                        + "\n\tError message: " + e, Output.RED);
-            }
-
-            Sleep.milliseconds(this, waitTime * 60000L); // 60000 is the conversion factor from minutes to ms
-            return 1;
-        } catch (Exception e) {
-            connectionDropWait = 0;
-            Output.webhookPrint(this,"[NOTIFY]Failed to fetch image from meme-api.com. Quitting..."
-                    + "\n\tError message: " + e, Output.RED);
-            return 2;
-        }
-
-        /* Check meme-api status code */
-        int HTTPCode = HTTPSend.HTTPCode.get().intValue();
-        switch (HTTPCode) {
-            case 200: // Success
-                // Parse JSON data
-                mediaURL = StringToJson.getData(response, "url");
-                redditURL = StringToJson.getData(response, "postLink");
-                caption = StringToJson.getData(response, "title");
-                nsfw = Boolean.parseBoolean(StringToJson.getData(response, "nsfw"));
-                tempDisableCaption = false;
-
-                Output.debugPrint(this, "Reddit post data successfully retrieved");
-
-                /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-                switch (checkValidity()) {
-                    case 0: // Image valid
-                        return 0;
-                    case 1: // General failed validation
-                        return 1;
-                    case 2: // Caption is blacklisted, but allowed to post (CAPTION BLACKLIST)
-                        tempDisableCaption = true;
-                        return 0;
-                }
-            case 503:
-                Output.webhookPrint(this,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
-
-                Sleep.milliseconds(this, SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
-                return 1;
-            case 500: // General server error
-            case 530:
-                Output.webhookPrint(this,"Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
-
-                Sleep.milliseconds(this, SLEEPTIME + 7200000L); // Sleep normal time + 2 hours
-                return 1;
-            case 520: // General malformed/null response
-            case 502: // Bad gateway
-                Output.webhookPrint(this,"Cloudflare HTTP Status Code " + HTTPCode + " - The API this program utilizes gave a bad response"
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
-
-                Sleep.milliseconds(this, SLEEPTIME); // Sleep
-                return 1;
-            default: // General error handling
-                Output.webhookPrint(this,"[NOTIFY]Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
-                        + "\n\tError message: " + response, Output.RED);
-
-                return 2;
-        }
     }
 
     // Get media location (based on POSTMODE & selected media format)
@@ -481,93 +393,6 @@ public abstract class Services extends Thread {
         return true; // Success
     }
 
-    /* Check image validity (Ensures not gif, not blacklisted, not already used, valid aspect ratio) */
-    public int checkValidity() {
-        Output.debugPrint(this, "Validating image");
-
-        // Ensure post is not duplicate
-        Output.debugPrint(this, "Testing if image url is duplicate");
-        for (String[] row : usedURLs) {
-            String usedUrl = row[0];
-            if (mediaURL.equalsIgnoreCase(usedUrl)) {
-                long expireTime = Long.parseLong(row[1]);
-
-                if (!DUPLICATES_ALLOWED && (expireTime > System.currentTimeMillis() && HOURS_BEFORE_DUPLICATES_REMOVED != 0)) { // Test if cached url is too old to be considered duplicate
-                    Output.print(this, "Duplicate URL - x" + countAttempt + " attempts", Output.RED, true);
-
-                    return 1;
-                }
-            }
-        }
-
-        // Download image & check aspect ratio (If relevant)
-        if (doSizeTest) {
-            Output.debugPrint(this, "Attempting to download image to verify aspect ratio");
-            Image image;
-
-            try {
-                image = HTTPSend.getImageData(mediaURL);
-            } catch(Exception e)  {
-                Output.webhookPrint(this, "Failed to download image from Reddit to check aspect ratio. Marking URL as invalid & retrying..."
-                        + "\n\tError message: " + e.getMessage(), Output.RED);
-
-                // Blacklist image URL permanently, as it is likely corrupted
-                FileIO.writeList(mediaURL, this, true);
-                return 1;
-            }
-
-            float ratio = (float) image.getWidth(null) / image.getHeight(null); // Eg 0.9 "0.9x as wide as it is tall"
-
-            Output.debugPrint(this, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
-            if (ratio < supportedAspectRatio[0] || ratio > supportedAspectRatio[1]) {
-                Output.print(this, "Image has invalid aspect ratio - x" + countAttempt + " attempts", Output.RED, true);
-                return 1;
-            }
-
-        }
-
-        // Ensure non-gif/apng
-        Output.debugPrint(this, "Testing if image is .gif/.apng");
-        if (mediaURL.toLowerCase().contains(".gif") || mediaURL.toLowerCase().contains(".apng")) { // Ensure image is not .gif or .apng
-            Output.print(this, "Image is animated - x" + countAttempt + " attempts", Output.RED, true);
-
-            return 1;
-        }
-
-        // Ensure not NSFW
-        Output.debugPrint(this, "Testing if image is marked as NSFW");
-        if (!NSFW_ALLOWED && nsfw) { // If NSFW is disallowed and post is marked as NSFW
-            Output.print(this, "Image is marked as NSFW - x" + countAttempt + " attempts", Output.RED, true);
-
-            return 1;
-        }
-
-        // Ensure no blacklisted string in post caption
-        Output.debugPrint(this, "Testing if image caption contains blacklisted string");
-        for (String word : BLACKLIST) {
-            if (caption.toLowerCase().contains(word.toLowerCase())) {
-                Output.print(this, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + countAttempt + " attempts", Output.RED, true);
-
-                return 1;
-            }
-        }
-
-        // Decide whether to use fallback or post caption (If relevant)
-        if (USE_REDDIT_CAPTION) {
-            Output.debugPrint(this, "Testing whether to use default caption");
-            for (String word : CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
-                if (caption.toLowerCase().contains(word.toLowerCase())) {
-                    Output.print(this, "Using default (Non-Reddit) caption (\"" + word.toLowerCase() + "\" found) - x" + countAttempt + " attempts", Output.RED, true);
-
-                    return 2;
-                }
-            }
-        }
-
-        Output.print(this, "Valid image found after x" + countAttempt + " attempts", Output.GREEN, true);
-
-        return 0;
-    }
 
     public void halt() {
         run = false;

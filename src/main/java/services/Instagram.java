@@ -116,7 +116,7 @@ public class Instagram extends Services {
 
                 if (!VIDEO_MODE) {
                     // Blacklist image URL permanently, as it is likely corrupted
-                    FileIO.writeList(mediaURL, this, true);
+                    FileIO.writeList(postURL, this, true);
                 }
             }
 
@@ -197,7 +197,7 @@ public class Instagram extends Services {
 
                 if (!VIDEO_MODE) {
                     // Blacklist image URL permanently, as it is likely corrupted
-                    FileIO.writeList(mediaURL, this, true);
+                    FileIO.writeList(postURL, this, true);
                 }
             }
             return 0;
