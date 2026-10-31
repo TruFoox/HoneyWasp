@@ -47,7 +47,7 @@ public class HoneyWasp extends ListenerAdapter {
     public static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
-    public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES; // General config items used by threads
+    public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES, SCRAPE_TIKTOK; // General config items used by services/threads
     public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
@@ -104,6 +104,7 @@ public class HoneyWasp extends ListenerAdapter {
         BOTTOKEN = config.General().getDiscordBotToken();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
+        SCRAPE_TIKTOK = HoneyWasp.config.General().isScrapeTiktok();
         USE_PROXIES = HoneyWasp.config.General().isProxies();
         PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
 

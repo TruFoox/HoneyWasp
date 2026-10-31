@@ -11,6 +11,9 @@ public class GeneralSettings implements ConfigSettings {
     @JsonProperty("webhook_url")
     private String discordWebhook;
 
+    @JsonProperty("scrape_tiktok")
+    private boolean scrapeTiktok;
+
     @JsonProperty("ping_on_error")
     private boolean pingOnError;
 
@@ -31,6 +34,9 @@ public class GeneralSettings implements ConfigSettings {
     public String getDiscordWebhook() { return discordWebhook; }
     public void setDiscordWebhook(String discordWebhook) { this.discordWebhook = discordWebhook; }
 
+    public boolean isScrapeTiktok() { return scrapeTiktok; }
+    public void setScrapeTiktok(boolean scrapeTiktok) { this.scrapeTiktok = scrapeTiktok; }
+
     public boolean isPingOnError() { return pingOnError; }
     public void setPingOnError(boolean pingOnError) { this.pingOnError = pingOnError; }
 
@@ -47,31 +53,27 @@ public class GeneralSettings implements ConfigSettings {
     @Override
     public Object get(String setting) {
         return switch (setting.toLowerCase()) {
-            case "discordbottoken" -> getDiscordBotToken();
-            case "discordwebhook" -> getDiscordWebhook();
-            case "pingOnError" -> isPingOnError();
+            case "discord_bottoken" -> getDiscordBotToken();
+            case "discord_webhook" -> getDiscordWebhook();
+            case "scrape_tiktok" -> isScrapeTiktok();
+            case "ping_on_error" -> isPingOnError();
             case "proxies" -> isProxies();
             case "restart" -> isRestart();
             case "debug_mode" -> isDebug_mode();
-            default ->
-                    throw new IllegalArgumentException(
-                            "Unknown setting: " + setting
-                    );
+            default -> throw new IllegalArgumentException("Unknown setting: " + setting);
         };
     }
     @Override
     public void set(String setting, String newValue) {
         switch (setting.toLowerCase()) {
-            case "discordbottoken" -> setDiscordBotToken(newValue);
-            case "discordwebhook" -> setDiscordWebhook(newValue);
-            case "pingOnError" -> setPingOnError(Boolean.parseBoolean(newValue));
+            case "discord_bot_token" -> setDiscordBotToken(newValue);
+            case "discord_webhook" -> setDiscordWebhook(newValue);
+            case "scrape_tiktok" -> setScrapeTiktok(Boolean.parseBoolean(newValue));
+            case "ping_on_error" -> setPingOnError(Boolean.parseBoolean(newValue));
             case "proxies" -> setProxies(Boolean.parseBoolean(newValue));
             case "restart" -> setRestart(Boolean.parseBoolean(newValue));
             case "debug_mode" -> setDebug_mode(Boolean.parseBoolean(newValue));
-            default ->
-                    throw new IllegalArgumentException(
-                            "Unknown setting: " + setting
-                    );
+            default -> throw new IllegalArgumentException("Unknown setting: " + setting);
         }
     }
 }

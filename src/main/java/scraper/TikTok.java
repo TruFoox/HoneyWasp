@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.microsoft.playwright.*;
+import main.HoneyWasp;
 import scraper.Fetch;
 import scraper.Reddit;
 import services.Services;
@@ -22,8 +23,8 @@ import utils.Output;
 
 
 public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an example (Though im pretty sure that repo is 100% vibecoded lol)
-    static List<Map<String, String>> allVideos = new ArrayList<>();
-    static Set<String> collectedURLs = new HashSet<>();
+    static List<Map<String, String>> allVideos = new ArrayList<>(); // list of all video urls on page
+    static Set<String> collectedURLs = new HashSet<>(); // prevents scraper from collecting same video multiple times
     static String currentHashtag = "";
     static int maxVideos = 100; // Max videos to scrape at once
     static int videosAlreadyScanned = 0; // Used to increase number of maximum videos if entire list is exhausted
@@ -43,8 +44,11 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 Playwright playwright = Playwright.create();
                 Process chrome;
                 try {
+                    String chrome_path = getChromePath();
+                    if (chrome_path.isBlank()) {return "retry";}
+
                     chrome = new ProcessBuilder( // Open chrome such that i can remotely control it with playwright
-                            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                            chrome_path,
                             "--remote-debugging-port=9222",
                             "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
                             "--no-first-run",
@@ -140,15 +144,14 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             }
 
-            if (service.nonDuplicateTikTokVideos.isEmpty()) {
-                // All collected videos have already been used, clear the collection so the next fetch recollects videos.
+            if (service.nonDuplicateTikTokVideos.isEmpty()) { // All collected videos have already been used, clear the collection so the next fetch recollects videos.
                 allVideos.clear();
                 collectedURLs.clear();
 
                 return fetch(service, chosenHashtag);
             }
 
-            Map<String, String> video = service.nonDuplicateTikTokVideos.removeFirst(); // Get first video in list and remove it from the list at the same time
+            Map<String, String> video = service.nonDuplicateTikTokVideos.removeFirst(); // Gets first video in list and remove it from the list at the same time
             service.postURL = video.get("url");
             service.caption = video.get("text");
 
@@ -200,16 +203,105 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             Output.debugPrint(service, "Video status: " + videoResponse.statusCode());
 
+            Output.print(service, "Downloading video from TikTok...");
             if (videoResponse.statusCode() == 200) {
+                service.fileDir = "./cache/" + service.name.toLowerCase() + "/temp.mp4";
                 Files.write(Path.of("cache", String.valueOf(service.name), "temp.mp4"), videoResponse.body());
             }
-
-            Thread.sleep(30000);
+            Output.print(service, "Successfully downloaded video from TikTok");
 
             return mediaUrl;
         } catch (Exception e) {
             Output.debugPrint(service, e.getMessage());
             return "fail"; // Fat failure
         }
+    }
+
+    private static String getChromePath() throws Exception { // Admittedly this function is AI generated because I just couldnt be bothered
+        String os = System.getProperty("os.name").toLowerCase();
+        List<Path> candidates = new ArrayList<>();
+
+        if (os.contains("win")) {
+
+            // Check Windows Registry
+            for (String key : List.of("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe", "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe")) {
+                try {
+                    Process p = new ProcessBuilder(
+                            "reg", "query", key, "/ve"
+                    ).redirectErrorStream(true).start();
+
+                    String output = new String(
+                            p.getInputStream().readAllBytes()
+                    );
+
+                    p.waitFor();
+
+                    Matcher m = Pattern.compile("(?im)^\\s*\\(Default\\)\\s+REG_SZ\\s+(.+?)\\s*$").matcher(output);
+
+                    if (m.find()) {
+                        candidates.add(Path.of(m.group(1).trim()));
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Common Windows installation locations
+            for (String variable : List.of("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA")) {
+                String directory = System.getenv(variable);
+
+                if (directory != null) {
+                    candidates.add(Path.of(directory, "Google", "Chrome", "Application", "chrome.exe"));
+
+                    candidates.add(Path.of(directory, "Google", "Chrome", "Application", "chrome.exe"));
+                }
+            }
+
+        } else if (os.contains("linux")) {
+
+            for (String name : List.of(
+                    "google-chrome",
+                    "google-chrome-stable",
+                    "chromium",
+                    "chromium-browser"
+            )) {
+                try {
+                    Process p = new ProcessBuilder("which", name).start();
+
+                    String output = new String(p.getInputStream().readAllBytes()).trim();
+
+                    p.waitFor();
+
+                    if (p.exitValue() == 0 && !output.isEmpty()) {
+                        candidates.add(Path.of(output));
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            candidates.addAll(List.of(
+                    Path.of("/usr/bin/google-chrome"),
+                    Path.of("/usr/bin/google-chrome-stable"),
+                    Path.of("/usr/bin/chromium"),
+                    Path.of("/usr/bin/chromium-browser"),
+                    Path.of("/snap/bin/chromium")
+            ));
+
+        } else if (os.contains("mac")) {
+
+            candidates.add(Path.of("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"));
+
+            candidates.add(Path.of(System.getProperty("user.home"), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"));
+
+        } else {
+            throw new UnsupportedOperationException("Unsupported OS: " + os);
+        }
+
+        for (Path path : candidates) {
+            if (Files.isRegularFile(path) && (os.contains("win") || Files.isExecutable(path))) {
+                return path.toAbsolutePath().toString();
+            }
+        }
+
+        Output.webhookPrint(null, "Google Chrome could not be located. Reverting to legacy mode (Reddit scraping via meme-api)", Output.RED);
+        HoneyWasp.SCRAPE_TIKTOK = false;
+        return "";
     }
 }

@@ -155,7 +155,7 @@ public abstract class Services extends Thread {
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
                         /* If format is video, convert image to video */
-                        if (VIDEO_MODE) {
+                        if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK) {
                             Image image; // Holds image data
 
                             Output.debugPrint(this, "Attempting to retrieve image data");

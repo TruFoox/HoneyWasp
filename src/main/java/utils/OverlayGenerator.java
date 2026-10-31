@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
-public class OverlayGenerator { // Generates fake twitter post overlay using openCV w/ AI-generated caption. CURRENTLY opencv_java4140.dll BUILD IS WINDOWS x64 ONLY
+public class OverlayGenerator { // Generates fake twitter post overlay. This was hell to make I lowkey should have just used AI lmao
     public static boolean Generate(String path, Image image) throws IOException { // User needs to supply logo, image, and service name
         String accountName = "HoneyWasp";
         String caption = "Oh my god this is so funny i think im gonna fucking die";
