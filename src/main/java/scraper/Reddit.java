@@ -110,13 +110,12 @@ public class Reddit {
                 }
 
                 // Decide whether to use fallback or post caption (If relevant)
-                if (service.USE_REDDIT_CAPTION) {
+                if (service.USE_POST_CAPTION) {
                     Output.debugPrint(service, "Testing whether to use default caption");
                     for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
                         if (service.caption.toLowerCase().contains(word.toLowerCase())) {
                             Output.print(service, "Using default (Non-Reddit) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempt + " attempts", Output.RED, true);
-
-                            return "quit";
+                            service.caption = service.FALLBACK_CAPTION;
                         }
                     }
                 }

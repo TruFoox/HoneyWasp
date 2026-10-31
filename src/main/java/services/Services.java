@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
+import static main.HoneyWasp.SCRAPE_TIKTOK;
 import static main.HoneyWasp.USE_PROXIES;
 
 
@@ -48,7 +49,7 @@ public abstract class Services extends Thread {
     // Config & Per-service toggles
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN; // TOKEN can hold config API Key or fetched temp Access Token
     public List<String> MEDIA_SOURCES, CAPTION_BLACKLIST, BLACKLIST;
-    public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_REDDIT_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, doSizeTest = true;
+    public boolean AUTO_POST_MODE, VIDEO_MODE, AUDIO_ENABLED, USE_POST_CAPTION, NSFW_ALLOWED, DUPLICATES_ALLOWED, doSizeTest = true;
     public int ATTEMPTS_BEFORE_TIMEOUT, SLEEPTIME, HOURS_BEFORE_DUPLICATES_REMOVED;
     public double[] supportedAspectRatio = {}; // Format: minRatio, maxRatio (w/ Ratio = Width / Height)
 
@@ -64,7 +65,7 @@ public abstract class Services extends Thread {
         ATTEMPTS_BEFORE_TIMEOUT = (int) settings.get("attempts_before_timeout");
         MEDIA_SOURCES = (List<String>) settings.get("media_sources");
         AUDIO_ENABLED = (boolean) settings.get("audio_enabled");
-        USE_REDDIT_CAPTION = (boolean) settings.get("use_reddit_caption");
+        USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
         FALLBACK_CAPTION = (String) settings.get("caption");
         NSFW_ALLOWED = (boolean) settings.get("nsfw_allowed");
         DUPLICATES_ALLOWED = (boolean) settings.get("duplicates_allowed");
@@ -154,7 +155,7 @@ public abstract class Services extends Thread {
 
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
-                        /* If format is video, convert image to video */
+                        /* If format is video & didn't scrape it from TikTok (such that it's already a video), convert image to video */
                         if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK) {
                             Image image; // Holds image data
 
@@ -255,7 +256,7 @@ public abstract class Services extends Thread {
                     if (!run) break;
 
                     // Set post caption depending on settings (default is post caption)
-                    if (!AUTO_POST_MODE || !USE_REDDIT_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
+                    if (!AUTO_POST_MODE || !USE_POST_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
 
                     postAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
 
@@ -278,7 +279,11 @@ public abstract class Services extends Thread {
                             break;
                         } else if (postSuccess == 1) {
                             if (AUTO_POST_MODE) {
-                                Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                if (SCRAPE_TIKTOK) {
+                                    Output.webhookPrint(this, postURL + " from #" + chosenSource + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                } else {
+                                    Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                }
                                 FileIO.writeList(postURL, this, false); // Store image URL to prevent duplicates
                             } else if (use0x0) {
                                 Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);

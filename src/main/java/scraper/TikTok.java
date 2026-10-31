@@ -26,8 +26,6 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
     static List<Map<String, String>> allVideos = new ArrayList<>(); // list of all video urls on page
     static Set<String> collectedURLs = new HashSet<>(); // prevents scraper from collecting same video multiple times
     static String currentHashtag = "";
-    static int maxVideos = 100; // Max videos to scrape at once
-    static int videosAlreadyScanned = 0; // Used to increase number of maximum videos if entire list is exhausted
 
     protected static synchronized String fetch(Services service, String chosenHashtag) throws Exception {
         if (!currentHashtag.equalsIgnoreCase(chosenHashtag)) { // Logic breaks whenever the hashtag changes so wipe the lists so they recollect
@@ -36,7 +34,6 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             collectedURLs.clear();
             service.nonDuplicateTikTokVideos.clear();
             currentHashtag = chosenHashtag;
-            videosAlreadyScanned = 0;
         }
 
         try {
@@ -112,9 +109,9 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 }
 
 
-                while (allVideos.size() < maxVideos + videosAlreadyScanned) { // Keep scrolling down until we find something new
+                while (service.nonDuplicateTikTokVideos.isEmpty()) { // Keep scrolling down until we find something new
 
-                    // Extract all currently loaded video URLs and captions
+                    // Extract all currently loaded video URLs and captions. Gonna be real this json is AI generated
                     String json = (String) page.locator("a[href]").evaluateAll("""
                         elements => JSON.stringify(
                             elements
@@ -140,17 +137,19 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                         allVideos.add(video);
 
-                        boolean duplicate = false;
+                        boolean throwOutThisPost = false;
+
+
+                        // Ensure post is not duplicate
+                        Output.debugPrint(service, "Testing if image url is duplicate");
                         for (String[] row : service.usedURLs) {
                             if (row[0].equalsIgnoreCase(videoURL)) {
-                                duplicate = !service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0;
+                                throwOutThisPost = !service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0;
                                 break;
                             }
                         }
 
-                        if (duplicate) {
-                            videosAlreadyScanned++; // Increase sliding target for future iterations
-                        } else {
+                        if (!throwOutThisPost) {
                             service.nonDuplicateTikTokVideos.add(video);
                         }
                     }
@@ -159,7 +158,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
 
                     // Scroll to the bottom
-                    page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+                    page.evaluate("window.scrollBy(0, window.innerHeight)");
 
                     // Give TikTok time to load more videos
                     page.waitForTimeout(2500);
@@ -182,7 +181,6 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             Map<String, String> video = service.nonDuplicateTikTokVideos.removeFirst(); // Gets first video in list and remove it from the list at the same time
             service.postURL = video.get("url");
-            service.caption = video.get("text");
 
             // Makes normal HTTP GET request because we don't need Playwright for ripping data
             HttpClient client = HttpClient.newHttpClient();
@@ -198,6 +196,30 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.body();
 
+
+            Matcher captionMatcher = Pattern.compile("\"desc\":\"(.*?)\",\"createTime\"").matcher(responseBody);
+            service.caption = captionMatcher.find() ? captionMatcher.group(1).replaceAll("#\\S+\\s*", "").trim() : ""; // Janky ass way of grabbing the caption of the post and removing hashtags
+
+            // Ensure no blacklisted string in post caption
+            Output.debugPrint(service, "Testing if image caption contains blacklisted string");
+            for (String word : service.BLACKLIST) {
+                if (service.caption.toLowerCase().contains(word.toLowerCase())) {
+                    Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempt + " attempts", Output.RED, true);
+
+                    return "retry";
+                }
+            }
+
+            // Decide whether to use fallback or post caption (If relevant)
+            if (service.USE_POST_CAPTION) {
+                Output.debugPrint(service, "Testing whether to use default caption");
+                for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
+                    if (service.caption.toLowerCase().contains(word.toLowerCase())) {
+                        Output.print(service, "Using default (Non-TikTok) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempt + " attempts", Output.RED, true);
+                        service.caption = service.FALLBACK_CAPTION;
+                    }
+                }
+            }
             String cookies = response.headers() // TikTok dumps a cookie to make sure you're a real browser. Obviously, we aren't one, so we need to rip that shit
                     .allValues("Set-Cookie")
                     .stream()
@@ -232,12 +254,12 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             Output.debugPrint(service, "Video status: " + videoResponse.statusCode());
 
-            Output.print(service, "Downloading video from TikTok...");
+            Output.print(service, "Downloading video from TikTok...", Output.YELLOW, true);
             if (videoResponse.statusCode() == 200) {
                 service.fileDir = "./cache/" + service.name.toLowerCase() + "/temp.mp4";
-                Files.write(Path.of("cache", String.valueOf(service.name), "temp.mp4"), videoResponse.body());
+                Files.write(Path.of("cache", service.name.toLowerCase(), "temp.mp4"), videoResponse.body());
             }
-            Output.print(service, "Successfully downloaded video from TikTok");
+            Output.print(service, "Successfully downloaded video from TikTok", Output.YELLOW, true);
 
             return mediaUrl;
         } catch (Exception e) {

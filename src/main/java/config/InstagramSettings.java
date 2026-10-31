@@ -15,7 +15,7 @@ import java.util.List;
         "blacklist",
         "duplicates_allowed",
         "nsfw_allowed",
-        "use_reddit_caption",
+        "use_post_caption",
         "caption_blacklist",
         "hours_before_duplicate_removed",
         "audio_enabled",
@@ -32,7 +32,7 @@ public class InstagramSettings implements ConfigSettings {
     private List<String> blacklist;
     private boolean duplicates_allowed;
     private boolean nsfw_allowed;
-    private boolean use_reddit_caption;
+    private boolean use_post_caption;
     private List<String> caption_blacklist;
     private int hours_before_duplicate_removed;
     private boolean audio_enabled;
@@ -85,8 +85,8 @@ public class InstagramSettings implements ConfigSettings {
     public boolean isNsfw_allowed() { return nsfw_allowed; }
     public void setNsfw_allowed(boolean nsfw_allowed) { this.nsfw_allowed = nsfw_allowed; }
 
-    public boolean isUse_reddit_caption() { return use_reddit_caption; }
-    public void setUse_reddit_caption(boolean use_reddit_caption) { this.use_reddit_caption = use_reddit_caption; }
+    public boolean isUse_post_caption() { return use_post_caption; }
+    public void setUse_post_caption(boolean use_post_caption) { this.use_post_caption = use_post_caption; }
 
     public List<String> getCaption_blacklist() { return caption_blacklist; }
     public void setCaption_blacklist(List<String> caption_blacklist) { this.caption_blacklist = caption_blacklist; }
@@ -113,7 +113,7 @@ public class InstagramSettings implements ConfigSettings {
             case "duplicates_allowed" -> isDuplicates_allowed();
             case "audio_enabled" -> isAudio_enabled();
             case "nsfw_allowed" -> isNsfw_allowed();
-            case "use_reddit_caption" -> isUse_reddit_caption();
+            case "use_post_caption" -> isUse_post_caption();
             case "caption_blacklist" -> getCaption_blacklist();
             case "caption" -> getCaption();
             case "hashtags" -> getHashtags();
@@ -138,7 +138,7 @@ public class InstagramSettings implements ConfigSettings {
             case "duplicates_allowed" -> setDuplicates_allowed(Boolean.parseBoolean(newValue));
             case "audio_enabled" -> setAudio_enabled(Boolean.parseBoolean(newValue));
             case "nsfw_allowed" -> setNsfw_allowed(Boolean.parseBoolean(newValue));
-            case "use_reddit_caption" -> setUse_reddit_caption(Boolean.parseBoolean(newValue));
+            case "use_post_caption" -> setUse_post_caption(Boolean.parseBoolean(newValue));
             case "caption_blacklist" -> setCaption_blacklist(List.of(newValue.split(",")));
             case "caption" -> setCaption(newValue);
             case "hashtags" -> setHashtags(newValue);
