@@ -49,7 +49,6 @@ public class Command extends Thread { // Handles terminal commands
                         }
 
                         if (service.equals("all")) {
-
                             for (String name : HoneyWasp.services.keySet()) {
                                 if (HoneyWasp.runningServices.containsKey(name)) {
                                     Output.print(null, HoneyWasp.services.get(name).capsName() + " is already running.");
@@ -60,6 +59,10 @@ public class Command extends Thread { // Handles terminal commands
                                 }
                             }
                         } else {
+                            if (!HoneyWasp.services.containsKey(service)) {
+                                Output.print(null, "Invalid service");
+                                break;
+                            }
                             if (HoneyWasp.runningServices.containsKey(service)) {
                                 Output.print(null, HoneyWasp.services.get(service).capsName() + " is already running. Stop it first.");
                             } else {
@@ -85,6 +88,10 @@ public class Command extends Thread { // Handles terminal commands
                                 }
                             }
                         } else {
+                            if (!HoneyWasp.services.containsKey(service)) {
+                                Output.print(null, "Invalid service");
+                                break;
+                            }
                             if (HoneyWasp.runningServices.containsKey(service)) {
                                 HoneyWasp.runningServices.get(service).halt();
                             } else {
@@ -104,6 +111,10 @@ public class Command extends Thread { // Handles terminal commands
                                 FileIO.clearList(name);
                             }
                         } else {
+                            if (!HoneyWasp.services.containsKey(service)) {
+                                Output.print(null, "Invalid service");
+                                break;
+                            }
                             FileIO.clearList(service);
                         }
                         break;
