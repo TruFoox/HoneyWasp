@@ -51,13 +51,13 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                 Process chrome;
                 try {
-                    String chrome_path = getChromePath();
-                    if (chrome_path.isBlank()) {return "retry";}
+                    String chromium_path = getChromiumPath();
+                    if (chromium_path.isBlank()) {throw new Exception("Chromium path returned empty");}
 
-                    Output.debugPrint(service, "Chrome path: " + chrome_path);
+                    Output.debugPrint(service, "Chromium path: " + chromium_path);
 
                     chrome = new ProcessBuilder( // Open chrome such that i can remotely control it with playwright
-                        getChromePath(),
+                            chromium_path,
                         "--remote-debugging-port=9222",
                         "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
                         "--no-first-run",
@@ -286,91 +286,67 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
         }
     }
 
-    private static String getChromePath() throws Exception { // Admittedly this function is AI generated because I just couldnt be bothered
+
+    private static String getChromiumPath() throws Exception { // Admittedly this function is AI generated because this is extremely tedious and I dont want to do it
         String os = System.getProperty("os.name").toLowerCase();
         List<Path> candidates = new ArrayList<>();
-
         if (os.contains("win")) {
-
-            // Check Windows Registry
-            for (String key : List.of("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe", "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe")) {
-                try {
-                    Process p = new ProcessBuilder(
-                            "reg", "query", key, "/ve"
-                    ).redirectErrorStream(true).start();
-
-                    String output = new String(
-                            p.getInputStream().readAllBytes()
-                    );
-
-                    p.waitFor();
-
-                    Matcher m = Pattern.compile("(?im)^\\s*\\(Default\\)\\s+REG_SZ\\s+(.+?)\\s*$").matcher(output);
-
-                    if (m.find()) {
-                        candidates.add(Path.of(m.group(1).trim()));
-                    }
-                } catch (Exception ignored) {}
+            // Check Windows Registry for Chrome and Edge
+            for (String browser : List.of("chrome.exe", "msedge.exe")) {
+                for (String key : List.of("HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + browser, "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + browser)) {
+                    try {
+                        Process p = new ProcessBuilder("reg", "query", key, "/ve").redirectErrorStream(true).start();
+                        String output = new String(p.getInputStream().readAllBytes());
+                        p.waitFor();
+                        Matcher m = Pattern.compile("(?im)^\\s*\\(Default\\)\\s+REG_SZ\\s+(.+?)\\s*$").matcher(output);
+                        if (m.find()) {
+                            candidates.add(Path.of(m.group(1).trim()));
+                        }
+                    } catch (Exception ignored) {}
+                }
             }
-
             // Common Windows installation locations
             for (String variable : List.of("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA")) {
                 String directory = System.getenv(variable);
-
                 if (directory != null) {
-                    candidates.add(Path.of(directory, "Google", "Chrome", "Application", "chrome.exe"));
-
-                    candidates.add(Path.of(directory, "Google", "Chrome", "Application", "chrome.exe"));
+                    Path base = Path.of(directory);
+                    candidates.add(base.resolve("Google/Chrome/Application/chrome.exe"));
+                    candidates.add(base.resolve("Microsoft/Edge/Application/msedge.exe"));
                 }
             }
-
         } else if (os.contains("linux")) {
-
-            for (String name : List.of(
-                    "google-chrome",
-                    "google-chrome-stable",
-                    "chromium",
-                    "chromium-browser"
-            )) {
+            // Search PATH for installed browsers
+            for (String name : List.of("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "microsoft-edge-stable", "microsoft-edge-beta", "microsoft-edge-dev")) {
                 try {
                     Process p = new ProcessBuilder("which", name).start();
-
                     String output = new String(p.getInputStream().readAllBytes()).trim();
-
                     p.waitFor();
-
                     if (p.exitValue() == 0 && !output.isEmpty()) {
                         candidates.add(Path.of(output));
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception _) {}
             }
-
-            candidates.addAll(List.of(
-                    Path.of("/usr/bin/google-chrome"),
-                    Path.of("/usr/bin/google-chrome-stable"),
-                    Path.of("/usr/bin/chromium"),
-                    Path.of("/usr/bin/chromium-browser"),
-                    Path.of("/snap/bin/chromium")
-            ));
-
+            // Common Linux installation locations
+            candidates.addAll(List.of(Path.of("/usr/bin/google-chrome"), Path.of("/usr/bin/google-chrome-stable"), Path.of("/usr/bin/chromium"), Path.of("/usr/bin/chromium-browser"), Path.of("/snap/bin/chromium"), Path.of("/usr/bin/microsoft-edge"), Path.of("/usr/bin/microsoft-edge-stable")));
         } else if (os.contains("mac")) {
-
+            // Chrome
             candidates.add(Path.of("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"));
-
             candidates.add(Path.of(System.getProperty("user.home"), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"));
-
+            // Edge
+            candidates.add(Path.of("/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"));
+            candidates.add(Path.of(System.getProperty("user.home"), "Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"));
         } else {
             throw new UnsupportedOperationException("Unsupported OS: " + os);
         }
-
         for (Path path : candidates) {
             if (Files.isRegularFile(path) && (os.contains("win") || Files.isExecutable(path))) {
                 return path.toAbsolutePath().toString();
             }
         }
+        Output.webhookPrint(null, "Google Chrome / Microsoft Edge could not be located", Output.RED);
 
-        Output.webhookPrint(null, "Google Chrome could not be located", Output.RED);
         HoneyWasp.SCRAPE_TIKTOK = false;
         return "";
     }
+
 }

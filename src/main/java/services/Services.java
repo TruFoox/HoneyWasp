@@ -150,7 +150,8 @@ public abstract class Services extends Thread {
                             case "skip": // Skip this attempt
                                 Sleep.milliseconds(this, SLEEPTIME); // Sleep to fake a skipped attempt
                                 continue;
-                            case "fail": // Fail (quit)
+                            case "quit": // Fatal error (Two names because sometimes I write the wrong one)
+                            case "fail":
                                 Output.webhookPrint(this, "[NOTIFY]Bot failed to retrieve media");
                                 break mainLoop;
                         }
