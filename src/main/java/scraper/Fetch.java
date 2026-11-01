@@ -4,6 +4,8 @@ import main.HoneyWasp;
 import services.Services;
 import utils.Output;
 
+import java.util.Objects;
+
 public abstract class Fetch {
     public static String fetchURL(Services service) {
         try {
@@ -14,7 +16,14 @@ public abstract class Fetch {
 
             if (HoneyWasp.SCRAPE_TIKTOK) {
                 Output.debugPrint(service, "Scraping from TikTok");
-                return TikTok.fetch(service, service.chosenSource);
+                String attempt = TikTok.fetch(service, service.chosenSource);
+                if (!attempt.equals("fail")) {
+                    return attempt; // Success
+                } else { // Fall back to Reddit mode if failed
+                    HoneyWasp.SCRAPE_TIKTOK = false;
+                    Output.webhookPrint(service, "Reverting to legacy scrape mode (Reddit scraping)");
+                    return Reddit.fetch(service, service.chosenSource);
+                }
             } else {
                 Output.debugPrint(service, "Scraping from Reddit");
                 return Reddit.fetch(service, service.chosenSource);

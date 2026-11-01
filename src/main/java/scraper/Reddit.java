@@ -136,24 +136,23 @@ public class Reddit {
                 return mediaURL; // Success
             case 503:
                 Output.webhookPrint(service,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +6 hour delay...", Output.RED);
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
                 Sleep.milliseconds(service, service.SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
-                return "retry";
+                return "skip";
             case 500: // General server error
             case 530:
                 Output.webhookPrint(service,"Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
-                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt w/ +2 hour delay...", Output.RED);
+                        + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                Sleep.milliseconds(service, service.SLEEPTIME + 7200000L); // Sleep normal time + 2 hours
-                return "retry";
+
+                return "skip";
             case 520: // General malformed/null response
             case 502: // Bad gateway
                 Output.webhookPrint(service,"Cloudflare HTTP Status Code " + HTTPCode + " - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
-                Sleep.milliseconds(service, service.SLEEPTIME); // Sleep
-                return "retry";
+                return "skip";
             default: // General error handling
                 Output.webhookPrint(service,"[NOTIFY]Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);

@@ -143,11 +143,15 @@ public abstract class Services extends Thread {
                     /* Fetch media */
                     if (AUTO_POST_MODE) {
                         mediaURL = Fetch.fetchURL(this);
-                        switch (mediaURL) {
+                        switch (mediaURL) { // Handle failures
                             case "retry": // Soft fail (retry)
                                 Sleep.milliseconds(this, 1000); // Sleep 1s to prevent spam
                                 continue;
+                            case "skip": // Skip this attempt
+                                Sleep.milliseconds(this, SLEEPTIME); // Sleep to fake a skipped attempt
+                                continue;
                             case "fail": // Fail (quit)
+                                Output.webhookPrint(this, "[NOTIFY]Bot failed to retrieve media");
                                 break mainLoop;
                         }
 
