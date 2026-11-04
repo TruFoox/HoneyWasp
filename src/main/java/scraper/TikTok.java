@@ -237,6 +237,13 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     }
                 }
             }
+
+            if (service.caption.isBlank()) { // If caption is just hashtags (which get removed so the caption is blank), use default caption
+                Output.print(service, "Using default caption, as the TikTok caption consists of nothing but hashtags", Output.RED, true);
+                service.caption = service.FALLBACK_CAPTION;
+
+            }
+
             String cookies = response.headers() // TikTok dumps a cookie to make sure you're a real browser. Obviously, we aren't one, so we need to rip that shit
                     .allValues("Set-Cookie")
                     .stream()
@@ -287,7 +294,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
     }
 
 
-    private static String getChromiumPath() throws Exception { // Admittedly this function is AI generated because this is extremely tedious and I dont want to do it
+    private static String getChromiumPath() { // Admittedly this function is AI generated because this is extremely tedious and I dont want to do it
         String os = System.getProperty("os.name").toLowerCase();
         List<Path> candidates = new ArrayList<>();
         if (os.contains("win")) {

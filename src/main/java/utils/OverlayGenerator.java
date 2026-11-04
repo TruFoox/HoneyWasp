@@ -1,5 +1,7 @@
 package utils;
 
+import services.Services;
+
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
@@ -7,14 +9,15 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
 public class OverlayGenerator { // Generates fake twitter post overlay. This was hell to make I lowkey should have just used AI lmao
-    public static boolean Generate(String path, Image image) throws IOException { // User needs to supply logo, image, and service name
+    public static boolean Generate(Services service, Image image) throws IOException { // User needs to supply logo, image, and service name
         String accountName = "HoneyWasp";
-        String caption = "Oh my god this is so funny i think im gonna fucking die";
         // Calculate how tall to make the fake twitter post
         int maxWidth = 1350; // Max dimensions need to be calibrated better these are just values that seem to work
         int maxHeight = 2000;
@@ -32,7 +35,18 @@ public class OverlayGenerator { // Generates fake twitter post overlay. This was
         g.fillRect(0, 0, 1500,  Math.max(1500, 500 + resizedHeight));
 
         // Load and resize logo
-        BufferedImage logo = ImageIO.read(new File("logo.png"));
+        BufferedImage logo;
+        try {
+            try {
+                logo = ImageIO.read(new File("logo.png"));
+            } catch (IOException _) {
+                logo = ImageIO.read(new File("icon.png"));
+            }
+        } catch (IOException _) {
+            Output.webhookPrint(service, "You didnt supply an icon.png or logo.png." +
+                    "\n\tSupply an image or disable generate_twitter_container under [General_Settings]. Quitting...");
+            return false;
+        }
 
         int size = 150;
         int offset = 75;
@@ -65,7 +79,7 @@ public class OverlayGenerator { // Generates fake twitter post overlay. This was
         g.drawString("@" + accountName.toLowerCase().replace(" ", ""), 240, 180);
 
         // Draw caption
-        String[] words = caption.split(" ");
+        String[] words = service.caption.split(" ");
         StringBuilder line = new StringBuilder();
         g.setFont(new Font("Arial", Font.PLAIN, 60));
         g.setColor(Color.BLACK);
@@ -94,7 +108,10 @@ public class OverlayGenerator { // Generates fake twitter post overlay. This was
 
         g.dispose();
 
-        ImageIO.write(TwitterOverlayImage, "png", new File(path + "\\temp.png"));
+        // Write ts to file
+        File out = Path.of("cache", service.name.toLowerCase(), "temp.png").toFile();
+        service.fileDir = out.getPath();
+        ImageIO.write(TwitterOverlayImage, "png", out);
 
         return true;
     }

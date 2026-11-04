@@ -275,7 +275,7 @@ Knowing all this, you can now begin [customizing the config](#the-config), then 
 ## The Config
 Before launching the bot, make sure `Config.json` is set up correctly.  
 All necessary fields (Credentials, API keys, etc.) should already be filled, assuming you followed the instructions for at least one service in [Getting Started](#getting-started).  
-You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `subreddits`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
+You can tweak the remaining settings, such as `post_mode`, `caption`, `autostart`, `media_sources`, and more to your preferences. Some may already be filled, but you can delete them, as they are placeholders.
 
 [An example config has been provided here](https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json). If you are having issues, make sure your config has identical formatting to the example.
 
@@ -291,14 +291,15 @@ Below you can find documentation on every configuration option
 
 
 ### General Settings
-| Key                 | Description                                                                                                      |
-|---------------------|------------------------------------------------------------------------------------------------------------------|
-| `discord_bot_token` | Your bot's token for logging in to Discord (Optional, set to `""` to disable)                                    |
-| `webhook_url`       | Discord webhook URL for notifications (Optional, does not require `discord_bot_token`)                           |
-| `ping_on_error`     | Allows the bot to ping the user when an error occurs that requires the user's attention (Requires `webhook_url`) |
-| `proxies`           | Enables use of proxies from `proxies.txt` (Do not enable if you do not know what this is)                        |
-| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)                  |
-| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                                      |
+| Key                 | Description                                                                                                                                                                                         |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `discord_bot_token` | Your bot's token for logging in to Discord (Optional, set to `""` to disable)                                                                                                                       |
+| `webhook_url`       | Discord webhook URL for notifications (Optional, does not require `discord_bot_token`)                                                                                                              |
+| `scrape_tiktok `    | Enables scraping TikTok for videos instead of scraping subreddits (Requires either [Chrome](https://www.google.com/chrome/) or [Edge](https://explore.microsoft.com/en-us/edge/download) installed) |
+| `ping_on_error`     | Allows the bot to ping the user when an error occurs that requires the user's attention (Requires `webhook_url`)                                                                                    |
+| `proxies`           | Enables use of proxies from `proxies.txt` (Do not enable if you do not know what this is)                                                                                                           |
+| `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)                                                                                                     |
+| `debug_mode`        | Enables verbose logging (`true` or `false`)                                                                                                                                                         |
 
 ### Instagram Settings
 | Key                              | Description                                                                                                                                     |
@@ -311,11 +312,11 @@ Below you can find documentation on every configuration option
 | `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                    |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                      |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`"autopost_mode": true` only)                                    |
-| `subreddits`                     | Subreddits to pull content from. (**Exclude `r/`**, `"autopost_mode": true` only)                                                               |
+| `media_sources`                  | TikTok hashtag or subreddit to pull content from. (**Exclude `r/`**, `"autopost_mode": true` only)                                              |
 | `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                                  |
 | `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only, `true` or `false`)                                                              |
 | `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                   |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only,`true` or `false`)                                                |
+| `use_post_caption`               | Whether to use Reddit post title as the caption (`"autopost_mode": true` only,`true` or `false`)                                                |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of Reddit caption (`"autopost_mode": true` & `"use_reddit_caption": true` only)  |
 | `caption`                        | Default post caption                                                                                                                            |
 | `hashtags`                       | Hashtags appended to post after caption                                                                                                         |
@@ -332,11 +333,11 @@ Below you can find documentation on every configuration option
 | `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                         |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                        |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`"autopost_mode": true` only)                                      |
-| `subreddits`                     | Subreddits to pull content from (**Exclude `r/`**, `"autopost_mode": true` only)                                                                  |
+| `media_sources`                  | TikTok hashtag or subreddit to pull content from (**Exclude `r/`**, `"autopost_mode": true` only)                                                 |
 | `blacklist`                      | Words that trigger this post to be discarded entirely (`"autopost_mode": true` only)                                                              |
 | `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only,`true` or `false`)                                                                 |
 | `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                     |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
+| `use_post_caption`               | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of Reddit post (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
 | `caption`                        | Default post title                                                                                                                                |
 | `hashtags`                       | Post description                                                                                                                                  |
@@ -353,11 +354,11 @@ Below you can find documentation on every configuration option
 | `minutes_between_posts`          | Time, in minutes, between posts (TikTok rate limits ~15/day, per API key)                                                                         |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                        |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`"autopost_mode": true` only)                                      |
-| `subreddits`                     | Subreddits to pull content from (**Exclude `r/`**, `"autopost_mode": true` only)                                                                  |
+| `media_sources`                  | TikTok hashtag or subreddit to pull content from (**Exclude `r/`**, `"autopost_mode": true` only)                                                 |
 | `blacklist`                      | Words that trigger this post to be discarded entirely (`"autopost_mode": true` only)                                                              |
 | `duplicates_allowed`             | Whether to allow duplicate posts (`"autopost_mode": true` only,`true` or `false`)                                                                 |
 | `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `"autopost_mode": true` only, `true` or `false`)                                     |
-| `use_reddit_caption`             | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
+| `use_post_caption`               | Whether to use Reddit post title as the caption (`"autopost_mode": true` only, `true` or `false`)                                                 |
 | `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of Reddit post (`"autopost_mode": true` & `"use_reddit_caption": true` only) |
 | `caption`                        | Default post title                                                                                                                                |
 | `hashtags`                       | Post description                                                                                                                                  |

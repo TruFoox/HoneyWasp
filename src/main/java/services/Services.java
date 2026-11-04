@@ -87,22 +87,8 @@ public abstract class Services extends Thread {
         Output.debugPrint(null, "New " + name + " instance running w/ thread ID " + Thread.currentThread().threadId());
         Output.webhookPrint(null, "Starting " + name);
 
-        /*for (String setting : requiredSettings) {
-            try {
-                // If setting is empty, warn user and quit
-                if (this.getClass().getDeclaredField(setting).get(this).equals("")) { // From this class, fetch the variable with name setting, then fetch the value of it
-                    throw new Exception(); // User will get same message regardless of if the setting itself is missing or if the value is empty
-                }
-            } catch (Exception _) {
-                Output.webhookPrint(this, "[ERROR] You are missing at least one required setting for " + this.name +
-                        "\n\tPlease ensure your config matches the example config provided at https://bit.ly/HoneyWasp-Example-Config & followed all of the settings for " + this.name + " in the README" +
-                        "\n\tMissing value (NOT VERBATIM NAME OF SETTING): " +  setting, Output.RED);
-                return;
-            }
-        }*/
-
         restartLoop:
-        do { // Loop if restart enabled
+        do { // Loop for if restart enabled
             run = true;
             countAttempt = 0;
             try {
@@ -332,7 +318,7 @@ public abstract class Services extends Thread {
                 Output.webhookPrint(null, name + " crashed. This is crash #" + (timesRestarted + 1) +
                         "\n\tIt will be restarted in " + (restartDelay * 20) + " seconds...", Output.RED);
 
-                try {Sleep.milliseconds(this, restartDelay * 20000L);} catch (Exception _) {} // Sleep 5 * 2^(# of times restarted + 1) seconds
+                try {Sleep.milliseconds(this, restartDelay * 20000L);} catch (Exception _) {} // Sleep 5 * 2^(# of times restarted + 1) seconds (10s, 20s, 40s...)
 
                 timesRestarted++; // Increment counter of number of times bot has restarted
             }
@@ -394,7 +380,7 @@ public abstract class Services extends Thread {
             }
         } catch (Exception e) {
             try {
-                Output.webhookPrint(this,String.valueOf(e), Output.RED);
+                Output.webhookPrint(this,e.getMessage(), Output.RED);
             } catch (Exception ex) {
                 throw new RuntimeException(e);
             }

@@ -26,7 +26,7 @@ public abstract class Fetch {
                 }
             } else {
                 Output.debugPrint(service, "Scraping from Reddit");
-                return Reddit.fetch(service, service.chosenSource);
+                return Reddit.fetch(service, service.chosenSource); // Error handling for reddit mode handled in Services
             }
         } catch (Exception e) {
             Output.webhookPrint(service, "An error occurred before the bot could retrieve the media" +
