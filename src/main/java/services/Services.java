@@ -92,6 +92,8 @@ public abstract class Services extends Thread {
             run = true;
             countAttempt = 0;
             try {
+                if (HoneyWasp.SCRAPE_TIKTOK && AUTO_POST_MODE) {VIDEO_MODE = true;} // If TikTok scraping is enabled, only videos are returned, so override whatever video_mode is
+
                 if (this instanceof HasRefreshToken) {  // Check if current instance contains fetchRefreshToken and run it if it does (Quit if failed)
                     Output.debugPrint(this, "Testing if refresh_token is empty");
                     if (REFRESH_TOKEN.isEmpty()) { // Only run if no refresh token
