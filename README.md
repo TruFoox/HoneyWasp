@@ -295,52 +295,52 @@ Below you can find documentation on every configuration option
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `discord_bot_token` | Your bot's token for logging in to Discord (Optional, set to `""` to disable)                                                                                                                       |
 | `webhook_url`       | Discord webhook URL for notifications (Optional, does not require `discord_bot_token`)                                                                                                              |
-| `scrape_tiktok `    | Enables scraping TikTok for videos instead of scraping subreddits (Requires either [Chrome](https://www.google.com/chrome/) or [Edge](https://explore.microsoft.com/en-us/edge/download) installed) |
+| `scrape_tiktok`    | Enables scraping TikTok for videos instead of scraping subreddits (Requires either [Chrome](https://www.google.com/chrome/) or [Edge](https://explore.microsoft.com/en-us/edge/download) installed)  |
 | `ping_on_error`     | Allows the bot to ping the user when an error occurs that requires the user's attention (Requires `webhook_url`)                                                                                    |
 | `proxies`           | Enables use of proxies from `proxies.txt` (Do not enable if you do not know what this is)                                                                                                           |
 | `restart`           | An EXPERIMENTAL setting to enable bot to automatically restart bot on crash (`true` or `false`)                                                                                                     |
 | `debug_mode`        | Enables verbose logging (`true` or `false`)                                                                                                                                                         |
 
 ### Instagram Settings
-| Key                              | Description                                                                                                                                            |
-|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `api_key`                        | Instagram API key                                                                                                                                      |
-| `autostart`                      | Whether to automatically start Instagram when HoneyWasp starts (`true` or `false`)                                                                     |
-| `autopost_mode`                  | Whether to automatically fetch images from Tiktok/Reddit. Set to `false` to post from `/images` or `/videos` based on `video_mode` (`true` or `false`) |
-| `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                        |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (`autopost_mode: true` & `video_mode: true` only, add .MP3s to `/audio`)                     |
-| `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                           |
-| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                             |
-| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`autopost_mode: true` only)                                             |
-| `media_sources`                  | TikTok hashtag or subreddit to pull content from. (**Exclude `r/`**, `autopost_mode: true` only)                                                       |
-| `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                                         |
-| `duplicates_allowed`             | Whether to allow duplicate posts (`autopost_mode: true` only, `true` or `false`)                                                                       |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `autopost_mode: true` only, `true` or `false`)                                            |
-| `use_post_caption`               | Whether to use scraped post's title as the caption (`autopost_mode: true` only,`true` or `false`)                                                      |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of scraped post's (`autopost_mode: true` & `use_post_caption: true` only)               |
-| `caption`                        | Default post caption                                                                                                                                   |
-| `hashtags`                       | Hashtags appended to post after caption                                                                                                                |
+| Key                              | Description                                                                                                                                                 |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `api_key`                        | Instagram API key                                                                                                                                           |
+| `autostart`                      | Whether to automatically start Instagram when HoneyWasp starts (`true` or `false`)                                                                          |
+| `autopost_mode`                  | Whether to automatically fetch images from Tiktok/Reddit. Set to `false` to post from `/images` or `/videos` based on `video_mode` (`true` or `false`)      |
+| `video_mode`                     | Determines how content is posted. Set to `true` to post media as video, with optional audio (`true` or `false`)                                             |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`scrape_tiktok: false` & `autopost_mode: true` & `video_mode: true` only, add .MP3s to `/audio`) |
+| `minutes_between_posts`          | Time, in minutes, between posts  (Instagram rate limits 25/day, per API key)                                                                                |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                                  |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`autopost_mode: true` only)                                                  |
+| `media_sources`                  | TikTok hashtag or subreddit to pull content from. (**Exclude `r/`**, `autopost_mode: true` only)                                                            |
+| `blacklist`                      | Words that, if found,  trigger this post to be discarded entirely (`autopost_mode: true` only)                                                              |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`autopost_mode: true` only, `true` or `false`)                                                                            |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `autopost_mode: true` only, `true` or `false`)                                                 |
+| `use_post_caption`               | Whether to use scraped post's title as the caption (`autopost_mode: true` only,`true` or `false`)                                                           |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use `caption` instead of scraped post's (`autopost_mode: true` & `use_post_caption: true` only)                    |
+| `caption`                        | Default post caption                                                                                                                                        |
+| `hashtags`                       | Hashtags appended to post after caption                                                                                                                     |
 
 ### YouTube Settings
-| Key                              | Description                                                                                                                                      |
-|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `refresh_token`                  | Refresh token for OAuth (**DON'T TOUCH - BOT PUTS AUTOMATICALLY**)                                                                               |
-| `client_secret`                  | YouTube API key for posting                                                                                                                      |
-| `client_id`                      | YouTube User ID for API access (ends with "apps.googleusercontent.com")                                                                          |
-| `autostart`                      | Whether to automatically start YouTube when HoneyWasp starts (`true` or `false`)                                                                 |
-| `autopost_mode`                  | Whether to automatically fetch images from Tiktok/Reddit before converting them to videos. Set to `false` to post from `/videos`                 |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (`autopost_mode: true` only, add .MP3s to `/audio`)                                    |  
-| `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                        |
-| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                       |
-| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`autopost_mode: true` only)                                       |
-| `media_sources`                  | TikTok hashtag or subreddit to pull content from (**Exclude `r/`**, `autopost_mode: true` only)                                                  |
-| `blacklist`                      | Words that trigger this post to be discarded entirely (`autopost_mode: true` only)                                                               |
-| `duplicates_allowed`             | Whether to allow duplicate posts (`autopost_mode: true` only,`true` or `false`)                                                                  |
-| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `autopost_mode: true` only, `true` or `false`)                                      |
-| `use_post_caption`               | Whether to use scraped post's title as the caption (`autopost_mode: true` only, `true` or `false`)                                               |
-| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of scraped post's (`autopost_mode: true` & `use_post_caption: true` only)   |
-| `caption`                        | Default post title                                                                                                                               |
-| `hashtags`                       | Post description                                                                                                                                 |
+| Key                              | Description                                                                                                                                    |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `refresh_token`                  | Refresh token for OAuth (**DON'T TOUCH - BOT PUTS AUTOMATICALLY**)                                                                             |
+| `client_secret`                  | YouTube API key for posting                                                                                                                    |
+| `client_id`                      | YouTube User ID for API access (ends with "apps.googleusercontent.com")                                                                        |
+| `autostart`                      | Whether to automatically start YouTube when HoneyWasp starts (`true` or `false`)                                                               |
+| `autopost_mode`                  | Whether to automatically fetch images from Tiktok/Reddit before converting them to videos. Set to `false` to post from `/videos`               |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`scrape_tiktok: false` & `autopost_mode: true` only, add .MP3s to `/audio`)         |  
+| `minutes_between_posts`          | Time, in minutes, between posts (YouTube rate limits ~6/day, per API key)                                                                      |
+| `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                     |
+| `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`autopost_mode: true` only)                                     |
+| `media_sources`                  | TikTok hashtag or subreddit to pull content from (**Exclude `r/`**, `autopost_mode: true` only)                                                |
+| `blacklist`                      | Words that trigger this post to be discarded entirely (`autopost_mode: true` only)                                                             |
+| `duplicates_allowed`             | Whether to allow duplicate posts (`autopost_mode: true` only,`true` or `false`)                                                                |
+| `nsfw_allowed`                   | Whether to allow NSFW content (**FALSE HIGHLY RECOMMENDED**, `autopost_mode: true` only, `true` or `false`)                                    |
+| `use_post_caption`               | Whether to use scraped post's title as the caption (`autopost_mode: true` only, `true` or `false`)                                             |
+| `caption_blacklist`              | Words that, if found, trigger the bot to use default caption instead of scraped post's (`autopost_mode: true` & `use_post_caption: true` only) |
+| `caption`                        | Default post title                                                                                                                             |
+| `hashtags`                       | Post description                                                                                                                               |
 
 ### TikTok Settings
 | Key                              | Description                                                                                                                                    |
@@ -350,7 +350,7 @@ Below you can find documentation on every configuration option
 | `client_id`                      | TikTok User ID for API access                                                                                                                  |
 | `autostart`                      | Whether to automatically start TikTok when HoneyWasp starts (`true` or `false`)                                                                |
 | `autopost_mode`                  | Whether to automatically fetch images from Tiktok/Reddit before converting them to videos. Set to `false` to post from `/videos`               |
-| `audio_enabled`                  | Whether to include audio when converting images to videos (`autopost_mode: true` only, add .MP3s to `/audio`)                                  |
+| `audio_enabled`                  | Whether to include audio when converting images to videos (`scrape_tiktok: false` & `autopost_mode: true` only, add .MP3s to `/audio`)         |
 | `minutes_between_posts`          | Time, in minutes, between posts (TikTok rate limits ~15/day, per API key)                                                                      |
 | `attempts_before_timeout`        | The number of failed post attempts before giving up. Set to 0 for infinite                                                                     |
 | `hours_before_duplicate_removed` | Time, in hours, before a post is allowed to be used again. Set to 0 for never (`autopost_mode: true` only)                                     |
