@@ -11,6 +11,9 @@ public class GeneralSettings implements ConfigSettings {
     @JsonProperty("webhook_url")
     private String discordWebhook;
 
+    @JsonProperty("account_name")
+    private String accountName;
+
     @JsonProperty("scrape_tiktok")
     private boolean scrapeTiktok;
 
@@ -37,6 +40,9 @@ public class GeneralSettings implements ConfigSettings {
     public String getDiscordWebhook() { return discordWebhook; }
     public void setDiscordWebhook(String discordWebhook) { this.discordWebhook = discordWebhook; }
 
+    public String getAccountName() { return accountName; }
+    public void setAccountName(String accountName) { this.accountName = accountName; }
+
     public boolean isScrapeTiktok() { return scrapeTiktok; }
     public void setScrapeTiktok(boolean scrapeTiktok) { this.scrapeTiktok = scrapeTiktok; }
 
@@ -61,6 +67,7 @@ public class GeneralSettings implements ConfigSettings {
         return switch (setting.toLowerCase()) {
             case "discord_bottoken" -> getDiscordBotToken();
             case "discord_webhook" -> getDiscordWebhook();
+            case "account_name" -> getAccountName();
             case "scrape_tiktok" -> isScrapeTiktok();
             case "generate_twitter_container" -> isGenerateTwitterContainer();
             case "ping_on_error" -> isPingOnError();
@@ -75,6 +82,7 @@ public class GeneralSettings implements ConfigSettings {
         switch (setting.toLowerCase()) {
             case "discord_bot_token" -> setDiscordBotToken(newValue);
             case "discord_webhook" -> setDiscordWebhook(newValue);
+            case "account_name" -> setAccountName(newValue);
             case "scrape_tiktok" -> setScrapeTiktok(Boolean.parseBoolean(newValue));
             case "generate_twitter_container" -> setGenerateTwitterContainer(Boolean.parseBoolean(newValue));
             case "ping_on_error" -> setPingOnError(Boolean.parseBoolean(newValue));

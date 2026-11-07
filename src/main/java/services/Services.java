@@ -255,7 +255,7 @@ public abstract class Services extends Thread {
                     if (HoneyWasp.GENERATE_CONTAINER) { // Inherently breaks with Instagram because it doesn't support direct image uploads but im not going to fix it just for them
                         Output.print(this, "Generating container around image...", Output.YELLOW, true);
                         try {
-                            OverlayGenerator.Generate(this);
+                            if (!OverlayGenerator.Generate(this)) {break;} // Generate overlay over video (Quit if failed)
                         } catch (Exception e) {
                             Output.webhookPrint(this, "An error occurred while adding container around media. Skipping this attempt..." +
                                     "\n\tError message: " + e.getMessage(), Output.RED);

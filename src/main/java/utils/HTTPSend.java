@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonParser;
 import com.sun.net.httpserver.HttpServer;
 import main.HoneyWasp;
 import services.Services;

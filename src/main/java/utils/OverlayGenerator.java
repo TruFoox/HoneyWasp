@@ -1,5 +1,6 @@
 package utils;
 
+import main.HoneyWasp;
 import services.Services;
 
 import java.awt.*;
@@ -17,8 +18,7 @@ import javax.imageio.ImageIO;
 
 public class OverlayGenerator {
 
-    public static void Generate(Services service) throws IOException {
-        String accountName = "HoneyWasp";
+    public static boolean Generate(Services service) throws IOException {
         String originalVideo = service.fileDir;
 
         String ffmpegPath = ""; // Literally doesnt need to be initialized but the compiler doesnt recognize that
@@ -106,7 +106,7 @@ public class OverlayGenerator {
             Output.webhookPrint(service,
                     "You didnt supply an icon.png or logo.png.\n" +
                             "\tSupply an image or disable generate_twitter_container under [General_Settings]. Quitting...");
-            return;
+            return false;
         }
 
         int size = 150;
@@ -123,10 +123,10 @@ public class OverlayGenerator {
 
         g.setFont(new Font("Arial", Font.PLAIN, 45));
         g.setColor(Color.BLACK);
-        g.drawString(accountName, 240, 135);
+        g.drawString(HoneyWasp.ACCOUNT_NAME, 240, 135);
 
         FontMetrics metrics = g.getFontMetrics();
-        int textWidth = metrics.stringWidth(accountName);
+        int textWidth = metrics.stringWidth(HoneyWasp.ACCOUNT_NAME);
 
         BufferedImage checkmark = ImageIO.read(new File("checkmark.png"));
 
@@ -134,7 +134,7 @@ public class OverlayGenerator {
 
         g.setColor(Color.GRAY);
         g.setFont(new Font("Arial", Font.PLAIN, 30));
-        g.drawString("@" + accountName.toLowerCase().replace(" ", ""), 240, 180);
+        g.drawString("@" + HoneyWasp.ACCOUNT_NAME.toLowerCase().replace(" ", ""), 240, 180);
 
         // Draw caption
         String[] words = service.caption.split(" ");
@@ -245,5 +245,7 @@ public class OverlayGenerator {
             }
 
         Output.debugPrint(null, "Finished generating overlay");
+
+        return true;
     }
 }

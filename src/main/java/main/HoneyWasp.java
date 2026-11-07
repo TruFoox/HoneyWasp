@@ -47,6 +47,7 @@ public class HoneyWasp extends ListenerAdapter {
     public static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
+    public static String ACCOUNT_NAME;
     public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES, SCRAPE_TIKTOK, GENERATE_CONTAINER; // General config items used by services/threads
     public static List<String[]> PROXIES;
 
@@ -101,7 +102,9 @@ public class HoneyWasp extends ListenerAdapter {
             Output.print(null, "Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
             ErrorHandling.exitProgram();
         }
+
         BOTTOKEN = config.General().getDiscordBotToken();
+        ACCOUNT_NAME = config.General().getAccountName();
         DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
         RESTART = HoneyWasp.config.General().isRestart();
         SCRAPE_TIKTOK = HoneyWasp.config.General().isScrapeTiktok();

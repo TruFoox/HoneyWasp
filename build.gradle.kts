@@ -13,17 +13,14 @@ repositories {
 
 
 dependencies {
-    implementation("net.dv8tion:JDA:6.4.1")
-	implementation("org.json:json:20240303")
+    implementation("net.dv8tion:JDA:6.7.0")
+	implementation("org.json:json:20260814")
     implementation("club.minnced:discord-webhooks:0.8.4")
     implementation("org.slf4j:slf4j-simple:2.0.9")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
-    implementation(platform("org.junit:junit-bom:5.10.0"))
-    implementation("org.junit.jupiter:junit-jupiter")
-    implementation("org.junit.platform:junit-platform-launcher")
-    implementation("org.jline:jline:3.30.16")
-    implementation("org.eclipse.jetty:jetty-server:12.1.13")
-    implementation("org.eclipse.jetty.websocket:jetty-websocket-jetty-server:12.1.13")
+    implementation("tools.jackson.core:jackson-databind:3.2.4")
+    implementation("org.jline:jline:4.5.0")
+    implementation("org.eclipse.jetty:jetty-server:12.1.14")
+    implementation("org.eclipse.jetty.websocket:jetty-websocket-jetty-server:12.1.14")
     implementation("com.microsoft.playwright:playwright:1.64.0")
 }
 

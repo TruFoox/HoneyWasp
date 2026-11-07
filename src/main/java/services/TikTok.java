@@ -1,6 +1,6 @@
 package services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import config.HasRefreshToken;
 import main.HoneyWasp;
 import org.json.JSONObject;
@@ -275,7 +275,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                 FileIO.writeList(postURL, this, true);
                 return 0;
             } else if (retyCount >= 24) { // >120 seconds
-                Output.webhookPrint(this, "Video processing took over 90 seconds. Sometimes TikTok just never processes a post. Retrying attempt...", Output.RED);
+                Output.webhookPrint(this, "Video processing took over 120 seconds. Sometimes TikTok just never processes a post. Retrying attempt...", Output.RED);
                 return 0;
             }
 

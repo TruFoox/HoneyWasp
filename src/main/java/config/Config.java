@@ -1,10 +1,12 @@
+
 package config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import main.HoneyWasp;
 import utils.Output;
 
@@ -42,7 +44,7 @@ public class Config {
     public static Config getInstance() throws Exception {
 
         if (instance == null) { // If config not already loaded
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // Create jackson reader, set to not crash immediately if invalid config
+            ObjectMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build(); // Create jackson reader, set to not crash immediately if invalid config
 
             instance = mapper.readValue(new File("config.json"), Config.class); // read config
         }
@@ -50,14 +52,14 @@ public class Config {
     }
 
     public void saveConfig() {
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT); // Tell jackson to pretty print json
+        ObjectMapper mapper = JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
 
-        try {
-            mapper.writeValue(new File("config.json"), this);
-        } catch (IOException e) {
-            System.err.println("Could not save config: " + e.getMessage());
-        }
+        // Tell jackson to pretty print json
+
+        mapper.writeValue(new File("config.json"), this);
 
         try {
             HoneyWasp.config = mapper.readValue(new File("config.json"), Config.class); // Attempt to refresh current config instance

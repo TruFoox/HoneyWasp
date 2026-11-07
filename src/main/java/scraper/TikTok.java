@@ -113,7 +113,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     page.locator("a[href*='/video/']").first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED).setTimeout(15000));
                 } catch (PlaywrightException e) {
                     if (page.getByText("Couldn't find this hashtag").isVisible()) {
-                        Output.webhookPrint(service, "This TikTok hashtag doesnt exist. Quitting...", Output.RED);
+                        Output.webhookPrint(service, "The TikTok hashtag #" + chosenHashtag + " doesnt exist. Remove it from your config. Quitting...", Output.RED);
 
                         return "fatal";
                     } else {
@@ -162,7 +162,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         Output.debugPrint(service, "Testing if image url is duplicate");
                         for (String[] row : service.usedURLs) {
                             if (row[0].equalsIgnoreCase(videoURL)) {
-                                throwOutThisPost = (!service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0)  || Long.parseLong(row[1]) == 0;
+                                throwOutThisPost = (!service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED == 0)  || Long.parseLong(row[1]) == 0;
                                 break;
                             }
                         }
