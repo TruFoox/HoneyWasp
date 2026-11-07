@@ -197,7 +197,7 @@ public class HTTPSend {
         return response.body();
     }
 
-    public static Image getImageData(String imageurl) throws Exception {
+    public static BufferedImage getImageData(String imageurl) throws Exception {
         URL url = java.net.URI.create(imageurl).toURL();
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

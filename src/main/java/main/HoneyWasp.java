@@ -47,7 +47,7 @@ public class HoneyWasp extends ListenerAdapter {
     public static Services bot = null;
     static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
-    public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES, SCRAPE_TIKTOK; // General config items used by services/threads
+    public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES, SCRAPE_TIKTOK, GENERATE_CONTAINER; // General config items used by services/threads
     public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
@@ -107,15 +107,7 @@ public class HoneyWasp extends ListenerAdapter {
         SCRAPE_TIKTOK = HoneyWasp.config.General().isScrapeTiktok();
         USE_PROXIES = HoneyWasp.config.General().isProxies();
         PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
-
-        /*try {
-            String response = HTTPSend.get(null, "https://meme-api.com/gimme");
-            Output.print(null, response);
-            OverlayGenerator.Generate(String.valueOf(Paths.get(".", "cache", "instagram")), ImageIO.read(new URI(StringToJson.getData(response, "url")).toURL()));
-            return;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }*/
+        GENERATE_CONTAINER = HoneyWasp.config.General().isGenerateTwitterContainer();
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 

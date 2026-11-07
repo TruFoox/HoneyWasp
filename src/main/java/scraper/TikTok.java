@@ -56,8 +56,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                     Output.debugPrint(service, "Chromium path: " + chromium_path);
 
-                    chrome = new ProcessBuilder( // Open chrome such that i can remotely control it with playwright
-                            chromium_path,
+                    chrome = new ProcessBuilder(chromium_path, // Open chrome such that i can remotely control it with playwright
                         "--remote-debugging-port=9222",
                         "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
                         "--no-first-run",
@@ -88,8 +87,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                                 return "fail";
                             }
 
-                            browser = playwright.chromium()
-                                    .connectOverCDP("http://127.0.0.1:9222");
+                            browser = playwright.chromium().connectOverCDP("http://127.0.0.1:9222");
                             break;
 
                         } catch (Exception _) {

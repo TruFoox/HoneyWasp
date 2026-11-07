@@ -3,9 +3,13 @@ package scraper;
 import services.Services;
 import utils.*;
 
+import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.ConnectException;
+import java.nio.file.Path;
 
 public class Reddit {
     protected static synchronized String fetch(Services service, String chosenSubreddit) throws Exception {
@@ -59,13 +63,19 @@ public class Reddit {
 
                 // Download image & check aspect ratio (If relevant)
                 if (service.doSizeTest) {
-                    Output.debugPrint(service, "Attempting to download image to verify aspect ratio");
-                    Image image;
+                    Output.debugPrint(service, "Attempting to download image from reddit");
+                    BufferedImage image;
 
                     try {
                         image = HTTPSend.getImageData(mediaURL);
+
+                        service.fileDir = "cache/" + service.name.toLowerCase() + "/temp.png";
+                        File out = new File(service.fileDir);
+                        out.getParentFile().mkdirs();
+
+                        ImageIO.write(image, "png", out);
                     } catch(Exception e)  {
-                        Output.webhookPrint(service, "Failed to download image from Reddit to check aspect ratio. Marking URL as invalid & retrying..."
+                        Output.webhookPrint(service, "Failed to download image from Reddit. Marking URL as invalid & retrying..."
                                 + "\n\tError message: " + e.getMessage(), Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted

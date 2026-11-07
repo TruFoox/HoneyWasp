@@ -17,6 +17,9 @@ public class GeneralSettings implements ConfigSettings {
     @JsonProperty("ping_on_error")
     private boolean pingOnError;
 
+    @JsonProperty("generate_twitter_container")
+    private boolean generateTwitterContainer;
+
     @JsonProperty("proxies")
     private boolean proxies;
 
@@ -37,6 +40,9 @@ public class GeneralSettings implements ConfigSettings {
     public boolean isScrapeTiktok() { return scrapeTiktok; }
     public void setScrapeTiktok(boolean scrapeTiktok) { this.scrapeTiktok = scrapeTiktok; }
 
+    public boolean isGenerateTwitterContainer() { return generateTwitterContainer; }
+    public void setGenerateTwitterContainer(boolean generateTwitterContainer) { this.generateTwitterContainer = generateTwitterContainer; }
+
     public boolean isPingOnError() { return pingOnError; }
     public void setPingOnError(boolean pingOnError) { this.pingOnError = pingOnError; }
 
@@ -56,6 +62,7 @@ public class GeneralSettings implements ConfigSettings {
             case "discord_bottoken" -> getDiscordBotToken();
             case "discord_webhook" -> getDiscordWebhook();
             case "scrape_tiktok" -> isScrapeTiktok();
+            case "generate_twitter_container" -> isGenerateTwitterContainer();
             case "ping_on_error" -> isPingOnError();
             case "proxies" -> isProxies();
             case "restart" -> isRestart();
@@ -69,6 +76,7 @@ public class GeneralSettings implements ConfigSettings {
             case "discord_bot_token" -> setDiscordBotToken(newValue);
             case "discord_webhook" -> setDiscordWebhook(newValue);
             case "scrape_tiktok" -> setScrapeTiktok(Boolean.parseBoolean(newValue));
+            case "generate_twitter_container" -> setGenerateTwitterContainer(Boolean.parseBoolean(newValue));
             case "ping_on_error" -> setPingOnError(Boolean.parseBoolean(newValue));
             case "proxies" -> setProxies(Boolean.parseBoolean(newValue));
             case "restart" -> setRestart(Boolean.parseBoolean(newValue));

@@ -7,6 +7,7 @@ import scraper.Fetch;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -65,6 +66,7 @@ public abstract class Services extends Thread {
         ATTEMPTS_BEFORE_TIMEOUT = (int) settings.get("attempts_before_timeout");
         MEDIA_SOURCES = (List<String>) settings.get("media_sources");
         AUDIO_ENABLED = (boolean) settings.get("audio_enabled");
+        USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
         USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
         FALLBACK_CAPTION = (String) settings.get("caption");
         NSFW_ALLOWED = (boolean) settings.get("nsfw_allowed");
@@ -150,13 +152,11 @@ public abstract class Services extends Thread {
 
                         /* If format is video & didn't scrape it from TikTok (such that it's already a video), convert image to video */
                         if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK) {
-                            Image image; // Holds image data
+                            BufferedImage image; // Holds image data
 
                             Output.debugPrint(this, "Attempting to retrieve image data");
                             try {
-                                // Download image from Reddit
-                                URL url = new URI(mediaURL).toURL();
-                                image = ImageIO.read(url);
+                                image = ImageIO.read(new File(fileDir)); // Retrieve media data
 
                             } catch (javax.imageio.IIOException e) { // Corrupt image (or similar)
                                 Output.webhookPrint(this, "Image appears to be in an unhandleable format. Trying again, and marking this URL as invalid..." +
@@ -198,7 +198,7 @@ public abstract class Services extends Thread {
                             }
                             fileDir = "./cache/" + name.toLowerCase() + "/temp.mp4";
                         }
-                    } else {
+                    } else { // If not auto post mode (Long block, ik)
                         randIndex = rand.nextInt(media.length); // Select random image
                         fileDir = String.valueOf(media[randIndex]);
                     }
@@ -250,6 +250,17 @@ public abstract class Services extends Thread {
 
                     // Set post caption depending on settings (default is post caption)
                     if (!AUTO_POST_MODE || !USE_POST_CAPTION || tempDisableCaption) {caption = FALLBACK_CAPTION;}
+
+                    // Generate container if relevant
+                    if (HoneyWasp.GENERATE_CONTAINER) { // Inherently breaks with Instagram because it doesn't support direct image uploads but im not going to fix it just for them
+                        try {
+                            OverlayGenerator.Generate(this);
+                        } catch (Exception e) {
+                            Output.webhookPrint(this, "[NOTIFY]An error occurred while adding container around media. Quitting..." +
+                                    "\n\tError message: " + e.getMessage(), Output.RED);
+                            break;
+                        }
+                    }
 
                     postAttempts = 0; // Set upload counter to 0 - handled recursively in upload()
 
