@@ -18,11 +18,11 @@ public abstract class Fetch {
             if (HoneyWasp.SCRAPE_TIKTOK) {
                 Output.debugPrint(service, "Scraping from TikTok");
                 String attempt = TikTok.fetch(service, service.chosenSource);
-                if (!attempt.equals("fail")) {
+                if (!attempt.equals("fail") && !attempt.equals("fatal")) {
                     timesFailed = 0;
 
                     return attempt; // Success
-                } else { // Fall back to Reddit mode if failed
+                } else if (attempt.equals("fail")) { // Fall back to Reddit mode if failed
                     timesFailed++;
                     int maxAttempts = service.ATTEMPTS_BEFORE_TIMEOUT / 5;
                     if (timesFailed > maxAttempts) {
@@ -36,6 +36,8 @@ public abstract class Fetch {
                         Output.webhookPrint(service, "Failed to post with TikTok. Temporarily posting from Reddit. Will try with TikTok " + maxAttempts +" more times");
                     }
                     return Reddit.fetch(service, service.chosenSource);
+                } else { // If fatal error just exit
+                    return "quit";
                 }
             } else {
                 Output.debugPrint(service, "Scraping from Reddit");

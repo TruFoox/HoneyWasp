@@ -110,18 +110,21 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                 // Wait up to 15 seconds for at least one video link to appear
                 try {
-                    page.locator("a[href*='/video/']").first().waitFor(
-                            new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED).setTimeout(15000)
-                    );
-
+                    page.locator("a[href*='/video/']").first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED).setTimeout(15000));
                 } catch (PlaywrightException e) {
-                    Output.webhookPrint(service, "TikTok page loaded, but no videos appeared. Skipping this attempt...", Output.RED);
+                    if (page.getByText("Couldn't find this hashtag").isVisible()) {
+                        Output.webhookPrint(service, "This TikTok hashtag doesnt exist. Quitting...", Output.RED);
 
-                    browser.close();
-                    playwright.close();
-                    chrome.destroy();
+                        return "fatal";
+                    } else {
+                        Output.webhookPrint(service, "TikTok page loaded, but no videos appeared. Skipping this attempt...", Output.RED);
 
-                    return "skip";
+                        browser.close();
+                        playwright.close();
+                        chrome.destroy();
+
+                        return "skip";
+                    }
                 }
 
                 while (service.nonDuplicateTikTokVideos.isEmpty()) { // Keep scrolling down until we find something new
