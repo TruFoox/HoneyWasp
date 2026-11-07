@@ -42,7 +42,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSource, mediaURL, postURL, caption, fileDir, response, postID;
     public boolean tempDisableCaption, run = true, use0x0 = false, sleeping = false;
-    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0;
+    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0, totalAttempts = 0;
     public File[] media, audio;
     public String[] proxy;
     public List<Map<String, String>> nonDuplicateTikTokVideos = new ArrayList<>();
@@ -112,7 +112,8 @@ public abstract class Services extends Thread {
                 // Start bot
                 mainLoop:
                 while (run) {
-                    countAttempt++; // Iterate count for number of attempts to post that have been made
+                    totalAttempts++; // Iterate count for total attempts ever made to post
+                    countAttempt++; // Iterate count for number of attempts to post that have been made since last success
                     Output.debugPrint(this, "Attempt " + countAttempt + " started");
 
                     if (countAttempt == 1) { // Print first attempt message
@@ -125,6 +126,9 @@ public abstract class Services extends Thread {
                         Sleep.milliseconds(this, SLEEPTIME); // Sleep (Easy way to fake a "skipped attempt")
                         countAttempt = 0;
                     }
+
+                    // Every ATTEMPTS_BEFORE_TIMEOUT (Or 25 if ATTEMPTS_BEFORE_TIMEOUT = 0) attempts scan cache for posts whose duplicate check has expired
+                    if (totalAttempts % (ATTEMPTS_BEFORE_TIMEOUT == 0 ? 25 : ATTEMPTS_BEFORE_TIMEOUT) == 0) {FileIO.autoClear(this);}
 
                     if (USE_PROXIES) { // Pick proxy randomly if enabled
                         proxy = HoneyWasp.PROXIES.get((int) (Math.random() * HoneyWasp.PROXIES.size()));
