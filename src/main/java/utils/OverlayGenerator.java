@@ -231,7 +231,7 @@ public class OverlayGenerator {
                 }
             }).start();
 
-            service.fileDir = videoOut.getPath();
+            service.fileDir = Path.of("cache", service.name.toLowerCase(), "temp.png").toString();
 
             int exitCode;
             try {

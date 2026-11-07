@@ -189,7 +189,7 @@ public abstract class Services extends Thread {
                             Output.print(this, "Converting image to video...", Output.YELLOW, true);
 
                             if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", name.toLowerCase(), "temp")), image, audioDir)) { // Convert image to video
-                                Output.print(this, "Successfully converted image to video", Output.YELLOW, true);
+                                Output.print(this, "Successfully converted image to video", Output.GREEN, true);
                             } else {
                                 Output.print(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
 
@@ -253,13 +253,17 @@ public abstract class Services extends Thread {
 
                     // Generate container if relevant
                     if (HoneyWasp.GENERATE_CONTAINER) { // Inherently breaks with Instagram because it doesn't support direct image uploads but im not going to fix it just for them
+                        Output.print(this, "Generating container around image...", Output.YELLOW, true);
                         try {
                             OverlayGenerator.Generate(this);
                         } catch (Exception e) {
-                            Output.webhookPrint(this, "[NOTIFY]An error occurred while adding container around media. Quitting..." +
+                            Output.webhookPrint(this, "An error occurred while adding container around media. Skipping this attempt..." +
                                     "\n\tError message: " + e.getMessage(), Output.RED);
-                            break;
+
+                            Sleep.milliseconds(this, SLEEPTIME);
+                            continue;
                         }
+                        Output.print(this, "Sucessfully generated container", Output.GREEN, true);
                     }
 
                     postAttempts = 0; // Set upload counter to 0 - handled recursively in upload()

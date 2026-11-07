@@ -58,7 +58,6 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                     chrome = new ProcessBuilder(chromium_path, // Open chrome such that i can remotely control it with playwright
                         "--remote-debugging-port=9222",
-                        "--user-data-dir=" + Paths.get("tiktok-profile").toAbsolutePath(),
                         "--no-first-run",
                         "--no-default-browser-check",
                         "https://www.tiktok.com/tag/" + chosenHashtag
