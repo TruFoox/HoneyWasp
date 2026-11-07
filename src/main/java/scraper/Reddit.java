@@ -1,5 +1,6 @@
 package scraper;
 
+import main.HoneyWasp;
 import services.Services;
 import utils.*;
 
@@ -83,14 +84,15 @@ public class Reddit {
                         return "retry";
                     }
 
-                    float ratio = (float) image.getWidth(null) / image.getHeight(null); // Eg 0.9 "0.9x as wide as it is tall"
+                    if (!HoneyWasp.GENERATE_CONTAINER) { // Container makes this irrelevant
+                        float ratio = (float) image.getWidth(null) / image.getHeight(null); // Eg 0.9 "0.9x as wide as it is tall"
 
-                    Output.debugPrint(service, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
-                    if (ratio < service.supportedAspectRatio[0] || ratio > service.supportedAspectRatio[1]) {
-                        Output.print(service, "Image has invalid aspect ratio - x" + service.countAttempt + " attempts", Output.RED, true);
-                        return "retry";
+                        Output.debugPrint(service, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
+                        if (ratio < service.supportedAspectRatio[0] || ratio > service.supportedAspectRatio[1]) {
+                            Output.print(service, "Image has invalid aspect ratio - x" + service.countAttempt + " attempts", Output.RED, true);
+                            return "retry";
+                        }
                     }
-
                 }
 
                 // Ensure non-gif/apng

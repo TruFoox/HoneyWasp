@@ -19,6 +19,7 @@ public class OverlayGenerator {
 
     public static boolean Generate(Services service) throws IOException {
         String accountName = "HoneyWasp";
+        String originalVideo = service.fileDir;
 
         Output.debugPrint(null, "Locating FFmpeg");
         File ffmpegFile = new File("./ffmpeg/win/bin/ffmpeg.exe");
@@ -36,8 +37,7 @@ public class OverlayGenerator {
         Output.debugPrint(null, "Loading media");
         // Load image or extract first video frame
         if (service.VIDEO_MODE) {
-
-            File frameFile = Path.of("cache", service.name.toLowerCase(), "video_frame.png").toFile();
+            File frameFile = Path.of("cache", service.name.toLowerCase(), "temp_frame.png").toFile();
 
             Files.createDirectories(frameFile.toPath().getParent());
 
@@ -45,7 +45,7 @@ public class OverlayGenerator {
                     ffmpegPath,
                     "-y",
                     "-loglevel", "error",
-                    "-i", service.fileDir,
+                    "-i", originalVideo,
                     "-map", "0:v:0",
                     "-frames:v", "1",
                     frameFile.getAbsolutePath()
@@ -182,58 +182,52 @@ public class OverlayGenerator {
         if (service.VIDEO_MODE) {
             File videoOut = Path.of("cache", service.name.toLowerCase(), "temp_overlay.mp4").toFile();
 
-            // Build FFmpeg command
+            // Build FFmpeg command (This line is AI cuz fuck this)
             ProcessBuilder pb = new ProcessBuilder(
                     ffmpegPath,
                     "-y",
-                    "-i", service.fileDir,
+
+                    "-i", originalVideo,
+
+                    "-loop", "1",
+                    "-framerate", "24",
                     "-i", out.getAbsolutePath(),
+
                     "-filter_complex",
                     "[0:v]scale=" + resizedWidth + ":" + resizedHeight + "[video];" +
-                            "[1:v][video]overlay=" + overlayX + ":" + overlayY,
+                            "[1:v][video]overlay=" + overlayX + ":" + overlayY +
+                            ":shortest=1[out]",
+
+                    "-map", "[out]",
                     "-map", "0:a?",
+
                     "-c:v", "libx264",
-                    "-loglevel", "error",
                     "-preset", "fast",
                     "-crf", "28",
-                    "-r", "24",
                     "-pix_fmt", "yuv420p",
+
                     "-c:a", "aac",
+
+                    "-loglevel", "error",
+                    "-movflags", "+faststart",
+
                     videoOut.getAbsolutePath()
             );
 
-            pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
-            pb.redirectError(ProcessBuilder.Redirect.PIPE);
-
-            Output.debugPrint(null, "Running FFmpeg");
+            pb.redirectErrorStream(true);
 
             Process process = pb.start();
 
-            new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line2;
-                    while ((line2 = reader.readLine()) != null) {
-                        System.out.println("[FFmpeg stdout] " + line2);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line2;
+                while ((line2 = reader.readLine()) != null) {
+                    System.out.println("[FFmpeg] " + line2);
                 }
-            }).start();
-
-            new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                    String line2;
-                    while ((line2 = reader.readLine()) != null) {
-                        System.err.println("[FFmpeg stderr] " + line2);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-
-            service.fileDir = Path.of("cache", service.name.toLowerCase(), "temp.png").toString();
+            }
 
             int exitCode;
+
             try {
                 exitCode = process.waitFor();
             } catch (InterruptedException e) {
@@ -244,7 +238,9 @@ public class OverlayGenerator {
             if (exitCode != 0) {
                 throw new IOException("FFmpeg exited with error code " + exitCode);
             }
-        }
+
+            service.fileDir = videoOut.getAbsolutePath();
+            }
 
         Output.debugPrint(null, "Finished generating overlay");
         return true;

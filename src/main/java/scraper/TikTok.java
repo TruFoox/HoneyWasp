@@ -58,6 +58,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                     chrome = new ProcessBuilder(chromium_path, // Open chrome such that i can remotely control it with playwright
                         "--remote-debugging-port=9222",
+                        "--user-data-dir=" + Paths.get("cache/tiktok-scraper-data").toAbsolutePath(), // Tiktok NEEDS user data
                         "--no-first-run",
                         "--no-default-browser-check",
                         "https://www.tiktok.com/tag/" + chosenHashtag
@@ -175,7 +176,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     page.evaluate("window.scrollBy(0, window.innerHeight)");
 
                     // Give TikTok time to load more videos
-                    page.waitForTimeout(2500);
+                    page.waitForTimeout(4000);
                 }
 
                 Output.debugPrint(service, "Finished collecting " + allVideos.size() + " videos.");
