@@ -97,15 +97,23 @@ public class OverlayGenerator {
         BufferedImage logo;
 
         try {
-            try {
+            try { // COULD do a loop, but im too lazy
                 logo = ImageIO.read(new File("logo.png"));
             } catch (Exception _) {
-                logo = ImageIO.read(new File("icon.png"));
+                try {
+                    logo = ImageIO.read(new File("icon.png"));
+                } catch (Exception _) {
+                    try {
+                        logo = ImageIO.read(new File("assets/logo.png"));
+                    } catch (Exception _) {
+                        logo = ImageIO.read(new File("assets/icon.png"));
+                    }
+                }
             }
         } catch (Exception _) {
             Output.webhookPrint(service,
-                    "You didnt supply an icon.png or logo.png.\n" +
-                            "\tSupply an image or disable generate_twitter_container under [General_Settings]. Quitting...");
+                    "You didnt supply an icon.png or logo.png." +
+                            "\n\tSupply an image or disable generate_twitter_container under [General_Settings]. Quitting...");
             return false;
         }
 
@@ -128,7 +136,7 @@ public class OverlayGenerator {
         FontMetrics metrics = g.getFontMetrics();
         int textWidth = metrics.stringWidth(HoneyWasp.ACCOUNT_NAME);
 
-        BufferedImage checkmark = ImageIO.read(new File("checkmark.png"));
+        BufferedImage checkmark = ImageIO.read(new File("assets/checkmark.png"));
 
         g.drawImage(checkmark, 245 + textWidth, 98, 45, 45, null);
 
