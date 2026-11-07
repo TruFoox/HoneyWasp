@@ -41,7 +41,7 @@ public abstract class Services extends Thread {
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSource, mediaURL, postURL, caption, fileDir, response, postID;
-    public boolean nsfw, tempDisableCaption, run = true, use0x0 = false, sleeping = false;
+    public boolean tempDisableCaption, run = true, use0x0 = false, sleeping = false;
     public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0;
     public File[] media, audio;
     public String[] proxy;
@@ -151,7 +151,7 @@ public abstract class Services extends Thread {
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
                         /* If format is video & didn't scrape it from TikTok (such that it's already a video), convert image to video */
-                        if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK) {
+                        if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK && AUTO_POST_MODE) {
                             BufferedImage image; // Holds image data
 
                             Output.debugPrint(this, "Attempting to retrieve image data");

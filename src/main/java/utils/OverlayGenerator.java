@@ -17,19 +17,21 @@ import javax.imageio.ImageIO;
 
 public class OverlayGenerator {
 
-    public static boolean Generate(Services service) throws IOException {
+    public static void Generate(Services service) throws IOException {
         String accountName = "HoneyWasp";
         String originalVideo = service.fileDir;
 
-        Output.debugPrint(null, "Locating FFmpeg");
-        File ffmpegFile = new File("./ffmpeg/win/bin/ffmpeg.exe");
+        String ffmpegPath = ""; // Literally doesnt need to be initialized but the compiler doesnt recognize that
+        if (service.VIDEO_MODE) {
+            Output.debugPrint(null, "Locating FFmpeg");
+            File ffmpegFile = new File("./ffmpeg/win/bin/ffmpeg.exe");
 
-        String ffmpegPath;
-        if (ffmpegFile.exists() && System.getProperty("os.name").toLowerCase().contains("win")) {
-            ffmpegPath = ffmpegFile.getAbsolutePath();
-        } else {
-            Output.debugPrint(null, "FFmpeg not found. Must be added to system path if not already");
-            ffmpegPath = "ffmpeg";
+            if (ffmpegFile.exists() && System.getProperty("os.name").toLowerCase().contains("win")) {
+                ffmpegPath = ffmpegFile.getAbsolutePath();
+            } else {
+                Output.debugPrint(null, "FFmpeg not found. Must be added to system path if not already");
+                ffmpegPath = "ffmpeg";
+            }
         }
 
         BufferedImage image;
@@ -104,7 +106,7 @@ public class OverlayGenerator {
             Output.webhookPrint(service,
                     "You didnt supply an icon.png or logo.png.\n" +
                             "\tSupply an image or disable generate_twitter_container under [General_Settings]. Quitting...");
-            return false;
+            return;
         }
 
         int size = 150;
@@ -243,6 +245,5 @@ public class OverlayGenerator {
             }
 
         Output.debugPrint(null, "Finished generating overlay");
-        return true;
     }
 }

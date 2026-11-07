@@ -136,7 +136,7 @@ public class Reddit {
                 Output.debugPrint(service, "Testing if image url is duplicate");
                 for (String[] row : service.usedURLs) {
                     if (row[0].equalsIgnoreCase(service.postURL)) {
-                        if (!service.DUPLICATES_ALLOWED && (Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0)) { // Test if cached url is too old to be considered duplicate
+                        if ((!service.DUPLICATES_ALLOWED && (Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0)) || Long.parseLong(row[1]) == 0) { // Test if cached url is too old to be considered duplicate
                             Output.print(service, "Duplicate URL - x" + service.countAttempt + " attempts", Output.RED, true);
 
                             return "retry"; // Retry
