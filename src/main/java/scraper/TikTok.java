@@ -162,7 +162,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         Output.debugPrint(service, "Testing if image url is duplicate");
                         for (String[] row : service.usedURLs) {
                             if (row[0].equalsIgnoreCase(videoURL)) {
-                                throwOutThisPost = (!service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED == 0)  || Long.parseLong(row[1]) == 0;
+                                throwOutThisPost = (!service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED == 0)  || Long.parseLong(row[1]) == 0;
                                 break;
                             }
                         }
@@ -254,8 +254,8 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             // Fetches the url of the video (could use downloadAddr but i think it has a watermark)
             Matcher matcher = Pattern.compile("\"playAddr\":\"(.*?)\"").matcher(responseBody); // Matcher is apparently an easy way to fetch part of the data
 
-            if (responseBody.contains("<title>TikTok")) {
-                Output.webhookPrint(service, "Received raw page HTML instead of JSON. Retrying...");
+            if (responseBody.contains("RPCError")) { // Just a common error ive
+                Output.webhookPrint(service, "TikTok encountered an RPC error while retrieving the video data. Retrying...");
                 return "retry";
             }
 

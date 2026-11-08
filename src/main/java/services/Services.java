@@ -155,7 +155,7 @@ public abstract class Services extends Thread {
                         Output.debugPrint(this, "Successfully fetched URL " + mediaURL);
 
                         /* If format is video & didn't scrape it from TikTok (such that it's already a video), convert image to video */
-                        if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK && AUTO_POST_MODE) {
+                        if (VIDEO_MODE && !HoneyWasp.SCRAPE_TIKTOK) {
                             BufferedImage image; // Holds image data
 
                             Output.debugPrint(this, "Attempting to retrieve image data");

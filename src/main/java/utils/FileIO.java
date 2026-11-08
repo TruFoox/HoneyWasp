@@ -23,7 +23,7 @@ public class FileIO { // Currently only readList works for any file
             if (permanent) {
                 fileTimestamp = 0L;
             } else {
-                fileTimestamp = timestamp + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L);
+                fileTimestamp = timestamp;
             }
 
             Files.write(cachePath, (url + "," + fileTimestamp + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -58,7 +58,7 @@ public class FileIO { // Currently only readList works for any file
             Path cachePath = Paths.get(".", "cache", service.name.toLowerCase(), "cache.txt");
             Output.debugPrint(service, "Attempting to auto-clear cache");
 
-            service.usedURLs.removeIf(row -> (Long.parseLong(row[1]) < System.currentTimeMillis()) && Long.parseLong(row[1]) != 0L); // Remove all w/ duplicate removal time < current time & not set to permanent
+            service.usedURLs.removeIf(row -> (Long.parseLong(row[1]) + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L) < System.currentTimeMillis()) && Long.parseLong(row[1]) != 0L); // Remove all w/ duplicate removal time < current time & not set to permanent
 
             Files.writeString(cachePath, ""); // Clear file before overriding
 
