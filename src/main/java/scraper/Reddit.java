@@ -134,12 +134,17 @@ public class Reddit {
 
                 // Ensure post is not duplicate
                 Output.debugPrint(service, "Testing if image url is duplicate");
-                for (String[] row : service.usedURLs) {
-                    if (row[0].equalsIgnoreCase(service.postURL)) {
-                        if ((!service.DUPLICATES_ALLOWED && (Long.parseLong(row[1]) + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0)) || Long.parseLong(row[1]) == 0) { // Test if cached url is too old to be considered duplicate
-                            Output.print(service, "Duplicate URL - x" + service.countAttempts + " attempts", Output.RED, true);
+                if (!service.DUPLICATES_ALLOWED) {
+                    long currentTime = System.currentTimeMillis();
+                    long expirationTime = service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L;
+                    for (String[] row : service.usedURLs) {
+                        if (row[0].equalsIgnoreCase(service.postURL)) {
+                            long savedTime = Long.parseLong(row[1]);
+                            if (service.HOURS_BEFORE_DUPLICATES_REMOVED == 0 || savedTime == 0 || savedTime + expirationTime > currentTime) {
+                                Output.print(service, "Duplicate URL - x" + service.countAttempts + " attempts", Output.RED, true);
 
-                            return "retry"; // Retry
+                                return "retry"; // Retry
+                            }
                         }
                     }
                 }

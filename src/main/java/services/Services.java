@@ -37,6 +37,7 @@ public abstract class Services extends Thread {
     protected abstract int upload() throws Exception; // 1, 0, or -1 (quit)
     protected abstract int publish() throws Exception; // 1, 0, or -1 (quit)
     protected abstract int fetchUserToken() throws Exception; // Doesn't need -1, as it always quits if failed, still int for consistency
+    public abstract void refreshConfig();
 
     // Empty global/commonly used variables
     public java.util.List<String[]> usedURLs = new ArrayList<>();
@@ -59,23 +60,7 @@ public abstract class Services extends Thread {
         this.shortName = shortName;
 
         // Initialize settings
-        settings = HoneyWasp.config.get(name.toLowerCase()); // Select config for this platform
-
-        AUTO_POST_MODE = (boolean) settings.get("auto_post_mode");
-        SLEEPTIME = ((int) settings.get("minutes_between_posts")) * 60000;
-        ATTEMPTS_BEFORE_TIMEOUT = (int) settings.get("attempts_before_timeout");
-        MEDIA_SOURCES = (List<String>) settings.get("media_sources");
-        AUDIO_ENABLED = (boolean) settings.get("audio_enabled");
-        USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
-        USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
-        FALLBACK_CAPTION = (String) settings.get("caption");
-        NSFW_ALLOWED = (boolean) settings.get("nsfw_allowed");
-        DUPLICATES_ALLOWED = (boolean) settings.get("duplicates_allowed");
-        BLACKLIST = (List<String>) settings.get("blacklist");
-        CAPTION_BLACKLIST = (List<String>) settings.get("caption_blacklist");
-        HOURS_BEFORE_DUPLICATES_REMOVED = (int) settings.get("hours_before_duplicate_removed");
-        CAPTION = (String) settings.get("caption");
-        HASHTAGS = (String) settings.get("hashtags");
+        loadConfig();
 
         uploadAttemptTimeout = (ATTEMPTS_BEFORE_TIMEOUT/25f < 1) ? Math.round(ATTEMPTS_BEFORE_TIMEOUT/25f) : 1; // Calculate number of upload attempts before timeout (1/25 of ATTEMPTS_BEFORE_TIMEOUT, or 1 - whichever is bigger)
 
@@ -128,7 +113,10 @@ public abstract class Services extends Thread {
                     }
 
                     // Every ATTEMPTS_BEFORE_TIMEOUT (Or 25 if ATTEMPTS_BEFORE_TIMEOUT = 0) attempts scan cache for posts whose duplicate check has expired
-                    if (totalAttempts % (ATTEMPTS_BEFORE_TIMEOUT == 0 ? 25 : ATTEMPTS_BEFORE_TIMEOUT) == 0) {FileIO.autoClear(this);}
+                    if (totalAttempts % (ATTEMPTS_BEFORE_TIMEOUT == 0 ? 25 : ATTEMPTS_BEFORE_TIMEOUT) == 0) {
+                        Output.print(this, "Removing expired duplicates from cache...", Output.YELLOW, true, true);
+                        FileIO.autoClear(this);
+                    }
 
                     if (USE_PROXIES) { // Pick proxy randomly if enabled
                         proxy = HoneyWasp.PROXIES.get((int) (Math.random() * HoneyWasp.PROXIES.size()));
@@ -414,6 +402,26 @@ public abstract class Services extends Thread {
     public void halt() {
         run = false;
         this.interrupt();
+    }
+
+    public void loadConfig() {
+        settings = HoneyWasp.config.get(name.toLowerCase()); // Select config for this platform
+
+        AUTO_POST_MODE = (boolean) settings.get("auto_post_mode");
+        SLEEPTIME = ((int) settings.get("minutes_between_posts")) * 60000;
+        ATTEMPTS_BEFORE_TIMEOUT = (int) settings.get("attempts_before_timeout");
+        MEDIA_SOURCES = (List<String>) settings.get("media_sources");
+        AUDIO_ENABLED = (boolean) settings.get("audio_enabled");
+        USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
+        USE_POST_CAPTION = (boolean) settings.get("use_post_caption");
+        FALLBACK_CAPTION = (String) settings.get("caption");
+        NSFW_ALLOWED = (boolean) settings.get("nsfw_allowed");
+        DUPLICATES_ALLOWED = (boolean) settings.get("duplicates_allowed");
+        BLACKLIST = (List<String>) settings.get("blacklist");
+        CAPTION_BLACKLIST = (List<String>) settings.get("caption_blacklist");
+        HOURS_BEFORE_DUPLICATES_REMOVED = (int) settings.get("hours_before_duplicate_removed");
+        CAPTION = (String) settings.get("caption");
+        HASHTAGS = (String) settings.get("hashtags");
     }
 
 }

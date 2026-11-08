@@ -96,21 +96,7 @@ public class HoneyWasp extends ListenerAdapter {
 
         System.setProperty("org.slf4j.simpleLogger.log.com.fasterxml.jackson", "off"); // Hide jackson error logs before initialization (They are unhelpful and spammy)
 
-        try { // Init config
-            config = Config.getInstance();
-        } catch (Exception _) {
-            Output.print(null, "Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
-            ErrorHandling.exitProgram();
-        }
-
-        BOTTOKEN = config.General().getDiscordBotToken();
-        ACCOUNT_NAME = config.General().getAccountName();
-        DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
-        RESTART = HoneyWasp.config.General().isRestart();
-        SCRAPE_TIKTOK = HoneyWasp.config.General().isScrapeTiktok();
-        USE_PROXIES = HoneyWasp.config.General().isProxies();
-        PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
-        GENERATE_CONTAINER = HoneyWasp.config.General().isGenerateTwitterContainer();
+        loadConfig(); // Load global config values
 
         Output.print(null, "HoneyWasp started on " + DateTime.fullTimestamp(), Output.YELLOW, false, false);
 
@@ -240,6 +226,7 @@ public class HoneyWasp extends ListenerAdapter {
                                             .addChoice("Instagram", "instagram")
                                             .addChoice("YouTube", "youtube")
                                             .addChoice("TikTok", "tiktok")),
+                            Commands.slash("refresh", "Refresh the loaded config of every running service"),
                             Commands.slash("clear", "Clear cache of specified service")
                                     .addOptions(new OptionData(OptionType.STRING, "service", "The service you want to clear the duplicate cache of", true)
                                             .addChoice("All", "all")
@@ -363,6 +350,19 @@ public class HoneyWasp extends ListenerAdapter {
                 }
                 break;
             }
+            case "refresh": {
+                embed.setDescription("Attempting to refresh config of every service");
+                event.getHook().sendMessageEmbeds(embed.build()).queue();
+
+                loadConfig(); // Refresh global values stored in this class
+                for (String name : services.keySet()) {
+                    runningServices.get(name).refreshConfig(); // Loads per-service config values
+                    runningServices.get(name).loadConfig(); // Loads config values all services have
+
+                }
+
+                break;
+            }
             case "clear": {
                 if (service.equals("all")) {
                     embed.setDescription("Attempting to clear all caches");
@@ -404,5 +404,23 @@ public class HoneyWasp extends ListenerAdapter {
                 // Ignore
             }
         }
+    }
+
+    public static void loadConfig() {
+        try { // Init config
+            config = Config.getInstance();
+        } catch (Exception _) {
+            Output.print(null, "Config is invalid. Please check JSON formatting (See example config at https://github.com/TruFoox/HoneyWasp/blob/master/example_config.json)", Output.RED, false, false);
+            ErrorHandling.exitProgram();
+        }
+
+        BOTTOKEN = config.General().getDiscordBotToken();
+        ACCOUNT_NAME = config.General().getAccountName();
+        DEBUG_MODE = HoneyWasp.config.General().isDebug_mode();
+        RESTART = HoneyWasp.config.General().isRestart();
+        SCRAPE_TIKTOK = HoneyWasp.config.General().isScrapeTiktok();
+        USE_PROXIES = HoneyWasp.config.General().isProxies();
+        PING_ON_ERROR = HoneyWasp.config.General().isPingOnError();
+        GENERATE_CONTAINER = HoneyWasp.config.General().isGenerateTwitterContainer();
     }
 }

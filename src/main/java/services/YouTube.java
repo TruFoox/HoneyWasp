@@ -25,18 +25,22 @@ import java.util.Map;
 import java.util.UUID;
 
 public class YouTube extends Services implements HasRefreshToken {
-    private final String CLIENT_ID, SECRET;
+    private String CLIENT_ID, SECRET;
 
     public YouTube() {
         super("YouTube","YT");
 
         requiredSettings = new String[]{"refresh_token", "client_secret", "client_id"};
+        refreshConfig();
+        VIDEO_MODE = true; // YouTube only supports videos
+        doSizeTest = false; // YouTube generally doesnt care about media dimensions
+
+    }
+
+    public void refreshConfig() {
         SECRET = HoneyWasp.config.Youtube().getClient_secret().trim();
         CLIENT_ID = HoneyWasp.config.Youtube().getClient_id().trim();
         REFRESH_TOKEN = HoneyWasp.config.Youtube().getRefresh_token().trim();
-        VIDEO_MODE = true; // YouTube only supports videos
-        doSizeTest = false; // Youtube generally doesnt care about media dimensions
-
     }
 
     @Override

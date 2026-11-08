@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TikTok extends Services implements HasRefreshToken { // For some reason TikTok API always returns 200 unless a request was not understood
-    private final String CLIENT_KEY, CLIENT_SECRET;
+    private String CLIENT_KEY, CLIENT_SECRET;
     String codeVerifier = "y4kfXj5DRBOWYgKHafscM5alOZ5nyXEO42iL1KjL_6RvkoKU1npwKS6_3iulzGXR";
     String codeChallenge = "38b07f366c70e0726e8a60d2e266bf4ff413f152e54aff22fe2b75f434231090";
     String publishID;
@@ -27,11 +27,15 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         super("TikTok","TT");
 
         requiredSettings = new String[]{"REFRESH_TOKEN","SECRET","CLIENT_KEY"};
+        refreshConfig();
+        VIDEO_MODE = true; // TikTok technically supports images, but I just don't want to bother
+        supportedAspectRatio = new double[]{0.82, 1.70}; // ~4:5 to 17:10
+    }
+
+    public void refreshConfig() {
         CLIENT_SECRET = HoneyWasp.config.Tiktok().getClient_secret().trim();
         CLIENT_KEY = HoneyWasp.config.Tiktok().getClient_key().trim();
         REFRESH_TOKEN = HoneyWasp.config.Tiktok().getRefresh_token().trim();
-        VIDEO_MODE = true; // TikTok technically supports images, but I just don't want to bother
-        supportedAspectRatio = new double[]{0.82, 1.70}; // ~4:5 to 17:10
     }
 
     @Override

@@ -21,11 +21,14 @@ public class Instagram extends Services {
     public Instagram() {
         super("Instagram","INSTA");
 
-        requiredSettings = new String[]{"TOKEN"};
-        TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
-        VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
+        refreshConfig();
         use0x0 = false;
         supportedAspectRatio = new double[]{0.55, 1.81}; // 11:20 to 20:11 - Their API docs says it supports 1:2 to 2:1 but it doesn't
+    }
+
+    public void refreshConfig() {
+        TOKEN = HoneyWasp.config.Instagram().getApi_key().trim();
+        VIDEO_MODE = HoneyWasp.config.Instagram().isVideo_mode();
     }
 
     protected int upload() throws Exception {

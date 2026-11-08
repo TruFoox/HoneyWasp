@@ -100,6 +100,15 @@ public class Command extends Thread { // Handles terminal commands
                         }
                         break;
                     }
+                    case "refresh": {
+                        HoneyWasp.loadConfig();
+                        for (String name : HoneyWasp.services.keySet()) {
+                            HoneyWasp.runningServices.get(name).refreshConfig();
+                            HoneyWasp.runningServices.get(name).loadConfig();
+                        }
+
+                        break;
+                    }
                     case "clear": {
                         if (service == null) {
                         Output.print(null, "/clear need two fields: A command, and a service. Try /help for help");

@@ -159,11 +159,18 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
 
                         // Ensure post is not duplicate
-                        Output.debugPrint(service, "Testing if image url is duplicate");
-                        for (String[] row : service.usedURLs) {
-                            if (row[0].equalsIgnoreCase(videoURL)) {
-                                throwOutThisPost = (!service.DUPLICATES_ALLOWED && Long.parseLong(row[1]) + (service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED == 0)  || Long.parseLong(row[1]) == 0;
-                                break;
+                        Output.debugPrint(service, "Testing if video url is duplicate");
+                        if (!service.DUPLICATES_ALLOWED) {
+                            long currentTime = System.currentTimeMillis();
+                            long expirationTime = service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L;
+                            for (String[] row : service.usedURLs) {
+                                if (row[0].equalsIgnoreCase(videoURL)) {
+                                    long savedTime = Long.parseLong(row[1]);
+                                    if (service.HOURS_BEFORE_DUPLICATES_REMOVED == 0 || savedTime == 0 || savedTime + expirationTime > currentTime) {
+                                        throwOutThisPost = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
 
