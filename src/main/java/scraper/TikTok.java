@@ -222,7 +222,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             Output.debugPrint(service, "Testing if image caption contains blacklisted string");
             for (String word : service.BLACKLIST) {
                 if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                    Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempt + " attempts", Output.RED, true);
+                    Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempts + " attempts", Output.RED, true);
 
                     return "retry";
                 }
@@ -233,7 +233,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 Output.debugPrint(service, "Testing whether to use default caption");
                 for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
                     if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                        Output.print(service, "Using default (Non-TikTok) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempt + " attempts", Output.RED, true);
+                        Output.print(service, "Using default (Non-TikTok) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
                         service.caption = service.FALLBACK_CAPTION;
                     }
                 }
@@ -253,6 +253,11 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             // Fetches the url of the video (could use downloadAddr but i think it has a watermark)
             Matcher matcher = Pattern.compile("\"playAddr\":\"(.*?)\"").matcher(responseBody); // Matcher is apparently an easy way to fetch part of the data
+
+            if (responseBody.contains("<title>TikTok")) {
+                Output.webhookPrint(service, "Received raw page HTML instead of JSON. Retrying...");
+                return "retry";
+            }
 
             if (!matcher.find()) { // Kinda screwed if it ain't there
                 throw new Exception("No playAddr found: " + responseBody);

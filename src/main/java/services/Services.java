@@ -42,7 +42,7 @@ public abstract class Services extends Thread {
     public java.util.List<String[]> usedURLs = new ArrayList<>();
     public String chosenSource, mediaURL, postURL, caption, fileDir, response, postID;
     public boolean tempDisableCaption, run = true, use0x0 = false, sleeping = false;
-    public int randIndex, countAttempt, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0, totalAttempts = 0;
+    public int randIndex, countAttempts, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0, totalAttempts = 0;
     public File[] media, audio;
     public String[] proxy;
     public List<Map<String, String>> nonDuplicateTikTokVideos = new ArrayList<>();
@@ -92,7 +92,7 @@ public abstract class Services extends Thread {
         restartLoop:
         do { // Loop for if restart enabled
             run = true;
-            countAttempt = 0;
+            countAttempts = 0;
             try {
                 if (HoneyWasp.SCRAPE_TIKTOK && AUTO_POST_MODE) {VIDEO_MODE = true;} // If TikTok scraping is enabled, only videos are returned, so override whatever video_mode is
 
@@ -113,18 +113,18 @@ public abstract class Services extends Thread {
                 mainLoop:
                 while (run) {
                     totalAttempts++; // Iterate count for total attempts ever made to post
-                    countAttempt++; // Iterate count for number of attempts to post that have been made since last success
-                    Output.debugPrint(this, "Attempt " + countAttempt + " started");
+                    countAttempts++; // Iterate count for number of attempts to post that have been made since last success
+                    Output.debugPrint(this, "Attempt " + countAttempts + " started");
 
-                    if (countAttempt == 1) { // Print first attempt message
+                    if (countAttempts == 1) { // Print first attempt message
                         Output.print(this, "Attempting new post", Output.YELLOW, true, true);
                     }
 
-                    if (countAttempt > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
+                    if (countAttempts > ATTEMPTS_BEFORE_TIMEOUT && ATTEMPTS_BEFORE_TIMEOUT != 0) { // If max # of attempts have been reached
                         Output.webhookPrint(this, "Max # of attempts reached. Skipping attempt...", Output.YELLOW, true);
 
                         Sleep.milliseconds(this, SLEEPTIME); // Sleep (Easy way to fake a "skipped attempt")
-                        countAttempt = 0;
+                        countAttempts = 0;
                     }
 
                     // Every ATTEMPTS_BEFORE_TIMEOUT (Or 25 if ATTEMPTS_BEFORE_TIMEOUT = 0) attempts scan cache for posts whose duplicate check has expired
@@ -292,22 +292,22 @@ public abstract class Services extends Thread {
                         } else if (postSuccess == 1) {
                             if (AUTO_POST_MODE) {
                                 if (SCRAPE_TIKTOK) {
-                                    Output.webhookPrint(this, postURL + " from #" + chosenSource + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                    Output.webhookPrint(this, postURL + " from #" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                                 } else {
-                                    Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                    Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                                 }
                                 FileIO.writeList(postURL, this, false); // Store image URL to prevent duplicates
                             } else if (use0x0) {
-                                Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                             } else {
-                                Output.webhookPrint(this, fileDir + " posted successfully - x" + countAttempt + " attempt(s)", Output.GREEN);
+                                Output.webhookPrint(this, fileDir + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                             }
 
                             System.gc(); // Suggest garbage collection
 
                             if (run) {Sleep.milliseconds(this, SLEEPTIME);} // Sleep if /stop not used
 
-                            countAttempt = 0; // Reset count attempt
+                            countAttempts = 0; // Reset count attempt
 
                         } else if (postSuccess == 0) {
                             Output.debugPrint(this, "Failed to publish");

@@ -89,7 +89,7 @@ public class Reddit {
 
                         Output.debugPrint(service, "Image aspect ratio is " + image.getWidth(null) + ":" + image.getHeight(null));
                         if (ratio < service.supportedAspectRatio[0] || ratio > service.supportedAspectRatio[1]) {
-                            Output.print(service, "Image has invalid aspect ratio - x" + service.countAttempt + " attempts", Output.RED, true);
+                            Output.print(service, "Image has invalid aspect ratio - x" + service.countAttempts + " attempts", Output.RED, true);
                             return "retry";
                         }
                     }
@@ -98,7 +98,7 @@ public class Reddit {
                 // Ensure non-gif/apng
                 Output.debugPrint(service, "Testing if image is .gif/.apng");
                 if (mediaURL.toLowerCase().contains(".gif") || mediaURL.toLowerCase().contains(".apng")) { // Ensure image is not .gif or .apng
-                    Output.print(service, "Image is animated - x" + service.countAttempt + " attempts", Output.RED, true);
+                    Output.print(service, "Image is animated - x" + service.countAttempts + " attempts", Output.RED, true);
 
                     return "retry";
                 }
@@ -106,7 +106,7 @@ public class Reddit {
                 // Ensure not NSFW
                 Output.debugPrint(service, "Testing if image is marked as NSFW");
                 if (!service.NSFW_ALLOWED && nsfw) { // If NSFW is disallowed and post is marked as NSFW
-                    Output.print(service, "Image is marked as NSFW - x" + service.countAttempt + " attempts", Output.RED, true);
+                    Output.print(service, "Image is marked as NSFW - x" + service.countAttempts + " attempts", Output.RED, true);
 
                     return "retry";
                 }
@@ -115,7 +115,7 @@ public class Reddit {
                 Output.debugPrint(service, "Testing if image caption contains blacklisted string");
                 for (String word : service.BLACKLIST) {
                     if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                        Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempt + " attempts", Output.RED, true);
+                        Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempts + " attempts", Output.RED, true);
 
                         return "retry";
                     }
@@ -126,7 +126,7 @@ public class Reddit {
                     Output.debugPrint(service, "Testing whether to use default caption");
                     for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
                         if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                            Output.print(service, "Using default (Non-Reddit) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempt + " attempts", Output.RED, true);
+                            Output.print(service, "Using default (Non-Reddit) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
                             service.caption = service.FALLBACK_CAPTION;
                         }
                     }
@@ -137,14 +137,14 @@ public class Reddit {
                 for (String[] row : service.usedURLs) {
                     if (row[0].equalsIgnoreCase(service.postURL)) {
                         if ((!service.DUPLICATES_ALLOWED && (Long.parseLong(row[1]) > System.currentTimeMillis() && service.HOURS_BEFORE_DUPLICATES_REMOVED != 0)) || Long.parseLong(row[1]) == 0) { // Test if cached url is too old to be considered duplicate
-                            Output.print(service, "Duplicate URL - x" + service.countAttempt + " attempts", Output.RED, true);
+                            Output.print(service, "Duplicate URL - x" + service.countAttempts + " attempts", Output.RED, true);
 
                             return "retry"; // Retry
                         }
                     }
                 }
 
-                Output.print(service, "Valid image found after x" + service.countAttempt + " attempts", Output.GREEN, true);
+                Output.print(service, "Valid image found after x" + service.countAttempts + " attempts", Output.GREEN, true);
                 return mediaURL; // Success
             case 503:
                 Output.webhookPrint(service,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."

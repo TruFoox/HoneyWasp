@@ -144,8 +144,8 @@ public class OverlayGenerator {
         g.setFont(new Font("Arial", Font.PLAIN, 30));
         g.drawString("@" + HoneyWasp.ACCOUNT_NAME.toLowerCase().replace(" ", ""), 240, 180);
 
-        // Draw caption
-        String[] words = service.caption.split(" ");
+        // Draw caption (Remove non ASCII)
+        String[] words = service.caption.replaceAll("[^\\x00-\\x7F]", "").split(" ");
         StringBuilder line = new StringBuilder();
 
         g.setFont(new Font("Arial", Font.PLAIN, 60));
@@ -153,7 +153,7 @@ public class OverlayGenerator {
         metrics = g.getFontMetrics();
 
         int captionY = 350;
-        for (String word : words) {
+        for (String word : words) { // Draw caption until it reaches border then wrap around
             String testLine = line.isEmpty() ? word : line + " " + word;
 
             if (metrics.stringWidth(testLine) > 1350 && !line.isEmpty()) {
