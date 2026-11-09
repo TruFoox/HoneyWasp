@@ -42,12 +42,9 @@ public class Config {
     private Config() {}
 
     public static Config getInstance() throws Exception {
+        ObjectMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build(); // Create jackson reader, set to not crash immediately if invalid config
+        instance = mapper.readValue(new File("config.json"), Config.class); // read config
 
-        if (instance == null) { // If config not already loaded
-            ObjectMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build(); // Create jackson reader, set to not crash immediately if invalid config
-
-            instance = mapper.readValue(new File("config.json"), Config.class); // read config
-        }
         return instance;
     }
 

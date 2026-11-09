@@ -355,7 +355,7 @@ public class HoneyWasp extends ListenerAdapter {
                 event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                 loadConfig(); // Refresh global values stored in this class
-                for (String name : services.keySet()) {
+                for (String name : runningServices.keySet()) {
                     runningServices.get(name).refreshConfig(); // Loads per-service config values
                     runningServices.get(name).loadConfig(); // Loads config values all services have
 

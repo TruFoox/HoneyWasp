@@ -1,0 +1,15 @@
+Twitter
+
+Remote config handling - Kinda solved by local Webui + Tailscale?
+
+Multiple instances
+
+Make http case handling eg meme-api more polymorphic w/ handling for 4xx 5xx errors separately, even if specific handling unset
+
+Combine publish() and upload() - why are they separate anyway?
+
+Alerts for Instagram/TikTok token about to expire
+
+Low-ram mode: Forces FFMpeg to only do 1 service at a time and prob some other shit
+
+Add handling for invalid hashtag/subreddit

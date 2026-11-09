@@ -102,10 +102,12 @@ public class Command extends Thread { // Handles terminal commands
                     }
                     case "refresh": {
                         HoneyWasp.loadConfig();
-                        for (String name : HoneyWasp.services.keySet()) {
+                        for (String name : HoneyWasp.runningServices.keySet()) {
                             HoneyWasp.runningServices.get(name).refreshConfig();
                             HoneyWasp.runningServices.get(name).loadConfig();
                         }
+
+                        Output.webhookPrint(null, "The config has been refreshed");
 
                         break;
                     }
