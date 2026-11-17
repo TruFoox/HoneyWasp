@@ -280,7 +280,7 @@ public abstract class Services extends Thread {
                         } else if (postSuccess == 1) {
                             if (AUTO_POST_MODE) {
                                 if (SCRAPE_TIKTOK) {
-                                    Output.webhookPrint(this, postURL + " from #" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
+                                    Output.webhookPrint(this, postURL.replace("www.","") + " from #" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                                 } else {
                                     Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                                 }
@@ -421,7 +421,7 @@ public abstract class Services extends Thread {
         CAPTION_BLACKLIST = (List<String>) settings.get("caption_blacklist");
         HOURS_BEFORE_DUPLICATES_REMOVED = (int) settings.get("hours_before_duplicate_removed");
         CAPTION = (String) settings.get("caption");
-        HASHTAGS = (String) settings.get("hashtags");
+        HASHTAGS = (String) settings.get("description");
     }
 
 }

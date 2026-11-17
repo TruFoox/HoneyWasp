@@ -19,7 +19,7 @@ import java.util.Map;
 public class Instagram extends Services {
     private long USERID = 0;
     public Instagram() {
-        super("Instagram","INSTA");
+        super("Instagram","IG");
 
         refreshConfig();
         use0x0 = false;

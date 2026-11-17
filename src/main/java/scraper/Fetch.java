@@ -13,7 +13,7 @@ public abstract class Fetch {
 
             service.randIndex = Services.rand.nextInt(service.MEDIA_SOURCES.size()); // Generate random subreddit index
 
-            service.chosenSource = service.MEDIA_SOURCES.get(service.randIndex);
+            service.chosenSource = service.MEDIA_SOURCES.get(service.randIndex).replace("r/","").replace("#","");
 
             if (HoneyWasp.SCRAPE_TIKTOK) {
                 Output.debugPrint(service, "Scraping from TikTok");

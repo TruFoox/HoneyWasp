@@ -12,4 +12,4 @@ Alerts for Instagram/TikTok token about to expire
 
 Low-ram mode: Forces FFMpeg to only do 1 service at a time and prob some other shit
 
-Add handling for invalid hashtag/subreddit
+Container around video eg AI guy pointing up at content

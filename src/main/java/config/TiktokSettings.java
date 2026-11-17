@@ -21,7 +21,7 @@ import java.util.List;
         "hours_before_duplicate_removed",
         "audio_enabled",
         "caption",
-        "hashtags"
+        "description"
 })
 
 public class TiktokSettings implements ConfigSettings,Refreshable {
@@ -41,7 +41,7 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
     private List<String> caption_blacklist;
     private boolean autostart;
     private String caption;
-    private String hashtags;
+    private String description;
 
     public TiktokSettings() {}
 
@@ -94,8 +94,8 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
     public String getCaption() { return caption; }
     public void setCaption(String caption) { this.caption = caption; }
 
-    public String getHashtags() { return hashtags; }
-    public void setHashtags(String hashtags) { this.hashtags = hashtags; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     @Override
     public Object get(String setting) {
@@ -116,7 +116,7 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
             case "caption_blacklist" -> getCaption_blacklist();
             case "autostart" -> isAutostart();
             case "caption" -> getCaption();
-            case "hashtags" -> getHashtags();
+            case "description" -> getDescription();
 
             default -> throw new IllegalArgumentException(
                     "Unknown setting: " + setting
@@ -143,7 +143,7 @@ public class TiktokSettings implements ConfigSettings,Refreshable {
             case "caption_blacklist" -> setCaption_blacklist(List.of(newValue.split(",")));
             case "autostart" -> setAutostart(Boolean.parseBoolean(newValue));
             case "caption" -> setCaption(newValue);
-            case "hashtags" -> setHashtags(newValue);
+            case "description" -> setDescription(newValue);
             default ->
                     throw new IllegalArgumentException(
                             "Unknown setting: " + setting

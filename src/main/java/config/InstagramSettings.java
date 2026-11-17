@@ -20,7 +20,7 @@ import java.util.List;
         "hours_before_duplicate_removed",
         "audio_enabled",
         "caption",
-        "hashtags"
+        "description"
 })
 public class InstagramSettings implements ConfigSettings {
     private String api_key;
@@ -38,7 +38,7 @@ public class InstagramSettings implements ConfigSettings {
     private boolean audio_enabled;
     private boolean autostart;
     private String caption;
-    private String hashtags;
+    private String description;
 
     // Jackson expects a very specific format - DO NOT capitalize in any other way. Too many hours have been spent trying to fix that issue only to find it was some BS:
     // Non-bool: getFirstword_secondword_thirdword
@@ -94,8 +94,8 @@ public class InstagramSettings implements ConfigSettings {
     public String getCaption() { return caption; }
     public void setCaption(String caption) { this.caption = caption; }
 
-    public String getHashtags() { return hashtags; }
-    public void setHashtags(String hashtags) { this.hashtags = hashtags; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
 
     @Override
@@ -116,7 +116,7 @@ public class InstagramSettings implements ConfigSettings {
             case "use_post_caption" -> isUse_post_caption();
             case "caption_blacklist" -> getCaption_blacklist();
             case "caption" -> getCaption();
-            case "hashtags" -> getHashtags();
+            case "description" -> getDescription();
             default ->
                     throw new IllegalArgumentException(
                             "Unknown setting: " + setting
@@ -141,7 +141,7 @@ public class InstagramSettings implements ConfigSettings {
             case "use_post_caption" -> setUse_post_caption(Boolean.parseBoolean(newValue));
             case "caption_blacklist" -> setCaption_blacklist(List.of(newValue.split(",")));
             case "caption" -> setCaption(newValue);
-            case "hashtags" -> setHashtags(newValue);
+            case "description" -> setDescription(newValue);
             default ->
                     throw new IllegalArgumentException(
                             "Unknown setting: " + setting

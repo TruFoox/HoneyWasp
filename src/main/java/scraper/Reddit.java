@@ -15,7 +15,7 @@ import java.nio.file.Path;
 public class Reddit {
     protected static synchronized String fetch(Services service, String chosenSubreddit) throws Exception {
         String response;
-        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
+        String URL = "https://meme-api.com/gimme/";
 
         Output.debugPrint(service, "Fetching media URL from " + URL);
         try {
