@@ -20,12 +20,13 @@ import main.HoneyWasp;
 import scraper.Fetch;
 import scraper.Reddit;
 import services.Services;
+import utils.FileIO;
 import utils.Output;
 import utils.Sleep;
 
 
 public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an example (Though im pretty sure that repo is 100% vibecoded lol)
-    static List<Map<String, String>> allVideos = new ArrayList<>(); // list of all video urls on page
+    static List<Map<String, String>> allVideos = new ArrayList<>(), usableTikTokVideos = new ArrayList<>();
     static Set<String> collectedURLs = new HashSet<>(); // prevents scraper from collecting same video multiple times
     static String currentHashtag = "";
 
@@ -34,12 +35,12 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             Output.debugPrint(service, "New hashtag detected, clearing previous internal cache");
             allVideos.clear();
             collectedURLs.clear();
-            service.nonDuplicateTikTokVideos.clear();
+            usableTikTokVideos.clear();
             currentHashtag = chosenHashtag;
         }
 
         try {
-            if (service.nonDuplicateTikTokVideos.isEmpty()) {
+            if (usableTikTokVideos.isEmpty()) {
                 Playwright playwright;
 
                 try {
@@ -127,7 +128,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     }
                 }
 
-                while (service.nonDuplicateTikTokVideos.isEmpty()) { // Keep scrolling down until we find something new
+                while (usableTikTokVideos.isEmpty()) { // Keep scrolling down until we find something new
 
                     // Extract all currently loaded video URLs and captions. Gonna be real this json is AI generated
                     String json = (String) page.locator("a[href]").evaluateAll("""
@@ -159,7 +160,6 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
 
                         // Ensure post is not duplicate
-                        Output.debugPrint(service, "Testing if video url is duplicate");
                         if (!service.DUPLICATES_ALLOWED) {
                             long currentTime = System.currentTimeMillis();
                             long expirationTime = service.HOURS_BEFORE_DUPLICATES_REMOVED * 3600000L;
@@ -175,11 +175,12 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         }
 
                         if (!throwOutThisPost) {
-                            service.nonDuplicateTikTokVideos.add(video);
+                            Output.debugPrint(service, "Removed duplicate");
+                            usableTikTokVideos.add(video);
                         }
                     }
 
-                    Output.debugPrint(service, "Videos collected: " + allVideos.size());
+                    Output.debugPrint(service, "Videos collected: " + allVideos.size() + " (" +usableTikTokVideos + " usable)");
 
 
                     // Scroll to the bottom
@@ -189,7 +190,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     page.waitForTimeout(4000);
                 }
 
-                Output.debugPrint(service, "Finished collecting " + allVideos.size() + " videos.");
+                Output.debugPrint(service, "Finished collecting " + usableTikTokVideos.size() + " videos.");
 
                 browser.close();
                 playwright.close();
@@ -197,108 +198,118 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             }
 
-            if (service.nonDuplicateTikTokVideos.isEmpty()) { // All collected videos have already been used, clear the collection so the next fetch recollects videos.
+            if (usableTikTokVideos.isEmpty()) { // All collected videos have already been used, clear the collection so the next fetch recollects videos.
                 allVideos.clear();
                 collectedURLs.clear();
 
                 return fetch(service, chosenHashtag);
             }
 
-            Map<String, String> video = service.nonDuplicateTikTokVideos.removeFirst(); // Gets first video in list and remove it from the list at the same time
-            service.postURL = video.get("url");
+            usableTikTokVideosIterator: // Creative name, I know
+            while (!usableTikTokVideos.isEmpty()) {
+                Map<String, String> video = usableTikTokVideos.removeFirst(); // Gets first video in list and remove it from the list at the same time
+                service.postURL = video.get("url");
 
-            // Makes normal HTTP GET request because we don't need Playwright for ripping data
-            HttpClient client = HttpClient.newHttpClient();
+                // Makes normal HTTP GET request because we don't need Playwright for ripping data
+                HttpClient client = HttpClient.newHttpClient();
 
-            HttpRequest request  = HttpRequest.newBuilder()
-                    .uri(URI.create(service.postURL))
-                    .GET()
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " // Fake-ass user agent to fool tiktok
-                            + "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            + "Chrome/118.0.0.0 Safari/537.36"
-                    ).build();;
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(service.postURL))
+                        .GET()
+                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " // Fake-ass user agent to fool tiktok
+                                + "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                + "Chrome/118.0.0.0 Safari/537.36"
+                        ).build();
+                ;
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String responseBody = response.body();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                String responseBody = response.body();
 
 
-            Matcher captionMatcher = Pattern.compile("\"desc\":\"(.*?)\",\"createTime\"").matcher(responseBody);
-            service.caption = captionMatcher.find() ? captionMatcher.group(1).replaceAll("#\\S+\\s*", "").trim() : ""; // Janky ass way of grabbing the caption of the post and removing hashtags
+                Matcher captionMatcher = Pattern.compile("\"desc\":\"(.*?)\",\"createTime\"").matcher(responseBody);
+                service.caption = captionMatcher.find() ? captionMatcher.group(1).replaceAll("#\\S+\\s*", "").trim() : ""; // Janky ass way of grabbing the caption of the post and removing hashtags
 
-            // Ensure no blacklisted string in post caption
-            Output.debugPrint(service, "Testing if image caption contains blacklisted string");
-            for (String word : service.BLACKLIST) {
-                if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                    Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempts + " attempts", Output.RED, true);
-
-                    return "retry";
-                }
-            }
-
-            // Decide whether to use fallback or post caption (If relevant)
-            if (service.USE_POST_CAPTION) {
-                Output.debugPrint(service, "Testing whether to use default caption");
-                for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
+                // Ensure no blacklisted string in post caption
+                Output.debugPrint(service, "Testing if image caption contains blacklisted string");
+                for (String word : service.BLACKLIST) {
                     if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                        Output.print(service, "Using default (Non-TikTok) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
-                        service.caption = service.FALLBACK_CAPTION;
+                        Output.print(service, "Caption contains blacklisted string (\"" + word.toLowerCase() + "\") - x" + service.countAttempts + " attempts", Output.RED, true);
+
+                        // Mark as invalid to prevent a hypothetical loop where all scraped posts aren't a duplicate but nonetheless cannot be posted so it just keeps scraping the same set of posts it cant use
+                        // This is obv not ideal because it means a changing countAttempts will not take effect on already cached posts for a long time
+                        // This also doesnt help at all if duplicates_allowed is false but that would only be in extreme circumstances
+                        FileIO.writeList(service.postURL, service, false);
+                        continue usableTikTokVideosIterator;
                     }
                 }
+
+                // Decide whether to use fallback or post caption (If relevant)
+                if (service.USE_POST_CAPTION) {
+                    Output.debugPrint(service, "Testing whether to use default caption");
+                    for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
+                        if (service.caption.toLowerCase().contains(word.toLowerCase())) {
+                            Output.print(service, "Using default (Non-TikTok) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
+                            service.caption = service.FALLBACK_CAPTION;
+                        }
+                    }
+                }
+
+                if (service.caption.isBlank()) { // If caption is just hashtags (which get removed so the caption is blank), use default caption
+                    Output.print(service, "Using default caption, as the TikTok caption consists of nothing but hashtags", Output.RED, true);
+                    service.caption = service.FALLBACK_CAPTION;
+
+                }
+
+                String cookies = response.headers() // TikTok dumps a cookie to make sure you're a real browser. Obviously, we aren't one, so we need to rip that shit
+                        .allValues("Set-Cookie")
+                        .stream()
+                        .map(c -> c.split(";", 2)[0])
+                        .collect(java.util.stream.Collectors.joining("; "));
+
+                // Fetches the url of the video (could use downloadAddr but i think it has a watermark)
+                Matcher matcher = Pattern.compile("\"playAddr\":\"(.*?)\"").matcher(responseBody); // Matcher is apparently an easy way to fetch part of the data
+
+                if (responseBody.contains("RPCError")) { // Just a common error ive seen
+                    Output.webhookPrint(service, "TikTok encountered an RPC error while retrieving the video data. Retrying...");
+                    continue;
+                }
+
+                if (!matcher.find()) { // Kinda screwed if it ain't there
+                    throw new Exception("No playAddr found: " + responseBody);
+                }
+
+                // Prob a better way to clean the URL but idfc
+                String mediaUrl = matcher.group(1).replaceAll("\\\\u002F", "/").replaceAll("\\\\u002f", "/").replaceAll("\\\\u0026", "&"); // needs "\\\\" instead of "\\" cuz both regex and java itself replaces \\ with \
+
+                Output.debugPrint(service, "Media URL: " + mediaUrl);
+
+                request = HttpRequest.newBuilder() // Essentially ripped directly from that other repo
+                        .uri(URI.create(mediaUrl))
+                        .header("User-Agent",
+                                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                                        "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                                        "Chrome/118.0.0.0 Safari/537.36")
+                        .header("Referer", "https://www.tiktok.com/")
+                        .header("Accept", "*/*")
+                        .header("Cookie", cookies)
+                        .GET()
+                        .build();
+
+                HttpResponse<byte[]> videoResponse = client.send(request, HttpResponse.BodyHandlers.ofByteArray()); // byte cuz we want the raw data
+
+                Output.debugPrint(service, "Video status: " + videoResponse.statusCode());
+
+                Output.print(service, "Downloading video from TikTok...", Output.YELLOW, true);
+                if (videoResponse.statusCode() == 200) {
+                    service.fileDir = "./cache/" + service.name.toLowerCase() + "/temp.mp4";
+                    Files.write(Path.of("cache", service.name.toLowerCase(), "temp.mp4"), videoResponse.body());
+                }
+                Output.print(service, "Successfully downloaded video from TikTok", Output.YELLOW, true);
+
+                return mediaUrl;
             }
 
-            if (service.caption.isBlank()) { // If caption is just hashtags (which get removed so the caption is blank), use default caption
-                Output.print(service, "Using default caption, as the TikTok caption consists of nothing but hashtags", Output.RED, true);
-                service.caption = service.FALLBACK_CAPTION;
-
-            }
-
-            String cookies = response.headers() // TikTok dumps a cookie to make sure you're a real browser. Obviously, we aren't one, so we need to rip that shit
-                    .allValues("Set-Cookie")
-                    .stream()
-                    .map(c -> c.split(";", 2)[0])
-                    .collect(java.util.stream.Collectors.joining("; "));
-
-            // Fetches the url of the video (could use downloadAddr but i think it has a watermark)
-            Matcher matcher = Pattern.compile("\"playAddr\":\"(.*?)\"").matcher(responseBody); // Matcher is apparently an easy way to fetch part of the data
-
-            if (responseBody.contains("RPCError")) { // Just a common error ive
-                Output.webhookPrint(service, "TikTok encountered an RPC error while retrieving the video data. Retrying...");
-                return "retry";
-            }
-
-            if (!matcher.find()) { // Kinda screwed if it ain't there
-                throw new Exception("No playAddr found: " + responseBody);
-            }
-
-            // Prob a better way to clean the URL but idfc
-            String mediaUrl = matcher.group(1).replaceAll("\\\\u002F", "/").replaceAll("\\\\u002f", "/").replaceAll("\\\\u0026", "&"); // needs "\\\\" instead of "\\" cuz both regex and java itself replaces \\ with \
-
-            Output.debugPrint(service, "Media URL: " + mediaUrl);
-
-            request = HttpRequest.newBuilder() // Essentially ripped directly from that other repo
-                    .uri(URI.create(mediaUrl))
-                    .header("User-Agent",
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                                    "AppleWebKit/537.36 (KHTML, like Gecko) " +
-                                    "Chrome/118.0.0.0 Safari/537.36")
-                    .header("Referer", "https://www.tiktok.com/")
-                    .header("Accept", "*/*")
-                    .header("Cookie", cookies)
-                    .GET()
-                    .build();
-
-            HttpResponse<byte[]> videoResponse = client.send(request, HttpResponse.BodyHandlers.ofByteArray()); // byte cuz we want the raw data
-
-            Output.debugPrint(service, "Video status: " + videoResponse.statusCode());
-
-            Output.print(service, "Downloading video from TikTok...", Output.YELLOW, true);
-            if (videoResponse.statusCode() == 200) {
-                service.fileDir = "./cache/" + service.name.toLowerCase() + "/temp.mp4";
-                Files.write(Path.of("cache", service.name.toLowerCase(), "temp.mp4"), videoResponse.body());
-            }
-            Output.print(service, "Successfully downloaded video from TikTok", Output.YELLOW, true);
-
-            return mediaUrl;
+            return "retry"; // If it reached here, it ran out of posts
         } catch (Exception e) {
             Output.webhookPrint(service, "Failed to scrape from TikTok" +
                     "\n\tReason: " + e.getMessage(), Output.RED);

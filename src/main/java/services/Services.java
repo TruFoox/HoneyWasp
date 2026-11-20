@@ -46,7 +46,6 @@ public abstract class Services extends Thread {
     public int randIndex, countAttempts, connectionDropWait, postAttempts, uploadAttemptTimeout, timesRestarted = 0, totalAttempts = 0;
     public File[] media, audio;
     public String[] proxy;
-    public List<Map<String, String>> nonDuplicateTikTokVideos = new ArrayList<>();
 
     // Config & Per-service toggles
     public String TOKEN, FALLBACK_CAPTION, CAPTION, HASHTAGS, REFRESH_TOKEN; // TOKEN can hold config API Key or fetched temp Access Token
