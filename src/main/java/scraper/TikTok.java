@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -206,7 +207,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
             }
 
             usableTikTokVideosIterator: // Creative name, I know
-            while (!usableTikTokVideos.isEmpty()) {
+            while (!usableTikTokVideos.isEmpty() && service.countAttempts < service.ATTEMPTS_BEFORE_TIMEOUT) {
                 Map<String, String> video = usableTikTokVideos.removeFirst(); // Gets first video in list and remove it from the list at the same time
                 service.postURL = video.get("url");
 
@@ -239,6 +240,8 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         // This is obv not ideal because it means a changing countAttempts will not take effect on already cached posts for a long time
                         // This also doesnt help at all if duplicates_allowed is false but that would only be in extreme circumstances
                         FileIO.writeList(service.postURL, service, false);
+
+                        service.countAttempts++;
                         continue usableTikTokVideosIterator;
                     }
                 }
@@ -275,6 +278,8 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                 if (responseBody.contains("RPCError")) { // Just a common error ive seen
                     Output.webhookPrint(service, "TikTok encountered an RPC error while retrieving the video data. Retrying...");
+
+                    service.countAttempts++;
                     continue;
                 }
 
@@ -304,13 +309,17 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 Output.debugPrint(service, "Video status: " + videoResponse.statusCode());
 
                 Output.print(service, "Downloading video from TikTok...", Output.YELLOW, true);
-                if (videoResponse.statusCode() == 200) {
+                if (videoResponse.statusCode() == 200 || videoResponse.statusCode() == 201) {
                     service.fileDir = "./cache/" + service.name.toLowerCase() + "/temp.mp4";
                     Files.write(Path.of("cache", service.name.toLowerCase(), "temp.mp4"), videoResponse.body());
-                }
-                Output.print(service, "Successfully downloaded video from TikTok", Output.YELLOW, true);
+                    Output.print(service, "Successfully downloaded video from TikTok", Output.YELLOW, true);
 
-                return mediaUrl;
+                    return mediaUrl; // Finish
+                } else {
+                    Output.webhookPrint(service, "Failed to download video from TikTok (Error code" + videoResponse.statusCode() + "). Retrying with different post..." +
+                            "\n\tResponse: " + new String(videoResponse.body(), StandardCharsets.UTF_8));
+                    service.countAttempts++;
+                }
             }
 
             return "retry"; // If it reached here, it ran out of posts
