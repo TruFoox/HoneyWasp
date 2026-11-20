@@ -146,6 +146,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                     List<Map<String, String>> foundVideos = new Gson().fromJson(json, type);
 
+                    int duplicatesFound = 0;
                     // Add newly discovered videos
                     for (Map<String, String> video : foundVideos) {
                         String videoURL = video.get("url");
@@ -158,7 +159,6 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                         boolean throwOutThisPost = false;
 
-
                         // Ensure post is not duplicate
                         if (!service.DUPLICATES_ALLOWED) {
                             long currentTime = System.currentTimeMillis();
@@ -168,6 +168,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                                     long savedTime = Long.parseLong(row[1]);
                                     if (service.HOURS_BEFORE_DUPLICATES_REMOVED == 0 || savedTime == 0 || savedTime + expirationTime > currentTime) {
                                         throwOutThisPost = true;
+                                        duplicatesFound++;
                                         break;
                                     }
                                 }
@@ -175,12 +176,11 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         }
 
                         if (!throwOutThisPost) {
-                            Output.debugPrint(service, "Removed duplicate");
                             usableTikTokVideos.add(video);
                         }
                     }
 
-                    Output.debugPrint(service, "Videos collected: " + allVideos.size() + " (" +usableTikTokVideos + " usable)");
+                    Output.debugPrint(service, "Videos collected: " + usableTikTokVideos.size() + " (" + duplicatesFound + " duplicates ignored)");
 
 
                     // Scroll to the bottom
@@ -246,11 +246,15 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 // Decide whether to use fallback or post caption (If relevant)
                 if (service.USE_POST_CAPTION) {
                     Output.debugPrint(service, "Testing whether to use default caption");
+                    List<String> foundWords = new ArrayList<>(); // Found blacklisted words
                     for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
                         if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                            Output.print(service, "Using default (Non-TikTok) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
+                            foundWords.add(word);
                             service.caption = service.FALLBACK_CAPTION;
                         }
+                    }
+                    if (!foundWords.isEmpty()) {
+                        Output.print(service, "Using default (Non-TikTok) caption (\"" + String.join(", ", foundWords) + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
                     }
                 }
 

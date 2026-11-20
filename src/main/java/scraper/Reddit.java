@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.ConnectException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Reddit {
     protected static synchronized String fetch(Services service, String chosenSubreddit) throws Exception {
@@ -124,11 +126,15 @@ public class Reddit {
                 // Decide whether to use fallback or post caption (If relevant)
                 if (service.USE_POST_CAPTION) {
                     Output.debugPrint(service, "Testing whether to use default caption");
+                    List<String> foundWords = new ArrayList<>(); // Found blacklisted words
                     for (String word : service.CAPTION_BLACKLIST) { // Ensure no caption-blacklisted string in post caption. If found, discard caption but still post
                         if (service.caption.toLowerCase().contains(word.toLowerCase())) {
-                            Output.print(service, "Using default (Non-Reddit) caption (\"" + word.toLowerCase() + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
+                            foundWords.add(word);
                             service.caption = service.FALLBACK_CAPTION;
                         }
+                    }
+                    if (!foundWords.isEmpty()) {
+                        Output.print(service, "Using default (Non-Reddit) caption (\"" + String.join(", ", foundWords) + "\" found) - x" + service.countAttempts + " attempts", Output.RED, true);
                     }
                 }
 

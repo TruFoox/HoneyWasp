@@ -116,7 +116,6 @@ public class Output { // Uses JLine to output in Command.java
     }
     public static synchronized void  debugPrint(Services service, String message) {
         if (HoneyWasp.DEBUG_MODE) { // Only print if DEBUG_MODE mode is enabled
-            if (lastOutputWasNewline) {Command.reader.printAbove("");}
             String shortName;
 
             if (service == null) {
