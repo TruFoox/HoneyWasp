@@ -17,7 +17,7 @@ import java.util.List;
 public class Reddit {
     protected static synchronized String fetch(Services service, String chosenSubreddit) throws Exception {
         String response;
-        String URL = "https://meme-api.com/gimme/";
+        String URL = "https://meme-api.com/gimme/" + chosenSubreddit;
 
         Output.debugPrint(service, "Fetching media URL from " + URL);
         try {
@@ -45,6 +45,11 @@ public class Reddit {
             Output.webhookPrint(service,"[NOTIFY]Failed to fetch image from meme-api.com. Quitting..."
                     + "\n\tError message: " + e, Output.RED);
             return "fail";
+        }
+
+        if (response.contains("Moved Permanently")) { // Sometimes it claims it moved when it didn't
+            Output.print(service, "meme-api.com gave an improper response. Retrying...");
+            return "retry";
         }
 
         String mediaURL;

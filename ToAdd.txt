@@ -13,3 +13,5 @@ Alerts for Instagram/TikTok token about to expire
 Low-ram mode: Forces FFMpeg to only do 1 service at a time and prob some other shit
 
 Container around video eg AI guy pointing up at content
+
+Ability to properly be ran inline in cmd for posting, scraping, or both a single time

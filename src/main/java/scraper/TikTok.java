@@ -1,5 +1,6 @@
 package scraper;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -228,7 +229,8 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
 
                 Matcher captionMatcher = Pattern.compile("\"desc\":\"(.*?)\",\"createTime\"").matcher(responseBody);
-                service.caption = captionMatcher.find() ? captionMatcher.group(1).replaceAll("#\\S+\\s*", "").trim() : ""; // Janky ass way of grabbing the caption of the post and removing hashtags
+
+                service.caption = captionMatcher.find() ? captionMatcher.group(1).replaceAll("#\\S+\\s*", "").trim() : ""; // Gonna be real I had to ask an AI for this line. I wanted it inline and idk how
 
                 // Ensure no blacklisted string in post caption
                 Output.debugPrint(service, "Testing if image caption contains blacklisted string");
@@ -283,7 +285,15 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     continue;
                 }
 
-                if (!matcher.find()) { // Kinda screwed if it ain't there
+                if (responseBody.contains("status_deleted")) { // Video is deleted but for some reason still showed in the list (Strangely common)
+                    Output.print(service, "This post has been deleted. Marking as invalid & retrying...");
+                    FileIO.writeList(service.postURL, service, true);
+
+                    service.countAttempts++;
+                    continue;
+                }
+
+                if (!matcher.find()) { // Kinda screwed if it ain't there. Change to continue loop before production
                     throw new Exception("No playAddr found: " + responseBody);
                 }
 
@@ -321,6 +331,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     service.countAttempts++;
                 }
             }
+            Output.webhookPrint(service, "Ran out of logged media");
 
             return "retry"; // If it reached here, it ran out of posts
         } catch (Exception e) {
