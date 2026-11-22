@@ -6,11 +6,9 @@ import utils.*;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.ConnectException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,10 +45,6 @@ public class Reddit {
             return "fail";
         }
 
-        if (response.contains("Moved Permanently")) { // Sometimes it claims it moved when it didn't
-            Output.print(service, "meme-api.com gave an improper response. Retrying...");
-            return "retry";
-        }
 
         String mediaURL;
         /* Check meme-api status code */
@@ -87,7 +81,7 @@ public class Reddit {
                                 + "\n\tError message: " + e.getMessage(), Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeList(mediaURL, service, true);
+                        FileIO.writeCache(mediaURL, service, true);
                         return "retry";
                     }
 
@@ -181,6 +175,10 @@ public class Reddit {
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
                 return "skip";
+            case 301: // Moved permanently (sometimes incorrectly returns this)
+                Output.print(service, "meme-api.com gave an improper response. Retrying...", Output.RED);
+
+                return "retry";
             default: // General error handling
                 Output.webhookPrint(service,"[NOTIFY]Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);

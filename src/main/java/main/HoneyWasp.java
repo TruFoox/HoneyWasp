@@ -14,10 +14,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import services.*;
 import utils.*;
 
-import javax.imageio.ImageIO;
-import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
-import java.net.ConnectException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.*;
@@ -103,7 +100,7 @@ public class HoneyWasp extends ListenerAdapter {
         // Initiate proxies
         if (USE_PROXIES) {
 
-            PROXIES = FileIO.readList(null, Paths.get(".", "proxies.txt"), ":");
+            PROXIES = FileIO.readCache(null, Paths.get(".", "proxies.txt"), ":");
 
             if (PROXIES == null || PROXIES.isEmpty()) {
                 Output.webhookPrint(null, "Proxies are enabled, but no proxies were provided in ./proxies.txt. Quitting...", Output.RED);
@@ -370,7 +367,7 @@ public class HoneyWasp extends ListenerAdapter {
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                     for (String name : services.keySet()) {
-                        FileIO.clearList(name);
+                        FileIO.clearCache(name);
                     }
                 } else {
                     embed.setThumbnail(services.get(service).imageURL)
@@ -378,7 +375,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                    FileIO.clearList(service);
+                    FileIO.clearCache(service);
                 }
                 break;
             }

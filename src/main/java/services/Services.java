@@ -5,15 +5,10 @@ import main.HoneyWasp;
 import utils.*;
 import scraper.Fetch;
 import javax.imageio.ImageIO;
-import javax.net.ssl.SSLHandshakeException;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.SocketException;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -154,7 +149,7 @@ public abstract class Services extends Thread {
                                         "\n\tError message: " + e, Output.RED);
 
                                 // Blacklist image URL permanently, as it is likely corrupted
-                                FileIO.writeList(postURL, this, true);
+                                FileIO.writeCache(postURL, this, true);
 
                                 Sleep.milliseconds(this, 5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
@@ -283,7 +278,7 @@ public abstract class Services extends Thread {
                                 } else {
                                     Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                                 }
-                                FileIO.writeList(postURL, this, false); // Store image URL to prevent duplicates
+                                FileIO.writeCache(postURL, this, false); // Store image URL to prevent duplicates
                             } else if (use0x0) {
                                 Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                             } else {
@@ -340,7 +335,7 @@ public abstract class Services extends Thread {
         try {
             if (AUTO_POST_MODE) {
                 Output.debugPrint(this, "Reading automatic cache");
-                usedURLs = FileIO.readList(this, Paths.get(".", "cache", name.toLowerCase(), "cache.txt"), ","); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
+                usedURLs = FileIO.readCache(this, Paths.get(".", "cache", name.toLowerCase(), "cache.txt"), ","); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
                 if (usedURLs == null) {return false;}
 
             } else { // Log manual media

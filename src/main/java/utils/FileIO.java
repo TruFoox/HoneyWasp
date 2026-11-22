@@ -2,6 +2,7 @@ package utils;
 
 import services.Services;
 
+import java.io.IO;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileIO { // Currently only readList works for any file
-    public static void writeList(String url, Services service, boolean permanent) {
+    public static void writeCache(String url, Services service, boolean permanent) {
         try {
             long timestamp = System.currentTimeMillis();
             // Generate filepath "./cache/[Service]/cache.txt" for given OS & write to file
@@ -30,11 +31,11 @@ public class FileIO { // Currently only readList works for any file
             service.usedURLs.add(new String[]{url, String.valueOf(fileTimestamp)});
 
         } catch (IOException ex) {
-            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED); // Rn doesnt actually quit, function is void
+            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found", Output.RED); // Rn doesnt actually quit, function is void
         }
 
     }
-    public static List<String[]> readList(Services service, Path path, String delimiter) {
+    public static List<String[]> readCache(Services service, Path path, String delimiter) {
         Output.debugPrint(service, "Attempting to read from " + path);
 
         try {
@@ -66,16 +67,28 @@ public class FileIO { // Currently only readList works for any file
                 Files.writeString(cachePath, row[0] + "," + row[1] + "\n", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             }
         } catch (IOException e) {
-            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found. Quitting...", Output.RED);
+            Output.webhookPrint(null,"No /cache/" + service.name.toLowerCase() + "/cache.txt found", Output.RED);
         }
     }
-    public static void clearList(String service) { // Not using services object because it must be able to run without any services running
+    public static void clearCache(String service) { // Not using services object because it must be able to run without that service running
         try {
             Path cachePath = Paths.get(".", "cache", service.toLowerCase(), "cache.txt");
             Files.writeString(cachePath, "");
             Output.webhookPrint(null, service + " cache successfully cleared");
         } catch (IOException e) {
-            Output.webhookPrint(null,"No /cache/" + service.toLowerCase() + "/cache.txt found. Quitting...", Output.RED); // Rn doesnt actually quit, function is void
+            Output.webhookPrint(null,"No /cache/" + service.toLowerCase() + "/cache.txt found", Output.RED);
+        }
+    }
+
+    public static void log(Services service, String line) { // Log to file
+        try {
+            Path logPath = Paths.get(".", "cache", "logs.txt");
+
+            String formatted = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"));
+
+            Files.write(logPath, ("[" + formatted + " | " + service.name + "] " + line + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            Output.webhookPrint(null,"Failed to log to file", Output.RED);
         }
     }
 

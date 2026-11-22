@@ -1,6 +1,5 @@
 package scraper;
 
-import java.io.File;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,12 +18,9 @@ import com.google.gson.reflect.TypeToken;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import main.HoneyWasp;
-import scraper.Fetch;
-import scraper.Reddit;
 import services.Services;
 import utils.FileIO;
 import utils.Output;
-import utils.Sleep;
 
 
 public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an example (Though im pretty sure that repo is 100% vibecoded lol)
@@ -241,7 +237,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         // Mark as invalid to prevent a hypothetical loop where all scraped posts aren't a duplicate but nonetheless cannot be posted so it just keeps scraping the same set of posts it cant use
                         // This is obv not ideal because it means a changing countAttempts will not take effect on already cached posts for a long time
                         // This also doesnt help at all if duplicates_allowed is false but that would only be in extreme circumstances
-                        FileIO.writeList(service.postURL, service, false);
+                        FileIO.writeCache(service.postURL, service, false);
 
                         service.countAttempts++;
                         continue usableTikTokVideosIterator;
@@ -286,8 +282,8 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 }
 
                 if (responseBody.contains("status_deleted")) { // Video is deleted but for some reason still showed in the list (Strangely common)
-                    Output.print(service, "This post has been deleted. Marking as invalid & retrying...");
-                    FileIO.writeList(service.postURL, service, true);
+                    Output.webhookPrint(service, "This post has been deleted. Marking as invalid & retrying...", Output.RED);
+                    FileIO.writeCache(service.postURL, service, true);
 
                     service.countAttempts++;
                     continue;

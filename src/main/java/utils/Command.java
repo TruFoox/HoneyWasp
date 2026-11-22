@@ -4,10 +4,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.AttributedString;
 import org.jline.utils.Status;
-
-import java.lang.foreign.Linker;
 
 public class Command extends Thread { // Handles terminal commands
     static Terminal terminal;
@@ -119,14 +116,14 @@ public class Command extends Thread { // Handles terminal commands
 
                         if (service.equals("all")) {
                             for (String name : HoneyWasp.services.keySet()) {
-                                FileIO.clearList(name);
+                                FileIO.clearCache(name);
                             }
                         } else {
                             if (!HoneyWasp.services.containsKey(service)) {
                                 Output.print(null, "Invalid service");
                                 break;
                             }
-                            FileIO.clearList(service);
+                            FileIO.clearCache(name);
                         }
                         break;
                     }

@@ -222,7 +222,7 @@ public class YouTube extends Services implements HasRefreshToken {
                         + "\n\tError message: " + response.body(), Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
-                FileIO.writeList(postURL, this, true);
+                FileIO.writeCache(postURL, this, true);
 
                 Sleep.milliseconds(this, 5000);
             }

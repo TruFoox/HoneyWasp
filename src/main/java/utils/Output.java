@@ -5,6 +5,7 @@ import main.HoneyWasp;
 import org.jline.utils.AttributedString;
 import services.Services;
 import java.util.List;
+import java.util.Objects;
 
 // Output
 //
@@ -32,6 +33,10 @@ public class Output { // Uses JLine to output in Command.java
 
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) {
         try {
+            if (Objects.equals(color, Output.RED)) { // Log error to file (Make optional later)
+                FileIO.log(service, message);
+            }
+
             String shortName;
 
             if (service == null) {
@@ -84,6 +89,10 @@ public class Output { // Uses JLine to output in Command.java
     }
     public static synchronized void print(Services service, String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
         String shortName;
+
+        if (Objects.equals(color, Output.RED)) { // Log error to file (Make optional later)
+            FileIO.log(service, message);
+        }
 
         if (service == null) {
             shortName = "[SYS] ";

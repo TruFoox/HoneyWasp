@@ -193,12 +193,12 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                         Output.webhookPrint(this, "An error occurred on TikTok's end while uploading. Trying again, and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
-                        FileIO.writeList(postURL, this, true);
+                        FileIO.writeCache(postURL, this, true);
                     } else {
                         Output.webhookPrint(this, "Failed to post. Skipping this attempt and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
-                        FileIO.writeList(postURL, this, true);
+                        FileIO.writeCache(postURL, this, true);
                         Sleep.milliseconds(this, SLEEPTIME);
                     }
 
@@ -276,7 +276,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             if (postStatus.equals("FAILED")) { // If processing failed, or it takes too long to process, try again
                 Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
                         "\n\tError Message: " + response, Output.RED);
-                FileIO.writeList(postURL, this, true);
+                FileIO.writeCache(postURL, this, true);
                 return 0;
             } else if (retyCount >= 24) { // >120 seconds
                 Output.webhookPrint(this, "Video processing took over 120 seconds. Sometimes TikTok just never processes a post. Retrying attempt...", Output.RED);
