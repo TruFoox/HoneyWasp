@@ -362,7 +362,7 @@ public abstract class Services extends Thread {
             }
 
             // Get audio
-            if (AUDIO_ENABLED && VIDEO_MODE) {
+            if (AUDIO_ENABLED && VIDEO_MODE && !SCRAPE_TIKTOK) {
                 File directory = Paths.get(".", "audio").toFile(); // Generate filepath "./audio"
                 Output.debugPrint(this, "Audio source set to " + directory);
 

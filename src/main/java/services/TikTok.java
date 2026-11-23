@@ -278,8 +278,8 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                         "\n\tError Message: " + response, Output.RED);
                 FileIO.writeCache(postURL, this, true);
                 return 0;
-            } else if (retyCount >= 24) { // >120 seconds
-                Output.webhookPrint(this, "Video processing took over 120 seconds. Sometimes TikTok just never processes a post. Retrying attempt...", Output.RED);
+            } else if (retyCount >= 60) { // >300 seconds (5 minutes)
+                Output.webhookPrint(this, "[LOG]Video processing took too long (Current Status: " + postStatus + "). Giving up and retrying attempt...", Output.RED);
                 return 0;
             }
 

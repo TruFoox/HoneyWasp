@@ -32,24 +32,24 @@ public class HoneyWasp extends ListenerAdapter {
     public static Config config; // Universal config handler for the bot
     public record ServiceData(Supplier<Services> serviceObject, String imageURL, String capsName) {} // Defines data layout of service data - apparently record classes autogenerate getters, toString, etc
 
-    public static final Map<String, ServiceData> services = Map.of( // List of all services and misc data about them
+    public static final Map<String, ServiceData> services = Map.of( // List of all services and misc data about them (I should prob make the images local on github)
             "instagram", new ServiceData(Instagram::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/960px-Instagram_icon.png", "Instagram"),
             "youtube", new ServiceData(YouTube::new, "https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png", "YouTube"),
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png", "TikTok")
     );
+    static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg"; // Logo sent along with Discord command responses (I should prob make this local on github)
 
     public static float currentVersion = 6.2f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     public static Services bot = null;
-    static final String iconURL = "https://i.postimg.cc/gjqQ4CyJ/Untitled248-20250527215650.jpg";
     protected static String BOTTOKEN;
     public static String ACCOUNT_NAME;
     public static boolean PING_ON_ERROR, DEBUG_MODE, RESTART, USE_PROXIES, SCRAPE_TIKTOK, GENERATE_CONTAINER; // General config items used by services/threads
     public static List<String[]> PROXIES;
 
     public static void main(String[] args) {
-        if (args.length == 3) { // If being run with intention of just posting
+        /*if (args.length == 3) { // If being run inline in the console
             long startTime = System.currentTimeMillis();
             String service = args[0].toLowerCase();
             String VideoOrImage = args[1].toLowerCase();
@@ -60,7 +60,7 @@ public class HoneyWasp extends ListenerAdapter {
             long finishTime = System.currentTimeMillis();
             System.out.println("Task completed in " + (finishTime - startTime) + "ms");
             return;
-        }
+        }*/
 
         if (Arrays.asList(args).contains("update")) { // If this is being ran after an update wait a sec to ensure the websocket has time to close
             try {Sleep.milliseconds(null, 1000);} catch (Exception _) {}

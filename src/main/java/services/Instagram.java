@@ -18,6 +18,8 @@ import java.util.Map;
 
 public class Instagram extends Services {
     private long USERID = 0;
+    private final String graphAPIVersion = "v27.0"; // Used in graph API URLs
+    
     public Instagram() {
         super("Instagram","IG");
 
@@ -51,7 +53,7 @@ public class Instagram extends Services {
             formData.put("access_token", TOKEN);
         }
 
-        response = HTTPSend.postForm(this,"https://graph.facebook.com/v23.0/" + USERID + "/media", formData); // Send JSON data for upload (Step 1/2 - next is publish)
+        response = HTTPSend.postForm(this,"https://graph.facebook.com/" + graphAPIVersion + "/" + USERID + "/media", formData); // Send JSON data for upload (Step 1/2 - next is publish)
 
         boolean isTransient;
         try {
@@ -99,7 +101,7 @@ public class Instagram extends Services {
         }
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
             if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
-                Output.webhookPrint(this, "Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
+                Output.webhookPrint(this, "[LOG]Instagram API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
                 Sleep.milliseconds(this, SLEEPTIME);
@@ -143,7 +145,7 @@ public class Instagram extends Services {
                 Output.print(this, "Waiting for Instagram to process media. This may take a while...", Output.YELLOW, true);
 
                 if (!containerId.isEmpty()) {
-                    response = HTTPSend.get(this, "https://graph.facebook.com/v27.0/" + containerId + "?fields=status_code&access_token=" + TOKEN);
+                    response = HTTPSend.get(this, "https://graph.facebook.com/" + graphAPIVersion + "/" + containerId + "?fields=status_code&access_token=" + TOKEN);
                 }
 
                 if (HTTPSend.HTTPCode.get() != 200 || containerId.isEmpty()) { // Error handling
@@ -176,7 +178,7 @@ public class Instagram extends Services {
         formData.put("creation_id", postID);
         formData.put("access_token", TOKEN);
 
-        response = HTTPSend.postForm(this,"https://graph.facebook.com/v27.0/" + USERID + "/media_publish", formData); // Send post for publish to Instagram
+        response = HTTPSend.postForm(this,"https://graph.facebook.com/" + graphAPIVersion + "/" + USERID + "/media_publish", formData); // Send post for publish to Instagram
 
         boolean isTransient;
         try {
@@ -213,7 +215,7 @@ public class Instagram extends Services {
             Output.debugPrint(this, "Attempting to fetch User ID");
 
             Output.debugPrint(this, "Attempting to fetch access token (Step 1)");
-            String response = HTTPSend.get(this, "https://graph.facebook.com/v27.0/me/accounts?access_token=" + TOKEN);
+            String response = HTTPSend.get(this, "https://graph.facebook.com/" + graphAPIVersion + "/me/accounts?access_token=" + TOKEN);
 
             if (!StringToJson.getJSON(response).has("data")) {
                 try {
@@ -237,7 +239,7 @@ public class Instagram extends Services {
 
             Output.debugPrint(this, "Attempting to fetching User ID from token (Step 2)");
             // Get Instagram ID
-            response = HTTPSend.get(this, "https://graph.facebook.com/v27.0/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
+            response = HTTPSend.get(this, "https://graph.facebook.com/" + graphAPIVersion + "/" + facebookID + "?fields=instagram_business_account&access_token=" + TOKEN);
 
             if (!response.contains("instagram_business_account")) { // Ensure account is business account
                 Output.webhookPrint(this, "[NOTIFY]Token valid, but no linked Instagram Business Account found. Please set your instagram account type to business. Quitting...", Output.RED);

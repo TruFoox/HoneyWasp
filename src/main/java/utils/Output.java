@@ -46,26 +46,20 @@ public class Output { // Uses JLine to output in Command.java
             String prefix = "     [" + DateTime.time() + "] - ";
             String spacing = " ".repeat(prefix.length());
 
-            String removePing = message.replace("[NOTIFY]", ""); // The console doesn't need pings
 
-            if (removePing.contains("[LOG]")) {
-                removePing = message.replace("[LOG]", "");
-                FileIO.log(service, removePing);
+            if (message.contains("[LOG]")) {
+                message = message.replace("[LOG]", "");
+                FileIO.log(service, message);
             }
 
-            String outputLine;
-            if (useTimestamp) {
-                outputLine = removePing.replaceAll("\t", spacing);
-            } else {outputLine = removePing;}
-
-            String finalMessage;
+            String consoleMessage;
             if (!useTimestamp) {
-                finalMessage = color + "     " + shortName + removePing + RESET;
+                consoleMessage = color + "     " + shortName + message.replace("[NOTIFY]", "") + RESET;
             } else {
-                finalMessage = color + prefix + shortName + outputLine + RESET;
+                consoleMessage = color + prefix + shortName + message.replace("[NOTIFY]", "").replaceAll("\t", spacing) + RESET;
             }
 
-            Command.reader.printAbove(finalMessage); // Make text appear above the input line
+            Command.reader.printAbove(consoleMessage); // Make text appear above the input line
             lastOutputWasNewline = true;
 
             Command.status.update(List.of()); // Clear status line (the one below the input line); list because for some reason it expects a list idfk
@@ -83,7 +77,7 @@ public class Output { // Uses JLine to output in Command.java
 
                 }
 
-                webhookInstance.sendMessage(shortName + pingMessage.replace("\t", ""));
+                webhookInstance.sendMessage(shortName + pingMessage.replace("\t", "").replace("[LOG]", ""));
             }
 
         } catch (HttpException e) {
