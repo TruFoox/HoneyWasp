@@ -12,166 +12,166 @@ public class Command extends Thread { // Handles terminal commands
     static Status status;
 
     public void run() { // Commands technically dont require / before it
-        try {
-            if (Terminal.class.getModule().isNativeAccessEnabled()) { // Apparently this is how you check if native access enabled
-                terminal = TerminalBuilder.builder().system(true).build();
-            } else { // If --enable-native-access=ALL-UNNAMED not used default to legacy terminal
-                terminal = TerminalBuilder.builder().system(true).provider("exec").build();
-            }
-            status = Status.getStatus(terminal);
-
-            reader = LineReaderBuilder.builder()
-                    .terminal(terminal)
-                    .build();
-
-            // Read lines from the user
-            while (true) {
-                String line = reader.readLine("    >");
-
-                int space = line.indexOf(' ');
-
-                String service = null;
-                String command = line.substring(line.indexOf('/') + 1).toLowerCase(); // Store whole input after / in case no space
-
-                if (space != -1) { // If a space exists in input fetch command and service, else keep whole input as command
-                    command = line.substring(line.indexOf('/') + 1, space).toLowerCase(); // Works both with / & without
-                    service = line.substring(space + 1).toLowerCase();
+        while (true) {
+            try {
+                if (Terminal.class.getModule().isNativeAccessEnabled()) { // Apparently this is how you check if native access enabled
+                    terminal = TerminalBuilder.builder().system(true).build();
+                } else { // If --enable-native-access=ALL-UNNAMED not used default to legacy terminal
+                    terminal = TerminalBuilder.builder().system(true).provider("exec").build();
                 }
+                status = Status.getStatus(terminal);
 
-                switch (command) {
-                    case "start": {
-                        if (service == null) {
-                            Output.print(null, "/start need two fields: A command, and a service. Try /help for help");
-                            continue;
-                        }
+                reader = LineReaderBuilder.builder()
+                        .terminal(terminal)
+                        .build();
 
-                        if (service.equals("all")) {
-                            for (String name : HoneyWasp.services.keySet()) {
-                                if (HoneyWasp.runningServices.containsKey(name)) {
-                                    Output.print(null, HoneyWasp.services.get(name).capsName() + " is already running.");
+                // Read lines from the user
+                while (true) {
+                    String line = reader.readLine("    >");
+
+                    int space = line.indexOf(' ');
+
+                    String service = null;
+                    String command = line.substring(line.indexOf('/') + 1).toLowerCase(); // Store whole input after / in case no space
+
+                    if (space != -1) { // If a space exists in input fetch command and service, else keep whole input as command
+                        command = line.substring(line.indexOf('/') + 1, space).toLowerCase(); // Works both with / & without
+                        service = line.substring(space + 1).toLowerCase();
+                    }
+
+                    switch (command) {
+                        case "start": {
+                            if (service == null) {
+                                Output.print(null, "/start need two fields: A command, and a service. Try /help for help");
+                                continue;
+                            }
+
+                            if (service.equals("all")) {
+                                for (String name : HoneyWasp.services.keySet()) {
+                                    if (HoneyWasp.runningServices.containsKey(name)) {
+                                        Output.print(null, HoneyWasp.services.get(name).capsName() + " is already running.");
+                                    } else {
+                                        HoneyWasp.bot = HoneyWasp.services.get(name).serviceObject().get();
+                                        HoneyWasp.runningServices.put(name.toLowerCase(), HoneyWasp.bot);
+                                        HoneyWasp.bot.start();
+                                    }
+                                }
+                            } else {
+                                if (!HoneyWasp.services.containsKey(service)) {
+                                    Output.print(null, "Invalid service");
+                                    break;
+                                }
+                                if (HoneyWasp.runningServices.containsKey(service)) {
+                                    Output.print(null, HoneyWasp.services.get(service).capsName() + " is already running. Stop it first.");
                                 } else {
-                                    HoneyWasp.bot = HoneyWasp.services.get(name).serviceObject().get();
-                                    HoneyWasp.runningServices.put(name.toLowerCase(), HoneyWasp.bot);
+                                    HoneyWasp.bot = HoneyWasp.services.get(service).serviceObject().get();
+                                    HoneyWasp.runningServices.put(service, HoneyWasp.bot);
                                     HoneyWasp.bot.start();
                                 }
                             }
-                        } else {
-                            if (!HoneyWasp.services.containsKey(service)) {
-                                Output.print(null, "Invalid service");
-                                break;
-                            }
-                            if (HoneyWasp.runningServices.containsKey(service)) {
-                                Output.print(null, HoneyWasp.services.get(service).capsName() + " is already running. Stop it first.");
-                            } else {
-                                HoneyWasp.bot = HoneyWasp.services.get(service).serviceObject().get();
-                                HoneyWasp.runningServices.put(service, HoneyWasp.bot);
-                                HoneyWasp.bot.start();
-                            }
+                            break;
                         }
-                        break;
-                    }
-                    case "stop": {
-                        if (service == null) {
-                            Output.print(null, "/stop need two fields: A command, and a service. Try /help for help");
-                            continue;
-                        }
+                        case "stop": {
+                            if (service == null) {
+                                Output.print(null, "/stop need two fields: A command, and a service. Try /help for help");
+                                continue;
+                            }
 
-                        if (service.equals("all")) {
-                            for (String name : HoneyWasp.services.keySet()) {
-                                if (HoneyWasp.runningServices.containsKey(name)) {
-                                    HoneyWasp.runningServices.get(name).halt();
+                            if (service.equals("all")) {
+                                for (String name : HoneyWasp.services.keySet()) {
+                                    if (HoneyWasp.runningServices.containsKey(name)) {
+                                        HoneyWasp.runningServices.get(name).halt();
+                                    } else {
+                                        Output.print(null, HoneyWasp.services.get(name).capsName() + " is not running.");
+                                    }
+                                }
+                            } else {
+                                if (!HoneyWasp.services.containsKey(service)) {
+                                    Output.print(null, "Invalid service");
+                                    break;
+                                }
+                                if (HoneyWasp.runningServices.containsKey(service)) {
+                                    HoneyWasp.runningServices.get(service).halt();
                                 } else {
-                                    Output.print(null, HoneyWasp.services.get(name).capsName() + " is not running.");
+                                    Output.print(null, HoneyWasp.services.get(service).capsName() + " is not running");
                                 }
                             }
-                        } else {
-                            if (!HoneyWasp.services.containsKey(service)) {
-                                Output.print(null, "Invalid service");
-                                break;
+                            break;
+                        }
+                        case "refresh": {
+                            HoneyWasp.loadConfig();
+                            for (String name : HoneyWasp.runningServices.keySet()) {
+                                HoneyWasp.runningServices.get(name).refreshConfig();
+                                HoneyWasp.runningServices.get(name).loadConfig();
                             }
-                            if (HoneyWasp.runningServices.containsKey(service)) {
-                                HoneyWasp.runningServices.get(service).halt();
+
+                            Output.webhookPrint(null, "The config has been refreshed");
+
+                            break;
+                        }
+                        case "clear": {
+                            if (service == null) {
+                                Output.print(null, "/clear need two fields: A command, and a service. Try /help for help");
+                                continue;
+                            }
+
+                            if (service.equals("all")) {
+                                for (String name : HoneyWasp.services.keySet()) {
+                                    FileIO.clearCache(name);
+                                }
                             } else {
-                                Output.print(null, HoneyWasp.services.get(service).capsName() + " is not running");
+                                if (!HoneyWasp.services.containsKey(service)) {
+                                    Output.print(null, "Invalid service");
+                                    break;
+                                }
+                                FileIO.clearCache(service);
                             }
+                            break;
                         }
-                        break;
-                    }
-                    case "refresh": {
-                        HoneyWasp.loadConfig();
-                        for (String name : HoneyWasp.runningServices.keySet()) {
-                            HoneyWasp.runningServices.get(name).refreshConfig();
-                            HoneyWasp.runningServices.get(name).loadConfig();
+                        case "quit": {
+                            System.exit(0);
                         }
+                        case "help": {
+                            Output.print(null, "A list of commands can be found below:" +
+                                    "\n\t/start - Start a service" +
+                                    "\n\t/stop - Stop a service" +
+                                    "\n\t/clear - Clear a service's duplicate cache" +
+                                    "\n\t/quit - Quit HoneyWasp" +
 
-                        Output.webhookPrint(null, "The config has been refreshed");
-
-                        break;
-                    }
-                    case "clear": {
-                        if (service == null) {
-                        Output.print(null, "/clear need two fields: A command, and a service. Try /help for help");
-                        continue;
+                                    "\n\n\tAfter per-service commands, put which service you want to use it on, or \"All\" for all services:" +
+                                    "\n\tExamples: /start Instagram, /clear Youtube, /stop all" +
+                                    "\n\tNote that /quit does not require a service, as it exits HoneyWasp entirely");
+                            break;
                         }
+                        case "update": {
+                            Output.print(null, "Are you sure you want to update HoneyWasp?" +
+                                    "\n\tYou cannot close HoneyWasp while its updating" +
+                                    "\n\tIt will use download a few hundred megabytes of data from GitHub" +
+                                    "\n\tIt will close and reopen when it is finished" +
 
-                        if (service.equals("all")) {
-                            for (String name : HoneyWasp.services.keySet()) {
-                                FileIO.clearCache(name);
+                                    "\n\n\tType \"Y\" to update, or anything else to cancel...");
+                            line = reader.readLine("    >");
+
+                            if (line.equalsIgnoreCase("y")) {
+                                if (Update.check()) {
+                                    Update.attemptUpdate();
+                                } else {
+                                    Output.print(null, "You are already on the latest version of HoneyWasp");
+                                }
                             }
-                        } else {
-                            if (!HoneyWasp.services.containsKey(service)) {
-                                Output.print(null, "Invalid service");
-                                break;
-                            }
-                            FileIO.clearCache(service);
+
+                            break;
                         }
-                        break;
-                    }
-                    case "quit": {
-                        System.exit(0);
-                    }
-                    case "help": {
-                        Output.print(null, "A list of commands can be found below:" +
-                                "\n\t/start - Start a service" +
-                                "\n\t/stop - Stop a service" +
-                                "\n\t/clear - Clear a service's duplicate cache" +
-                                "\n\t/quit - Quit HoneyWasp" +
-
-                              "\n\n\tAfter per-service commands, put which service you want to use it on, or \"All\" for all services:" +
-                                "\n\tExamples: /start Instagram, /clear Youtube, /stop all" +
-                                "\n\tNote that /quit does not require a service, as it exits HoneyWasp entirely");
-                        break;
-                    }
-                    case "update": {
-                        Output.print(null, "Are you sure you want to update HoneyWasp?" +
-                                "\n\tYou cannot close HoneyWasp while its updating" +
-                                "\n\tIt will use download a few hundred megabytes of data from GitHub" +
-                                "\n\tIt will close and reopen when it is finished" +
-
-                                "\n\n\tType \"Y\" to update, or anything else to cancel...");
-                        line = reader.readLine("    >");
-
-                        if (line.equalsIgnoreCase("y")) {
-                            if (Update.check()) {
-                                Update.attemptUpdate();
-                            } else {
-                                Output.print(null, "You are already on the latest version of HoneyWasp");
-                            }
+                        default: {
+                            Output.print(null, "Command not recognized. Try /help for a list of commands");
                         }
+                    }
 
-                        break;
-                    }
-                    default: {
-                        Output.print(null, "Command not recognized. Try /help for a list of commands");
-                    }
                 }
-
+            } catch (Exception e) {
+                Output.debugPrint(null, "Input terminal encountered an error" +
+                        "\n\tReason: " + e);
             }
-        } catch (Exception e) {
-            Output.webhookPrint(null, "[NOTIFY]Input terminal had failed. Reverting to legacy mode." +
-                    "\n\tReason: " + e, Output.RED);
         }
     }
-
-
 }

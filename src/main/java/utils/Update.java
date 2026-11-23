@@ -16,7 +16,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 
 public class Update {
-    public static boolean check() {
+    public static boolean check(boolean justOpened) {
         try {
             Output.debugPrint(null, "Checking for new version");
             String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
@@ -25,13 +25,22 @@ public class Update {
             float version;
             try {
                 version = Float.parseFloat(StringToJson.getData(responseString, "tag_name").replace("v", ""));
-            } catch (Exception _){
-                Output.print(null, "GitHub failed to give the expected response", Output.RED);
+            } catch (Exception _) {
+                if (justOpened) {
+                    Output.print(null, "GitHub failed to give the expected response", Output.RED, false, true);
+                } else {
+                    Output.print(null, "GitHub failed to give the expected response", Output.RED);
+                }
                 return false;
             }
 
             if (version > HoneyWasp.currentVersion) {
-                Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + HoneyWasp.currentVersion + ")");
+                if (justOpened) {
+                    Output.print(null, "A new version is available! : v" + version + " (Current : v" + HoneyWasp.currentVersion + ")" +
+                            "\n\tRun /update to update! ", Output.GREEN, false);
+                } else {
+                    Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + HoneyWasp.currentVersion + ")", Output.GREEN);
+                }
                 return true;
             }
         } catch (Exception e) {
@@ -40,6 +49,8 @@ public class Update {
         }
         return false;
     }
+    public static boolean check() {return check(false);}
+
     public static boolean attemptUpdate() {
         Boolean requiresConfigUpdate = false;
         try {
@@ -53,10 +64,12 @@ public class Update {
 
             for (JsonElement asset : assets) {
                 JsonObject obj = asset.getAsJsonObject();
-                if (obj.get("name").getAsString().contains(".jar")) {
-                    if (obj.get("name").getAsString().contains("confup")) { // This needs to be in the name of the update jars
-                        Output.print(null, "You need to update your config to use the latest version of HoneyWasp" +
-                                "\n\tAll changes you must make are listed in the changelog at https://github.com/TruFoox/HoneyWasp/releases/latest");
+                if (obj.get("name").getAsString().toLowerCase().contains("updatefile")) {
+                    if (obj.get("name").getAsString().contains("cc")) { // (CC means change config) This needs to be in the name of the update jars
+                        Output.print(null, "If you want to update HoneyWasp, you will need to manually update your config" +
+                                "\n\tAll changes you must make are listed in the changelog at https://github.com/TruFoox/HoneyWasp/releases/latest" +
+
+                                "\n\n\tType \"Y\" to continue update, or anything else to cancel...");
                         requiresConfigUpdate = true;
                     }
                     fileUrl = obj.get("browser_download_url").getAsString();
@@ -78,10 +91,14 @@ public class Update {
             if (!requiresConfigUpdate) {
                 Output.webhookPrint(null, "Successfully downloaded HoneyWasp update. Restarting HoneyWasp...");
 
-                // Open new HoneyWasp process
-                new ProcessBuilder("java", "-XX:+UseSerialGC", "-Xms256m", "-Xmx512m", "--enable-native-access=ALL-UNNAMED", "-jar", "HoneyWasp.jar", "--update").inheritIO().start();
+                // Open new HoneyWasp process with update flag
+                new ProcessBuilder("java", "-XX:+UseSerialGC", "-Xms256m", "-Xmx512m", "--enable-native-access=ALL-UNNAMED", "-jar", "HoneyWasp.jar", "update").inheritIO().start();
 
-                System.exit(0);
+                System.exit(0); // Immediately exit
+            } else {
+                Output.webhookPrint(null, "You will need to update the names of/add the config values listed at https://github.com/TruFoox/HoneyWasp/releases/latest");
+
+                ErrorHandling.exitProgram(); // Prompt to press enter then exit
             }
             return true;
         } catch (Exception e) {

@@ -38,7 +38,7 @@ public class HoneyWasp extends ListenerAdapter {
             "tiktok", new ServiceData(TikTok::new, "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Tiktok_icon.svg/3840px-Tiktok_icon.svg.png", "TikTok")
     );
 
-    public static float currentVersion = 6.1f; // Current version number
+    public static float currentVersion = 6.01f; // Current version number
 
     public static Map<String, Services> runningServices = new HashMap<>();
     public static Services bot = null;
@@ -62,9 +62,8 @@ public class HoneyWasp extends ListenerAdapter {
             return;
         }
 
-        if (Arrays.asList(args).contains("update")) { // If this is being ran after an update
-            System.out.println("Waiting for previous version to close...");
-            try {Sleep.milliseconds(null, 5000);} catch (Exception _) {}
+        if (Arrays.asList(args).contains("update")) { // If this is being ran after an update wait a sec to ensure the websocket has time to close
+            try {Sleep.milliseconds(null, 1000);} catch (Exception _) {}
         }
 
         Command command = new Command();
@@ -155,7 +154,7 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
         // Check for new version
-        Update.check();
+        Update.check(true);
 
         // Login to bot if discord bot token was given, else skip to autostart
         if (BOTTOKEN != null || !BOTTOKEN.isBlank()) {
