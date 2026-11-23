@@ -42,17 +42,21 @@ public class Output { // Uses JLine to output in Command.java
                 shortName = "[" + service.shortName + "] ";
             }
 
+
             String prefix = "     [" + DateTime.time() + "] - ";
             String spacing = " ".repeat(prefix.length());
 
             String removePing = message.replace("[NOTIFY]", ""); // The console doesn't need pings
 
-            if (message.contains("[LOG]")) {
-                message = message.replace("[LOG]", "");
-                FileIO.log(service, message);
+            if (removePing.contains("[LOG]")) {
+                removePing = message.replace("[LOG]", "");
+                FileIO.log(service, removePing);
             }
 
-            String outputLine = removePing.replaceAll("\t", spacing);
+            String outputLine;
+            if (useTimestamp) {
+                outputLine = removePing.replaceAll("\t", spacing);
+            } else {outputLine = removePing;}
 
             String finalMessage;
             if (!useTimestamp) {
@@ -106,7 +110,10 @@ public class Output { // Uses JLine to output in Command.java
         String prefix = "     [" + DateTime.time() + "] - ";
         String spacing = " ".repeat(prefix.length());
 
-        String outputLine = message.replaceAll("\t", spacing);
+        String outputLine;
+        if (useTimestamp) {
+            outputLine = message.replaceAll("\t", spacing);
+        } else {outputLine = message;}
 
         String consoleMessage;
 

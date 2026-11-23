@@ -26,18 +26,14 @@ public class Update {
             try {
                 version = Float.parseFloat(StringToJson.getData(responseString, "tag_name").replace("v", ""));
             } catch (Exception _) {
-                if (justOpened) {
-                    Output.print(null, "GitHub failed to give the expected response", Output.RED, false, true);
-                } else {
-                    Output.print(null, "GitHub failed to give the expected response", Output.RED);
-                }
+                Output.print(null, "GitHub failed to give the expected response", Output.RED);
                 return false;
             }
 
             if (version > HoneyWasp.currentVersion) {
                 if (justOpened) {
                     Output.print(null, "A new version is available! : v" + version + " (Current : v" + HoneyWasp.currentVersion + ")" +
-                            "\n\tRun /update to update! ", Output.GREEN, false);
+                            "\n\tRun /update to update! ", Output.YELLOW, false, false);
                 } else {
                     Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + HoneyWasp.currentVersion + ")", Output.GREEN);
                 }
@@ -102,6 +98,7 @@ public class Update {
             }
             return true;
         } catch (Exception e) {
+            Output.debugPrint(null, "Encountered an error while trying to update");
             e.printStackTrace();
             return false;
         }
