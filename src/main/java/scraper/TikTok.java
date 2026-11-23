@@ -25,6 +25,7 @@ import utils.Output;
 
 public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an example (Though im pretty sure that repo is 100% vibecoded lol)
     static List<Map<String, String>> allVideos = new ArrayList<>(), usableTikTokVideos = new ArrayList<>();
+    static String chromium_path = null;
     static Set<String> collectedURLs = new HashSet<>(); // prevents scraper from collecting same video multiple times
     static String currentHashtag = "";
 
@@ -50,10 +51,12 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                 Process chrome;
                 try {
-                    String chromium_path = getChromiumPath();
-                    if (chromium_path.isBlank()) {throw new Exception("Chromium path returned empty");}
+                    if (chromium_path == null) { // Run if path isnt known
+                        chromium_path = getChromiumPath();
+                        if (chromium_path.isBlank()) {throw new Exception("You dont have Edge or Chrome installed");}
 
-                    Output.debugPrint(service, "Chromium path: " + chromium_path);
+                        Output.debugPrint(service, "Chromium path: " + chromium_path);
+                    }
 
                     chrome = new ProcessBuilder(chromium_path, // Open chrome such that i can remotely control it with playwright
                         "--remote-debugging-port=9222",
@@ -65,9 +68,11 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                 } catch (Exception e) {
                     Output.webhookPrint(service, "[LOG]Failed to open chrome" +
                             "\n\tReason: " + e.getMessage(), Output.RED);
+
+                    chromium_path = null; // Force it to attempt to relocate chrome next time
+
                     return "fail";
                 }
-
 
                 // For god knows what reason this much simpler implementation stopped working overnight
                 /*Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false)); // I currently have this set to use chromium
