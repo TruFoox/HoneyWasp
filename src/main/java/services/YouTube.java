@@ -89,7 +89,7 @@ public class YouTube extends Services implements HasRefreshToken {
         try {
             response = HTTPSend.postForm(this,"https://oauth2.googleapis.com/token", formData);
         } catch (Exception e) {
-            Output.webhookPrint(this, "[NOTIFY]Failed to fetch refresh token. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY][LOG]Failed to fetch refresh token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
             return 0;
@@ -103,7 +103,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
             return 1;  // Success
         } else {
-            Output.webhookPrint(this, "[NOTIFY]Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY][LOG]Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;
@@ -208,17 +208,17 @@ public class YouTube extends Services implements HasRefreshToken {
 
             /* Error handling */
             if (reason.equals("uploadLimitExceeded") || reason.equals("rateLimitExceeded") || reason.equals("quotaExceeded")) {
-                Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
+                Output.webhookPrint(this, "[LOG]Failed to post. Skipping this attempt..."
                         + "\n\tYou are being rate limited. You can only post a few times per day to the YouTube API", Output.RED);
 
                 Sleep.milliseconds(this, SLEEPTIME);
             } else if (HTTPSend.HTTPCode.get() == 500) { // Internal server error
-                Output.webhookPrint(this, "YouTube API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
+                Output.webhookPrint(this, "[LOG]YouTube API appears to be down. Skipping attempt... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response.body(), Output.RED);
 
                 Sleep.milliseconds(this, SLEEPTIME);
             } else { // General error handling
-                Output.webhookPrint(this, "Failed to post. Trying again, and marking this URL as invalid..."
+                Output.webhookPrint(this, "[LOG]Failed to post. Trying again, and marking this URL as invalid..."
                         + "\n\tError message: " + response.body(), Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
@@ -256,7 +256,7 @@ public class YouTube extends Services implements HasRefreshToken {
 
             return 1;  // Success
         } else {
-            Output.webhookPrint(this, "Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "[LOG]Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;

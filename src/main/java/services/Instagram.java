@@ -104,7 +104,7 @@ public class Instagram extends Services {
 
                 Sleep.milliseconds(this, SLEEPTIME);
             } else if (isTransient && postAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
-                Output.webhookPrint(this, "Upload step failed! Attempting upload again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
+                Output.webhookPrint(this, "[LOG]Upload step failed! Attempting upload again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
                 postAttempts++;
@@ -112,9 +112,9 @@ public class Instagram extends Services {
                 Sleep.milliseconds(this, 5000);
                 return upload();
             } if (response.contains("Only photo or video") && HTTPSend.HTTPCode.get() == 400) { // Instagram failed to fetch the image for reasons out of my control. The error message is misleading
-                Output.webhookPrint(this, "Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
+                Output.webhookPrint(this, "[LOG]Upload step failed because Instagram rejected the URL. Trying again... ", Output.RED);
             } else {
-                Output.webhookPrint(this, "Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
+                Output.webhookPrint(this, "[LOG]Upload step failed! Trying again, and marking this URL as invalid... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
                 if (!VIDEO_MODE) {
@@ -147,7 +147,7 @@ public class Instagram extends Services {
                 }
 
                 if (HTTPSend.HTTPCode.get() != 200 || containerId.isEmpty()) { // Error handling
-                    Output.print(this, "Failed to get post upload status, waiting 3 minutes before attempting upload to be safe..." +
+                    Output.print(this, "[LOG]Failed to get post upload status, waiting 3 minutes before attempting upload to be safe..." +
                             "Error message: " + response, Output.RED, true);
 
                     Sleep.milliseconds(this, 180000);
@@ -157,7 +157,7 @@ public class Instagram extends Services {
                 postStatus = StringToJson.getData(response, "status_code");
 
                 if (postStatus.equals("ERROR")) {
-                    Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Attempting to post again..." +
+                    Output.webhookPrint(this, "[LOG]Video processing failed. Video is likely corrupted. Attempting to post again..." +
                             "\n\tError Message: " + response, Output.RED);
                     return 0;
                 }
@@ -187,7 +187,7 @@ public class Instagram extends Services {
 
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201) {
             if (isTransient && postAttempts < uploadAttemptTimeout) { // If temporary error & not max attempts
-                Output.webhookPrint(this, "Publish step failed! Attempting publish again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
+                Output.webhookPrint(this, "[LOG]Publish step failed! Attempting publish again in 5 seconds... HTTP code: " + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
                 postAttempts++;
@@ -195,7 +195,7 @@ public class Instagram extends Services {
                 Sleep.milliseconds(this, 5000);
                 return publish();
             } else {
-                Output.webhookPrint(this, "Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
+                Output.webhookPrint(this, "[LOG]Publish step failed! Trying again, and marking this URL as invalid... HTTP code:" + HTTPSend.HTTPCode.get() +
                         "\n\tError message: " + response, Output.RED);
 
                 if (!VIDEO_MODE) {

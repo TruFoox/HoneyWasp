@@ -33,9 +33,6 @@ public class Output { // Uses JLine to output in Command.java
 
     public static synchronized void webhookPrint(Services service, String message, String color, boolean useTimestamp) {
         try {
-            if (Objects.equals(color, Output.RED)) { // Log error to file (Make optional later)
-                FileIO.log(service, message);
-            }
 
             String shortName;
 
@@ -49,6 +46,11 @@ public class Output { // Uses JLine to output in Command.java
             String spacing = " ".repeat(prefix.length());
 
             String removePing = message.replace("[NOTIFY]", ""); // The console doesn't need pings
+
+            if (message.contains("[LOG]")) {
+                message = message.replace("[LOG]", "");
+                FileIO.log(service, message);
+            }
 
             String outputLine = removePing.replaceAll("\t", spacing);
 
@@ -90,7 +92,8 @@ public class Output { // Uses JLine to output in Command.java
     public static synchronized void print(Services service, String message, String color, boolean overwriteThisLine, boolean useTimestamp) {
         String shortName;
 
-        if (Objects.equals(color, Output.RED)) { // Log error to file (Make optional later)
+        if (message.contains("[LOG]")) {
+            message = message.replace("[LOG]", "");
             FileIO.log(service, message);
         }
 

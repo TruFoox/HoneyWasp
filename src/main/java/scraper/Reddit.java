@@ -40,7 +40,7 @@ public class Reddit {
             return "retry";
         } catch (Exception e) {
             service.connectionDropWait = 0;
-            Output.webhookPrint(service,"[NOTIFY]Failed to fetch image from meme-api.com. Quitting..."
+            Output.webhookPrint(service,"[NOTIFY][LOG]Failed to fetch image from meme-api.com. Quitting..."
                     + "\n\tError message: " + e, Output.RED);
             return "fail";
         }
@@ -77,7 +77,7 @@ public class Reddit {
 
                         ImageIO.write(image, "png", out);
                     } catch(Exception e)  {
-                        Output.webhookPrint(service, "Failed to download image from Reddit. Marking URL as invalid & retrying..."
+                        Output.webhookPrint(service, "[LOG]Failed to download image from Reddit. Marking URL as invalid & retrying..."
                                 + "\n\tError message: " + e.getMessage(), Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
@@ -154,33 +154,33 @@ public class Reddit {
                     }
                 }
 
-                Output.print(service, "Valid image found after x" + service.countAttempts + " attempts", Output.GREEN, true);
+                Output.print(service, "[LOG]Valid image found after x" + service.countAttempts + " attempts", Output.GREEN, true);
                 return mediaURL; // Success
             case 503:
-                Output.webhookPrint(service,"Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
+                Output.webhookPrint(service,"[LOG]Cloudflare HTTP Status Code 503 - The API this program utilizes appears to be under maintenance."
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
                 Sleep.milliseconds(service, service.SLEEPTIME + 21600000L); // Sleep normal time + 6 hours
                 return "skip";
             case 500: // General server error
             case 530:
-                Output.webhookPrint(service,"Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
+                Output.webhookPrint(service,"[LOG]Cloudflare HTTP Status Code 530 - The API this program utilizes is temporarily unreachable"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
 
                 return "skip";
             case 520: // General malformed/null response
             case 502: // Bad gateway
-                Output.webhookPrint(service,"Cloudflare HTTP Status Code " + HTTPCode + " - The API this program utilizes gave a bad response"
+                Output.webhookPrint(service,"[LOG]Cloudflare HTTP Status Code " + HTTPCode + " - The API this program utilizes gave a bad response"
                         + "\n\tThere is nothing that can be done to fix this but wait. Skipping attempt...", Output.RED);
 
                 return "skip";
             case 301: // Moved permanently (sometimes incorrectly returns this)
-                Output.print(service, "meme-api.com gave an improper response. Retrying...", Output.RED);
+                Output.print(service, "[LOG]meme-api.com gave an improper response. Retrying...", Output.RED);
 
                 return "retry";
             default: // General error handling
-                Output.webhookPrint(service,"[NOTIFY]Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
+                Output.webhookPrint(service,"[NOTIFY][LOG]Failed to retrieve image data from meme-api.com with error code " + HTTPCode + ". Quitting..."
                         + "\n\tError message: " + response, Output.RED);
 
                 return "fail";

@@ -62,6 +62,11 @@ public class HoneyWasp extends ListenerAdapter {
             return;
         }
 
+        if (Arrays.asList(args).contains("update")) { // If this is being ran after an update
+            System.out.println("Waiting for previous version to close...");
+            try {Sleep.milliseconds(null, 5000);} catch (Exception _) {}
+        }
+
         Command command = new Command();
         command.start(); // Start console
 
@@ -150,27 +155,7 @@ public class HoneyWasp extends ListenerAdapter {
         }
 
         // Check for new version
-        try {
-            Output.debugPrint(null, "Checking for new version");
-            String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
-
-            // Fetch latest version, remove "v" (e.g. v2), then parse as float
-            float version =  Float.parseFloat(StringToJson.getData(responseString, "tag_name").replace("v", ""));
-
-            if (version > currentVersion) {
-                Output.webhookPrint(null, "A new version is available! : v" + version + " (Current : v" + currentVersion + ")" +
-                        "\n\tVisit https://github.com/TruFoox/HoneyWasp/releases/latest", Output.GREEN, false);
-            }
-
-
-        } catch (Exception e) {
-            if (DEBUG_MODE) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            } else {
-                Output.print(null, "Failed to check for new version", Output.RED);
-            }
-        }
+        Update.check();
 
         // Login to bot if discord bot token was given, else skip to autostart
         if (BOTTOKEN != null || !BOTTOKEN.isBlank()) {

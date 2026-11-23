@@ -63,7 +63,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         "https://www.tiktok.com/tag/" + chosenHashtag
                     ).start();
                 } catch (Exception e) {
-                    Output.webhookPrint(service, "Failed to open chrome" +
+                    Output.webhookPrint(service, "[LOG]Failed to open chrome" +
                             "\n\tReason: " + e.getMessage(), Output.RED);
                     return "fail";
                 }
@@ -95,14 +95,14 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                     }
 
                     if (browser == null) {
-                        Output.webhookPrint(service, "Chrome failed to open in time");
+                        Output.webhookPrint(service, "[LOG]Chrome failed to open in time");
                         return "fail";
                     }
 
                     page = browser.contexts().get(0).pages().get(0);
                     page.waitForTimeout(5000);
                 } catch (Exception e) {
-                    Output.webhookPrint(service, "Failed to manage chrome" +
+                    Output.webhookPrint(service, "[LOG]Failed to manage chrome" +
                             "\n\tReason: " + e.getMessage(), Output.RED);
                     return "fail";
                 }
@@ -322,7 +322,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                     return mediaUrl; // Finish
                 } else {
-                    Output.webhookPrint(service, "Failed to download video from TikTok (Error code" + videoResponse.statusCode() + "). Retrying with different post..." +
+                    Output.webhookPrint(service, "[LOG]Failed to download video from TikTok (Error code" + videoResponse.statusCode() + "). Retrying with different post..." +
                             "\n\tResponse: " + new String(videoResponse.body(), StandardCharsets.UTF_8));
                     service.countAttempts++;
                 }
@@ -331,7 +331,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
             return "retry"; // If it reached here, it ran out of posts
         } catch (Exception e) {
-            Output.webhookPrint(service, "Failed to scrape from TikTok" +
+            Output.webhookPrint(service, "[LOG]Failed to scrape from TikTok" +
                     "\n\tReason: " + e.getMessage(), Output.RED);
             return "fail"; // Fat failure
         }

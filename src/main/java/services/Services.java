@@ -128,7 +128,7 @@ public abstract class Services extends Thread {
                                 continue;
                             case "quit": // Fatal error (Two names because sometimes I write the wrong one)
                             case "fail":
-                                Output.webhookPrint(this, "[NOTIFY]Bot failed to retrieve media");
+                                Output.webhookPrint(this, "[NOTIFY][LOG]Bot failed to retrieve media");
                                 break mainLoop;
                         }
 
@@ -154,7 +154,7 @@ public abstract class Services extends Thread {
                                 Sleep.milliseconds(this, 5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
                             } catch (IOException e) {
-                                Output.webhookPrint(this, "Failed to download image from Reddit to convert to video. Skipping attempt..."
+                                Output.webhookPrint(this, "[LOG]Failed to download image from Reddit to convert to video. Skipping attempt..."
                                         + "\n\tError message: " + e, Output.RED);
 
                                 continue;
@@ -177,7 +177,7 @@ public abstract class Services extends Thread {
                             if (ImageToVideo.convert(String.valueOf(Paths.get(".", "cache", name.toLowerCase(), "temp")), image, audioDir)) { // Convert image to video
                                 Output.print(this, "Successfully converted image to video", Output.GREEN, true);
                             } else {
-                                Output.print(this, "Failed to convert image to video for upload. Skipping attempt...", Output.RED);
+                                Output.print(this, "[LOG]Failed to convert image to video for upload. Skipping attempt...", Output.RED);
 
                                 Sleep.milliseconds(this, SLEEPTIME);
                                 continue;
@@ -228,7 +228,7 @@ public abstract class Services extends Thread {
                     if (!run) break;
 
                     if (fetchUserToken() == 0) { // Attempt to fetch access token (Quit if failed)
-                        Output.webhookPrint(this, "Failed to fetch access token. Quitting...", Output.RED);
+                        Output.webhookPrint(this, "[LOG]Failed to fetch access token. Quitting...", Output.RED);
                         break;
                     }
 
@@ -243,7 +243,7 @@ public abstract class Services extends Thread {
                         try {
                             if (!OverlayGenerator.Generate(this)) {break;} // Generate overlay over video (Quit if failed)
                         } catch (Exception e) {
-                            Output.webhookPrint(this, "An error occurred while adding container around media. Skipping this attempt..." +
+                            Output.webhookPrint(this, "[LOG]An error occurred while adding container around media. Skipping this attempt..." +
                                     "\n\tError message: " + e.getMessage(), Output.RED);
 
                             Sleep.milliseconds(this, SLEEPTIME);
@@ -292,10 +292,10 @@ public abstract class Services extends Thread {
                             countAttempts = 0; // Reset count attempt
 
                         } else if (postSuccess == 0) {
-                            Output.debugPrint(this, "Failed to publish");
+                            Output.debugPrint(this, "[LOG]Failed to publish");
                         } else {break;}
                     } else if (postSuccess == 0) {
-                        Output.debugPrint(this, "Failed to upload");
+                        Output.debugPrint(this, "[LOG]Failed to upload");
                     } else {break;}
 
                     Sleep.milliseconds(this, 1500); // Sleep 1.5s to prevent spam
@@ -303,11 +303,11 @@ public abstract class Services extends Thread {
             } catch (InterruptedException e) { // This error is thrown whenever /stop is used while sleeping, so it's hidden by default
                 Output.debugPrint(this, "Bot crashed - Error during sleep: " + e.getMessage());
             } catch (SocketException e) {
-                Output.webhookPrint(this, "[NOTIFY]Bot crashed - Connection likely dropped: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "[NOTIFY][LOG]Bot crashed - Connection likely dropped: " + e.getMessage(), Output.RED);
             } catch (IOException e) {
-                Output.webhookPrint(this, "[NOTIFY]Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
+                Output.webhookPrint(this, "[NOTIFY][LOG]Bot crashed - IO issue occurred: " + e.getMessage(), Output.RED);
             } catch (Exception e) { // General error handling
-                Output.webhookPrint(this, "[NOTIFY]Bot crashed - Unknown error: " + e +
+                Output.webhookPrint(this, "[NOTIFY][LOG]Bot crashed - Unknown error: " + e +
                         "\n\tPotential Relevant Info:" +
                         "\n\tInternet connection: " + HTTPSend.testInternet(proxy) +
                         "\n\tLast HTTP response: (Code " + HTTPSend.HTTPCode.get() + ") " + HTTPSend.lastResponse.get(), Output.RED);

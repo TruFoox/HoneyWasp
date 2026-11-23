@@ -89,7 +89,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         try {
             response = HTTPSend.postForm(this,"https://open.tiktokapis.com/v2/oauth/token/", formData);
         } catch (Exception e) {
-            Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
+            Output.webhookPrint(this, "[LOG]Failed to fetch refresh token. Quitting..." +
                     "\n\tError: " + e, Output.RED);
 
             return 0;
@@ -105,7 +105,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
             return 1;  // Success
         } else {
-            Output.webhookPrint(this, "Failed to fetch refresh token. Quitting..." +
+            Output.webhookPrint(this, "[LOG]Failed to fetch refresh token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;
@@ -185,17 +185,17 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
                     /* Misc Error handling */
                     if (code.equals("rate_limit_exceeded") || code.equals("spam_risk_too_many_posts")) {
-                        Output.webhookPrint(this, "Failed to post. Skipping this attempt..."
+                        Output.webhookPrint(this, "[LOG]Failed to post. Skipping this attempt..."
                                 + "\n\tYou are being rate limited. You can only post a few times per day to the TikTok API", Output.RED);
 
                         Sleep.milliseconds(this, SLEEPTIME);
                     } else if (code.equals("internal_error")) {
-                        Output.webhookPrint(this, "An error occurred on TikTok's end while uploading. Trying again, and marking this URL as invalid..." +
+                        Output.webhookPrint(this, "[LOG]An error occurred on TikTok's end while uploading. Trying again, and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
                         FileIO.writeCache(postURL, this, true);
                     } else {
-                        Output.webhookPrint(this, "Failed to post. Skipping this attempt and marking this URL as invalid..." +
+                        Output.webhookPrint(this, "[LOG]Failed to post. Skipping this attempt and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
                         FileIO.writeCache(postURL, this, true);
@@ -205,7 +205,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                     return 0;
                 }
             }
-            Output.webhookPrint(this, "[NOTIFY]Failed to upload for an unknown reason. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY][LOG]Failed to upload for an unknown reason. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
             return -1;
         }
@@ -233,7 +233,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
         Output.debugPrint(this, "Response: " + response);
 
         if (HTTPSend.HTTPCode.get() != 200 && HTTPSend.HTTPCode.get() != 201 && HTTPSend.HTTPCode.get() != 206) {
-            Output.webhookPrint(this, "[NOTIFY]Failed to upload. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY][LOG]Failed to upload. Quitting..." +
                     "\n\tError message: (Code " + HTTPresponse.statusCode() + ") " + HTTPresponse.body(), Output.RED);
 
             return 0;
@@ -274,7 +274,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             Output.print(this, "Waiting for TikTok to process media. This may take a while (Status: " + postStatus + ")...", Output.YELLOW, true);
 
             if (postStatus.equals("FAILED")) { // If processing failed, or it takes too long to process, try again
-                Output.webhookPrint(this, "Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
+                Output.webhookPrint(this, "[LOG]Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
                         "\n\tError Message: " + response, Output.RED);
                 FileIO.writeCache(postURL, this, true);
                 return 0;
@@ -310,7 +310,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
 
             return 1;  // Success
         } else {
-            Output.webhookPrint(this, "[NOTIFY]Failed to fetch token. Quitting..." +
+            Output.webhookPrint(this, "[NOTIFY][LOG]Failed to fetch token. Quitting..." +
                     "\n\tError message: " + response, Output.RED);
 
             return 0;

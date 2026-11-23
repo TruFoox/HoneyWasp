@@ -123,7 +123,7 @@ public class Command extends Thread { // Handles terminal commands
                                 Output.print(null, "Invalid service");
                                 break;
                             }
-                            FileIO.clearCache(name);
+                            FileIO.clearCache(service);
                         }
                         break;
                     }
@@ -140,6 +140,25 @@ public class Command extends Thread { // Handles terminal commands
                               "\n\n\tAfter per-service commands, put which service you want to use it on, or \"All\" for all services:" +
                                 "\n\tExamples: /start Instagram, /clear Youtube, /stop all" +
                                 "\n\tNote that /quit does not require a service, as it exits HoneyWasp entirely");
+                        break;
+                    }
+                    case "update": {
+                        Output.print(null, "Are you sure you want to update HoneyWasp?" +
+                                "\n\tYou cannot close HoneyWasp while its updating" +
+                                "\n\tIt will use download a few hundred megabytes of data from GitHub" +
+                                "\n\tIt will close and reopen when it is finished" +
+
+                                "\n\n\tType \"Y\" to update, or anything else to cancel...");
+                        line = reader.readLine("    >");
+
+                        if (line.equalsIgnoreCase("y")) {
+                            if (Update.check()) {
+                                Update.attemptUpdate();
+                            } else {
+                                Output.print(null, "You are already on the latest version of HoneyWasp");
+                            }
+                        }
+
                         break;
                     }
                     default: {
