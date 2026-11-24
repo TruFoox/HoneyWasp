@@ -1,6 +1,7 @@
-package utils;
+package IO;
 
 import services.Services;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,7 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileIO { // Currently only readList works for any file
+public class Cache {
     public static void writeCache(String url, Services service, boolean permanent) {
         try {
             long timestamp = System.currentTimeMillis();
@@ -77,17 +78,4 @@ public class FileIO { // Currently only readList works for any file
             Output.webhookPrint(null,"No /cache/" + service.toLowerCase() + "/cache.txt found", Output.RED);
         }
     }
-
-    public static void log(Services service, String line) { // Log to file
-        try {
-            Path logPath = Paths.get(".", "cache", "logs.txt");
-
-            String formatted = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"));
-
-            Files.write(logPath, ("[" + formatted + " | " + service.name + "] " + line + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            Output.webhookPrint(null,"Failed to log to file", Output.RED);
-        }
-    }
-
 }

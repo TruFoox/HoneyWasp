@@ -1,5 +1,8 @@
 package services;
 
+import IO.Cache;
+import IO.HTTPSend;
+import IO.Output;
 import main.HoneyWasp;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -121,7 +124,7 @@ public class Instagram extends Services {
 
                 if (!VIDEO_MODE) {
                     // Blacklist image URL permanently, as it is likely corrupted
-                    FileIO.writeCache(postURL, this, true);
+                    Cache.writeCache(postURL, this, true);
                 }
             }
 
@@ -202,7 +205,7 @@ public class Instagram extends Services {
 
                 if (!VIDEO_MODE) {
                     // Blacklist image URL permanently, as it is likely corrupted
-                    FileIO.writeCache(postURL, this, true);
+                    Cache.writeCache(postURL, this, true);
                 }
             }
             return 0;

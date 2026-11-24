@@ -19,8 +19,8 @@ import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import main.HoneyWasp;
 import services.Services;
-import utils.FileIO;
-import utils.Output;
+import IO.Cache;
+import IO.Output;
 
 
 public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an example (Though im pretty sure that repo is 100% vibecoded lol)
@@ -242,7 +242,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
                         // Mark as invalid to prevent a hypothetical loop where all scraped posts aren't a duplicate but nonetheless cannot be posted so it just keeps scraping the same set of posts it cant use
                         // This is obv not ideal because it means a changing countAttempts will not take effect on already cached posts for a long time
                         // This also doesnt help at all if duplicates_allowed is false but that would only be in extreme circumstances
-                        FileIO.writeCache(service.postURL, service, false);
+                        Cache.writeCache(service.postURL, service, false);
 
                         service.countAttempts++;
                         continue usableTikTokVideosIterator;
@@ -288,7 +288,7 @@ public class TikTok { // Heavily used https://github.com/n-ochs/tt-proxy as an e
 
                 if (responseBody.contains("status_deleted")) { // Video is deleted but for some reason still showed in the list (Strangely common)
                     Output.webhookPrint(service, "This post has been deleted. Marking as invalid & retrying...", Output.RED);
-                    FileIO.writeCache(service.postURL, service, true);
+                    Cache.writeCache(service.postURL, service, true);
 
                     service.countAttempts++;
                     continue;

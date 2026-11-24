@@ -1,11 +1,9 @@
-package utils;
+package IO;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.net.http.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -13,7 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import tools.jackson.core.JsonParser;
 import com.sun.net.httpserver.HttpServer;
 import main.HoneyWasp;
 import services.Services;
@@ -251,15 +248,9 @@ public class HTTPSend {
                     .proxy(ProxySelector.of(new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1]))))
                     .build();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://google.com"))
-                    .GET()
-                    .build();
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://google.com")).GET().build();
 
-            HttpResponse<Void> response = client.send(
-                    request,
-                    HttpResponse.BodyHandlers.discarding()
-            );
+            client.send(request, HttpResponse.BodyHandlers.discarding());
             return true;
         } catch (Exception e) {
             return false;

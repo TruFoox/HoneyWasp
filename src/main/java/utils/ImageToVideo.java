@@ -1,5 +1,7 @@
 package utils;
 
+import IO.Output;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -7,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 
 // ImageToVideo (I DIDNT MAKE MOST OF THIS. FFMPEG SUCKS BALLS)
 //

@@ -1,4 +1,5 @@
 package main;
+import IO.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -104,7 +105,7 @@ public class HoneyWasp extends ListenerAdapter {
         // Initiate proxies
         if (USE_PROXIES) {
 
-            PROXIES = FileIO.readCache(null, Paths.get(".", "proxies.txt"), ":");
+            PROXIES = Cache.readCache(null, Paths.get(".", "proxies.txt"), ":");
 
             if (PROXIES == null || PROXIES.isEmpty()) {
                 Output.webhookPrint(null, "Proxies are enabled, but no proxies were provided in ./proxies.txt. Quitting...", Output.RED);
@@ -351,7 +352,7 @@ public class HoneyWasp extends ListenerAdapter {
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
                     for (String name : services.keySet()) {
-                        FileIO.clearCache(name);
+                        Cache.clearCache(name);
                     }
                 } else {
                     embed.setThumbnail(services.get(service).imageURL)
@@ -359,7 +360,7 @@ public class HoneyWasp extends ListenerAdapter {
 
                     event.getHook().sendMessageEmbeds(embed.build()).queue();
 
-                    FileIO.clearCache(service);
+                    Cache.clearCache(service);
                 }
                 break;
             }

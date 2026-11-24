@@ -1,5 +1,8 @@
 package services;
 
+import IO.Cache;
+import IO.HTTPSend;
+import IO.Output;
 import tools.jackson.databind.ObjectMapper;
 import config.HasRefreshToken;
 import main.HoneyWasp;
@@ -222,7 +225,7 @@ public class YouTube extends Services implements HasRefreshToken {
                         + "\n\tError message: " + response.body(), Output.RED);
 
                 // Blacklist image URL permanently, as it is likely corrupted
-                FileIO.writeCache(postURL, this, true);
+                Cache.writeCache(postURL, this, true);
 
                 Sleep.milliseconds(this, 5000);
             }

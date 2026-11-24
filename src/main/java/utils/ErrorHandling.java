@@ -1,5 +1,7 @@
 package utils;
 
+import IO.Output;
+
 import java.util.Scanner;
 
 public class ErrorHandling {

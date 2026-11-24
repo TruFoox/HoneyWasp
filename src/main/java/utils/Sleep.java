@@ -3,7 +3,6 @@ package utils;
 import services.Services;
 
 public class Sleep {
-
     public static void milliseconds(Services service, long milliseconds) throws Exception {
         if (service != null) {service.sleeping = true;}
         try {

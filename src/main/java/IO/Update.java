@@ -1,25 +1,32 @@
-package utils;
+package IO;
 
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.Status;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import main.HoneyWasp;
+import IO.Command;
+import utils.ErrorHandling;
+import utils.StringToJson;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.Duration;
 
 public class Update {
     public static boolean check(boolean justOpened) {
         try {
             Output.debugPrint(null, "Checking for new version");
             String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
+
 
             // Fetch latest version, remove "v" (e.g. v2), then parse as float
             float version;
@@ -50,7 +57,7 @@ public class Update {
     public static boolean attemptUpdate() {
         Boolean requiresConfigUpdate = false;
         try {
-            Output.debugPrint(null, "Attempting to update - this may take a while. Do not close HoneyWasp...");
+            Output.print(null, "Attempting to update - this may take a while. Do not close HoneyWasp...");
 
             String responseString = HTTPSend.get(null, "https://api.github.com/repos/trufoox/honeywasp/releases/latest");
 
@@ -66,6 +73,11 @@ public class Update {
                                 "\n\tAll changes you must make are listed in the changelog at https://github.com/TruFoox/HoneyWasp/releases/latest" +
 
                                 "\n\n\tType \"Y\" to continue update, or anything else to cancel...");
+
+                        if (!Command.response().equalsIgnoreCase("y")) {return false;} // Cancel if not y
+
+                        Output.print(null, "Attempting to update...");
+
                         requiresConfigUpdate = true;
                     }
                     fileUrl = obj.get("browser_download_url").getAsString();

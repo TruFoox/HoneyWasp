@@ -1,5 +1,8 @@
 package services;
 
+import IO.Cache;
+import IO.HTTPSend;
+import IO.Output;
 import tools.jackson.databind.ObjectMapper;
 import config.HasRefreshToken;
 import main.HoneyWasp;
@@ -193,12 +196,12 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
                         Output.webhookPrint(this, "[LOG]An error occurred on TikTok's end while uploading. Trying again, and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
-                        FileIO.writeCache(postURL, this, true);
+                        Cache.writeCache(postURL, this, true);
                     } else {
                         Output.webhookPrint(this, "[LOG]Failed to post. Skipping this attempt and marking this URL as invalid..." +
                                 "\n\tError message: " + message, Output.RED);
 
-                        FileIO.writeCache(postURL, this, true);
+                        Cache.writeCache(postURL, this, true);
                         Sleep.milliseconds(this, SLEEPTIME);
                     }
 
@@ -276,7 +279,7 @@ public class TikTok extends Services implements HasRefreshToken { // For some re
             if (postStatus.equals("FAILED")) { // If processing failed, or it takes too long to process, try again
                 Output.webhookPrint(this, "[LOG]Video processing failed. Video is likely corrupted. Marking this url as invalid & retrying..." +
                         "\n\tError Message: " + response, Output.RED);
-                FileIO.writeCache(postURL, this, true);
+                Cache.writeCache(postURL, this, true);
                 return 0;
             } else if (retyCount >= 60) { // >300 seconds (5 minutes)
                 Output.webhookPrint(this, "[LOG]Video processing took too long (Current Status: " + postStatus + "). Giving up and retrying attempt...", Output.RED);

@@ -1,17 +1,23 @@
-package utils;
+package IO;
 import main.HoneyWasp;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.Status;
+import utils.Sleep;
 
 public class Command extends Thread { // Handles terminal commands
     static Terminal terminal;
     static LineReader reader;
     static Status status;
+    static volatile String line;
+    static volatile boolean newInput = false;
 
-    public void run() { // Commands technically dont require / before it
+    // Input like Y/N etc
+    static String miscInput = ""; // Set to nothing when acknowledged
+
+    public synchronized void run() { // Commands technically dont require / before it
         while (true) {
             try {
                 if (Terminal.class.getModule().isNativeAccessEnabled()) { // Apparently this is how you check if native access enabled
@@ -27,7 +33,9 @@ public class Command extends Thread { // Handles terminal commands
 
                 // Read lines from the user
                 while (true) {
-                    String line = reader.readLine("    >");
+                    line = reader.readLine("    >");
+
+                    newInput = true;
 
                     int space = line.indexOf(' ');
 
@@ -117,30 +125,19 @@ public class Command extends Thread { // Handles terminal commands
 
                             if (service.equals("all")) {
                                 for (String name : HoneyWasp.services.keySet()) {
-                                    FileIO.clearCache(name);
+                                    Cache.clearCache(name);
                                 }
                             } else {
                                 if (!HoneyWasp.services.containsKey(service)) {
                                     Output.print(null, "Invalid service");
                                     break;
                                 }
-                                FileIO.clearCache(service);
+                                Cache.clearCache(service);
                             }
                             break;
                         }
                         case "quit": {
                             System.exit(0);
-                        }
-                        case "help": {
-                            Output.print(null, "A list of commands can be found below:" +
-                                    "\n\t/start - Start a service" +
-                                    "\n\t/stop - Stop a service" +
-                                    "\n\t/clear - Clear a service's duplicate cache" +
-                                    "\n\t/quit - Quit HoneyWasp" +
-
-                                    "\n\n\tAfter per-service commands, put which service you want to use it on, or \"All\" for all services:" +
-                                    "\n\tExamples: /start Instagram, /clear Youtube, /stop all" +
-                                    "\n\tNote that /quit does not require a service, as it exits HoneyWasp entirely");
                             break;
                         }
                         case "update": {
@@ -163,8 +160,24 @@ public class Command extends Thread { // Handles terminal commands
                             break;
                         }
                         default: {
-                            Output.print(null, "Command not recognized. Try /help for a list of commands");
+                            if (command.startsWith("/")) { // If command, treat as such, else make available for other thread
+                                Output.print(null, "Command not recognized. A list of commands can be found below:" +
+                                        "\n\t/start [SERVICE/ALL] - Start a service" +
+                                        "\n\t/stop [SERVICE/ALL] - Stop a service" +
+                                        "\n\t/clear [SERVICE/ALL] - Clear a service's duplicate cache" +
+                                        "\n\t/update - Attempt to update HoneyWasp to the latest version" +
+                                        "\n\t/quit - Quit HoneyWasp" +
+
+
+                                        "\n\n\tAfter per-service commands, put which service you want to use it on, or \"All\" for all services:" +
+                                        "\n\tExamples: /start Instagram, /clear YouTube, /stop all" +
+                                        "\n\tNote that /quit and /update do not require a service");
+                            } else {
+                                miscInput = command;
+                                Sleep.milliseconds(null, 500); // Sleep to give response() time to catch it
+                            }
                         }
+                        break;
                     }
 
                 }
@@ -173,5 +186,18 @@ public class Command extends Thread { // Handles terminal commands
                         "\n\tReason: " + e);
             }
         }
+    }
+    public static String response() { // Awaits a response from the user (Yeah, yeah, its busy waiting, I know.)
+        newInput = false;
+        while (!newInput) {
+            line = reader.readLine("    >");
+            newInput = true;
+            try {Sleep.milliseconds(null,100);} catch (Exception _) {}
+        }
+
+        newInput = false;
+
+        try {Sleep.milliseconds(null,1000);} catch (Exception _) {}
+        return line;
     }
 }

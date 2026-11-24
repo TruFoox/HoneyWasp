@@ -1,11 +1,12 @@
-package utils;
+package IO;
 
 import club.minnced.discord.webhook.exception.HttpException;
 import main.HoneyWasp;
 import org.jline.utils.AttributedString;
 import services.Services;
+import utils.DateTime;
+
 import java.util.List;
-import java.util.Objects;
 
 // Output
 //
@@ -49,7 +50,7 @@ public class Output { // Uses JLine to output in Command.java
 
             if (message.contains("[LOG]")) {
                 message = message.replace("[LOG]", "");
-                FileIO.log(service, message);
+                Logger.log(service, message);
             }
 
             String consoleMessage;
@@ -92,7 +93,7 @@ public class Output { // Uses JLine to output in Command.java
 
         if (message.contains("[LOG]")) {
             message = message.replace("[LOG]", "");
-            FileIO.log(service, message);
+            Logger.log(service, message);
         }
 
         if (service == null) {
@@ -128,6 +129,11 @@ public class Output { // Uses JLine to output in Command.java
         }
     }
     public static synchronized void  debugPrint(Services service, String message) {
+        if (message.contains("[LOG]")) {
+            message = message.replace("[LOG]", "");
+            Logger.log(service, message);
+        }
+
         if (HoneyWasp.DEBUG_MODE) { // Only print if DEBUG_MODE mode is enabled
             String shortName;
 

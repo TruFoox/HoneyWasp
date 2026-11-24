@@ -2,9 +2,7 @@ package scraper;
 
 import main.HoneyWasp;
 import services.Services;
-import utils.Output;
-
-import java.util.Objects;
+import IO.Output;
 
 public abstract class Fetch {
     static int timesFailed = 0;

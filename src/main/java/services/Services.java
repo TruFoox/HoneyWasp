@@ -1,4 +1,7 @@
 package services;
+import IO.Cache;
+import IO.HTTPSend;
+import IO.Output;
 import config.ConfigSettings;
 import config.HasRefreshToken;
 import main.HoneyWasp;
@@ -86,7 +89,7 @@ public abstract class Services extends Thread {
 
                 if (!getMediaSource()) {break;} // Fetch media source (Quit if failed)
 
-                FileIO.autoClear(this); // Scan cache for posts whose duplicate check has expired
+                Cache.autoClear(this); // Scan cache for posts whose duplicate check has expired
 
                 // Start bot
                 mainLoop:
@@ -109,7 +112,7 @@ public abstract class Services extends Thread {
                     // Every ATTEMPTS_BEFORE_TIMEOUT (Or 25 if ATTEMPTS_BEFORE_TIMEOUT = 0) attempts scan cache for posts whose duplicate check has expired
                     if (totalAttempts % (ATTEMPTS_BEFORE_TIMEOUT == 0 ? 25 : ATTEMPTS_BEFORE_TIMEOUT) == 0) {
                         Output.print(this, "Removing expired duplicates from cache...", Output.YELLOW, true, true);
-                        FileIO.autoClear(this);
+                        Cache.autoClear(this);
                     }
 
                     if (USE_PROXIES) { // Pick proxy randomly if enabled
@@ -149,7 +152,7 @@ public abstract class Services extends Thread {
                                         "\n\tError message: " + e, Output.RED);
 
                                 // Blacklist image URL permanently, as it is likely corrupted
-                                FileIO.writeCache(postURL, this, true);
+                                Cache.writeCache(postURL, this, true);
 
                                 Sleep.milliseconds(this, 5000); // Sleep 5 seconds in case it is a temporary error
                                 continue;
@@ -278,7 +281,7 @@ public abstract class Services extends Thread {
                                 } else {
                                     Output.webhookPrint(this, postURL + " from r/" + chosenSource + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                                 }
-                                FileIO.writeCache(postURL, this, false); // Store image URL to prevent duplicates
+                                Cache.writeCache(postURL, this, false); // Store image URL to prevent duplicates
                             } else if (use0x0) {
                                 Output.webhookPrint(this, postURL + " posted successfully - x" + countAttempts + " attempt(s)", Output.GREEN);
                             } else {
@@ -335,7 +338,7 @@ public abstract class Services extends Thread {
         try {
             if (AUTO_POST_MODE) {
                 Output.debugPrint(this, "Reading automatic cache");
-                usedURLs = FileIO.readCache(this, Paths.get(".", "cache", name.toLowerCase(), "cache.txt"), ","); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
+                usedURLs = Cache.readCache(this, Paths.get(".", "cache", name.toLowerCase(), "cache.txt"), ","); // Generate filepath "./cache/[name]/cache.txt" for given OS & read file
                 if (usedURLs == null) {return false;}
 
             } else { // Log manual media

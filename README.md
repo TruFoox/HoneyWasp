@@ -73,7 +73,7 @@ You must follow the instructions in [Instagram Setup](#instagram-setup), [YouTub
   - If you decide not to use Discord, leave `discord_bot_token` under `[General_Settings]` blank, and interact with the bot using commands directly in the console
 
 Once you are finished setting up the bot, you can launch it by opening Launch.bat on Windows, or Launch.sh on Linux/Mac.
-- Alternatively, you can run the bot by running the command `java --enable-native-access=ALL-UNNAMED -jar HoneyWasp.jar` on any platform, though the terminal will not allow you to input commands.
+- Alternatively, you can run the bot by running the command `java -jar HoneyWasp.jar` on any platform, though the terminal will not allow you to input commands.
 - `java -jar HoneyWasp.jar` also works, but you will be unable to type commands directly into the console.
 
 Help regarding the config can be [found here](#the-config), and more information on how to interact with the bot can be [found here](#starting-and-interacting-with-the-bot). If you are having issues with Windows defender wrongly flagging the bot as malicious, [you can find a fix here](#windows-defender-note).

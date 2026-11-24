@@ -1,5 +1,8 @@
 package scraper;
 
+import IO.Cache;
+import IO.HTTPSend;
+import IO.Output;
 import main.HoneyWasp;
 import services.Services;
 import utils.*;
@@ -81,7 +84,7 @@ public class Reddit {
                                 + "\n\tError message: " + e.getMessage(), Output.RED);
 
                         // Blacklist image URL permanently, as it is likely corrupted
-                        FileIO.writeCache(mediaURL, service, true);
+                        Cache.writeCache(mediaURL, service, true);
                         return "retry";
                     }
 
